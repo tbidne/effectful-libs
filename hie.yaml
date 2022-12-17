@@ -1,0 +1,6 @@
+cradle:
+  cabal:
+    - path: "./effectful-callstack/src"
+      component: "lib:effectful-callstack"
+    - path: "./effectful-callstack/test/unit"
+      component: "effectful-callstack:test:unit"
