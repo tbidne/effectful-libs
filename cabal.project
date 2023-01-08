@@ -1,13 +1,16 @@
 packages:
   ./effectful-callstack
-
--- Supposedly 'program-options' (cabal 3.8) obviates the following workaround
--- for not running ghc-options on dependencies, but it seems to be having
--- trouble on CI. See: https://github.com/haskell/cabal/pull/7973
---
--- Might be due to CI having a cabal that is too old?
+  ./effectful-fs
 
 package effectful-callstack
+  ghc-options:
+    -Wall -Wcompat -Werror -Widentities
+    -Wincomplete-record-updates -Wincomplete-uni-patterns
+    -Wmissing-home-modules -Wmissing-export-lists -Wpartial-fields
+    -Wredundant-constraints -Wunused-packages -Wmissing-deriving-strategies
+    -Wprepositive-qualified-module -Wno-unticked-promoted-constructors
+
+package effectful-fs
   ghc-options:
     -Wall -Wcompat -Werror -Widentities
     -Wincomplete-record-updates -Wincomplete-uni-patterns

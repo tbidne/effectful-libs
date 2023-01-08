@@ -53,11 +53,16 @@ haddock:
 	cabal haddock all --haddock-hyperlink-source --haddock-quickjump ;\
 	mkdir -p docs/ ;\
 	rm -rf docs/effectul-callstack* ;\
-	cp -r dist-newstyle/build/x86_64-linux/ghc-9.2.5/effectful-callstack-0.1/doc/html/* docs/
+	rm -rf docs/effectul-fs* ;\
+	cp -r dist-newstyle/build/x86_64-linux/ghc-9.2.5/effectful-callstack-0.1/doc/html/* docs/ ;\
+	cp -r dist-newstyle/build/x86_64-linux/ghc-9.2.5/effectful-fs-0.1/doc/html/* docs/
 
 haddockc:
 	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
 		./effectful-callstack \
+
+	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
+		./effectful-fs \
 
 .PHONY: hackage
 hackage:

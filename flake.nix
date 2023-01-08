@@ -39,9 +39,11 @@
           hsOverlay =
             (compiler.extend (hlib.compose.packageSourceOverrides {
               effectful-callstack = ./effectful-callstack;
+              effectful-fs = ./effectful-fs;
             }));
           packages = p: [
             p.effectful-callstack
+            p.effectful-fs
           ];
 
           mkPkg = name: root: source-overrides: compiler.developPackage {
@@ -54,6 +56,7 @@
         in
         {
           packages.effectful-callstack = mkPkg "effectful-callstack" ./effectful-callstack { };
+          packages.effectful-fs = mkPkgsCallStack "effectful-fs" ./effectful-fs;
 
           devShells.default = hsOverlay.shellFor {
             inherit packages;

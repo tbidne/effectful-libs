@@ -4,3 +4,5 @@ cradle:
       component: "lib:effectful-callstack"
     - path: "./effectful-callstack/test/unit"
       component: "effectful-callstack:test:unit"
+    - path: "./effectful-fs/src"
+      component: "lib:effectful-fs"

@@ -1,13 +1,14 @@
 resolver: lts-20.2
 packages:
 - effectful-callstack
+- effectful-fs
 ghc-options:
   "$locals":
     -Wall -Wcompat -Werror -Widentities
     -Wincomplete-record-updates -Wincomplete-uni-patterns
     -Wmissing-home-modules -Wmissing-export-lists -Wpartial-fields
     -Wredundant-constraints -Wunused-packages -Wmissing-deriving-strategies
-    -Wprepositive-qualified-module
+    -Wprepositive-qualified-module -Wno-unticked-promoted-constructors
 extra-deps:
 - git: https://github.com/tbidne/algebra-simple.git
   commit: 2c8a79e8d3bf67c99e4851c557bf68a44c512307

@@ -6,7 +6,7 @@
 -- @since 0.1
 module Effectful.CallStack
   ( -- * Effect
-    ECallStack,
+    ECallStack (..),
     throwWithCallStack,
     addCallStack,
 
@@ -50,12 +50,19 @@ import Effectful.Dispatch.Dynamic (interpret, localUnliftIO)
 import Effectful.TH (makeEffect_)
 import GHC.Stack (CallStack, HasCallStack, prettyCallStack)
 
+-- | @since 0.1
 type instance DispatchOf ECallStack = Dynamic
 
+-- | Effect for adding 'CallStack' to exceptions.
+--
+-- @since 0.1
 data ECallStack :: Effect where
   ThrowWithCallStack :: (HasCallStack, Exception e) => e -> ECallStack m a
   AddCallStack :: HasCallStack => m a -> ECallStack m a
 
+-- | Runs 'ECallStack' in 'IO'.
+--
+-- @since 0.1
 runECallStackIO :: IOE :> es => Eff (ECallStack : es) a -> Eff es a
 runECallStackIO = interpret $ \env -> \case
   ThrowWithCallStack ex -> liftIO $ Ann.throwWithCallStack ex
