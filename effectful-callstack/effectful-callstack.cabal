@@ -27,6 +27,7 @@ common common
     DerivingVia
     FlexibleContexts
     FlexibleInstances
+    GADTs
     ImportQualifiedPost
     LambdaCase
     MultiParamTypeClasses
@@ -45,6 +46,7 @@ library
     , annotated-exception  ^>=0.2.0.4
     , base                 >=4.14.0.0 && <4.18
     , effectful-core       ^>=2.2.1.0
+    , effectful-th         ^>=1.0.0.0
 
   hs-source-dirs:   src
   default-language: Haskell2010

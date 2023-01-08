@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 -- | Provides an effect for handling exceptions with callstacks.
@@ -6,12 +7,11 @@
 module Effectful.CallStack
   ( -- * Effect
     ECallStack,
-    getCallStack,
     throwWithCallStack,
     addCallStack,
 
     -- * Handler
-    runECallStack,
+    runECallStackIO,
 
     -- * Utils
     displayCallStack,
@@ -34,77 +34,41 @@ import Control.Exception.Annotated.UnliftIO
     SomeException,
   )
 import Control.Exception.Annotated.UnliftIO qualified as Ann
+import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Foldable (Foldable (foldMap'))
 import Data.Typeable (cast)
 import Effectful
-  ( Dispatch (Static),
+  ( Dispatch (Dynamic),
     DispatchOf,
     Eff,
     Effect,
     IOE,
+    UnliftStrategy (SeqUnlift),
     type (:>),
   )
-import Effectful.Dispatch.Static
-  ( HasCallStack,
-    SideEffects (WithSideEffects),
-    StaticRep,
-    evalStaticRep,
-    unEff,
-    unsafeEff,
-    unsafeEff_,
-  )
-import Effectful.Dispatch.Static.Primitive (cloneEnv)
-import GHC.Stack (CallStack, callStack, prettyCallStack)
+import Effectful.Dispatch.Dynamic (interpret, localUnliftIO)
+import Effectful.TH (makeEffect_)
+import GHC.Stack (CallStack, HasCallStack, prettyCallStack)
 
--- | Effect for 'CallStack'.
---
--- @since 0.1
-data ECallStack :: Effect
+type instance DispatchOf ECallStack = Dynamic
 
-type instance DispatchOf ECallStack = Static WithSideEffects
+data ECallStack :: Effect where
+  ThrowWithCallStack :: (HasCallStack, Exception e) => e -> ECallStack m a
+  AddCallStack :: HasCallStack => m a -> ECallStack m a
 
-data instance StaticRep ECallStack = MkECallStack
+runECallStackIO :: IOE :> es => Eff (ECallStack : es) a -> Eff es a
+runECallStackIO = interpret $ \env -> \case
+  ThrowWithCallStack ex -> liftIO $ Ann.throwWithCallStack ex
+  AddCallStack m -> localUnliftIO env SeqUnlift $ \runInIO ->
+    liftIO $ Ann.checkpointCallStack (runInIO m)
 
--- | Run the 'ECallStack' effect.
---
--- @since 0.1
-runECallStack :: IOE :> es => Eff (ECallStack : es) a -> Eff es a
-runECallStack = evalStaticRep MkECallStack
+makeEffect_ ''ECallStack
 
--- | Retrieves the 'CallStack'.
---
--- @since 0.1
-getCallStack ::
-  ( ECallStack :> es,
-    HasCallStack
-  ) =>
-  Eff es CallStack
-getCallStack = unsafeEff_ (pure callStack)
+-- | @since 0.1
+throwWithCallStack :: (HasCallStack, ECallStack :> es, Exception e) => e -> Eff es a
 
--- | Throws an exception with 'CallStack'.
---
--- @since 0.1
-throwWithCallStack ::
-  forall e es a.
-  ( ECallStack :> es,
-    Exception e,
-    HasCallStack
-  ) =>
-  e ->
-  Eff es a
-throwWithCallStack = unsafeEff_ . Ann.throwWithCallStack
-
--- | Adds 'CallStack' to any thrown exceptions.
---
--- @since 0.1
-addCallStack ::
-  forall es a.
-  (ECallStack :> es, HasCallStack) =>
-  Eff es a ->
-  Eff es a
-addCallStack eff = unsafeEff $ \es -> do
-  env <- cloneEnv es
-  Ann.checkpointCallStack (unEff eff env)
+-- | @since 0.1
+addCallStack :: (HasCallStack, ECallStack :> es) => Eff es a -> Eff es a
 
 -- | Like 'displayException', except it has extra logic that attempts to
 -- display any found 'CallStack's in a pretty way.

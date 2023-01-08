@@ -8,12 +8,10 @@ import Effectful.CallStack
   ( ECallStack,
     addCallStack,
     displayCallStack,
-    getCallStack,
-    runECallStack,
+    runECallStackIO,
     throwWithCallStack,
   )
 import Effectful.Dispatch.Static (unsafeEff_)
-import GHC.Stack (prettyCallStack)
 import System.FilePath ((</>))
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Test.Tasty.Golden (goldenVsStringDiff)
@@ -23,19 +21,9 @@ main =
   defaultMain $
     testGroup
       "Unit Tests"
-      [ getsCallStack,
-        throwsCallStack,
+      [ throwsCallStack,
         addsCallStack
       ]
-
-getsCallStack :: TestTree
-getsCallStack =
-  goldenVsStringDiff desc diff gpath $ do
-    cs <- runECallStackIO getCallStack
-    pure $ fromString $ prettyCallStack cs
-  where
-    desc = "Retrieves callstack"
-    gpath = goldenPath </> "get-callstack.golden"
 
 data Ex = MkEx
   deriving stock (Eq, Show)
@@ -44,7 +32,7 @@ data Ex = MkEx
 throwsCallStack :: TestTree
 throwsCallStack =
   goldenVsStringDiff desc diff gpath $
-    try @SomeException (runECallStackIO $ throwWithCallStack MkEx) <&> \case
+    try @SomeException (runEffECallStack $ throwWithCallStack MkEx) <&> \case
       Left e -> fromString $ stableCallStack e
       Right _ -> "Error: did not catch expected exception."
   where
@@ -55,7 +43,7 @@ addsCallStack :: TestTree
 addsCallStack =
   goldenVsStringDiff desc diff gpath $
     try @SomeException
-      ( runECallStackIO $
+      ( runEffECallStack $
           addCallStack $
             unsafeEff_ $
               throwIO MkEx
@@ -67,8 +55,8 @@ addsCallStack =
     desc = "Adds callstack"
     gpath = goldenPath </> "add-callstack.golden"
 
-runECallStackIO :: Eff '[ECallStack, IOE] a -> IO a
-runECallStackIO = runEff . runECallStack
+runEffECallStack :: Eff '[ECallStack, IOE] a -> IO a
+runEffECallStack = runEff . runECallStackIO
 
 goldenPath :: FilePath
 goldenPath = "test/unit/"

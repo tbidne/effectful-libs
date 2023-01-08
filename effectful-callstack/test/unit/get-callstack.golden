@@ -1,2 +1,0 @@
-CallStack (from HasCallStack):
-  getCallStack, called at test/unit/Main.hs:34:27 in main:Main
