@@ -22,6 +22,7 @@ common common
   default-extensions:
     DataKinds
     DeriveAnyClass
+    DeriveFunctor
     DeriveGeneric
     DerivingStrategies
     DerivingVia

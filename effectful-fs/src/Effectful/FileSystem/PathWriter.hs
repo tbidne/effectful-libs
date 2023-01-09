@@ -54,14 +54,13 @@ import Effectful
     Eff,
     Effect,
     IOE,
-    UnliftStrategy (SeqUnlift),
     type (:>),
   )
 import Effectful.CallStack
   ( CallStackEffect,
     addCallStack,
   )
-import Effectful.Dispatch.Dynamic (interpret, localUnliftIO, send)
+import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
 import Effectful.FileSystem.Path (Path)
 import Effectful.FileSystem.PathReader
   ( PathReaderEffect,
@@ -122,7 +121,7 @@ runPathWriterIO = interpret $ \env -> \case
   RemovePathForcibly p -> addCallStack $ liftIO $ Dir.removePathForcibly p
   RenameDirectory p p' -> addCallStack $ liftIO $ Dir.renameDirectory p p'
   SetCurrentDirectory p -> addCallStack $ liftIO $ Dir.setCurrentDirectory p
-  WithCurrentDirectory p m -> addCallStack $ localUnliftIO env SeqUnlift $ \runInIO ->
+  WithCurrentDirectory p m -> addCallStack $ localSeqUnliftIO env $ \runInIO ->
     liftIO $ Dir.withCurrentDirectory p (runInIO m)
   RemoveFile p -> addCallStack $ liftIO $ Dir.removeFile p
   RenameFile p p' -> addCallStack $ liftIO $ Dir.renameFile p p'

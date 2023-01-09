@@ -76,7 +76,16 @@ haddockc:
 		./effectful-ioref ;\
 
 	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
+		./effectful-logger-namespace \
+
+	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
 		./effectful-stm ;\
 
 	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
+		./effectful-terminal \
+
+	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
 		./effectful-thread \
+
+	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
+		./effectful-time \

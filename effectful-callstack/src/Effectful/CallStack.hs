@@ -44,10 +44,9 @@ import Effectful
     Eff,
     Effect,
     IOE,
-    UnliftStrategy (SeqUnlift),
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (interpret, localUnliftIO, send)
+import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
 import GHC.Stack (CallStack, HasCallStack, prettyCallStack)
 
 -- | @since 0.1
@@ -66,7 +65,7 @@ data CallStackEffect :: Effect where
 runCallStackIO :: IOE :> es => Eff (CallStackEffect : es) a -> Eff es a
 runCallStackIO = interpret $ \env -> \case
   ThrowWithCallStack ex -> liftIO $ Ann.throwWithCallStack ex
-  AddCallStack m -> localUnliftIO env SeqUnlift $ \runInIO ->
+  AddCallStack m -> localSeqUnliftIO env $ \runInIO ->
     liftIO $ Ann.checkpointCallStack (runInIO m)
 
 -- | @since 0.1

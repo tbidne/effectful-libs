@@ -64,7 +64,7 @@ import Effectful.CallStack
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
 
--- | Effect for reading files.
+-- | Terminal effect.
 --
 -- @since 0.1
 data TerminalEffect :: Effect where

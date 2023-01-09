@@ -19,6 +19,13 @@ jobs:
       matrix:
         lib:
           - effectful-callstack
+          - effectful-fs
+          - effectful-ioref
+          - effectful-logger-namespace
+          - effectful-stm
+          - effectful-terminal
+          - effectful-thread
+          - effectful-time
     steps:
       - uses: actions/checkout@v3.0.2
 

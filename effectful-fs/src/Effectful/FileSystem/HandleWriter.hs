@@ -50,14 +50,13 @@ import Effectful
     Eff,
     Effect,
     IOE,
-    UnliftStrategy (SeqUnlift),
     type (:>),
   )
 import Effectful.CallStack
   ( CallStackEffect,
     addCallStack,
   )
-import Effectful.Dispatch.Dynamic (interpret, localUnliftIO, send)
+import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
 import Effectful.FileSystem.FileReader
   ( UnicodeException,
     decodeUtf8,
@@ -100,7 +99,7 @@ runHandleWriterIO ::
   Eff es a
 runHandleWriterIO = interpret $ \env -> \case
   HOpenBinaryFile p m -> addCallStack $ liftIO $ openBinaryFileIO p m
-  HWithBinaryFile p m f -> addCallStack $ localUnliftIO env SeqUnlift $ \runInIO ->
+  HWithBinaryFile p m f -> addCallStack $ localSeqUnliftIO env $ \runInIO ->
     liftIO $ withBinaryFileIO p m (runInIO . f)
   HClose h -> addCallStack $ liftIO $ IO.hClose h
   HFlush h -> addCallStack $ liftIO $ IO.hFlush h

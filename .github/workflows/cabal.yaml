@@ -37,3 +37,9 @@ jobs:
 
       - name: Test effectful-callstack
         run: cabal test effectful-callstack
+
+      - name: Test effectful-logger-namespace
+        run: cabal test effectful-logger-namespace
+
+      - name: Test effectful-time
+        run: cabal test effectful-time --test-options '--hedgehog-tests 100000'

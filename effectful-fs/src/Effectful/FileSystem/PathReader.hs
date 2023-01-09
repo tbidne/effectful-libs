@@ -66,9 +66,8 @@ import Effectful.CallStack
   ( CallStackEffect,
     addCallStack,
   )
-import Effectful.Dispatch.Dynamic (interpret, localUnliftIO, send)
+import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
 import Effectful.FileSystem.Path (Path)
-import Effectful.Internal.Monad (UnliftStrategy (SeqUnlift))
 import GHC.Stack (HasCallStack)
 import System.Directory
   ( Permissions (..),
@@ -148,9 +147,9 @@ runPathReaderIO = interpret $ \env -> \case
   FindExecutablesInDirectories ps str -> addCallStack $ liftIO $ Dir.findExecutablesInDirectories ps str
   FindFile ps str -> addCallStack $ liftIO $ Dir.findFile ps str
   FindFiles ps str -> addCallStack $ liftIO $ Dir.findFiles ps str
-  FindFileWith f ps str -> addCallStack $ localUnliftIO env SeqUnlift $ \runInIO ->
+  FindFileWith f ps str -> addCallStack $ localSeqUnliftIO env $ \runInIO ->
     liftIO $ Dir.findFileWith (runInIO . f) ps str
-  FindFilesWith f ps str -> addCallStack $ localUnliftIO env SeqUnlift $ \runInIO ->
+  FindFilesWith f ps str -> addCallStack $ localSeqUnliftIO env $ \runInIO ->
     liftIO $ Dir.findFilesWith (runInIO . f) ps str
   PathIsSymbolicLink p -> addCallStack $ liftIO $ Dir.pathIsSymbolicLink p
   GetSymbolicLinkTarget p -> addCallStack $ liftIO $ Dir.getSymbolicLinkTarget p
