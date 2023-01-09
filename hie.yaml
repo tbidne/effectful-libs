@@ -12,3 +12,7 @@ cradle:
       component: "lib:effectful-stm"
     - path: "./effectful-thread/src"
       component: "lib:effectful-thread"
+    - path: "./effectful-time/src"
+      component: "lib:effectful-time"
+    - path: "./effectful-time/test/unit"
+      component: "effectful-time:test:unit"

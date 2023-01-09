@@ -5,6 +5,7 @@ packages:
 - effectful-ioref
 - effectful-stm
 - effectful-thread
+- effectful-time
 ghc-options:
   "$locals":
     -Wall -Wcompat -Werror -Widentities

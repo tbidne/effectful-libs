@@ -8,8 +8,24 @@
   };
   inputs.flake-parts.url = "github:hercules-ci/flake-parts";
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+
+  # haskell
+  inputs.algebra-simple = {
+    url = "github:tbidne/algebra-simple";
+    inputs.flake-compat.follows = "flake-compat";
+    inputs.flake-parts.follows = "flake-parts";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+  inputs.bounds = {
+    url = "github:tbidne/bounds";
+    inputs.flake-compat.follows = "flake-compat";
+    inputs.flake-parts.follows = "flake-parts";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
   outputs =
-    { flake-parts
+    { algebra-simple
+    , bounds
+    , flake-parts
     , self
     , ...
     }:
@@ -29,6 +45,8 @@
           hlib = pkgs.haskell.lib;
           compiler = pkgs.haskell.packages."${ghc-version}".override {
             overrides = final: prev: {
+              algebra-simple = final.callCabal2nix "algebra-simple" algebra-simple { };
+              bounds = final.callCabal2nix "bounds" bounds { };
               # These tests seems to hang, see:
               # https://github.com/ddssff/listlike/issues/23
               ListLike = hlib.dontCheck prev.ListLike;
@@ -43,6 +61,7 @@
               effectful-ioref = ./effectful-ioref;
               effectful-stm = ./effectful-stm;
               effectful-thread = ./effectful-thread;
+              effectful-time = ./effectful-time;
             }));
           packages = p: [
             p.effectful-callstack
@@ -50,6 +69,7 @@
             p.effectful-ioref
             p.effectful-stm
             p.effectful-thread
+            p.effectful-time
           ];
 
           mkPkg = name: root: source-overrides: compiler.developPackage {
@@ -66,6 +86,7 @@
           packages.effectful-ioref = mkPkgsCallStack "effectful-ioref" ./effectful-ioref;
           packages.effectful-stm = mkPkgsCallStack "effectful-stm" ./effectful-stm;
           packages.effectful-thread = mkPkgsCallStack "effectful-thread" ./effectful-thread;
+          packages.effectful-time = mkPkgsCallStack "effectful-thread" ./effectful-time;
 
           devShells.default = hsOverlay.shellFor {
             inherit packages;
