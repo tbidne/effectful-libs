@@ -64,7 +64,7 @@ import Effectful
     type (:>),
   )
 import Effectful.CallStack
-  ( ECallStack,
+  ( EffectCallStack,
     addCallStack,
   )
 import Effectful.Dispatch.Dynamic (interpret, localUnliftIO)
@@ -123,7 +123,7 @@ type instance DispatchOf PathReader = Dynamic
 --
 -- @since 0.1
 runPathReaderIO ::
-  ( ECallStack :> es,
+  ( EffectCallStack :> es,
     IOE :> es
   ) =>
   Eff (PathReader : es) a ->

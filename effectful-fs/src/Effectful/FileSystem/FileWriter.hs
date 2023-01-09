@@ -39,7 +39,7 @@ import Effectful
     type (:>),
   )
 import Effectful.CallStack
-  ( ECallStack,
+  ( EffectCallStack,
     addCallStack,
   )
 import Effectful.Dispatch.Dynamic (interpret)
@@ -61,7 +61,7 @@ type instance DispatchOf FileWriter = Dynamic
 --
 -- @since 0.1
 runFileWriterIO ::
-  ( ECallStack :> es,
+  ( EffectCallStack :> es,
     IOE :> es
   ) =>
   Eff (FileWriter : es) a ->

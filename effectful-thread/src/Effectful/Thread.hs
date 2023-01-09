@@ -51,7 +51,7 @@ import Effectful
     type (:>),
   )
 import Effectful.CallStack
-  ( ECallStack,
+  ( EffectCallStack,
     addCallStack,
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
@@ -71,7 +71,7 @@ type instance DispatchOf EffectThread = Dynamic
 --
 -- @since 0.1
 runThreadIO ::
-  ( ECallStack :> es,
+  ( EffectCallStack :> es,
     IOE :> es
   ) =>
   Eff (EffectThread : es) a ->
@@ -124,7 +124,7 @@ type instance DispatchOf EffectQSem = Dynamic
 --
 -- @since 0.1
 runQSemIO ::
-  ( ECallStack :> es,
+  ( EffectCallStack :> es,
     IOE :> es
   ) =>
   Eff (EffectQSem : es) a ->

@@ -45,7 +45,7 @@ import Effectful
     type (:>),
   )
 import Effectful.CallStack
-  ( ECallStack,
+  ( EffectCallStack,
     addCallStack,
     throwWithCallStack,
   )
@@ -67,7 +67,7 @@ type instance DispatchOf FileReader = Dynamic
 --
 -- @since 0.1
 runFileReaderIO ::
-  ( ECallStack :> es,
+  ( EffectCallStack :> es,
     IOE :> es
   ) =>
   Eff (FileReader : es) a ->
@@ -97,7 +97,7 @@ decodeUtf8Lenient = TEnc.decodeUtf8With TEncError.lenientDecode
 -- @since 0.1
 decodeUtf8ThrowM ::
   ( HasCallStack,
-    ECallStack :> es
+    EffectCallStack :> es
   ) =>
   ByteString ->
   Eff es Text
@@ -133,7 +133,7 @@ readFileUtf8Lenient = fmap decodeUtf8Lenient . readBinaryFile
 -- @since 0.1
 readFileUtf8ThrowM ::
   ( HasCallStack,
-    ECallStack :> es,
+    EffectCallStack :> es,
     FileReader :> es
   ) =>
   Path ->

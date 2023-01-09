@@ -69,7 +69,7 @@ import Effectful
     type (:>),
   )
 import Effectful.CallStack
-  ( ECallStack,
+  ( EffectCallStack,
     addCallStack,
   )
 import Effectful.Dispatch.Dynamic (interpret)
@@ -112,7 +112,7 @@ type instance DispatchOf HandleReader = Dynamic
 --
 -- @since 0.1
 runHandleReaderIO ::
-  ( ECallStack :> es,
+  ( EffectCallStack :> es,
     IOE :> es
   ) =>
   Eff (HandleReader : es) a ->
@@ -210,7 +210,7 @@ hGetLineUtf8Lenient = fmap decodeUtf8Lenient . hGetLine
 -- | @since 0.1
 hGetLineUtf8ThrowM ::
   ( HasCallStack,
-    ECallStack :> es,
+    EffectCallStack :> es,
     HandleReader :> es
   ) =>
   Handle ->
@@ -238,7 +238,7 @@ hGetContentsUtf8Lenient = fmap decodeUtf8Lenient . hGetContents
 -- | @since 0.1
 hGetContentsUtf8ThrowM ::
   ( HasCallStack,
-    ECallStack :> es,
+    EffectCallStack :> es,
     HandleReader :> es
   ) =>
   Handle ->
@@ -268,7 +268,7 @@ hGetUtf8Lenient h = fmap decodeUtf8Lenient . hGet h
 -- | @since 0.1
 hGetUtf8ThrowM ::
   ( HasCallStack,
-    ECallStack :> es,
+    EffectCallStack :> es,
     HandleReader :> es
   ) =>
   Handle ->
@@ -299,7 +299,7 @@ hGetSomeUtf8Lenient h = fmap decodeUtf8Lenient . hGetSome h
 -- | @since 0.1
 hGetSomeUtf8ThrowM ::
   ( HasCallStack,
-    ECallStack :> es,
+    EffectCallStack :> es,
     HandleReader :> es
   ) =>
   Handle ->
@@ -330,7 +330,7 @@ hGetNonBlockingUtf8Lenient h = fmap decodeUtf8Lenient . hGetNonBlocking h
 -- | @since 0.1
 hGetNonBlockingUtf8ThrowM ::
   ( HasCallStack,
-    ECallStack :> es,
+    EffectCallStack :> es,
     HandleReader :> es
   ) =>
   Handle ->

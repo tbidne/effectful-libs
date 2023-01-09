@@ -6,7 +6,7 @@
 -- @since 0.1
 module Effectful.CallStack
   ( -- * Effect
-    ECallStack (..),
+    EffectCallStack (..),
     throwWithCallStack,
     addCallStack,
 
@@ -51,31 +51,31 @@ import Effectful.TH (makeEffect_)
 import GHC.Stack (CallStack, HasCallStack, prettyCallStack)
 
 -- | @since 0.1
-type instance DispatchOf ECallStack = Dynamic
+type instance DispatchOf EffectCallStack = Dynamic
 
 -- | Effect for adding 'CallStack' to exceptions.
 --
 -- @since 0.1
-data ECallStack :: Effect where
-  ThrowWithCallStack :: (HasCallStack, Exception e) => e -> ECallStack m a
-  AddCallStack :: HasCallStack => m a -> ECallStack m a
+data EffectCallStack :: Effect where
+  ThrowWithCallStack :: (HasCallStack, Exception e) => e -> EffectCallStack m a
+  AddCallStack :: HasCallStack => m a -> EffectCallStack m a
 
--- | Runs 'ECallStack' in 'IO'.
+-- | Runs 'EffectCallStack' in 'IO'.
 --
 -- @since 0.1
-runECallStackIO :: IOE :> es => Eff (ECallStack : es) a -> Eff es a
+runECallStackIO :: IOE :> es => Eff (EffectCallStack : es) a -> Eff es a
 runECallStackIO = interpret $ \env -> \case
   ThrowWithCallStack ex -> liftIO $ Ann.throwWithCallStack ex
   AddCallStack m -> localUnliftIO env SeqUnlift $ \runInIO ->
     liftIO $ Ann.checkpointCallStack (runInIO m)
 
-makeEffect_ ''ECallStack
+makeEffect_ ''EffectCallStack
 
 -- | @since 0.1
-throwWithCallStack :: (HasCallStack, ECallStack :> es, Exception e) => e -> Eff es a
+throwWithCallStack :: (HasCallStack, EffectCallStack :> es, Exception e) => e -> Eff es a
 
 -- | @since 0.1
-addCallStack :: (HasCallStack, ECallStack :> es) => Eff es a -> Eff es a
+addCallStack :: (HasCallStack, EffectCallStack :> es) => Eff es a -> Eff es a
 
 -- | Like 'displayException', except it has extra logic that attempts to
 -- display any found 'CallStack's in a pretty way.

@@ -35,7 +35,7 @@ import Effectful
     type (:>),
   )
 import Effectful.CallStack
-  ( ECallStack,
+  ( EffectCallStack,
     addCallStack,
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
@@ -58,7 +58,7 @@ type instance DispatchOf EffectIORef = Dynamic
 --
 -- @since 0.1
 runIORefIO ::
-  ( ECallStack :> es,
+  ( EffectCallStack :> es,
     IOE :> es
   ) =>
   Eff (EffectIORef : es) a ->

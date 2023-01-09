@@ -66,7 +66,7 @@ import Effectful
     type (:>),
   )
 import Effectful.CallStack
-  ( ECallStack,
+  ( EffectCallStack,
     addCallStack,
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
@@ -86,7 +86,7 @@ type instance DispatchOf EffectSTM = Dynamic
 --
 -- @since 0.1
 runSTMIO ::
-  ( ECallStack :> es,
+  ( EffectCallStack :> es,
     IOE :> es
   ) =>
   Eff (EffectSTM : es) a ->
@@ -114,7 +114,7 @@ type instance DispatchOf EffectTVar = Dynamic
 --
 -- @since 0.1
 runTVarIO ::
-  ( ECallStack :> es,
+  ( EffectCallStack :> es,
     IOE :> es
   ) =>
   Eff (EffectTVar : es) a ->
@@ -158,7 +158,7 @@ type instance DispatchOf EffectTBQueue = Dynamic
 --
 -- @since 0.1
 runTBQueueIO ::
-  ( ECallStack :> es,
+  ( EffectCallStack :> es,
     IOE :> es
   ) =>
   Eff (EffectTBQueue : es) a ->

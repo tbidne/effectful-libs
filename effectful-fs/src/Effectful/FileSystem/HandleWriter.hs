@@ -56,7 +56,7 @@ import Effectful
     type (:>),
   )
 import Effectful.CallStack
-  ( ECallStack,
+  ( EffectCallStack,
     addCallStack,
   )
 import Effectful.Dispatch.Dynamic (interpret, localUnliftIO)
@@ -96,7 +96,7 @@ data HandleWriter :: Effect where
 --
 -- @since 0.1
 runHandleWriterIO ::
-  ( ECallStack :> es,
+  ( EffectCallStack :> es,
     IOE :> es
   ) =>
   Eff (HandleWriter : es) a ->
@@ -190,7 +190,7 @@ hPutNonBlockingUtf8Lenient h =
 -- | @since 0.1
 hPutNonBlockingUtf8ThrowM ::
   ( HasCallStack,
-    ECallStack :> es,
+    EffectCallStack :> es,
     HandleWriter :> es
   ) =>
   Handle ->
