@@ -6,7 +6,7 @@
 -- @since 0.1
 module Effectful.FileSystem.PathWriter
   ( -- * Effect
-    PathWriter (..),
+    EffectPathWriter (..),
     Path,
 
     -- * Handler
@@ -65,7 +65,7 @@ import Effectful.CallStack
 import Effectful.Dispatch.Dynamic (interpret, localUnliftIO)
 import Effectful.FileSystem.Path (Path)
 import Effectful.FileSystem.PathReader
-  ( PathReader,
+  ( EffectPathReader,
     doesDirectoryExist,
     doesFileExist,
     doesPathExist,
@@ -82,30 +82,30 @@ import System.Directory qualified as Dir
 -- | Effect for writing paths.
 --
 -- @since 0.1
-data PathWriter :: Effect where
-  CreateDirectory :: HasCallStack => Path -> PathWriter m ()
-  CreateDirectoryIfMissing :: HasCallStack => Bool -> Path -> PathWriter m ()
-  RemoveDirectory :: HasCallStack => Path -> PathWriter m ()
-  RemoveDirectoryRecursive :: HasCallStack => Path -> PathWriter m ()
-  RemovePathForcibly :: HasCallStack => Path -> PathWriter m ()
-  RenameDirectory :: HasCallStack => Path -> Path -> PathWriter m ()
-  SetCurrentDirectory :: HasCallStack => Path -> PathWriter m ()
-  WithCurrentDirectory :: HasCallStack => Path -> m a -> PathWriter m a
-  RemoveFile :: HasCallStack => Path -> PathWriter m ()
-  RenameFile :: HasCallStack => Path -> Path -> PathWriter m ()
-  RenamePath :: HasCallStack => Path -> Path -> PathWriter m ()
-  CopyFile :: HasCallStack => Path -> Path -> PathWriter m ()
-  CopyFileWithMetadata :: HasCallStack => Path -> Path -> PathWriter m ()
-  CreateFileLink :: HasCallStack => Path -> Path -> PathWriter m ()
-  CreateDirectoryLink :: HasCallStack => Path -> Path -> PathWriter m ()
-  RemoveDirectoryLink :: HasCallStack => Path -> PathWriter m ()
-  SetPermissions :: HasCallStack => Path -> Permissions -> PathWriter m ()
-  CopyPermissions :: HasCallStack => Path -> Path -> PathWriter m ()
-  SetAccessTime :: HasCallStack => Path -> UTCTime -> PathWriter m ()
-  SetModificationTime :: HasCallStack => Path -> UTCTime -> PathWriter m ()
+data EffectPathWriter :: Effect where
+  CreateDirectory :: HasCallStack => Path -> EffectPathWriter m ()
+  CreateDirectoryIfMissing :: HasCallStack => Bool -> Path -> EffectPathWriter m ()
+  RemoveDirectory :: HasCallStack => Path -> EffectPathWriter m ()
+  RemoveDirectoryRecursive :: HasCallStack => Path -> EffectPathWriter m ()
+  RemovePathForcibly :: HasCallStack => Path -> EffectPathWriter m ()
+  RenameDirectory :: HasCallStack => Path -> Path -> EffectPathWriter m ()
+  SetCurrentDirectory :: HasCallStack => Path -> EffectPathWriter m ()
+  WithCurrentDirectory :: HasCallStack => Path -> m a -> EffectPathWriter m a
+  RemoveFile :: HasCallStack => Path -> EffectPathWriter m ()
+  RenameFile :: HasCallStack => Path -> Path -> EffectPathWriter m ()
+  RenamePath :: HasCallStack => Path -> Path -> EffectPathWriter m ()
+  CopyFile :: HasCallStack => Path -> Path -> EffectPathWriter m ()
+  CopyFileWithMetadata :: HasCallStack => Path -> Path -> EffectPathWriter m ()
+  CreateFileLink :: HasCallStack => Path -> Path -> EffectPathWriter m ()
+  CreateDirectoryLink :: HasCallStack => Path -> Path -> EffectPathWriter m ()
+  RemoveDirectoryLink :: HasCallStack => Path -> EffectPathWriter m ()
+  SetPermissions :: HasCallStack => Path -> Permissions -> EffectPathWriter m ()
+  CopyPermissions :: HasCallStack => Path -> Path -> EffectPathWriter m ()
+  SetAccessTime :: HasCallStack => Path -> UTCTime -> EffectPathWriter m ()
+  SetModificationTime :: HasCallStack => Path -> UTCTime -> EffectPathWriter m ()
 
 -- | @since 0.1
-type instance DispatchOf PathWriter = Dynamic
+type instance DispatchOf EffectPathWriter = Dynamic
 
 -- | Runs 'PathWriter' in 'IO'.
 --
@@ -114,7 +114,7 @@ runPathWriterIO ::
   ( EffectCallStack :> es,
     IOE :> es
   ) =>
-  Eff (PathWriter : es) a ->
+  Eff (EffectPathWriter : es) a ->
   Eff es a
 runPathWriterIO = interpret $ \env -> \case
   CreateDirectory p -> addCallStack $ liftIO $ Dir.createDirectory p
@@ -139,187 +139,188 @@ runPathWriterIO = interpret $ \env -> \case
   SetAccessTime p t -> addCallStack $ liftIO $ Dir.setAccessTime p t
   SetModificationTime p t -> addCallStack $ liftIO $ Dir.setModificationTime p t
 
-makeEffect_ ''PathWriter
+makeEffect_ ''EffectPathWriter
 
 -- | @since 0.1
-createDirectory :: (HasCallStack, PathWriter :> es) => Path -> Eff es ()
+createDirectory ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Eff es ()
 
 -- | @since 0.1
-createDirectoryIfMissing :: (HasCallStack, PathWriter :> es) => Bool -> Path -> Eff es ()
+createDirectoryIfMissing ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Bool ->
+  Path ->
+  Eff es ()
 
 -- | @since 0.1
-removeDirectory :: (HasCallStack, PathWriter :> es) => Path -> Eff es ()
+removeDirectory ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Eff es ()
 
 -- | @since 0.1
-removeDirectoryRecursive :: (HasCallStack, PathWriter :> es) => Path -> Eff es ()
+removeDirectoryRecursive ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Eff es ()
 
 -- | @since 0.1
-removePathForcibly :: (HasCallStack, PathWriter :> es) => Path -> Eff es ()
+removePathForcibly ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Eff es ()
 
 -- | @since 0.1
-renameDirectory :: (HasCallStack, PathWriter :> es) => Path -> Path -> Eff es ()
+renameDirectory ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Path ->
+  Eff es ()
 
 -- | @since 0.1
-setCurrentDirectory :: (HasCallStack, PathWriter :> es) => Path -> Eff es ()
+setCurrentDirectory ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Eff es ()
 
 -- | @since 0.1
-withCurrentDirectory :: (HasCallStack, PathWriter :> es) => Path -> Eff es a -> Eff es a
+withCurrentDirectory ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Eff es a ->
+  Eff es a
 
 -- | @since 0.1
-removeFile :: (HasCallStack, PathWriter :> es) => Path -> Eff es ()
+removeFile ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Eff es ()
 
 -- | @since 0.1
-renameFile :: (HasCallStack, PathWriter :> es) => Path -> Path -> Eff es ()
+renameFile ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Path ->
+  Eff es ()
 
 -- | @since 0.1
-renamePath :: (HasCallStack, PathWriter :> es) => Path -> Path -> Eff es ()
+renamePath ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Path ->
+  Eff es ()
 
 -- | @since 0.1
-copyFile :: (HasCallStack, PathWriter :> es) => Path -> Path -> Eff es ()
+copyFile ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Path ->
+  Eff es ()
 
 -- | @since 0.1
-copyFileWithMetadata :: (HasCallStack, PathWriter :> es) => Path -> Path -> Eff es ()
+copyFileWithMetadata ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Path ->
+  Eff es ()
 
 -- | @since 0.1
-createFileLink :: (HasCallStack, PathWriter :> es) => Path -> Path -> Eff es ()
+createFileLink ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Path ->
+  Eff es ()
 
 -- | @since 0.1
-createDirectoryLink :: (HasCallStack, PathWriter :> es) => Path -> Path -> Eff es ()
+createDirectoryLink ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Path ->
+  Eff es ()
 
 -- | @since 0.1
-removeDirectoryLink :: (HasCallStack, PathWriter :> es) => Path -> Eff es ()
+removeDirectoryLink ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Eff es ()
 
 -- | @since 0.1
-setPermissions :: (HasCallStack, PathWriter :> es) => Path -> Permissions -> Eff es ()
+setPermissions ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Permissions ->
+  Eff es ()
 
 -- | @since 0.1
-copyPermissions :: (HasCallStack, PathWriter :> es) => Path -> Path -> Eff es ()
+copyPermissions ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Path ->
+  Eff es ()
 
 -- | @since 0.1
-setAccessTime :: (HasCallStack, PathWriter :> es) => Path -> UTCTime -> Eff es ()
+setAccessTime ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  UTCTime ->
+  Eff es ()
 
 -- | @since 0.1
-setModificationTime :: (HasCallStack, PathWriter :> es) => Path -> UTCTime -> Eff es ()
-
-{-}
--- | Represents file-system writer effects.
---
--- @since 0.1
-class Monad m => PathWriter m where
-  -- | @since 0.1
-  createDirectory :: HasCallStack => Path -> m ()
-
-  -- | @since 0.1
-  createDirectoryIfMissing :: HasCallStack => Bool -> Path -> m ()
-
-  -- | @since 0.1
-  removeDirectory :: HasCallStack => Path -> m ()
-
-  -- | @since 0.1
-  removeDirectoryRecursive :: HasCallStack => Path -> m ()
-
-  -- | @since 0.1
-  removePathForcibly :: HasCallStack => Path -> m ()
-
-  -- | @since 0.1
-  renameDirectory :: HasCallStack => Path -> Path -> m ()
-
-  -- | @since 0.1
-  setCurrentDirectory :: HasCallStack => Path -> m ()
-
-  -- | @since 0.1
-  withCurrentDirectory :: HasCallStack => Path -> m a -> m a
-
-  -- | @since 0.1
-  removeFile :: HasCallStack => Path -> m ()
-
-  -- | @since 0.1
-  renameFile :: HasCallStack => Path -> Path -> m ()
-
-  -- | @since 0.1
-  renamePath :: HasCallStack => Path -> Path -> m ()
-
-  -- | @since 0.1
-  copyFile :: HasCallStack => Path -> Path -> m ()
-
-  -- | @since 0.1
-  copyFileWithMetadata :: HasCallStack => Path -> Path -> m ()
-
-  -- | @since 0.1
-  createFileLink :: HasCallStack => Path -> Path -> m ()
-
-  -- | @since 0.1
-  createDirectoryLink :: HasCallStack => Path -> Path -> m ()
-
-  -- | @since 0.1
-  removeDirectoryLink :: HasCallStack => Path -> m ()
-
-  -- | @since 0.1
-  setPermissions :: HasCallStack => Path -> Permissions -> m ()
-
-  -- | @since 0.1
-  copyPermissions :: HasCallStack => Path -> Path -> m ()
-
-  -- | @since 0.1
-  setAccessTime :: HasCallStack => Path -> UTCTime -> m ()
-
-  -- | @since 0.1
-  setModificationTime :: HasCallStack => Path -> UTCTime -> m ()
-
--- | @since 0.1
-instance PathWriter IO where
-  createDirectory = addCallStack . Dir.createDirectory
-  createDirectoryIfMissing b = addCallStack . Dir.createDirectoryIfMissing b
-  removeDirectory = addCallStack . Dir.removeDirectory
-  removeDirectoryRecursive = addCallStack . Dir.removeDirectoryRecursive
-  removePathForcibly = addCallStack . Dir.removePathForcibly
-  renameDirectory p = addCallStack . Dir.renameDirectory p
-  setCurrentDirectory = addCallStack . Dir.setCurrentDirectory
-  withCurrentDirectory p = addCallStack . Dir.withCurrentDirectory p
-  removeFile = addCallStack . Dir.removeFile
-  renameFile p = addCallStack . Dir.renameFile p
-  renamePath p = addCallStack . Dir.renamePath p
-  copyFile p = addCallStack . Dir.copyFile p
-  copyFileWithMetadata p = addCallStack . Dir.copyFileWithMetadata p
-  createFileLink p = addCallStack . Dir.createFileLink p
-  createDirectoryLink p = addCallStack . Dir.createDirectoryLink p
-  removeDirectoryLink = addCallStack . Dir.removeDirectoryLink
-  setPermissions p = addCallStack . Dir.setPermissions p
-  copyPermissions p = addCallStack . Dir.copyPermissions p
-  setAccessTime p = addCallStack . Dir.setAccessTime p
-  setModificationTime p = addCallStack . Dir.setModificationTime p
-
--- | @since 0.1
-instance PathWriter m => PathWriter (ReaderT env m) where
-  createDirectory = lift . createDirectory
-  createDirectoryIfMissing b = lift . createDirectoryIfMissing b
-  removeDirectory = lift . removeDirectory
-  removeDirectoryRecursive = lift . removeDirectoryRecursive
-  removePathForcibly = lift . removePathForcibly
-  renameDirectory p = lift . renameDirectory p
-  setCurrentDirectory = lift . setCurrentDirectory
-  withCurrentDirectory p action =
-    ask >>= lift . \e -> withCurrentDirectory p (runReaderT action e)
-  removeFile = lift . removeFile
-  renameFile p = lift . renameFile p
-  renamePath p = lift . renamePath p
-  copyFile p = lift . copyFile p
-  copyFileWithMetadata p = lift . copyFileWithMetadata p
-  createFileLink p = lift . createFileLink p
-  createDirectoryLink p = lift . createDirectoryLink p
-  removeDirectoryLink = lift . removeDirectoryLink
-  setPermissions p = lift . setPermissions p
-  copyPermissions p = lift . copyPermissions p
-  setAccessTime p = lift . setAccessTime p
-  setModificationTime p = lift . setModificationTime p-}
+setModificationTime ::
+  ( EffectPathWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  UTCTime ->
+  Eff es ()
 
 -- | Calls 'removeFile' if 'doesFileExist' is 'True'.
 --
 -- @since 0.1
 removeFileIfExists ::
-  ( HasCallStack,
-    PathReader :> es,
-    PathWriter :> es
+  ( EffectPathReader :> es,
+    EffectPathWriter :> es,
+    HasCallStack
   ) =>
   Path ->
   Eff es ()
@@ -329,9 +330,9 @@ removeFileIfExists = removeIfExists doesFileExist removeFile
 --
 -- @since 0.1
 removeDirectoryIfExists ::
-  ( HasCallStack,
-    PathReader :> es,
-    PathWriter :> es
+  ( EffectPathReader :> es,
+    EffectPathWriter :> es,
+    HasCallStack
   ) =>
   Path ->
   Eff es ()
@@ -341,9 +342,9 @@ removeDirectoryIfExists = removeIfExists doesDirectoryExist removeDirectory
 --
 -- @since 0.1
 removeDirectoryRecursiveIfExists ::
-  ( HasCallStack,
-    PathReader :> es,
-    PathWriter :> es
+  ( EffectPathReader :> es,
+    EffectPathWriter :> es,
+    HasCallStack
   ) =>
   Path ->
   Eff es ()
@@ -354,9 +355,9 @@ removeDirectoryRecursiveIfExists =
 --
 -- @since 0.1
 removePathForciblyIfExists ::
-  ( HasCallStack,
-    PathReader :> es,
-    PathWriter :> es
+  ( EffectPathReader :> es,
+    EffectPathWriter :> es,
+    HasCallStack
   ) =>
   Path ->
   Eff es ()

@@ -5,7 +5,7 @@
 -- @since 0.1
 module Effectful.FileSystem.FileReader
   ( -- * Effect
-    FileReader (..),
+    EffectFileReader (..),
     Path,
 
     -- * Handler
@@ -57,11 +57,11 @@ import GHC.Stack (HasCallStack)
 -- | Effect for reading files.
 --
 -- @since 0.1
-data FileReader :: Effect where
-  ReadBinaryFile :: HasCallStack => Path -> FileReader m ByteString
+data EffectFileReader :: Effect where
+  ReadBinaryFile :: HasCallStack => Path -> EffectFileReader m ByteString
 
 -- | @since 0.1
-type instance DispatchOf FileReader = Dynamic
+type instance DispatchOf EffectFileReader = Dynamic
 
 -- | Runs 'FileReader' in 'IO'.
 --
@@ -70,15 +70,20 @@ runFileReaderIO ::
   ( EffectCallStack :> es,
     IOE :> es
   ) =>
-  Eff (FileReader : es) a ->
+  Eff (EffectFileReader : es) a ->
   Eff es a
 runFileReaderIO = interpret $ \_ -> \case
   ReadBinaryFile p -> addCallStack $ liftIO $ readBinaryFileIO p
 
-makeEffect_ ''FileReader
+makeEffect_ ''EffectFileReader
 
 -- | @since 0.1
-readBinaryFile :: (HasCallStack, FileReader :> es) => Path -> Eff es ByteString
+readBinaryFile ::
+  ( EffectFileReader :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Eff es ByteString
 
 -- | Decodes a 'ByteString' to UTF-8.
 --
@@ -96,8 +101,8 @@ decodeUtf8Lenient = TEnc.decodeUtf8With TEncError.lenientDecode
 --
 -- @since 0.1
 decodeUtf8ThrowM ::
-  ( HasCallStack,
-    EffectCallStack :> es
+  ( EffectCallStack :> es,
+    HasCallStack
   ) =>
   ByteString ->
   Eff es Text
@@ -110,8 +115,8 @@ decodeUtf8ThrowM =
 --
 -- @since 0.1
 readFileUtf8 ::
-  ( HasCallStack,
-    FileReader :> es
+  ( EffectFileReader :> es,
+    HasCallStack
   ) =>
   Path ->
   Eff es (Either UnicodeException Text)
@@ -121,8 +126,8 @@ readFileUtf8 = fmap decodeUtf8 . readBinaryFile
 --
 -- @since 0.1
 readFileUtf8Lenient ::
-  ( HasCallStack,
-    FileReader :> es
+  ( EffectFileReader :> es,
+    HasCallStack
   ) =>
   Path ->
   Eff es Text
@@ -132,9 +137,9 @@ readFileUtf8Lenient = fmap decodeUtf8Lenient . readBinaryFile
 --
 -- @since 0.1
 readFileUtf8ThrowM ::
-  ( HasCallStack,
-    EffectCallStack :> es,
-    FileReader :> es
+  ( EffectCallStack :> es,
+    EffectFileReader :> es,
+    HasCallStack
   ) =>
   Path ->
   Eff es Text

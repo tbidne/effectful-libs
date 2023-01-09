@@ -5,7 +5,7 @@
 -- @since 0.1
 module Effectful.FileSystem.FileWriter
   ( -- * Class
-    FileWriter (..),
+    EffectFileWriter (..),
     Path,
 
     -- * Handler
@@ -50,12 +50,12 @@ import GHC.Stack (HasCallStack)
 -- | Effect for reading files.
 --
 -- @since 0.1
-data FileWriter :: Effect where
-  WriteBinaryFile :: HasCallStack => Path -> ByteString -> FileWriter m ()
-  AppendBinaryFile :: HasCallStack => Path -> ByteString -> FileWriter m ()
+data EffectFileWriter :: Effect where
+  WriteBinaryFile :: HasCallStack => Path -> ByteString -> EffectFileWriter m ()
+  AppendBinaryFile :: HasCallStack => Path -> ByteString -> EffectFileWriter m ()
 
 -- | @since 0.1
-type instance DispatchOf FileWriter = Dynamic
+type instance DispatchOf EffectFileWriter = Dynamic
 
 -- | Runs 'FileWriter' in 'IO'.
 --
@@ -64,18 +64,18 @@ runFileWriterIO ::
   ( EffectCallStack :> es,
     IOE :> es
   ) =>
-  Eff (FileWriter : es) a ->
+  Eff (EffectFileWriter : es) a ->
   Eff es a
 runFileWriterIO = interpret $ \_ -> \case
   WriteBinaryFile p bs -> addCallStack $ liftIO $ writeBinaryFileIO p bs
   AppendBinaryFile p bs -> addCallStack $ liftIO $ appendBinaryFileIO p bs
 
-makeEffect_ ''FileWriter
+makeEffect_ ''EffectFileWriter
 
 -- | @since 0.1
 writeBinaryFile ::
-  ( HasCallStack,
-    FileWriter :> es
+  ( EffectFileWriter :> es,
+    HasCallStack
   ) =>
   Path ->
   ByteString ->
@@ -83,37 +83,12 @@ writeBinaryFile ::
 
 -- | @since 0.1
 appendBinaryFile ::
-  ( HasCallStack,
-    FileWriter :> es
+  ( EffectFileWriter :> es,
+    HasCallStack
   ) =>
   Path ->
   ByteString ->
   Eff es ()
-
-{-}
--- | Represents file-system writer effects.
---
--- @since 0.1
-class Monad m => MonadFileWriter m where
-  -- | Writes to a file.
-  --
-  -- @since 0.1
-  writeBinaryFile :: HasCallStack => Path -> ByteString -> m ()
-
-  -- | Appends to a file.
-  --
-  -- @since 0.1
-  appendBinaryFile :: HasCallStack => Path -> ByteString -> m ()
-
--- | @since 0.1
-instance MonadFileWriter IO where
-  writeBinaryFile f = addCallStack . BS.writeFile f
-  appendBinaryFile f = addCallStack . BS.appendFile f
-
--- | @since 0.1
-instance MonadFileWriter m => MonadFileWriter (ReaderT env m) where
-  writeBinaryFile f = lift . writeBinaryFile f
-  appendBinaryFile f = lift . appendBinaryFile f-}
 
 -- | Encodes a 'Text' to 'ByteString'.
 --
@@ -124,11 +99,23 @@ encodeUtf8 = TEnc.encodeUtf8
 -- | Writes to a file.
 --
 -- @since 0.1
-writeFileUtf8 :: (HasCallStack, FileWriter :> es) => Path -> Text -> Eff es ()
+writeFileUtf8 ::
+  ( EffectFileWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Text ->
+  Eff es ()
 writeFileUtf8 f = writeBinaryFile f . encodeUtf8
 
 -- | Appends to a file.
 --
 -- @since 0.1
-appendFileUtf8 :: (HasCallStack, FileWriter :> es) => Path -> Text -> Eff es ()
+appendFileUtf8 ::
+  ( EffectFileWriter :> es,
+    HasCallStack
+  ) =>
+  Path ->
+  Text ->
+  Eff es ()
 appendFileUtf8 f = appendBinaryFile f . encodeUtf8
