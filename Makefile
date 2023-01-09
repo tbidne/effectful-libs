@@ -52,19 +52,31 @@ lintc:
 haddock:
 	cabal haddock all --haddock-hyperlink-source --haddock-quickjump ;\
 	mkdir -p docs/ ;\
-	rm -rf docs/effectul-callstack* ;\
-	rm -rf docs/effectul-fs* ;\
+	rm -rf docs/effectful-callstack* ;\
+	rm -rf docs/effectful-fs* ;\
+	rm -rf docs/effectful-ioref* ;\
+	rm -rf docs/effectful-stm* ;\
+	rm -rf docs/effectful-thread* ;\
 	cp -r dist-newstyle/build/x86_64-linux/ghc-9.2.5/effectful-callstack-0.1/doc/html/* docs/ ;\
-	cp -r dist-newstyle/build/x86_64-linux/ghc-9.2.5/effectful-fs-0.1/doc/html/* docs/
+	cp -r dist-newstyle/build/x86_64-linux/ghc-9.2.5/effectful-fs-0.1/doc/html/* docs/ ;\
+	cp -r dist-newstyle/build/x86_64-linux/ghc-9.2.5/effectful-ioref-0.1/doc/html/* docs/ ;\
+	cp -r dist-newstyle/build/x86_64-linux/ghc-9.2.5/effectful-stm-0.1/doc/html/* docs/ ;\
+	cp -r dist-newstyle/build/x86_64-linux/ghc-9.2.5/effectful-thread-0.1/doc/html/* docs/
 
 haddockc:
 	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
-		./effectful-callstack \
+		./effectful-callstack ;\
 
 	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
 		./effectful-fs \
+		-m Effectful.FileSystem.PathReader 95 \
+		-m Effectful.FileSystem.PathWriter 95 ;\
 
-.PHONY: hackage
-hackage:
-	cabal sdist ;\
-	cabal haddock --haddock-for-hackage --enable-doc
+	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
+		./effectful-ioref ;\
+
+	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
+		./effectful-stm ;\
+
+	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
+		./effectful-thread \
