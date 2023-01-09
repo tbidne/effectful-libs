@@ -14,7 +14,7 @@ import Effectful
     IOE,
     runEff,
   )
-import Effectful.CallStack (EffectCallStack, displayCallStack, runECallStackIO)
+import Effectful.CallStack (CallStackEffect, displayCallStack, runCallStackIO)
 import Effectful.Fail (Fail, runFailIO)
 import Effectful.Time
   ( LocalTime (LocalTime),
@@ -504,5 +504,5 @@ genTimeSpec = MkTimeSpec <$> genSec <*> genNSec
 stableCallStack :: Exception e => e -> String
 stableCallStack = unlines . take 2 . lines . displayCallStack
 
-runEffTime :: Eff '[TimeEffect, EffectCallStack, Fail, IOE] a -> IO a
-runEffTime = runEff . runFailIO . runECallStackIO . runTimeIO
+runEffTime :: Eff '[TimeEffect, CallStackEffect, Fail, IOE] a -> IO a
+runEffTime = runEff . runFailIO . runCallStackIO . runTimeIO

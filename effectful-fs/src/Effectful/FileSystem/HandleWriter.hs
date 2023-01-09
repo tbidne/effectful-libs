@@ -3,7 +3,7 @@
 -- @since 0.1
 module Effectful.FileSystem.HandleWriter
   ( -- * Effect
-    EffectHandleWriter (..),
+    HandleWriterEffect (..),
     Path,
 
     -- * Handler
@@ -54,7 +54,7 @@ import Effectful
     type (:>),
   )
 import Effectful.CallStack
-  ( EffectCallStack,
+  ( CallStackEffect,
     addCallStack,
   )
 import Effectful.Dispatch.Dynamic (interpret, localUnliftIO, send)
@@ -71,32 +71,32 @@ import System.IO (BufferMode (..), Handle, IOMode (..), SeekMode (..))
 import System.IO qualified as IO
 
 -- | @since 0.1
-type instance DispatchOf EffectHandleWriter = Dynamic
+type instance DispatchOf HandleWriterEffect = Dynamic
 
 -- | Effect for writing to a handle.
 --
 -- @since 0.1
-data EffectHandleWriter :: Effect where
-  HOpenBinaryFile :: HasCallStack => Path -> IOMode -> EffectHandleWriter m Handle
-  HWithBinaryFile :: HasCallStack => Path -> IOMode -> (Handle -> m a) -> EffectHandleWriter m a
-  HClose :: HasCallStack => Handle -> EffectHandleWriter m ()
-  HFlush :: HasCallStack => Handle -> EffectHandleWriter m ()
-  HSetFileSize :: HasCallStack => Handle -> Integer -> EffectHandleWriter m ()
-  HSetBuffering :: HasCallStack => Handle -> BufferMode -> EffectHandleWriter m ()
-  HSeek :: HasCallStack => Handle -> SeekMode -> Integer -> EffectHandleWriter m ()
-  HTell :: HasCallStack => Handle -> EffectHandleWriter m Integer
-  HSetEcho :: HasCallStack => Handle -> Bool -> EffectHandleWriter m ()
-  HPut :: HasCallStack => Handle -> ByteString -> EffectHandleWriter m ()
-  HPutNonBlocking :: HasCallStack => Handle -> ByteString -> EffectHandleWriter m ByteString
+data HandleWriterEffect :: Effect where
+  HOpenBinaryFile :: HasCallStack => Path -> IOMode -> HandleWriterEffect m Handle
+  HWithBinaryFile :: HasCallStack => Path -> IOMode -> (Handle -> m a) -> HandleWriterEffect m a
+  HClose :: HasCallStack => Handle -> HandleWriterEffect m ()
+  HFlush :: HasCallStack => Handle -> HandleWriterEffect m ()
+  HSetFileSize :: HasCallStack => Handle -> Integer -> HandleWriterEffect m ()
+  HSetBuffering :: HasCallStack => Handle -> BufferMode -> HandleWriterEffect m ()
+  HSeek :: HasCallStack => Handle -> SeekMode -> Integer -> HandleWriterEffect m ()
+  HTell :: HasCallStack => Handle -> HandleWriterEffect m Integer
+  HSetEcho :: HasCallStack => Handle -> Bool -> HandleWriterEffect m ()
+  HPut :: HasCallStack => Handle -> ByteString -> HandleWriterEffect m ()
+  HPutNonBlocking :: HasCallStack => Handle -> ByteString -> HandleWriterEffect m ByteString
 
--- | Runs 'HandleWriter' in 'IO'.
+-- | Runs 'HandleWriterEffect' in 'IO'.
 --
 -- @since 0.1
 runHandleWriterIO ::
-  ( EffectCallStack :> es,
+  ( CallStackEffect :> es,
     IOE :> es
   ) =>
-  Eff (EffectHandleWriter : es) a ->
+  Eff (HandleWriterEffect : es) a ->
   Eff es a
 runHandleWriterIO = interpret $ \env -> \case
   HOpenBinaryFile p m -> addCallStack $ liftIO $ openBinaryFileIO p m
@@ -114,7 +114,7 @@ runHandleWriterIO = interpret $ \env -> \case
 
 -- | @since 0.1
 hOpenBinaryFile ::
-  ( EffectHandleWriter :> es,
+  ( HandleWriterEffect :> es,
     HasCallStack
   ) =>
   Path ->
@@ -124,7 +124,7 @@ hOpenBinaryFile p = send . HOpenBinaryFile p
 
 -- | @since 0.1
 hWithBinaryFile ::
-  ( EffectHandleWriter :> es,
+  ( HandleWriterEffect :> es,
     HasCallStack
   ) =>
   Path ->
@@ -135,7 +135,7 @@ hWithBinaryFile p m = send . HWithBinaryFile p m
 
 -- | @since 0.1
 hClose ::
-  ( EffectHandleWriter :> es,
+  ( HandleWriterEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -144,7 +144,7 @@ hClose = send . HClose
 
 -- | @since 0.1
 hFlush ::
-  ( EffectHandleWriter :> es,
+  ( HandleWriterEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -153,7 +153,7 @@ hFlush = send . HFlush
 
 -- | @since 0.1
 hSetFileSize ::
-  ( EffectHandleWriter :> es,
+  ( HandleWriterEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -163,7 +163,7 @@ hSetFileSize h = send . HSetFileSize h
 
 -- | @since 0.1
 hSetBuffering ::
-  ( EffectHandleWriter :> es,
+  ( HandleWriterEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -173,7 +173,7 @@ hSetBuffering h = send . HSetBuffering h
 
 -- | @since 0.1
 hSeek ::
-  ( EffectHandleWriter :> es,
+  ( HandleWriterEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -184,7 +184,7 @@ hSeek h m = send . HSeek h m
 
 -- | @since 0.1
 hTell ::
-  ( EffectHandleWriter :> es,
+  ( HandleWriterEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -193,7 +193,7 @@ hTell = send . HTell
 
 -- | @since 0.1
 hSetEcho ::
-  ( EffectHandleWriter :> es,
+  ( HandleWriterEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -203,7 +203,7 @@ hSetEcho h = send . HSetEcho h
 
 -- | @since 0.1
 hPut ::
-  ( EffectHandleWriter :> es,
+  ( HandleWriterEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -213,7 +213,7 @@ hPut h = send . HPut h
 
 -- | @since 0.1
 hPutNonBlocking ::
-  ( EffectHandleWriter :> es,
+  ( HandleWriterEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -223,7 +223,7 @@ hPutNonBlocking h = send . HPutNonBlocking h
 
 -- | @since 0.1
 hPutUtf8 ::
-  ( EffectHandleWriter :> es,
+  ( HandleWriterEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -233,7 +233,7 @@ hPutUtf8 h = hPut h . encodeUtf8
 
 -- | @since 0.1
 hPutNonBlockingUtf8' ::
-  ( EffectHandleWriter :> es,
+  ( HandleWriterEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -243,7 +243,7 @@ hPutNonBlockingUtf8' h = hPutNonBlocking h . encodeUtf8
 
 -- | @since 0.1
 hPutNonBlockingUtf8 ::
-  ( EffectHandleWriter :> es,
+  ( HandleWriterEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -253,7 +253,7 @@ hPutNonBlockingUtf8 h = fmap decodeUtf8 . hPutNonBlocking h . encodeUtf8
 
 -- | @since 0.1
 hPutNonBlockingUtf8Lenient ::
-  ( EffectHandleWriter :> es,
+  ( HandleWriterEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -266,8 +266,8 @@ hPutNonBlockingUtf8Lenient h =
 
 -- | @since 0.1
 hPutNonBlockingUtf8ThrowM ::
-  ( EffectCallStack :> es,
-    EffectHandleWriter :> es,
+  ( CallStackEffect :> es,
+    HandleWriterEffect :> es,
     HasCallStack
   ) =>
   Handle ->

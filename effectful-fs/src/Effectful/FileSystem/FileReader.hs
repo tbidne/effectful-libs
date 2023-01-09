@@ -3,7 +3,7 @@
 -- @since 0.1
 module Effectful.FileSystem.FileReader
   ( -- * Effect
-    EffectFileReader (..),
+    FileReaderEffect (..),
     Path,
 
     -- * Handler
@@ -43,7 +43,7 @@ import Effectful
     type (:>),
   )
 import Effectful.CallStack
-  ( EffectCallStack,
+  ( CallStackEffect,
     addCallStack,
     throwWithCallStack,
   )
@@ -54,27 +54,27 @@ import GHC.Stack (HasCallStack)
 -- | Effect for reading files.
 --
 -- @since 0.1
-data EffectFileReader :: Effect where
-  ReadBinaryFile :: HasCallStack => Path -> EffectFileReader m ByteString
+data FileReaderEffect :: Effect where
+  ReadBinaryFile :: HasCallStack => Path -> FileReaderEffect m ByteString
 
 -- | @since 0.1
-type instance DispatchOf EffectFileReader = Dynamic
+type instance DispatchOf FileReaderEffect = Dynamic
 
 -- | Runs 'FileReader' in 'IO'.
 --
 -- @since 0.1
 runFileReaderIO ::
-  ( EffectCallStack :> es,
+  ( CallStackEffect :> es,
     IOE :> es
   ) =>
-  Eff (EffectFileReader : es) a ->
+  Eff (FileReaderEffect : es) a ->
   Eff es a
 runFileReaderIO = interpret $ \_ -> \case
   ReadBinaryFile p -> addCallStack $ liftIO $ readBinaryFileIO p
 
 -- | @since 0.1
 readBinaryFile ::
-  ( EffectFileReader :> es,
+  ( FileReaderEffect :> es,
     HasCallStack
   ) =>
   Path ->
@@ -97,7 +97,7 @@ decodeUtf8Lenient = TEnc.decodeUtf8With TEncError.lenientDecode
 --
 -- @since 0.1
 decodeUtf8ThrowM ::
-  ( EffectCallStack :> es,
+  ( CallStackEffect :> es,
     HasCallStack
   ) =>
   ByteString ->
@@ -111,7 +111,7 @@ decodeUtf8ThrowM =
 --
 -- @since 0.1
 readFileUtf8 ::
-  ( EffectFileReader :> es,
+  ( FileReaderEffect :> es,
     HasCallStack
   ) =>
   Path ->
@@ -122,7 +122,7 @@ readFileUtf8 = fmap decodeUtf8 . readBinaryFile
 --
 -- @since 0.1
 readFileUtf8Lenient ::
-  ( EffectFileReader :> es,
+  ( FileReaderEffect :> es,
     HasCallStack
   ) =>
   Path ->
@@ -133,8 +133,8 @@ readFileUtf8Lenient = fmap decodeUtf8Lenient . readBinaryFile
 --
 -- @since 0.1
 readFileUtf8ThrowM ::
-  ( EffectCallStack :> es,
-    EffectFileReader :> es,
+  ( CallStackEffect :> es,
+    FileReaderEffect :> es,
     HasCallStack
   ) =>
   Path ->

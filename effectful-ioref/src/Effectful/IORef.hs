@@ -3,7 +3,7 @@
 -- @since 0.1
 module Effectful.IORef
   ( -- * Effect
-    EffectIORef (..),
+    IORefEffect (..),
 
     -- * Handler
     runIORefIO,
@@ -35,7 +35,7 @@ import Effectful
     type (:>),
   )
 import Effectful.CallStack
-  ( EffectCallStack,
+  ( CallStackEffect,
     addCallStack,
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
@@ -44,24 +44,24 @@ import GHC.Stack (HasCallStack)
 -- | Effect for 'IORef'.
 --
 -- @since 0.1
-data EffectIORef :: Effect where
-  NewIORef :: HasCallStack => a -> EffectIORef m (IORef a)
-  ReadIORef :: HasCallStack => IORef a -> EffectIORef m a
-  WriteIORef :: HasCallStack => IORef a -> a -> EffectIORef m ()
-  ModifyIORef' :: HasCallStack => IORef a -> (a -> a) -> EffectIORef m ()
-  AtomicModifyIORef' :: HasCallStack => IORef a -> (a -> (a, b)) -> EffectIORef m b
+data IORefEffect :: Effect where
+  NewIORef :: HasCallStack => a -> IORefEffect m (IORef a)
+  ReadIORef :: HasCallStack => IORef a -> IORefEffect m a
+  WriteIORef :: HasCallStack => IORef a -> a -> IORefEffect m ()
+  ModifyIORef' :: HasCallStack => IORef a -> (a -> a) -> IORefEffect m ()
+  AtomicModifyIORef' :: HasCallStack => IORef a -> (a -> (a, b)) -> IORefEffect m b
 
 -- | @since 0.1
-type instance DispatchOf EffectIORef = Dynamic
+type instance DispatchOf IORefEffect = Dynamic
 
--- | Runs 'EffectIORef' in 'IO'.
+-- | Runs 'IORefEffect' in 'IO'.
 --
 -- @since 0.1
 runIORefIO ::
-  ( EffectCallStack :> es,
+  ( CallStackEffect :> es,
     IOE :> es
   ) =>
-  Eff (EffectIORef : es) a ->
+  Eff (IORefEffect : es) a ->
   Eff es a
 runIORefIO = interpret $ \_ -> \case
   NewIORef x -> addCallStack $ liftIO $ IORef.newIORef x
@@ -71,21 +71,21 @@ runIORefIO = interpret $ \_ -> \case
   AtomicModifyIORef' ref f -> addCallStack $ liftIO $ IORef.atomicModifyIORef' ref f
 
 -- | @since 0.1
-newIORef :: (HasCallStack, EffectIORef :> es) => a -> Eff es (IORef a)
+newIORef :: (HasCallStack, IORefEffect :> es) => a -> Eff es (IORef a)
 newIORef = send . NewIORef
 
 -- | @since 0.1
-readIORef :: (HasCallStack, EffectIORef :> es) => IORef a -> Eff es a
+readIORef :: (HasCallStack, IORefEffect :> es) => IORef a -> Eff es a
 readIORef = send . ReadIORef
 
 -- | @since 0.1
-writeIORef :: (HasCallStack, EffectIORef :> es) => IORef a -> a -> Eff es ()
+writeIORef :: (HasCallStack, IORefEffect :> es) => IORef a -> a -> Eff es ()
 writeIORef ref = send . WriteIORef ref
 
 -- | @since 0.1
 modifyIORef' ::
   ( HasCallStack,
-    EffectIORef :> es
+    IORefEffect :> es
   ) =>
   IORef a ->
   (a -> a) ->
@@ -95,7 +95,7 @@ modifyIORef' ref = send . ModifyIORef' ref
 -- | @since 0.1
 atomicModifyIORef' ::
   ( HasCallStack,
-    EffectIORef :> es
+    IORefEffect :> es
   ) =>
   IORef a ->
   (a -> (a, b)) ->
@@ -105,7 +105,7 @@ atomicModifyIORef' ref = send . AtomicModifyIORef' ref
 -- | Variant of 'atomicModifyIORef'' which ignores the return value
 atomicModifyIORef'_ ::
   ( HasCallStack,
-    EffectIORef :> es
+    IORefEffect :> es
   ) =>
   IORef a ->
   (a -> a) ->

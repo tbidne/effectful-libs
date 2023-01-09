@@ -5,7 +5,7 @@
 -- @since 0.1
 module Effectful.FileSystem.PathReader
   ( -- * Effect
-    EffectPathReader (..),
+    PathReaderEffect (..),
     Path,
 
     -- * Handler
@@ -63,7 +63,7 @@ import Effectful
     type (:>),
   )
 import Effectful.CallStack
-  ( EffectCallStack,
+  ( CallStackEffect,
     addCallStack,
   )
 import Effectful.Dispatch.Dynamic (interpret, localUnliftIO, send)
@@ -84,47 +84,47 @@ import System.Directory qualified as Dir
 -- | Effect for reading paths.
 --
 -- @since 0.1
-data EffectPathReader :: Effect where
-  ListDirectory :: HasCallStack => Path -> EffectPathReader m [Path]
-  GetDirectoryContents :: HasCallStack => Path -> EffectPathReader m [Path]
-  GetCurrentDirectory :: HasCallStack => EffectPathReader m Path
-  GetHomeDirectory :: HasCallStack => EffectPathReader m Path
-  GetXdgDirectory :: HasCallStack => XdgDirectory -> Path -> EffectPathReader m Path
-  GetXdgDirectoryList :: HasCallStack => XdgDirectoryList -> EffectPathReader m [Path]
-  GetAppUserDataDirectory :: HasCallStack => Path -> EffectPathReader m Path
-  GetUserDocumentsDirectory :: HasCallStack => EffectPathReader m Path
-  GetTemporaryDirectory :: HasCallStack => EffectPathReader m Path
-  GetFileSize :: HasCallStack => Path -> EffectPathReader m Integer
-  CanonicalizePath :: HasCallStack => Path -> EffectPathReader m Path
-  MakeAbsolute :: HasCallStack => Path -> EffectPathReader m Path
-  MakeRelativeToCurrentDirectory :: HasCallStack => Path -> EffectPathReader m Path
-  DoesPathExist :: HasCallStack => Path -> EffectPathReader m Bool
-  DoesFileExist :: HasCallStack => Path -> EffectPathReader m Bool
-  DoesDirectoryExist :: HasCallStack => Path -> EffectPathReader m Bool
-  FindExecutable :: HasCallStack => String -> EffectPathReader m (Maybe Path)
-  FindExecutables :: HasCallStack => String -> EffectPathReader m [Path]
-  FindExecutablesInDirectories :: HasCallStack => [Path] -> String -> EffectPathReader m [Path]
-  FindFile :: HasCallStack => [Path] -> String -> EffectPathReader m (Maybe Path)
-  FindFiles :: HasCallStack => [Path] -> String -> EffectPathReader m [Path]
-  FindFileWith :: HasCallStack => (Path -> m Bool) -> [Path] -> String -> EffectPathReader m (Maybe Path)
-  FindFilesWith :: HasCallStack => (Path -> m Bool) -> [Path] -> String -> EffectPathReader m [Path]
-  PathIsSymbolicLink :: HasCallStack => Path -> EffectPathReader m Bool
-  GetSymbolicLinkTarget :: HasCallStack => Path -> EffectPathReader m Path
-  GetPermissions :: HasCallStack => Path -> EffectPathReader m Permissions
-  GetAccessTime :: HasCallStack => Path -> EffectPathReader m UTCTime
-  GetModificationTime :: HasCallStack => Path -> EffectPathReader m UTCTime
+data PathReaderEffect :: Effect where
+  ListDirectory :: HasCallStack => Path -> PathReaderEffect m [Path]
+  GetDirectoryContents :: HasCallStack => Path -> PathReaderEffect m [Path]
+  GetCurrentDirectory :: HasCallStack => PathReaderEffect m Path
+  GetHomeDirectory :: HasCallStack => PathReaderEffect m Path
+  GetXdgDirectory :: HasCallStack => XdgDirectory -> Path -> PathReaderEffect m Path
+  GetXdgDirectoryList :: HasCallStack => XdgDirectoryList -> PathReaderEffect m [Path]
+  GetAppUserDataDirectory :: HasCallStack => Path -> PathReaderEffect m Path
+  GetUserDocumentsDirectory :: HasCallStack => PathReaderEffect m Path
+  GetTemporaryDirectory :: HasCallStack => PathReaderEffect m Path
+  GetFileSize :: HasCallStack => Path -> PathReaderEffect m Integer
+  CanonicalizePath :: HasCallStack => Path -> PathReaderEffect m Path
+  MakeAbsolute :: HasCallStack => Path -> PathReaderEffect m Path
+  MakeRelativeToCurrentDirectory :: HasCallStack => Path -> PathReaderEffect m Path
+  DoesPathExist :: HasCallStack => Path -> PathReaderEffect m Bool
+  DoesFileExist :: HasCallStack => Path -> PathReaderEffect m Bool
+  DoesDirectoryExist :: HasCallStack => Path -> PathReaderEffect m Bool
+  FindExecutable :: HasCallStack => String -> PathReaderEffect m (Maybe Path)
+  FindExecutables :: HasCallStack => String -> PathReaderEffect m [Path]
+  FindExecutablesInDirectories :: HasCallStack => [Path] -> String -> PathReaderEffect m [Path]
+  FindFile :: HasCallStack => [Path] -> String -> PathReaderEffect m (Maybe Path)
+  FindFiles :: HasCallStack => [Path] -> String -> PathReaderEffect m [Path]
+  FindFileWith :: HasCallStack => (Path -> m Bool) -> [Path] -> String -> PathReaderEffect m (Maybe Path)
+  FindFilesWith :: HasCallStack => (Path -> m Bool) -> [Path] -> String -> PathReaderEffect m [Path]
+  PathIsSymbolicLink :: HasCallStack => Path -> PathReaderEffect m Bool
+  GetSymbolicLinkTarget :: HasCallStack => Path -> PathReaderEffect m Path
+  GetPermissions :: HasCallStack => Path -> PathReaderEffect m Permissions
+  GetAccessTime :: HasCallStack => Path -> PathReaderEffect m UTCTime
+  GetModificationTime :: HasCallStack => Path -> PathReaderEffect m UTCTime
 
 -- | @since 0.1
-type instance DispatchOf EffectPathReader = Dynamic
+type instance DispatchOf PathReaderEffect = Dynamic
 
--- | Runs 'PathReader' in 'IO'.
+-- | Runs 'PathReaderEffect' in 'IO'.
 --
 -- @since 0.1
 runPathReaderIO ::
-  ( EffectCallStack :> es,
+  ( CallStackEffect :> es,
     IOE :> es
   ) =>
-  Eff (EffectPathReader : es) a ->
+  Eff (PathReaderEffect : es) a ->
   Eff es a
 runPathReaderIO = interpret $ \env -> \case
   ListDirectory p -> addCallStack $ liftIO $ Dir.listDirectory p
@@ -160,8 +160,8 @@ runPathReaderIO = interpret $ \env -> \case
 
 -- | @since 0.1
 listDirectory ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Path ->
   Eff es [Path]
@@ -169,8 +169,8 @@ listDirectory = send . ListDirectory
 
 -- | @since 0.1
 getDirectoryContents ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Path ->
   Eff es [Path]
@@ -178,24 +178,24 @@ getDirectoryContents = send . GetDirectoryContents
 
 -- | @since 0.1
 getCurrentDirectory ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Eff es Path
 getCurrentDirectory = send GetCurrentDirectory
 
 -- | @since 0.1
 getHomeDirectory ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Eff es Path
 getHomeDirectory = send GetHomeDirectory
 
 -- | @since 0.1
 getXdgDirectory ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   XdgDirectory ->
   Path ->
@@ -204,8 +204,8 @@ getXdgDirectory xdg = send . GetXdgDirectory xdg
 
 -- | @since 0.1
 getXdgDirectoryList ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   XdgDirectoryList ->
   Eff es [Path]
@@ -213,8 +213,8 @@ getXdgDirectoryList = send . GetXdgDirectoryList
 
 -- | @since 0.1
 getAppUserDataDirectory ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Path ->
   Eff es Path
@@ -222,24 +222,24 @@ getAppUserDataDirectory = send . GetAppUserDataDirectory
 
 -- | @since 0.1
 getUserDocumentsDirectory ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Eff es Path
 getUserDocumentsDirectory = send GetUserDocumentsDirectory
 
 -- | @since 0.1
 getTemporaryDirectory ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Eff es Path
 getTemporaryDirectory = send GetTemporaryDirectory
 
 -- | @since 0.1
 getFileSize ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Path ->
   Eff es Integer
@@ -247,8 +247,8 @@ getFileSize = send . GetFileSize
 
 -- | @since 0.1
 canonicalizePath ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Path ->
   Eff es Path
@@ -256,8 +256,8 @@ canonicalizePath = send . CanonicalizePath
 
 -- | @since 0.1
 makeAbsolute ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Path ->
   Eff es Path
@@ -265,8 +265,8 @@ makeAbsolute = send . MakeAbsolute
 
 -- | @since 0.1
 makeRelativeToCurrentDirectory ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Path ->
   Eff es Path
@@ -274,8 +274,8 @@ makeRelativeToCurrentDirectory = send . MakeRelativeToCurrentDirectory
 
 -- | @since 0.1
 doesPathExist ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Path ->
   Eff es Bool
@@ -283,8 +283,8 @@ doesPathExist = send . DoesPathExist
 
 -- | @since 0.1
 doesFileExist ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Path ->
   Eff es Bool
@@ -292,8 +292,8 @@ doesFileExist = send . DoesFileExist
 
 -- | @since 0.1
 doesDirectoryExist ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Path ->
   Eff es Bool
@@ -301,8 +301,8 @@ doesDirectoryExist = send . DoesDirectoryExist
 
 -- | @since 0.1
 findExecutable ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   String ->
   Eff es (Maybe Path)
@@ -310,8 +310,8 @@ findExecutable = send . FindExecutable
 
 -- | @since 0.1
 findExecutables ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   String ->
   Eff es [Path]
@@ -319,8 +319,8 @@ findExecutables = send . FindExecutables
 
 -- | @since 0.1
 findExecutablesInDirectories ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   [Path] ->
   String ->
@@ -329,8 +329,8 @@ findExecutablesInDirectories ps = send . FindExecutablesInDirectories ps
 
 -- | @since 0.1
 findFile ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   [Path] ->
   String ->
@@ -339,8 +339,8 @@ findFile ps = send . FindFile ps
 
 -- | @since 0.1
 findFiles ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   [Path] ->
   String ->
@@ -349,8 +349,8 @@ findFiles ps = send . FindFiles ps
 
 -- | @since 0.1
 findFileWith ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   (Path -> Eff es Bool) ->
   [Path] ->
@@ -360,8 +360,8 @@ findFileWith f ps = send . FindFileWith f ps
 
 -- | @since 0.1
 findFilesWith ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   (Path -> Eff es Bool) ->
   [Path] ->
@@ -371,8 +371,8 @@ findFilesWith f ps = send . FindFilesWith f ps
 
 -- | @since 0.1
 pathIsSymbolicLink ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Path ->
   Eff es Bool
@@ -380,8 +380,8 @@ pathIsSymbolicLink = send . PathIsSymbolicLink
 
 -- | @since 0.1
 getSymbolicLinkTarget ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Path ->
   Eff es Path
@@ -389,8 +389,8 @@ getSymbolicLinkTarget = send . GetSymbolicLinkTarget
 
 -- | @since 0.1
 getPermissions ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Path ->
   Eff es Permissions
@@ -398,8 +398,8 @@ getPermissions = send . GetPermissions
 
 -- | @since 0.1
 getAccessTime ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Path ->
   Eff es UTCTime
@@ -407,8 +407,8 @@ getAccessTime = send . GetAccessTime
 
 -- | @since 0.1
 getModificationTime ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Path ->
   Eff es UTCTime
@@ -418,8 +418,8 @@ getModificationTime = send . GetModificationTime
 --
 -- @since 0.1
 getXdgConfig ::
-  ( EffectPathReader :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es
   ) =>
   Path ->
   Eff es Path

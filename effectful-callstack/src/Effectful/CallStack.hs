@@ -5,12 +5,12 @@
 -- @since 0.1
 module Effectful.CallStack
   ( -- * Effect
-    EffectCallStack (..),
+    CallStackEffect (..),
     throwWithCallStack,
     addCallStack,
 
     -- * Handler
-    runECallStackIO,
+    runCallStackIO,
 
     -- * Utils
     displayCallStack,
@@ -49,27 +49,27 @@ import Effectful.Dispatch.Dynamic (interpret, localUnliftIO, send)
 import GHC.Stack (CallStack, HasCallStack, prettyCallStack)
 
 -- | @since 0.1
-type instance DispatchOf EffectCallStack = Dynamic
+type instance DispatchOf CallStackEffect = Dynamic
 
 -- | Effect for adding 'CallStack' to exceptions.
 --
 -- @since 0.1
-data EffectCallStack :: Effect where
-  ThrowWithCallStack :: (Exception e, HasCallStack) => e -> EffectCallStack m a
-  AddCallStack :: HasCallStack => m a -> EffectCallStack m a
+data CallStackEffect :: Effect where
+  ThrowWithCallStack :: (Exception e, HasCallStack) => e -> CallStackEffect m a
+  AddCallStack :: HasCallStack => m a -> CallStackEffect m a
 
--- | Runs 'EffectCallStack' in 'IO'.
+-- | Runs 'CallStackEffect' in 'IO'.
 --
 -- @since 0.1
-runECallStackIO :: IOE :> es => Eff (EffectCallStack : es) a -> Eff es a
-runECallStackIO = interpret $ \env -> \case
+runCallStackIO :: IOE :> es => Eff (CallStackEffect : es) a -> Eff es a
+runCallStackIO = interpret $ \env -> \case
   ThrowWithCallStack ex -> liftIO $ Ann.throwWithCallStack ex
   AddCallStack m -> localUnliftIO env SeqUnlift $ \runInIO ->
     liftIO $ Ann.checkpointCallStack (runInIO m)
 
 -- | @since 0.1
 throwWithCallStack ::
-  ( EffectCallStack :> es,
+  ( CallStackEffect :> es,
     Exception e,
     HasCallStack
   ) =>
@@ -78,7 +78,7 @@ throwWithCallStack ::
 throwWithCallStack e = send (ThrowWithCallStack e)
 
 -- | @since 0.1
-addCallStack :: (HasCallStack, EffectCallStack :> es) => Eff es a -> Eff es a
+addCallStack :: (CallStackEffect :> es, HasCallStack) => Eff es a -> Eff es a
 addCallStack = send . AddCallStack
 
 -- | Like 'displayException', except it has extra logic that attempts to

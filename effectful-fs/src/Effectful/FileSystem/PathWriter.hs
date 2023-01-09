@@ -5,7 +5,7 @@
 -- @since 0.1
 module Effectful.FileSystem.PathWriter
   ( -- * Effect
-    EffectPathWriter (..),
+    PathWriterEffect (..),
     Path,
 
     -- * Handler
@@ -58,13 +58,13 @@ import Effectful
     type (:>),
   )
 import Effectful.CallStack
-  ( EffectCallStack,
+  ( CallStackEffect,
     addCallStack,
   )
 import Effectful.Dispatch.Dynamic (interpret, localUnliftIO, send)
 import Effectful.FileSystem.Path (Path)
 import Effectful.FileSystem.PathReader
-  ( EffectPathReader,
+  ( PathReaderEffect,
     doesDirectoryExist,
     doesFileExist,
     doesPathExist,
@@ -80,39 +80,39 @@ import System.Directory qualified as Dir
 -- | Effect for writing paths.
 --
 -- @since 0.1
-data EffectPathWriter :: Effect where
-  CreateDirectory :: HasCallStack => Path -> EffectPathWriter m ()
-  CreateDirectoryIfMissing :: HasCallStack => Bool -> Path -> EffectPathWriter m ()
-  RemoveDirectory :: HasCallStack => Path -> EffectPathWriter m ()
-  RemoveDirectoryRecursive :: HasCallStack => Path -> EffectPathWriter m ()
-  RemovePathForcibly :: HasCallStack => Path -> EffectPathWriter m ()
-  RenameDirectory :: HasCallStack => Path -> Path -> EffectPathWriter m ()
-  SetCurrentDirectory :: HasCallStack => Path -> EffectPathWriter m ()
-  WithCurrentDirectory :: HasCallStack => Path -> m a -> EffectPathWriter m a
-  RemoveFile :: HasCallStack => Path -> EffectPathWriter m ()
-  RenameFile :: HasCallStack => Path -> Path -> EffectPathWriter m ()
-  RenamePath :: HasCallStack => Path -> Path -> EffectPathWriter m ()
-  CopyFile :: HasCallStack => Path -> Path -> EffectPathWriter m ()
-  CopyFileWithMetadata :: HasCallStack => Path -> Path -> EffectPathWriter m ()
-  CreateFileLink :: HasCallStack => Path -> Path -> EffectPathWriter m ()
-  CreateDirectoryLink :: HasCallStack => Path -> Path -> EffectPathWriter m ()
-  RemoveDirectoryLink :: HasCallStack => Path -> EffectPathWriter m ()
-  SetPermissions :: HasCallStack => Path -> Permissions -> EffectPathWriter m ()
-  CopyPermissions :: HasCallStack => Path -> Path -> EffectPathWriter m ()
-  SetAccessTime :: HasCallStack => Path -> UTCTime -> EffectPathWriter m ()
-  SetModificationTime :: HasCallStack => Path -> UTCTime -> EffectPathWriter m ()
+data PathWriterEffect :: Effect where
+  CreateDirectory :: HasCallStack => Path -> PathWriterEffect m ()
+  CreateDirectoryIfMissing :: HasCallStack => Bool -> Path -> PathWriterEffect m ()
+  RemoveDirectory :: HasCallStack => Path -> PathWriterEffect m ()
+  RemoveDirectoryRecursive :: HasCallStack => Path -> PathWriterEffect m ()
+  RemovePathForcibly :: HasCallStack => Path -> PathWriterEffect m ()
+  RenameDirectory :: HasCallStack => Path -> Path -> PathWriterEffect m ()
+  SetCurrentDirectory :: HasCallStack => Path -> PathWriterEffect m ()
+  WithCurrentDirectory :: HasCallStack => Path -> m a -> PathWriterEffect m a
+  RemoveFile :: HasCallStack => Path -> PathWriterEffect m ()
+  RenameFile :: HasCallStack => Path -> Path -> PathWriterEffect m ()
+  RenamePath :: HasCallStack => Path -> Path -> PathWriterEffect m ()
+  CopyFile :: HasCallStack => Path -> Path -> PathWriterEffect m ()
+  CopyFileWithMetadata :: HasCallStack => Path -> Path -> PathWriterEffect m ()
+  CreateFileLink :: HasCallStack => Path -> Path -> PathWriterEffect m ()
+  CreateDirectoryLink :: HasCallStack => Path -> Path -> PathWriterEffect m ()
+  RemoveDirectoryLink :: HasCallStack => Path -> PathWriterEffect m ()
+  SetPermissions :: HasCallStack => Path -> Permissions -> PathWriterEffect m ()
+  CopyPermissions :: HasCallStack => Path -> Path -> PathWriterEffect m ()
+  SetAccessTime :: HasCallStack => Path -> UTCTime -> PathWriterEffect m ()
+  SetModificationTime :: HasCallStack => Path -> UTCTime -> PathWriterEffect m ()
 
 -- | @since 0.1
-type instance DispatchOf EffectPathWriter = Dynamic
+type instance DispatchOf PathWriterEffect = Dynamic
 
--- | Runs 'PathWriter' in 'IO'.
+-- | Runs 'PathWriterEffect' in 'IO'.
 --
 -- @since 0.1
 runPathWriterIO ::
-  ( EffectCallStack :> es,
+  ( CallStackEffect :> es,
     IOE :> es
   ) =>
-  Eff (EffectPathWriter : es) a ->
+  Eff (PathWriterEffect : es) a ->
   Eff es a
 runPathWriterIO = interpret $ \env -> \case
   CreateDirectory p -> addCallStack $ liftIO $ Dir.createDirectory p
@@ -139,8 +139,8 @@ runPathWriterIO = interpret $ \env -> \case
 
 -- | @since 0.1
 createDirectory ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Eff es ()
@@ -148,8 +148,8 @@ createDirectory = send . CreateDirectory
 
 -- | @since 0.1
 createDirectoryIfMissing ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Bool ->
   Path ->
@@ -158,8 +158,8 @@ createDirectoryIfMissing b = send . CreateDirectoryIfMissing b
 
 -- | @since 0.1
 removeDirectory ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Eff es ()
@@ -167,8 +167,8 @@ removeDirectory = send . RemoveDirectory
 
 -- | @since 0.1
 removeDirectoryRecursive ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Eff es ()
@@ -176,8 +176,8 @@ removeDirectoryRecursive = send . RemoveDirectoryRecursive
 
 -- | @since 0.1
 removePathForcibly ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Eff es ()
@@ -185,8 +185,8 @@ removePathForcibly = send . RemovePathForcibly
 
 -- | @since 0.1
 renameDirectory ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Path ->
@@ -195,8 +195,8 @@ renameDirectory p = send . RenameDirectory p
 
 -- | @since 0.1
 setCurrentDirectory ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Eff es ()
@@ -204,8 +204,8 @@ setCurrentDirectory = send . SetCurrentDirectory
 
 -- | @since 0.1
 withCurrentDirectory ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Eff es a ->
@@ -214,8 +214,8 @@ withCurrentDirectory p = send . WithCurrentDirectory p
 
 -- | @since 0.1
 removeFile ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Eff es ()
@@ -223,8 +223,8 @@ removeFile = send . RemoveFile
 
 -- | @since 0.1
 renameFile ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Path ->
@@ -233,8 +233,8 @@ renameFile p = send . RenameFile p
 
 -- | @since 0.1
 renamePath ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Path ->
@@ -243,8 +243,8 @@ renamePath p = send . RenamePath p
 
 -- | @since 0.1
 copyFile ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Path ->
@@ -253,8 +253,8 @@ copyFile p = send . CopyFile p
 
 -- | @since 0.1
 copyFileWithMetadata ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Path ->
@@ -263,8 +263,8 @@ copyFileWithMetadata p = send . CopyFileWithMetadata p
 
 -- | @since 0.1
 createFileLink ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Path ->
@@ -273,8 +273,8 @@ createFileLink p = send . CreateFileLink p
 
 -- | @since 0.1
 createDirectoryLink ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Path ->
@@ -283,8 +283,8 @@ createDirectoryLink p = send . CreateDirectoryLink p
 
 -- | @since 0.1
 removeDirectoryLink ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Eff es ()
@@ -292,8 +292,8 @@ removeDirectoryLink = send . RemoveDirectoryLink
 
 -- | @since 0.1
 setPermissions ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Permissions ->
@@ -302,8 +302,8 @@ setPermissions p = send . SetPermissions p
 
 -- | @since 0.1
 copyPermissions ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Path ->
@@ -312,8 +312,8 @@ copyPermissions p = send . CopyPermissions p
 
 -- | @since 0.1
 setAccessTime ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Path ->
   UTCTime ->
@@ -322,8 +322,8 @@ setAccessTime p = send . SetAccessTime p
 
 -- | @since 0.1
 setModificationTime ::
-  ( EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathWriterEffect :> es
   ) =>
   Path ->
   UTCTime ->
@@ -334,9 +334,9 @@ setModificationTime p = send . SetModificationTime p
 --
 -- @since 0.1
 removeFileIfExists ::
-  ( EffectPathReader :> es,
-    EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Eff es ()
@@ -346,9 +346,9 @@ removeFileIfExists = removeIfExists doesFileExist removeFile
 --
 -- @since 0.1
 removeDirectoryIfExists ::
-  ( EffectPathReader :> es,
-    EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Eff es ()
@@ -358,9 +358,9 @@ removeDirectoryIfExists = removeIfExists doesDirectoryExist removeDirectory
 --
 -- @since 0.1
 removeDirectoryRecursiveIfExists ::
-  ( EffectPathReader :> es,
-    EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Eff es ()
@@ -371,9 +371,9 @@ removeDirectoryRecursiveIfExists =
 --
 -- @since 0.1
 removePathForciblyIfExists ::
-  ( EffectPathReader :> es,
-    EffectPathWriter :> es,
-    HasCallStack
+  ( HasCallStack,
+    PathReaderEffect :> es,
+    PathWriterEffect :> es
   ) =>
   Path ->
   Eff es ()

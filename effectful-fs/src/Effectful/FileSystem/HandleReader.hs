@@ -3,7 +3,7 @@
 -- @since 0.1
 module Effectful.FileSystem.HandleReader
   ( -- * Effect
-    EffectHandleReader (..),
+    HandleReaderEffect (..),
 
     -- * Handler
     runHandleReaderIO,
@@ -67,7 +67,7 @@ import Effectful
     type (:>),
   )
 import Effectful.CallStack
-  ( EffectCallStack,
+  ( CallStackEffect,
     addCallStack,
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
@@ -83,36 +83,36 @@ import System.IO qualified as IO
 -- | Effect for reading a handle.
 --
 -- @since 0.1
-data EffectHandleReader :: Effect where
-  HIsEOF :: HasCallStack => Handle -> EffectHandleReader m Bool
-  HGetBuffering :: HasCallStack => Handle -> EffectHandleReader m BufferMode
-  HIsOpen :: HasCallStack => Handle -> EffectHandleReader m Bool
-  HIsClosed :: HasCallStack => Handle -> EffectHandleReader m Bool
-  HIsReadable :: HasCallStack => Handle -> EffectHandleReader m Bool
-  HIsWritable :: HasCallStack => Handle -> EffectHandleReader m Bool
-  HIsSeekable :: HasCallStack => Handle -> EffectHandleReader m Bool
-  HIsTerminalDevice :: HasCallStack => Handle -> EffectHandleReader m Bool
-  HGetEcho :: HasCallStack => Handle -> EffectHandleReader m Bool
-  HWaitForInput :: HasCallStack => Handle -> Int -> EffectHandleReader m Bool
-  HReady :: HasCallStack => Handle -> EffectHandleReader m Bool
-  HGetChar :: HasCallStack => Handle -> EffectHandleReader m Char
-  HGetLine :: HasCallStack => Handle -> EffectHandleReader m ByteString
-  HGetContents :: HasCallStack => Handle -> EffectHandleReader m ByteString
-  HGet :: HasCallStack => Handle -> Int -> EffectHandleReader m ByteString
-  HGetSome :: HasCallStack => Handle -> Int -> EffectHandleReader m ByteString
-  HGetNonBlocking :: HasCallStack => Handle -> Int -> EffectHandleReader m ByteString
+data HandleReaderEffect :: Effect where
+  HIsEOF :: HasCallStack => Handle -> HandleReaderEffect m Bool
+  HGetBuffering :: HasCallStack => Handle -> HandleReaderEffect m BufferMode
+  HIsOpen :: HasCallStack => Handle -> HandleReaderEffect m Bool
+  HIsClosed :: HasCallStack => Handle -> HandleReaderEffect m Bool
+  HIsReadable :: HasCallStack => Handle -> HandleReaderEffect m Bool
+  HIsWritable :: HasCallStack => Handle -> HandleReaderEffect m Bool
+  HIsSeekable :: HasCallStack => Handle -> HandleReaderEffect m Bool
+  HIsTerminalDevice :: HasCallStack => Handle -> HandleReaderEffect m Bool
+  HGetEcho :: HasCallStack => Handle -> HandleReaderEffect m Bool
+  HWaitForInput :: HasCallStack => Handle -> Int -> HandleReaderEffect m Bool
+  HReady :: HasCallStack => Handle -> HandleReaderEffect m Bool
+  HGetChar :: HasCallStack => Handle -> HandleReaderEffect m Char
+  HGetLine :: HasCallStack => Handle -> HandleReaderEffect m ByteString
+  HGetContents :: HasCallStack => Handle -> HandleReaderEffect m ByteString
+  HGet :: HasCallStack => Handle -> Int -> HandleReaderEffect m ByteString
+  HGetSome :: HasCallStack => Handle -> Int -> HandleReaderEffect m ByteString
+  HGetNonBlocking :: HasCallStack => Handle -> Int -> HandleReaderEffect m ByteString
 
 -- | @since 0.1
-type instance DispatchOf EffectHandleReader = Dynamic
+type instance DispatchOf HandleReaderEffect = Dynamic
 
--- | Runs 'HandleReader' in 'IO'.
+-- | Runs 'HandleReaderEffect' in 'IO'.
 --
 -- @since 0.1
 runHandleReaderIO ::
-  ( EffectCallStack :> es,
+  ( CallStackEffect :> es,
     IOE :> es
   ) =>
-  Eff (EffectHandleReader : es) a ->
+  Eff (HandleReaderEffect : es) a ->
   Eff es a
 runHandleReaderIO = interpret $ \_ -> \case
   HIsEOF h -> addCallStack $ liftIO $ IO.hIsEOF h
@@ -134,12 +134,12 @@ runHandleReaderIO = interpret $ \_ -> \case
   HGetNonBlocking h i -> addCallStack $ liftIO $ BS.hGetNonBlocking h i
 
 -- | @since 0.1
-hIsEOF :: (EffectHandleReader :> es) => Handle -> Eff es Bool
+hIsEOF :: (HandleReaderEffect :> es) => Handle -> Eff es Bool
 hIsEOF = send . HIsEOF
 
 -- | @since 0.1
 hGetBuffering ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -148,7 +148,7 @@ hGetBuffering = send . HGetBuffering
 
 -- | @since 0.1
 hIsOpen ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -157,7 +157,7 @@ hIsOpen = send . HIsOpen
 
 -- | @since 0.1
 hIsClosed ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -166,7 +166,7 @@ hIsClosed = send . HIsClosed
 
 -- | @since 0.1
 hIsReadable ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -175,7 +175,7 @@ hIsReadable = send . HIsReadable
 
 -- | @since 0.1
 hIsWritable ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -184,7 +184,7 @@ hIsWritable = send . HIsWritable
 
 -- | @since 0.1
 hIsSeekable ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -193,7 +193,7 @@ hIsSeekable = send . HIsSeekable
 
 -- | @since 0.1
 hIsTerminalDevice ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -202,7 +202,7 @@ hIsTerminalDevice = send . HIsTerminalDevice
 
 -- | @since 0.1
 hGetEcho ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -211,7 +211,7 @@ hGetEcho = send . HGetEcho
 
 -- | @since 0.1
 hWaitForInput ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -221,7 +221,7 @@ hWaitForInput h = send . HWaitForInput h
 
 -- | @since 0.1
 hReady ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -230,7 +230,7 @@ hReady = send . HReady
 
 -- | @since 0.1
 hGetChar ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -239,7 +239,7 @@ hGetChar = send . HGetChar
 
 -- | @since 0.1
 hGetLine ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -248,7 +248,7 @@ hGetLine = send . HGetLine
 
 -- | @since 0.1
 hGetContents ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -257,7 +257,7 @@ hGetContents = send . HGetContents
 
 -- | @since 0.1
 hGet ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -267,7 +267,7 @@ hGet h = send . HGet h
 
 -- | @since 0.1
 hGetSome ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -277,7 +277,7 @@ hGetSome h = send . HGetSome h
 
 -- | @since 0.1
 hGetNonBlocking ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -287,7 +287,7 @@ hGetNonBlocking h = send . HGetNonBlocking h
 
 -- | @since 0.1
 hGetLineUtf8 ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -296,7 +296,7 @@ hGetLineUtf8 = fmap decodeUtf8 . hGetLine
 
 -- | @since 0.1
 hGetLineUtf8Lenient ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -305,8 +305,8 @@ hGetLineUtf8Lenient = fmap decodeUtf8Lenient . hGetLine
 
 -- | @since 0.1
 hGetLineUtf8ThrowM ::
-  ( EffectCallStack :> es,
-    EffectHandleReader :> es,
+  ( CallStackEffect :> es,
+    HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -315,7 +315,7 @@ hGetLineUtf8ThrowM = hGetLine >=> decodeUtf8ThrowM
 
 -- | @since 0.1
 hGetContentsUtf8 ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -324,7 +324,7 @@ hGetContentsUtf8 = fmap decodeUtf8 . hGetContents
 
 -- | @since 0.1
 hGetContentsUtf8Lenient ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -333,8 +333,8 @@ hGetContentsUtf8Lenient = fmap decodeUtf8Lenient . hGetContents
 
 -- | @since 0.1
 hGetContentsUtf8ThrowM ::
-  ( EffectCallStack :> es,
-    EffectHandleReader :> es,
+  ( CallStackEffect :> es,
+    HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -343,7 +343,7 @@ hGetContentsUtf8ThrowM = hGetContents >=> decodeUtf8ThrowM
 
 -- | @since 0.1
 hGetUtf8 ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -353,7 +353,7 @@ hGetUtf8 h = fmap decodeUtf8 . hGet h
 
 -- | @since 0.1
 hGetUtf8Lenient ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -363,8 +363,8 @@ hGetUtf8Lenient h = fmap decodeUtf8Lenient . hGet h
 
 -- | @since 0.1
 hGetUtf8ThrowM ::
-  ( EffectCallStack :> es,
-    EffectHandleReader :> es,
+  ( CallStackEffect :> es,
+    HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -374,7 +374,7 @@ hGetUtf8ThrowM h = hGet h >=> decodeUtf8ThrowM
 
 -- | @since 0.1
 hGetSomeUtf8 ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -384,7 +384,7 @@ hGetSomeUtf8 h = fmap decodeUtf8 . hGetSome h
 
 -- | @since 0.1
 hGetSomeUtf8Lenient ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -394,8 +394,8 @@ hGetSomeUtf8Lenient h = fmap decodeUtf8Lenient . hGetSome h
 
 -- | @since 0.1
 hGetSomeUtf8ThrowM ::
-  ( EffectCallStack :> es,
-    EffectHandleReader :> es,
+  ( CallStackEffect :> es,
+    HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -405,7 +405,7 @@ hGetSomeUtf8ThrowM h = hGetSome h >=> decodeUtf8ThrowM
 
 -- | @since 0.1
 hGetNonBlockingUtf8 ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -415,7 +415,7 @@ hGetNonBlockingUtf8 h = fmap decodeUtf8 . hGetNonBlocking h
 
 -- | @since 0.1
 hGetNonBlockingUtf8Lenient ::
-  ( EffectHandleReader :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -425,8 +425,8 @@ hGetNonBlockingUtf8Lenient h = fmap decodeUtf8Lenient . hGetNonBlocking h
 
 -- | @since 0.1
 hGetNonBlockingUtf8ThrowM ::
-  ( EffectCallStack :> es,
-    EffectHandleReader :> es,
+  ( CallStackEffect :> es,
+    HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->

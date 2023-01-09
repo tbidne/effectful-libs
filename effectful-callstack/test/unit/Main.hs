@@ -5,10 +5,10 @@ import Data.Functor ((<&>))
 import Data.String (IsString (fromString))
 import Effectful (Eff, IOE, runEff)
 import Effectful.CallStack
-  ( EffectCallStack,
+  ( CallStackEffect,
     addCallStack,
     displayCallStack,
-    runECallStackIO,
+    runCallStackIO,
     throwWithCallStack,
   )
 import Effectful.Dispatch.Static (unsafeEff_)
@@ -55,8 +55,8 @@ addsCallStack =
     desc = "Adds callstack"
     gpath = goldenPath </> "add-callstack.golden"
 
-runEffECallStack :: Eff '[EffectCallStack, IOE] a -> IO a
-runEffECallStack = runEff . runECallStackIO
+runEffECallStack :: Eff '[CallStackEffect, IOE] a -> IO a
+runEffECallStack = runEff . runCallStackIO
 
 goldenPath :: FilePath
 goldenPath = "test/unit/"

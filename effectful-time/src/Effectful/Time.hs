@@ -87,7 +87,7 @@ import Effectful
     type (:>),
   )
 import Effectful.CallStack
-  ( EffectCallStack,
+  ( CallStackEffect,
     addCallStack,
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
@@ -250,7 +250,7 @@ type instance DispatchOf TimeEffect = Dynamic
 --
 -- @since 0.1
 runTimeIO ::
-  ( EffectCallStack :> es,
+  ( CallStackEffect :> es,
     IOE :> es
   ) =>
   Eff (TimeEffect : es) a ->
@@ -351,7 +351,7 @@ parseLocalTime =
 -- @since 0.1
 parseLocalTimeCallStack ::
   ( HasCallStack,
-    EffectCallStack :> es,
+    CallStackEffect :> es,
     Fail :> es
   ) =>
   String ->
@@ -391,7 +391,7 @@ parseZonedTime =
 -- @since 0.1
 parseZonedTimeCallStack ::
   ( HasCallStack,
-    EffectCallStack :> es,
+    CallStackEffect :> es,
     Fail :> es
   ) =>
   String ->

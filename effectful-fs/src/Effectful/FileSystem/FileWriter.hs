@@ -3,7 +3,7 @@
 -- @since 0.1
 module Effectful.FileSystem.FileWriter
   ( -- * Class
-    EffectFileWriter (..),
+    FileWriterEffect (..),
     Path,
 
     -- * Handler
@@ -37,7 +37,7 @@ import Effectful
     type (:>),
   )
 import Effectful.CallStack
-  ( EffectCallStack,
+  ( CallStackEffect,
     addCallStack,
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
@@ -47,21 +47,21 @@ import GHC.Stack (HasCallStack)
 -- | Effect for reading files.
 --
 -- @since 0.1
-data EffectFileWriter :: Effect where
-  WriteBinaryFile :: HasCallStack => Path -> ByteString -> EffectFileWriter m ()
-  AppendBinaryFile :: HasCallStack => Path -> ByteString -> EffectFileWriter m ()
+data FileWriterEffect :: Effect where
+  WriteBinaryFile :: HasCallStack => Path -> ByteString -> FileWriterEffect m ()
+  AppendBinaryFile :: HasCallStack => Path -> ByteString -> FileWriterEffect m ()
 
 -- | @since 0.1
-type instance DispatchOf EffectFileWriter = Dynamic
+type instance DispatchOf FileWriterEffect = Dynamic
 
 -- | Runs 'FileWriter' in 'IO'.
 --
 -- @since 0.1
 runFileWriterIO ::
-  ( EffectCallStack :> es,
+  ( CallStackEffect :> es,
     IOE :> es
   ) =>
-  Eff (EffectFileWriter : es) a ->
+  Eff (FileWriterEffect : es) a ->
   Eff es a
 runFileWriterIO = interpret $ \_ -> \case
   WriteBinaryFile p bs -> addCallStack $ liftIO $ writeBinaryFileIO p bs
@@ -69,7 +69,7 @@ runFileWriterIO = interpret $ \_ -> \case
 
 -- | @since 0.1
 writeBinaryFile ::
-  ( EffectFileWriter :> es,
+  ( FileWriterEffect :> es,
     HasCallStack
   ) =>
   Path ->
@@ -79,7 +79,7 @@ writeBinaryFile p = send . WriteBinaryFile p
 
 -- | @since 0.1
 appendBinaryFile ::
-  ( EffectFileWriter :> es,
+  ( FileWriterEffect :> es,
     HasCallStack
   ) =>
   Path ->
@@ -97,7 +97,7 @@ encodeUtf8 = TEnc.encodeUtf8
 --
 -- @since 0.1
 writeFileUtf8 ::
-  ( EffectFileWriter :> es,
+  ( FileWriterEffect :> es,
     HasCallStack
   ) =>
   Path ->
@@ -109,7 +109,7 @@ writeFileUtf8 f = writeBinaryFile f . encodeUtf8
 --
 -- @since 0.1
 appendFileUtf8 ::
-  ( EffectFileWriter :> es,
+  ( FileWriterEffect :> es,
     HasCallStack
   ) =>
   Path ->
