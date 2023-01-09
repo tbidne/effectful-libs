@@ -2,6 +2,9 @@ resolver: lts-19.28
 packages:
 - effectful-callstack
 - effectful-fs
+- effectful-ioref
+- effectful-stm
+- effectful-thread
 ghc-options:
   "$locals":
     -Wall -Wcompat -Werror -Widentities

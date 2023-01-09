@@ -40,10 +40,16 @@
             (compiler.extend (hlib.compose.packageSourceOverrides {
               effectful-callstack = ./effectful-callstack;
               effectful-fs = ./effectful-fs;
+              effectful-ioref = ./effectful-ioref;
+              effectful-stm = ./effectful-stm;
+              effectful-thread = ./effectful-thread;
             }));
           packages = p: [
             p.effectful-callstack
             p.effectful-fs
+            p.effectful-ioref
+            p.effectful-stm
+            p.effectful-thread
           ];
 
           mkPkg = name: root: source-overrides: compiler.developPackage {
@@ -57,6 +63,9 @@
         {
           packages.effectful-callstack = mkPkg "effectful-callstack" ./effectful-callstack { };
           packages.effectful-fs = mkPkgsCallStack "effectful-fs" ./effectful-fs;
+          packages.effectful-ioref = mkPkgsCallStack "effectful-ioref" ./effectful-ioref;
+          packages.effectful-stm = mkPkgsCallStack "effectful-stm" ./effectful-stm;
+          packages.effectful-thread = mkPkgsCallStack "effectful-thread" ./effectful-thread;
 
           devShells.default = hsOverlay.shellFor {
             inherit packages;

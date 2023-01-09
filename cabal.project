@@ -1,6 +1,9 @@
 packages:
   ./effectful-callstack
   ./effectful-fs
+  ./effectful-ioref
+  ./effectful-stm
+  ./effectful-thread
 
 package effectful-callstack
   ghc-options:
@@ -11,6 +14,30 @@ package effectful-callstack
     -Wprepositive-qualified-module -Wno-unticked-promoted-constructors
 
 package effectful-fs
+  ghc-options:
+    -Wall -Wcompat -Werror -Widentities
+    -Wincomplete-record-updates -Wincomplete-uni-patterns
+    -Wmissing-home-modules -Wmissing-export-lists -Wpartial-fields
+    -Wredundant-constraints -Wunused-packages -Wmissing-deriving-strategies
+    -Wprepositive-qualified-module -Wno-unticked-promoted-constructors
+
+package effectful-ioref
+  ghc-options:
+    -Wall -Wcompat -Werror -Widentities
+    -Wincomplete-record-updates -Wincomplete-uni-patterns
+    -Wmissing-home-modules -Wmissing-export-lists -Wpartial-fields
+    -Wredundant-constraints -Wunused-packages -Wmissing-deriving-strategies
+    -Wprepositive-qualified-module -Wno-unticked-promoted-constructors
+
+package effectful-stm
+  ghc-options:
+    -Wall -Wcompat -Werror -Widentities
+    -Wincomplete-record-updates -Wincomplete-uni-patterns
+    -Wmissing-home-modules -Wmissing-export-lists -Wpartial-fields
+    -Wredundant-constraints -Wunused-packages -Wmissing-deriving-strategies
+    -Wprepositive-qualified-module -Wno-unticked-promoted-constructors
+
+package effectful-thread
   ghc-options:
     -Wall -Wcompat -Werror -Widentities
     -Wincomplete-record-updates -Wincomplete-uni-patterns

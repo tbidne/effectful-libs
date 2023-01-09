@@ -136,8 +136,8 @@ runPathReaderIO = interpret $ \env -> \case
   GetXdgDirectory xdg p -> addCallStack $ liftIO $ Dir.getXdgDirectory xdg p
   GetXdgDirectoryList xdg -> addCallStack $ liftIO $ Dir.getXdgDirectoryList xdg
   GetAppUserDataDirectory p -> addCallStack $ liftIO $ Dir.getAppUserDataDirectory p
-  GetUserDocumentsDirectory -> addCallStack $ liftIO $ Dir.getUserDocumentsDirectory
-  GetTemporaryDirectory -> addCallStack $ liftIO $ Dir.getTemporaryDirectory
+  GetUserDocumentsDirectory -> addCallStack $ liftIO Dir.getUserDocumentsDirectory
+  GetTemporaryDirectory -> addCallStack $ liftIO Dir.getTemporaryDirectory
   GetFileSize p -> addCallStack $ liftIO $ Dir.getFileSize p
   CanonicalizePath p -> addCallStack $ liftIO $ Dir.canonicalizePath p
   MakeAbsolute p -> addCallStack $ liftIO $ Dir.makeAbsolute p
