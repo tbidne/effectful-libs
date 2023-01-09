@@ -1,5 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
-
 -- | Provides an effect for writing files.
 --
 -- @since 0.1
@@ -42,9 +40,8 @@ import Effectful.CallStack
   ( EffectCallStack,
     addCallStack,
   )
-import Effectful.Dispatch.Dynamic (interpret)
+import Effectful.Dispatch.Dynamic (interpret, send)
 import Effectful.FileSystem.Path (Path, appendBinaryFileIO, writeBinaryFileIO)
-import Effectful.TH (makeEffect_)
 import GHC.Stack (HasCallStack)
 
 -- | Effect for reading files.
@@ -70,8 +67,6 @@ runFileWriterIO = interpret $ \_ -> \case
   WriteBinaryFile p bs -> addCallStack $ liftIO $ writeBinaryFileIO p bs
   AppendBinaryFile p bs -> addCallStack $ liftIO $ appendBinaryFileIO p bs
 
-makeEffect_ ''EffectFileWriter
-
 -- | @since 0.1
 writeBinaryFile ::
   ( EffectFileWriter :> es,
@@ -80,6 +75,7 @@ writeBinaryFile ::
   Path ->
   ByteString ->
   Eff es ()
+writeBinaryFile p = send . WriteBinaryFile p
 
 -- | @since 0.1
 appendBinaryFile ::
@@ -89,6 +85,7 @@ appendBinaryFile ::
   Path ->
   ByteString ->
   Eff es ()
+appendBinaryFile p = send . AppendBinaryFile p
 
 -- | Encodes a 'Text' to 'ByteString'.
 --

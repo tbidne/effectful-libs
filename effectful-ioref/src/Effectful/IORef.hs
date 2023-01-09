@@ -72,15 +72,15 @@ runIORefIO = interpret $ \_ -> \case
 
 -- | @since 0.1
 newIORef :: (HasCallStack, EffectIORef :> es) => a -> Eff es (IORef a)
-newIORef x = send (NewIORef x)
+newIORef = send . NewIORef
 
 -- | @since 0.1
 readIORef :: (HasCallStack, EffectIORef :> es) => IORef a -> Eff es a
-readIORef ref = send (ReadIORef ref)
+readIORef = send . ReadIORef
 
 -- | @since 0.1
 writeIORef :: (HasCallStack, EffectIORef :> es) => IORef a -> a -> Eff es ()
-writeIORef ref x = send (WriteIORef ref x)
+writeIORef ref = send . WriteIORef ref
 
 -- | @since 0.1
 modifyIORef' ::
@@ -90,7 +90,7 @@ modifyIORef' ::
   IORef a ->
   (a -> a) ->
   Eff es ()
-modifyIORef' ref f = send (ModifyIORef' ref f)
+modifyIORef' ref = send . ModifyIORef' ref
 
 -- | @since 0.1
 atomicModifyIORef' ::
@@ -100,7 +100,7 @@ atomicModifyIORef' ::
   IORef a ->
   (a -> (a, b)) ->
   Eff es b
-atomicModifyIORef' ref f = send (AtomicModifyIORef' ref f)
+atomicModifyIORef' ref = send . AtomicModifyIORef' ref
 
 -- | Variant of 'atomicModifyIORef'' which ignores the return value
 atomicModifyIORef'_ ::

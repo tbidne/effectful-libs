@@ -1,5 +1,4 @@
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE TemplateHaskell #-}
 
 -- | Provides an effect for writing paths.
 --
@@ -62,7 +61,7 @@ import Effectful.CallStack
   ( EffectCallStack,
     addCallStack,
   )
-import Effectful.Dispatch.Dynamic (interpret, localUnliftIO)
+import Effectful.Dispatch.Dynamic (interpret, localUnliftIO, send)
 import Effectful.FileSystem.Path (Path)
 import Effectful.FileSystem.PathReader
   ( EffectPathReader,
@@ -70,7 +69,6 @@ import Effectful.FileSystem.PathReader
     doesFileExist,
     doesPathExist,
   )
-import Effectful.TH (makeEffect_)
 import GHC.Stack (HasCallStack)
 import System.Directory (Permissions (..))
 #if MIN_VERSION_filepath(1,4,100) && MIN_VERSION_directory(1,3,8)
@@ -139,8 +137,6 @@ runPathWriterIO = interpret $ \env -> \case
   SetAccessTime p t -> addCallStack $ liftIO $ Dir.setAccessTime p t
   SetModificationTime p t -> addCallStack $ liftIO $ Dir.setModificationTime p t
 
-makeEffect_ ''EffectPathWriter
-
 -- | @since 0.1
 createDirectory ::
   ( EffectPathWriter :> es,
@@ -148,6 +144,7 @@ createDirectory ::
   ) =>
   Path ->
   Eff es ()
+createDirectory = send . CreateDirectory
 
 -- | @since 0.1
 createDirectoryIfMissing ::
@@ -157,6 +154,7 @@ createDirectoryIfMissing ::
   Bool ->
   Path ->
   Eff es ()
+createDirectoryIfMissing b = send . CreateDirectoryIfMissing b
 
 -- | @since 0.1
 removeDirectory ::
@@ -165,6 +163,7 @@ removeDirectory ::
   ) =>
   Path ->
   Eff es ()
+removeDirectory = send . RemoveDirectory
 
 -- | @since 0.1
 removeDirectoryRecursive ::
@@ -173,6 +172,7 @@ removeDirectoryRecursive ::
   ) =>
   Path ->
   Eff es ()
+removeDirectoryRecursive = send . RemoveDirectoryRecursive
 
 -- | @since 0.1
 removePathForcibly ::
@@ -181,6 +181,7 @@ removePathForcibly ::
   ) =>
   Path ->
   Eff es ()
+removePathForcibly = send . RemovePathForcibly
 
 -- | @since 0.1
 renameDirectory ::
@@ -190,6 +191,7 @@ renameDirectory ::
   Path ->
   Path ->
   Eff es ()
+renameDirectory p = send . RenameDirectory p
 
 -- | @since 0.1
 setCurrentDirectory ::
@@ -198,6 +200,7 @@ setCurrentDirectory ::
   ) =>
   Path ->
   Eff es ()
+setCurrentDirectory = send . SetCurrentDirectory
 
 -- | @since 0.1
 withCurrentDirectory ::
@@ -207,6 +210,7 @@ withCurrentDirectory ::
   Path ->
   Eff es a ->
   Eff es a
+withCurrentDirectory p = send . WithCurrentDirectory p
 
 -- | @since 0.1
 removeFile ::
@@ -215,6 +219,7 @@ removeFile ::
   ) =>
   Path ->
   Eff es ()
+removeFile = send . RemoveFile
 
 -- | @since 0.1
 renameFile ::
@@ -224,6 +229,7 @@ renameFile ::
   Path ->
   Path ->
   Eff es ()
+renameFile p = send . RenameFile p
 
 -- | @since 0.1
 renamePath ::
@@ -233,6 +239,7 @@ renamePath ::
   Path ->
   Path ->
   Eff es ()
+renamePath p = send . RenamePath p
 
 -- | @since 0.1
 copyFile ::
@@ -242,6 +249,7 @@ copyFile ::
   Path ->
   Path ->
   Eff es ()
+copyFile p = send . CopyFile p
 
 -- | @since 0.1
 copyFileWithMetadata ::
@@ -251,6 +259,7 @@ copyFileWithMetadata ::
   Path ->
   Path ->
   Eff es ()
+copyFileWithMetadata p = send . CopyFileWithMetadata p
 
 -- | @since 0.1
 createFileLink ::
@@ -260,6 +269,7 @@ createFileLink ::
   Path ->
   Path ->
   Eff es ()
+createFileLink p = send . CreateFileLink p
 
 -- | @since 0.1
 createDirectoryLink ::
@@ -269,6 +279,7 @@ createDirectoryLink ::
   Path ->
   Path ->
   Eff es ()
+createDirectoryLink p = send . CreateDirectoryLink p
 
 -- | @since 0.1
 removeDirectoryLink ::
@@ -277,6 +288,7 @@ removeDirectoryLink ::
   ) =>
   Path ->
   Eff es ()
+removeDirectoryLink = send . RemoveDirectoryLink
 
 -- | @since 0.1
 setPermissions ::
@@ -286,6 +298,7 @@ setPermissions ::
   Path ->
   Permissions ->
   Eff es ()
+setPermissions p = send . SetPermissions p
 
 -- | @since 0.1
 copyPermissions ::
@@ -295,6 +308,7 @@ copyPermissions ::
   Path ->
   Path ->
   Eff es ()
+copyPermissions p = send . CopyPermissions p
 
 -- | @since 0.1
 setAccessTime ::
@@ -304,6 +318,7 @@ setAccessTime ::
   Path ->
   UTCTime ->
   Eff es ()
+setAccessTime p = send . SetAccessTime p
 
 -- | @since 0.1
 setModificationTime ::
@@ -313,6 +328,7 @@ setModificationTime ::
   Path ->
   UTCTime ->
   Eff es ()
+setModificationTime p = send . SetModificationTime p
 
 -- | Calls 'removeFile' if 'doesFileExist' is 'True'.
 --

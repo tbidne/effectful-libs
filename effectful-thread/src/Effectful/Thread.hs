@@ -81,7 +81,7 @@ runThreadIO = interpret $ \_ -> \case
 
 -- | @since 0.1
 microsleep :: (EffectThread :> es, HasCallStack) => Natural -> Eff es ()
-microsleep n = send (Microsleep n)
+microsleep = send . Microsleep
 
 -- | Runs sleep in the current thread for the specified number of
 -- seconds.
@@ -139,24 +139,24 @@ runQSemIO = interpret $ \_ -> \case
 
 -- | @since 0.1
 newQSem :: (EffectQSem :> es, HasCallStack) => Int -> Eff es QSem
-newQSem i = send (NewQSem i)
+newQSem = send . NewQSem
 
 -- | @since 0.1
 waitQSem :: (EffectQSem :> es, HasCallStack) => QSem -> Eff es ()
-waitQSem q = send (WaitQSem q)
+waitQSem = send . WaitQSem
 
 -- | @since 0.1
 signalQSem :: (EffectQSem :> es, HasCallStack) => QSem -> Eff es ()
-signalQSem q = send (SignalQSem q)
+signalQSem = send . SignalQSem
 
 -- | @since 0.1
 newQSemN :: (EffectQSem :> es, HasCallStack) => Int -> Eff es QSemN
-newQSemN i = send (NewQSemN i)
+newQSemN = send . NewQSemN
 
 -- | @since 0.1
 waitQSemN :: (EffectQSem :> es, HasCallStack) => QSemN -> Int -> Eff es ()
-waitQSemN q i = send (WaitQSemN q i)
+waitQSemN q = send . WaitQSemN q
 
 -- | @since 0.1
 signalQSemN :: (EffectQSem :> es, HasCallStack) => QSemN -> Int -> Eff es ()
-signalQSemN q i = send (SignalQSemN q i)
+signalQSemN q = send . SignalQSemN q

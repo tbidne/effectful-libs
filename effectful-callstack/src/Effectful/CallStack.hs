@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 -- | Provides an effect for handling exceptions with callstacks.
@@ -46,8 +45,7 @@ import Effectful
     UnliftStrategy (SeqUnlift),
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (interpret, localUnliftIO)
-import Effectful.TH (makeEffect_)
+import Effectful.Dispatch.Dynamic (interpret, localUnliftIO, send)
 import GHC.Stack (CallStack, HasCallStack, prettyCallStack)
 
 -- | @since 0.1
@@ -57,7 +55,7 @@ type instance DispatchOf EffectCallStack = Dynamic
 --
 -- @since 0.1
 data EffectCallStack :: Effect where
-  ThrowWithCallStack :: (HasCallStack, Exception e) => e -> EffectCallStack m a
+  ThrowWithCallStack :: (Exception e, HasCallStack) => e -> EffectCallStack m a
   AddCallStack :: HasCallStack => m a -> EffectCallStack m a
 
 -- | Runs 'EffectCallStack' in 'IO'.
@@ -69,13 +67,19 @@ runECallStackIO = interpret $ \env -> \case
   AddCallStack m -> localUnliftIO env SeqUnlift $ \runInIO ->
     liftIO $ Ann.checkpointCallStack (runInIO m)
 
-makeEffect_ ''EffectCallStack
-
 -- | @since 0.1
-throwWithCallStack :: (HasCallStack, EffectCallStack :> es, Exception e) => e -> Eff es a
+throwWithCallStack ::
+  ( EffectCallStack :> es,
+    Exception e,
+    HasCallStack
+  ) =>
+  e ->
+  Eff es a
+throwWithCallStack e = send (ThrowWithCallStack e)
 
 -- | @since 0.1
 addCallStack :: (HasCallStack, EffectCallStack :> es) => Eff es a -> Eff es a
+addCallStack = send . AddCallStack
 
 -- | Like 'displayException', except it has extra logic that attempts to
 -- display any found 'CallStack's in a pretty way.

@@ -14,9 +14,7 @@ ghc-options:
     -Wprepositive-qualified-module -Wno-unticked-promoted-constructors
 extra-deps:
 - annotated-exception-0.2.0.4@sha256:3d499515d64d64ecc1a43a8ebbc70b24020e1ed2cbf8726039d282d87d8cb0ed,1785
-- effectful-2.2.1.0@sha256:8a56deca4c91097076d11f845c9c3c29b56815f5882abfc54e0467abd72c3547,6044
 - effectful-core-2.2.1.0@sha256:503e8c88c2fa137ea49c2f2e395707e6c4f2ff44d9f4bacf46e5b37ee44d10e0,3660
-- effectful-th-1.0.0.0@sha256:93c94d28a5c9f9ad9be2af78488a85e396d4e4514ff916e76e043ebcdbdb1cdb,2520
 nix:
   shell-file: nix/stack.nix
   nix-shell-options: [--argstr, stack-vers, lts-19]

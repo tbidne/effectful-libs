@@ -96,7 +96,7 @@ runSTMIO = interpret $ \_ -> \case
 
 -- | @since 0.1
 atomically :: (EffectSTM :> es, HasCallStack) => STM a -> Eff es a
-atomically stm = send (Atomically stm)
+atomically = send . Atomically
 
 -- | Effect for 'TVar'.
 --
@@ -127,19 +127,19 @@ runTVarIO = interpret $ \_ -> \case
 
 -- | @since 0.1
 newTVar :: (EffectTVar :> es, HasCallStack) => a -> Eff es (TVar a)
-newTVar x = send (NewTVar x)
+newTVar = send . NewTVar
 
 -- | @since 0.1
 readTVar :: (EffectTVar :> es, HasCallStack) => TVar a -> Eff es a
-readTVar var = send (ReadTVar var)
+readTVar = send . ReadTVar
 
 -- | @since 0.1
 writeTVar :: (EffectTVar :> es, HasCallStack) => TVar a -> a -> Eff es ()
-writeTVar var x = send (WriteTVar var x)
+writeTVar var = send . WriteTVar var
 
 -- | @since 0.1
 modifyTVar' :: (EffectTVar :> es, HasCallStack) => TVar a -> (a -> a) -> Eff es ()
-modifyTVar' var f = send (ModifyTVar' var f)
+modifyTVar' var = send . ModifyTVar' var
 
 -- | Effect for 'TBQueue'.
 --
@@ -172,20 +172,20 @@ runTBQueueIO = interpret $ \_ -> \case
 
 -- | @since 0.1
 newTBQueue :: (EffectTBQueue :> es, HasCallStack) => Natural -> Eff es (TBQueue a)
-newTBQueue x = send (NewTBQueue x)
+newTBQueue = send . NewTBQueue
 
 -- | @since 0.1
 readTBQueue :: (EffectTBQueue :> es, HasCallStack) => TBQueue a -> Eff es a
-readTBQueue q = send (ReadTBQueue q)
+readTBQueue = send . ReadTBQueue
 
 -- | @since 0.1
 tryReadTBQueue :: (EffectTBQueue :> es, HasCallStack) => TBQueue a -> Eff es (Maybe a)
-tryReadTBQueue q = send (TryReadTBQueue q)
+tryReadTBQueue = send . TryReadTBQueue
 
 -- | @since 0.1
 writeTBQueue :: (EffectTBQueue :> es, HasCallStack) => TBQueue a -> a -> Eff es ()
-writeTBQueue q x = send (WriteTBQueue q x)
+writeTBQueue q = send . WriteTBQueue q
 
 -- | @since 0.1
 flushTBQueue :: (EffectTBQueue :> es, HasCallStack) => TBQueue a -> Eff es [a]
-flushTBQueue q = send (FlushTBQueue q)
+flushTBQueue = send . FlushTBQueue

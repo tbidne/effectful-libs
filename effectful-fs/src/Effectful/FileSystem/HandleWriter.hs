@@ -1,5 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
-
 -- | Provides an effect for writing to a handle.
 --
 -- @since 0.1
@@ -59,7 +57,7 @@ import Effectful.CallStack
   ( EffectCallStack,
     addCallStack,
   )
-import Effectful.Dispatch.Dynamic (interpret, localUnliftIO)
+import Effectful.Dispatch.Dynamic (interpret, localUnliftIO, send)
 import Effectful.FileSystem.FileReader
   ( UnicodeException,
     decodeUtf8,
@@ -68,7 +66,6 @@ import Effectful.FileSystem.FileReader
   )
 import Effectful.FileSystem.FileWriter (encodeUtf8)
 import Effectful.FileSystem.Path (Path, openBinaryFileIO, withBinaryFileIO)
-import Effectful.TH (makeEffect_)
 import GHC.Stack (HasCallStack)
 import System.IO (BufferMode (..), Handle, IOMode (..), SeekMode (..))
 import System.IO qualified as IO
@@ -115,8 +112,6 @@ runHandleWriterIO = interpret $ \env -> \case
   HPut h bs -> addCallStack $ liftIO $ BS.hPut h bs
   HPutNonBlocking h bs -> addCallStack $ liftIO $ BS.hPutNonBlocking h bs
 
-makeEffect_ ''EffectHandleWriter
-
 -- | @since 0.1
 hOpenBinaryFile ::
   ( EffectHandleWriter :> es,
@@ -125,6 +120,7 @@ hOpenBinaryFile ::
   Path ->
   IOMode ->
   Eff es Handle
+hOpenBinaryFile p = send . HOpenBinaryFile p
 
 -- | @since 0.1
 hWithBinaryFile ::
@@ -135,6 +131,7 @@ hWithBinaryFile ::
   IOMode ->
   (Handle -> Eff es a) ->
   Eff es a
+hWithBinaryFile p m = send . HWithBinaryFile p m
 
 -- | @since 0.1
 hClose ::
@@ -143,6 +140,7 @@ hClose ::
   ) =>
   Handle ->
   Eff es ()
+hClose = send . HClose
 
 -- | @since 0.1
 hFlush ::
@@ -151,6 +149,7 @@ hFlush ::
   ) =>
   Handle ->
   Eff es ()
+hFlush = send . HFlush
 
 -- | @since 0.1
 hSetFileSize ::
@@ -160,6 +159,7 @@ hSetFileSize ::
   Handle ->
   Integer ->
   Eff es ()
+hSetFileSize h = send . HSetFileSize h
 
 -- | @since 0.1
 hSetBuffering ::
@@ -169,6 +169,7 @@ hSetBuffering ::
   Handle ->
   BufferMode ->
   Eff es ()
+hSetBuffering h = send . HSetBuffering h
 
 -- | @since 0.1
 hSeek ::
@@ -179,6 +180,7 @@ hSeek ::
   SeekMode ->
   Integer ->
   Eff es ()
+hSeek h m = send . HSeek h m
 
 -- | @since 0.1
 hTell ::
@@ -187,6 +189,7 @@ hTell ::
   ) =>
   Handle ->
   Eff es Integer
+hTell = send . HTell
 
 -- | @since 0.1
 hSetEcho ::
@@ -196,6 +199,7 @@ hSetEcho ::
   Handle ->
   Bool ->
   Eff es ()
+hSetEcho h = send . HSetEcho h
 
 -- | @since 0.1
 hPut ::
@@ -205,6 +209,7 @@ hPut ::
   Handle ->
   ByteString ->
   Eff es ()
+hPut h = send . HPut h
 
 -- | @since 0.1
 hPutNonBlocking ::
@@ -214,6 +219,7 @@ hPutNonBlocking ::
   Handle ->
   ByteString ->
   Eff es ByteString
+hPutNonBlocking h = send . HPutNonBlocking h
 
 -- | @since 0.1
 hPutUtf8 ::

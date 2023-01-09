@@ -1,5 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
-
 -- | Provides an effect for reading files.
 --
 -- @since 0.1
@@ -49,9 +47,8 @@ import Effectful.CallStack
     addCallStack,
     throwWithCallStack,
   )
-import Effectful.Dispatch.Dynamic (interpret)
+import Effectful.Dispatch.Dynamic (interpret, send)
 import Effectful.FileSystem.Path (Path, readBinaryFileIO)
-import Effectful.TH (makeEffect_)
 import GHC.Stack (HasCallStack)
 
 -- | Effect for reading files.
@@ -75,8 +72,6 @@ runFileReaderIO ::
 runFileReaderIO = interpret $ \_ -> \case
   ReadBinaryFile p -> addCallStack $ liftIO $ readBinaryFileIO p
 
-makeEffect_ ''EffectFileReader
-
 -- | @since 0.1
 readBinaryFile ::
   ( EffectFileReader :> es,
@@ -84,6 +79,7 @@ readBinaryFile ::
   ) =>
   Path ->
   Eff es ByteString
+readBinaryFile = send . ReadBinaryFile
 
 -- | Decodes a 'ByteString' to UTF-8.
 --

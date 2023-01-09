@@ -1,5 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
-
 -- | Provides an effect for reading a handle.
 --
 -- @since 0.1
@@ -72,13 +70,12 @@ import Effectful.CallStack
   ( EffectCallStack,
     addCallStack,
   )
-import Effectful.Dispatch.Dynamic (interpret)
+import Effectful.Dispatch.Dynamic (interpret, send)
 import Effectful.FileSystem.FileReader
   ( decodeUtf8,
     decodeUtf8Lenient,
     decodeUtf8ThrowM,
   )
-import Effectful.TH (makeEffect_)
 import GHC.Stack (HasCallStack)
 import System.IO (BufferMode, Handle)
 import System.IO qualified as IO
@@ -136,10 +133,9 @@ runHandleReaderIO = interpret $ \_ -> \case
   HGetSome h i -> addCallStack $ liftIO $ BS.hGetSome h i
   HGetNonBlocking h i -> addCallStack $ liftIO $ BS.hGetNonBlocking h i
 
-makeEffect_ ''EffectHandleReader
-
 -- | @since 0.1
 hIsEOF :: (EffectHandleReader :> es) => Handle -> Eff es Bool
+hIsEOF = send . HIsEOF
 
 -- | @since 0.1
 hGetBuffering ::
@@ -148,6 +144,7 @@ hGetBuffering ::
   ) =>
   Handle ->
   Eff es BufferMode
+hGetBuffering = send . HGetBuffering
 
 -- | @since 0.1
 hIsOpen ::
@@ -156,6 +153,7 @@ hIsOpen ::
   ) =>
   Handle ->
   Eff es Bool
+hIsOpen = send . HIsOpen
 
 -- | @since 0.1
 hIsClosed ::
@@ -164,6 +162,7 @@ hIsClosed ::
   ) =>
   Handle ->
   Eff es Bool
+hIsClosed = send . HIsClosed
 
 -- | @since 0.1
 hIsReadable ::
@@ -172,6 +171,7 @@ hIsReadable ::
   ) =>
   Handle ->
   Eff es Bool
+hIsReadable = send . HIsReadable
 
 -- | @since 0.1
 hIsWritable ::
@@ -180,6 +180,7 @@ hIsWritable ::
   ) =>
   Handle ->
   Eff es Bool
+hIsWritable = send . HIsWritable
 
 -- | @since 0.1
 hIsSeekable ::
@@ -188,6 +189,7 @@ hIsSeekable ::
   ) =>
   Handle ->
   Eff es Bool
+hIsSeekable = send . HIsSeekable
 
 -- | @since 0.1
 hIsTerminalDevice ::
@@ -196,6 +198,7 @@ hIsTerminalDevice ::
   ) =>
   Handle ->
   Eff es Bool
+hIsTerminalDevice = send . HIsTerminalDevice
 
 -- | @since 0.1
 hGetEcho ::
@@ -204,6 +207,7 @@ hGetEcho ::
   ) =>
   Handle ->
   Eff es Bool
+hGetEcho = send . HGetEcho
 
 -- | @since 0.1
 hWaitForInput ::
@@ -213,6 +217,7 @@ hWaitForInput ::
   Handle ->
   Int ->
   Eff es Bool
+hWaitForInput h = send . HWaitForInput h
 
 -- | @since 0.1
 hReady ::
@@ -221,6 +226,7 @@ hReady ::
   ) =>
   Handle ->
   Eff es Bool
+hReady = send . HReady
 
 -- | @since 0.1
 hGetChar ::
@@ -229,6 +235,7 @@ hGetChar ::
   ) =>
   Handle ->
   Eff es Char
+hGetChar = send . HGetChar
 
 -- | @since 0.1
 hGetLine ::
@@ -237,6 +244,7 @@ hGetLine ::
   ) =>
   Handle ->
   Eff es ByteString
+hGetLine = send . HGetLine
 
 -- | @since 0.1
 hGetContents ::
@@ -245,6 +253,7 @@ hGetContents ::
   ) =>
   Handle ->
   Eff es ByteString
+hGetContents = send . HGetContents
 
 -- | @since 0.1
 hGet ::
@@ -254,6 +263,7 @@ hGet ::
   Handle ->
   Int ->
   Eff es ByteString
+hGet h = send . HGet h
 
 -- | @since 0.1
 hGetSome ::
@@ -263,6 +273,7 @@ hGetSome ::
   Handle ->
   Int ->
   Eff es ByteString
+hGetSome h = send . HGetSome h
 
 -- | @since 0.1
 hGetNonBlocking ::
@@ -272,6 +283,7 @@ hGetNonBlocking ::
   Handle ->
   Int ->
   Eff es ByteString
+hGetNonBlocking h = send . HGetNonBlocking h
 
 -- | @since 0.1
 hGetLineUtf8 ::

@@ -1,5 +1,4 @@
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE TemplateHaskell #-}
 
 -- | Provides an effect for reading paths.
 --
@@ -67,10 +66,9 @@ import Effectful.CallStack
   ( EffectCallStack,
     addCallStack,
   )
-import Effectful.Dispatch.Dynamic (interpret, localUnliftIO)
+import Effectful.Dispatch.Dynamic (interpret, localUnliftIO, send)
 import Effectful.FileSystem.Path (Path)
 import Effectful.Internal.Monad (UnliftStrategy (SeqUnlift))
-import Effectful.TH (makeEffect_)
 import GHC.Stack (HasCallStack)
 import System.Directory
   ( Permissions (..),
@@ -160,8 +158,6 @@ runPathReaderIO = interpret $ \env -> \case
   GetAccessTime p -> addCallStack $ liftIO $ Dir.getAccessTime p
   GetModificationTime p -> addCallStack $ liftIO $ Dir.getModificationTime p
 
-makeEffect_ ''EffectPathReader
-
 -- | @since 0.1
 listDirectory ::
   ( EffectPathReader :> es,
@@ -169,6 +165,7 @@ listDirectory ::
   ) =>
   Path ->
   Eff es [Path]
+listDirectory = send . ListDirectory
 
 -- | @since 0.1
 getDirectoryContents ::
@@ -177,6 +174,7 @@ getDirectoryContents ::
   ) =>
   Path ->
   Eff es [Path]
+getDirectoryContents = send . GetDirectoryContents
 
 -- | @since 0.1
 getCurrentDirectory ::
@@ -184,6 +182,7 @@ getCurrentDirectory ::
     HasCallStack
   ) =>
   Eff es Path
+getCurrentDirectory = send GetCurrentDirectory
 
 -- | @since 0.1
 getHomeDirectory ::
@@ -191,6 +190,7 @@ getHomeDirectory ::
     HasCallStack
   ) =>
   Eff es Path
+getHomeDirectory = send GetHomeDirectory
 
 -- | @since 0.1
 getXdgDirectory ::
@@ -200,6 +200,7 @@ getXdgDirectory ::
   XdgDirectory ->
   Path ->
   Eff es Path
+getXdgDirectory xdg = send . GetXdgDirectory xdg
 
 -- | @since 0.1
 getXdgDirectoryList ::
@@ -208,6 +209,7 @@ getXdgDirectoryList ::
   ) =>
   XdgDirectoryList ->
   Eff es [Path]
+getXdgDirectoryList = send . GetXdgDirectoryList
 
 -- | @since 0.1
 getAppUserDataDirectory ::
@@ -216,6 +218,7 @@ getAppUserDataDirectory ::
   ) =>
   Path ->
   Eff es Path
+getAppUserDataDirectory = send . GetAppUserDataDirectory
 
 -- | @since 0.1
 getUserDocumentsDirectory ::
@@ -223,6 +226,7 @@ getUserDocumentsDirectory ::
     HasCallStack
   ) =>
   Eff es Path
+getUserDocumentsDirectory = send GetUserDocumentsDirectory
 
 -- | @since 0.1
 getTemporaryDirectory ::
@@ -230,6 +234,7 @@ getTemporaryDirectory ::
     HasCallStack
   ) =>
   Eff es Path
+getTemporaryDirectory = send GetTemporaryDirectory
 
 -- | @since 0.1
 getFileSize ::
@@ -238,6 +243,7 @@ getFileSize ::
   ) =>
   Path ->
   Eff es Integer
+getFileSize = send . GetFileSize
 
 -- | @since 0.1
 canonicalizePath ::
@@ -246,6 +252,7 @@ canonicalizePath ::
   ) =>
   Path ->
   Eff es Path
+canonicalizePath = send . CanonicalizePath
 
 -- | @since 0.1
 makeAbsolute ::
@@ -254,6 +261,7 @@ makeAbsolute ::
   ) =>
   Path ->
   Eff es Path
+makeAbsolute = send . MakeAbsolute
 
 -- | @since 0.1
 makeRelativeToCurrentDirectory ::
@@ -262,6 +270,7 @@ makeRelativeToCurrentDirectory ::
   ) =>
   Path ->
   Eff es Path
+makeRelativeToCurrentDirectory = send . MakeRelativeToCurrentDirectory
 
 -- | @since 0.1
 doesPathExist ::
@@ -270,6 +279,7 @@ doesPathExist ::
   ) =>
   Path ->
   Eff es Bool
+doesPathExist = send . DoesPathExist
 
 -- | @since 0.1
 doesFileExist ::
@@ -278,6 +288,7 @@ doesFileExist ::
   ) =>
   Path ->
   Eff es Bool
+doesFileExist = send . DoesFileExist
 
 -- | @since 0.1
 doesDirectoryExist ::
@@ -286,6 +297,7 @@ doesDirectoryExist ::
   ) =>
   Path ->
   Eff es Bool
+doesDirectoryExist = send . DoesDirectoryExist
 
 -- | @since 0.1
 findExecutable ::
@@ -294,6 +306,7 @@ findExecutable ::
   ) =>
   String ->
   Eff es (Maybe Path)
+findExecutable = send . FindExecutable
 
 -- | @since 0.1
 findExecutables ::
@@ -302,6 +315,7 @@ findExecutables ::
   ) =>
   String ->
   Eff es [Path]
+findExecutables = send . FindExecutables
 
 -- | @since 0.1
 findExecutablesInDirectories ::
@@ -311,6 +325,7 @@ findExecutablesInDirectories ::
   [Path] ->
   String ->
   Eff es [Path]
+findExecutablesInDirectories ps = send . FindExecutablesInDirectories ps
 
 -- | @since 0.1
 findFile ::
@@ -320,6 +335,7 @@ findFile ::
   [Path] ->
   String ->
   Eff es (Maybe Path)
+findFile ps = send . FindFile ps
 
 -- | @since 0.1
 findFiles ::
@@ -329,6 +345,7 @@ findFiles ::
   [Path] ->
   String ->
   Eff es [Path]
+findFiles ps = send . FindFiles ps
 
 -- | @since 0.1
 findFileWith ::
@@ -339,6 +356,7 @@ findFileWith ::
   [Path] ->
   String ->
   Eff es (Maybe Path)
+findFileWith f ps = send . FindFileWith f ps
 
 -- | @since 0.1
 findFilesWith ::
@@ -349,6 +367,7 @@ findFilesWith ::
   [Path] ->
   String ->
   Eff es [Path]
+findFilesWith f ps = send . FindFilesWith f ps
 
 -- | @since 0.1
 pathIsSymbolicLink ::
@@ -357,6 +376,7 @@ pathIsSymbolicLink ::
   ) =>
   Path ->
   Eff es Bool
+pathIsSymbolicLink = send . PathIsSymbolicLink
 
 -- | @since 0.1
 getSymbolicLinkTarget ::
@@ -365,6 +385,7 @@ getSymbolicLinkTarget ::
   ) =>
   Path ->
   Eff es Path
+getSymbolicLinkTarget = send . GetSymbolicLinkTarget
 
 -- | @since 0.1
 getPermissions ::
@@ -373,6 +394,7 @@ getPermissions ::
   ) =>
   Path ->
   Eff es Permissions
+getPermissions = send . GetPermissions
 
 -- | @since 0.1
 getAccessTime ::
@@ -381,6 +403,7 @@ getAccessTime ::
   ) =>
   Path ->
   Eff es UTCTime
+getAccessTime = send . GetAccessTime
 
 -- | @since 0.1
 getModificationTime ::
@@ -389,6 +412,7 @@ getModificationTime ::
   ) =>
   Path ->
   Eff es UTCTime
+getModificationTime = send . GetModificationTime
 
 -- | Retrieves the Xdg Config directory.
 --
