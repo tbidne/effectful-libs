@@ -1,5 +1,5 @@
 cabal-version:      2.4
-name:               effectful-time
+name:               effectful-terminal
 version:            0.1
 license:            MIT
 license-file:       LICENSE
@@ -9,8 +9,8 @@ author:             Thomas Bidne
 maintainer:         tbidne@protonmail.com
 homepage:           https://github.com/tbidne/effectful-effects/
 bug-reports:        https://github.com/tbidne/effectful-effects/issues
-synopsis:           Time effects
-description:        Time effects
+synopsis:           Terminal effects
+description:        Terminal effects
 category:           Effects
 extra-source-files: CHANGELOG.md
 
@@ -41,37 +41,13 @@ common common
 
 library
   import:           common
-  exposed-modules:  Effectful.Time
+  exposed-modules:  Effectful.Terminal
   build-depends:
-    , algebra-simple       ^>=0.1
     , base                 >=4.14.0.0 && <4.18
-    , bounds               ^>=0.1
-    , deepseq              ^>=1.4.4.0
     , effectful-callstack  ^>=0.1
     , effectful-core       ^>=2.2.1.0
-    , optics-th            ^>=0.4
-    , time                 >=1.9.3    && <1.14
+    , terminal-size        ^>=0.3.0
+    , text                 >=1.2.4.0  && <2.1
 
   hs-source-dirs:   src
-  default-language: Haskell2010
-
-test-suite unit
-  import:           common
-  type:             exitcode-stdio-1.0
-  main-is:          Main.hs
-  build-depends:
-    , base
-    , effectful-callstack
-    , effectful-core
-    , effectful-time
-    , filepath             ^>=1.4.2.1
-    , hedgehog             >=1.0.2    && <1.3
-    , optics-core          ^>=0.4
-    , tasty                >=1.1.0.3  && <1.5
-    , tasty-golden         ^>=2.3.1.1
-    , tasty-hedgehog       >=1.2.0.0  && <1.5
-    , tasty-hunit          >=0.9      && <0.11
-    , time
-
-  hs-source-dirs:   test/unit
   default-language: Haskell2010

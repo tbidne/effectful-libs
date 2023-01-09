@@ -3,6 +3,7 @@ packages:
   ./effectful-fs
   ./effectful-ioref
   ./effectful-stm
+  ./effectful-terminal
   ./effectful-thread
   ./effectful-time
 
@@ -31,6 +32,14 @@ package effectful-ioref
     -Wprepositive-qualified-module -Wno-unticked-promoted-constructors
 
 package effectful-stm
+  ghc-options:
+    -Wall -Wcompat -Werror -Widentities
+    -Wincomplete-record-updates -Wincomplete-uni-patterns
+    -Wmissing-home-modules -Wmissing-export-lists -Wpartial-fields
+    -Wredundant-constraints -Wunused-packages -Wmissing-deriving-strategies
+    -Wprepositive-qualified-module -Wno-unticked-promoted-constructors
+
+package effectful-terminal
   ghc-options:
     -Wall -Wcompat -Werror -Widentities
     -Wincomplete-record-updates -Wincomplete-uni-patterns

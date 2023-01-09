@@ -2,7 +2,7 @@
 --
 -- @since 0.1
 module Effectful.FileSystem.FileWriter
-  ( -- * Class
+  ( -- * Effect
     FileWriterEffect (..),
     Path,
 

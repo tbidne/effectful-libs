@@ -10,6 +10,8 @@ cradle:
       component: "lib:effectful-ioref"
     - path: "./effectful-stm/src"
       component: "lib:effectful-stm"
+    - path: "./effectful-terminal/src"
+      component: "lib:effectful-terminal"
     - path: "./effectful-thread/src"
       component: "lib:effectful-thread"
     - path: "./effectful-time/src"

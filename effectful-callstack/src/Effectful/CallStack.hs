@@ -6,11 +6,13 @@
 module Effectful.CallStack
   ( -- * Effect
     CallStackEffect (..),
-    throwWithCallStack,
-    addCallStack,
 
     -- * Handler
     runCallStackIO,
+
+    -- * Functions
+    throwWithCallStack,
+    addCallStack,
 
     -- * Utils
     displayCallStack,

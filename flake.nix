@@ -60,6 +60,7 @@
               effectful-fs = ./effectful-fs;
               effectful-ioref = ./effectful-ioref;
               effectful-stm = ./effectful-stm;
+              effectful-terminal = ./effectful-terminal;
               effectful-thread = ./effectful-thread;
               effectful-time = ./effectful-time;
             }));
@@ -68,6 +69,7 @@
             p.effectful-fs
             p.effectful-ioref
             p.effectful-stm
+            p.effectful-terminal
             p.effectful-thread
             p.effectful-time
           ];
@@ -85,6 +87,7 @@
           packages.effectful-fs = mkPkgsCallStack "effectful-fs" ./effectful-fs;
           packages.effectful-ioref = mkPkgsCallStack "effectful-ioref" ./effectful-ioref;
           packages.effectful-stm = mkPkgsCallStack "effectful-stm" ./effectful-stm;
+          packages.effectful-terminal = mkPkgsCallStack "effectful-terminal" ./effectful-terminal;
           packages.effectful-thread = mkPkgsCallStack "effectful-thread" ./effectful-thread;
           packages.effectful-time = mkPkgsCallStack "effectful-thread" ./effectful-time;
 

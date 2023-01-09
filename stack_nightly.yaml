@@ -4,6 +4,7 @@ packages:
 - effectful-fs
 - effectful-ioref
 - effectful-stm
+- effectful-terminal
 - effectful-thread
 - effectful-time
 ghc-options:
