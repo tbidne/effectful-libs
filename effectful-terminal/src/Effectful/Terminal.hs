@@ -93,7 +93,7 @@ data TermSizeException = MkTermSizeException
 instance Exception TermSizeException where
   displayException = const "Failed to detect the terminal size."
 
--- | Runs 'FileWriter' in 'IO'.
+-- | Runs 'TerminalEffect' in 'IO'.
 --
 -- @since 0.1
 runTerminalIO ::

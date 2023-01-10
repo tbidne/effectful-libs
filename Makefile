@@ -77,15 +77,18 @@ haddockc:
 
 	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
 		./effectful-logger-namespace \
+		-m Effectful.LoggerNamespace 75 ;\
 
 	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
 		./effectful-stm ;\
 
 	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
 		./effectful-terminal \
+		-m Effectful.Terminal 95 ;\
 
 	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
-		./effectful-thread \
+		./effectful-thread ;\
 
 	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
 		./effectful-time \
+		-m Effectful.Time 80
