@@ -6,12 +6,12 @@ module Effectful.FileSystem.FileWriter
     FileWriterEffect (..),
     Path,
 
-    -- * Handler
-    runFileWriterIO,
-
-    -- * Functions
+    -- ** Functions
     writeBinaryFile,
     appendBinaryFile,
+
+    -- ** Handlers
+    runFileWriterIO,
 
     -- * UTF-8 Utils
     writeFileUtf8,

@@ -5,10 +5,7 @@ module Effectful.FileSystem.HandleReader
   ( -- * Effect
     HandleReaderEffect (..),
 
-    -- * Handler
-    runHandleReaderIO,
-
-    -- * Functions
+    -- ** Functions
     hIsEOF,
     hGetBuffering,
     hIsOpen,
@@ -26,6 +23,9 @@ module Effectful.FileSystem.HandleReader
     hGet,
     hGetSome,
     hGetNonBlocking,
+
+    -- ** Handlers
+    runHandleReaderIO,
 
     -- * UTF-8 Utils
     hGetLineUtf8,

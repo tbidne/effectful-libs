@@ -7,40 +7,40 @@ module Effectful.STM
     -- ** Effect
     STMEffect (..),
 
-    -- ** Handler
-    runSTMIO,
-
-    -- ** Functions
+    -- *** Functions
     atomically,
+
+    -- *** Handlers
+    runSTMIO,
 
     -- * TVar
 
     -- ** Effect
     TVarEffect (..),
 
-    -- ** Handler
-    runTVarIO,
-
-    -- ** Functions
+    -- *** Functions
     newTVarE,
     readTVarE,
     writeTVarE,
     modifyTVarE',
+
+    -- ** Handler
+    runTVarIO,
 
     -- * TVar
 
     -- ** Effect
     TBQueueEffect (..),
 
-    -- ** Handler
-    runTBQueueIO,
-
-    -- ** Functions
+    -- *** Functions
     newTBQueueE,
     readTBQueueE,
     tryReadTBQueueE,
     writeTBQueueE,
     flushTBQueueE,
+
+    -- ** Handler
+    runTBQueueIO,
 
     -- * Reexports
     STM,

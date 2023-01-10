@@ -6,10 +6,7 @@ module Effectful.FileSystem.HandleWriter
     HandleWriterEffect (..),
     Path,
 
-    -- * Handler
-    runHandleWriterIO,
-
-    -- * Functions
+    -- ** Functions
     hOpenBinaryFile,
     hWithBinaryFile,
     hClose,
@@ -21,6 +18,9 @@ module Effectful.FileSystem.HandleWriter
     hSetEcho,
     hPut,
     hPutNonBlocking,
+
+    -- ** Handlers
+    runHandleWriterIO,
 
     -- * UTF-8 Utils
     hPutUtf8,

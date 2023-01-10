@@ -8,10 +8,7 @@ module Effectful.FileSystem.PathWriter
     PathWriterEffect (..),
     Path,
 
-    -- * Handler
-    runPathWriterIO,
-
-    -- * Functions
+    -- ** Functions
     createDirectory,
     createDirectoryIfMissing,
     removeDirectory,
@@ -32,6 +29,9 @@ module Effectful.FileSystem.PathWriter
     copyPermissions,
     setAccessTime,
     setModificationTime,
+
+    -- ** Handlers
+    runPathWriterIO,
 
     -- * Misc
     removeFileIfExists,

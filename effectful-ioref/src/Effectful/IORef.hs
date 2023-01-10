@@ -5,15 +5,15 @@ module Effectful.IORef
   ( -- * Effect
     IORefEffect (..),
 
-    -- * Handler
-    runIORefIO,
-
-    -- * Functions
+    -- ** Functions
     newIORef,
     readIORef,
     writeIORef,
     modifyIORef',
     atomicModifyIORef',
+
+    -- ** Handlers
+    runIORefIO,
 
     -- * Utils
     atomicModifyIORef'_,

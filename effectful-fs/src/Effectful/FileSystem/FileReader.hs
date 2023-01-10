@@ -6,11 +6,11 @@ module Effectful.FileSystem.FileReader
     FileReaderEffect (..),
     Path,
 
-    -- * Handler
-    runFileReaderIO,
-
-    -- * Functions
+    -- ** Functions
     readBinaryFile,
+
+    -- ** Handlers
+    runFileReaderIO,
 
     -- * UTF-8 Utils
     readFileUtf8,

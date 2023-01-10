@@ -8,10 +8,7 @@ module Effectful.Terminal
     TerminalEffect (..),
     TermSizeException (..),
 
-    -- * Handler
-    runTerminalIO,
-
-    -- * Functions
+    -- ** Functions
     putStr,
     putStrLn,
     getChar,
@@ -21,7 +18,10 @@ module Effectful.Terminal
 #endif
     getTerminalSize,
 
-    -- ** Text
+    -- ** Handlers
+    runTerminalIO,
+
+    -- * Text
     putText,
     putTextLn,
     getTextLine,
@@ -29,7 +29,7 @@ module Effectful.Terminal
     getTextContents',
 #endif
 
-    -- ** Window
+    -- * Window
     getTerminalWidth,
     getTerminalHeight,
 

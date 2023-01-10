@@ -7,11 +7,13 @@ module Effectful.Thread
     -- ** Effect
     ThreadEffect (..),
 
-    -- ** Handler
+    -- *** Functions
+    microsleep,
+
+    -- *** Handlers
     runThreadIO,
 
-    -- ** Functions
-    microsleep,
+    -- ** Misc
     sleep,
 
     -- * QSem
@@ -19,16 +21,16 @@ module Effectful.Thread
     -- ** Effect
     QSemEffect (..),
 
-    -- ** Handler
-    runQSemIO,
-
-    -- ** Functions
+    -- *** Functions
     newQSem,
     waitQSem,
     signalQSem,
     newQSemN,
     waitQSemN,
     signalQSemN,
+
+    -- *** Handlers
+    runQSemIO,
 
     -- * Reexports
     Natural,

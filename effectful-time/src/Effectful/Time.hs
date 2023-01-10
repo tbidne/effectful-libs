@@ -9,13 +9,13 @@ module Effectful.Time
   ( -- * Effect
     TimeEffect (..),
 
-    -- * Handler
-    runTimeIO,
-
-    -- * Functions
+    -- ** Functions
     getSystemTime,
     getSystemZonedTime,
     getMonotonicTime,
+
+    -- ** Handlers
+    runTimeIO,
 
     -- * Timing
     withTiming,

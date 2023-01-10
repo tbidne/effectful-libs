@@ -8,10 +8,7 @@ module Effectful.FileSystem.PathReader
     PathReaderEffect (..),
     Path,
 
-    -- * Handler
-    runPathReaderIO,
-
-    -- * Functions
+    -- ** Functions
     listDirectory,
     getDirectoryContents,
     getCurrentDirectory,
@@ -40,6 +37,9 @@ module Effectful.FileSystem.PathReader
     getPermissions,
     getAccessTime,
     getModificationTime,
+
+    -- ** Handlers
+    runPathReaderIO,
 
     -- * Xdg Utils
     getXdgConfig,

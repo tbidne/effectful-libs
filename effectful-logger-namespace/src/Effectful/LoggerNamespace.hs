@@ -9,7 +9,7 @@ module Effectful.LoggerNamespace
     LoggerNamespaceEffect (..),
     Namespace (..),
 
-    -- * Functions
+    -- ** Functions
     addNamespace,
 
     -- * Formatting
@@ -34,11 +34,6 @@ module Effectful.LoggerNamespace
 where
 
 import Control.DeepSeq (NFData)
-import Effectful.Logger
-  ( LogLevel (LevelDebug, LevelError, LevelInfo, LevelOther, LevelWarn),
-    LogStr,
-    ToLogStr (toLogStr),
-  )
 import Data.ByteString (ByteString)
 import Data.ByteString.Builder (Builder)
 import Data.Foldable (Foldable (foldMap'))
@@ -57,6 +52,11 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (send)
+import Effectful.Logger
+  ( LogLevel (LevelDebug, LevelError, LevelInfo, LevelOther, LevelWarn),
+    LogStr,
+    ToLogStr (toLogStr),
+  )
 import Effectful.Time (TimeEffect)
 import Effectful.Time qualified as TimeEffect
 import GHC.Exts (IsList (Item, fromList, toList))
