@@ -28,17 +28,15 @@ module Effectful.LoggerNamespace
     _LocNone,
 
     -- * Reexports
-    MonadLogger (..),
     LogStr,
     Loc,
   )
 where
 
 import Control.DeepSeq (NFData)
-import Control.Monad.Logger
+import Effectful.Logger
   ( LogLevel (LevelDebug, LevelError, LevelInfo, LevelOther, LevelWarn),
     LogStr,
-    MonadLogger (monadLoggerLog),
     ToLogStr (toLogStr),
   )
 import Data.ByteString (ByteString)

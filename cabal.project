@@ -2,6 +2,7 @@ packages:
   ./effectful-callstack
   ./effectful-fs
   ./effectful-ioref
+  ./effectful-logger
   ./effectful-logger-namespace
   ./effectful-stm
   ./effectful-terminal
@@ -24,7 +25,7 @@ package effectful-fs
     -Wredundant-constraints -Wunused-packages -Wmissing-deriving-strategies
     -Wprepositive-qualified-module -Wno-unticked-promoted-constructors
 
-package effectful-logger-namespace
+package effectful-ioref
   ghc-options:
     -Wall -Wcompat -Werror -Widentities
     -Wincomplete-record-updates -Wincomplete-uni-patterns
@@ -32,7 +33,15 @@ package effectful-logger-namespace
     -Wredundant-constraints -Wunused-packages -Wmissing-deriving-strategies
     -Wprepositive-qualified-module -Wno-unticked-promoted-constructors
 
-package effectful-ioref
+package effectful-logger
+  ghc-options:
+    -Wall -Wcompat -Werror -Widentities
+    -Wincomplete-record-updates -Wincomplete-uni-patterns
+    -Wmissing-home-modules -Wmissing-export-lists -Wpartial-fields
+    -Wredundant-constraints -Wunused-packages -Wmissing-deriving-strategies
+    -Wprepositive-qualified-module -Wno-unticked-promoted-constructors
+
+package effectful-logger-namespace
   ghc-options:
     -Wall -Wcompat -Werror -Widentities
     -Wincomplete-record-updates -Wincomplete-uni-patterns

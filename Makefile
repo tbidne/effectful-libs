@@ -55,6 +55,7 @@ haddock:
 	rm -rf docs/effectful-callstack* ;\
 	rm -rf docs/effectful-fs* ;\
 	rm -rf docs/effectful-ioref* ;\
+	rm -rf docs/effectful-logger* ;\
 	rm -rf docs/effectful-logger-namespace* ;\
 	rm -rf docs/effectful-stm* ;\
 	rm -rf docs/effectful-terminal* ;\
@@ -63,6 +64,7 @@ haddock:
 	cp -r dist-newstyle/build/x86_64-linux/ghc-9.2.5/effectful-callstack-0.1/doc/html/* docs/ ;\
 	cp -r dist-newstyle/build/x86_64-linux/ghc-9.2.5/effectful-fs-0.1/doc/html/* docs/ ;\
 	cp -r dist-newstyle/build/x86_64-linux/ghc-9.2.5/effectful-ioref-0.1/doc/html/* docs/ ;\
+	cp -r dist-newstyle/build/x86_64-linux/ghc-9.2.5/effectful-logger-0.1/doc/html/* docs/ ;\
 	cp -r dist-newstyle/build/x86_64-linux/ghc-9.2.5/effectful-logger-namespace-0.1/doc/html/* docs/ ;\
 	cp -r dist-newstyle/build/x86_64-linux/ghc-9.2.5/effectful-stm-0.1/doc/html/* docs/ ;\
 	cp -r dist-newstyle/build/x86_64-linux/ghc-9.2.5/effectful-terminal-0.1/doc/html/* docs/
@@ -80,6 +82,10 @@ haddockc:
 
 	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
 		./effectful-ioref ;\
+	
+	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
+		./effectful-logger \
+		-m Effectful.Logger 95 ;\
 
 	nix run github:tbidne/nix-hs-tools/0.7#haddock-cov -- \
 		./effectful-logger-namespace \

@@ -3,6 +3,7 @@ packages:
 - effectful-callstack
 - effectful-fs
 - effectful-ioref
+- effectful-logger
 - effectful-logger-namespace
 - effectful-stm
 - effectful-terminal

@@ -8,6 +8,8 @@ cradle:
       component: "lib:effectful-fs"
     - path: "./effectful-ioref/src"
       component: "lib:effectful-ioref"
+    - path: "./effectful-logger/src"
+      component: "lib:effectful-logger"
     - path: "./effectful-logger-namespace/src"
       component: "lib:effectful-logger-namespace"
     - path: "./effectful-logger-namespace/test/unit"

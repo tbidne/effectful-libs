@@ -40,15 +40,10 @@ module Effectful.Terminal
   )
 where
 
-import Control.Exception ( Exception(displayException) )
+import Control.Exception (Exception (displayException))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Text (Text)
 import Data.Text qualified as T
-import GHC.Natural (Natural)
-import GHC.Stack (HasCallStack)
-import System.Console.Terminal.Size (Window (..), size)
-import System.IO qualified as IO
-import Prelude hiding (getChar, getLine, putStr, putStrLn)
 import Effectful
   ( Dispatch (Dynamic),
     DispatchOf,
@@ -60,9 +55,14 @@ import Effectful
 import Effectful.CallStack
   ( CallStackEffect,
     addCallStack,
-    throwWithCallStack
+    throwWithCallStack,
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
+import GHC.Natural (Natural)
+import GHC.Stack (HasCallStack)
+import System.Console.Terminal.Size (Window (..), size)
+import System.IO qualified as IO
+import Prelude hiding (getChar, getLine, putStr, putStrLn)
 
 -- | Terminal effect.
 --
@@ -112,8 +112,8 @@ runTerminalIO = interpret $ \_ -> \case
 #endif
   GetTerminalSize ->
     liftIO size >>= \case
-    Just h -> pure h
-    Nothing -> throwWithCallStack MkTermSizeException
+      Just h -> pure h
+      Nothing -> throwWithCallStack MkTermSizeException
 
 -- | @since 0.1
 putStr :: (HasCallStack, TerminalEffect :> es) => String -> Eff es ()
@@ -132,9 +132,11 @@ getLine :: (HasCallStack, TerminalEffect :> es) => Eff es String
 getLine = send GetLine
 
 #if MIN_VERSION_base(4,15,0)
+
 -- | @since 0.1
 getContents' :: (HasCallStack, TerminalEffect :> es) => Eff es String
 getContents' = send GetContents'
+
 #endif
 
 -- | @since 0.1
@@ -158,9 +160,11 @@ getTextLine :: (HasCallStack, TerminalEffect :> es) => Eff es Text
 getTextLine = T.pack <$> getLine
 
 #if MIN_VERSION_base(4,15,0)
+
 -- | @since 0.1
 getTextContents' :: (HasCallStack, TerminalEffect :> es) => Eff es Text
 getTextContents' = T.pack <$> getContents'
+
 #endif
 
 -- | Retrieves the terminal width.
