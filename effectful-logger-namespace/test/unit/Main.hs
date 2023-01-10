@@ -2,10 +2,6 @@
 
 module Main (main) where
 
-import Control.Monad.Logger
-  ( Loc (Loc),
-    LogLevel (..),
-  )
 import Data.ByteString.Lazy qualified as BSL
 import Data.Text (Text)
 import Data.Time.Calendar.OrdinalDate (fromOrdinalDate)
@@ -27,6 +23,10 @@ import Effectful.Dispatch.Dynamic
   ( interpret,
     localSeqUnlift,
     reinterpret,
+  )
+import Effectful.Logger
+  ( Loc (Loc),
+    LogLevel (..),
   )
 import Effectful.LoggerNamespace
   ( LocStrategy (LocNone, LocPartial, LocStable),

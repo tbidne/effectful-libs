@@ -69,10 +69,10 @@ test-suite unit
     , bytestring
     , effectful-callstack         ^>=0.1
     , effectful-core
+    , effectful-logger
     , effectful-logger-namespace
     , effectful-time
     , filepath                    ^>=1.4.2.1
-    , monad-logger
     , tasty                       >=1.1.0.3  && <1.5
     , tasty-golden                ^>=2.3.1.1
     , text
