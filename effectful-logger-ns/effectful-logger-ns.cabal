@@ -1,5 +1,5 @@
 cabal-version:      2.4
-name:               effectful-logger-namespace
+name:               effectful-logger-ns
 version:            0.1
 license:            MIT
 license-file:       LICENSE
@@ -42,7 +42,7 @@ common common
 
 library
   import:           common
-  exposed-modules:  Effectful.LoggerNamespace
+  exposed-modules:  Effectful.LoggerNS
   build-depends:
     , base              >=4.14.0.0  && <4.18
     , bytestring        >=0.10.12.0 && <0.12
@@ -70,7 +70,7 @@ test-suite unit
     , effectful-callstack         ^>=0.1
     , effectful-core
     , effectful-logger
-    , effectful-logger-namespace
+    , effectful-logger-ns
     , effectful-time
     , filepath                    ^>=1.4.2.1
     , tasty                       >=1.1.0.3  && <1.5

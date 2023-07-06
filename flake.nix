@@ -57,7 +57,7 @@
               effectful-fs = ./effectful-fs;
               effectful-ioref = ./effectful-ioref;
               effectful-logger = ./effectful-logger;
-              effectful-logger-namespace = ./effectful-logger-namespace;
+              effectful-logger-ns = ./effectful-logger-ns;
               effectful-stm = ./effectful-stm;
               effectful-terminal = ./effectful-terminal;
               effectful-thread = ./effectful-thread;
@@ -68,7 +68,7 @@
             p.effectful-fs
             p.effectful-ioref
             p.effectful-logger
-            p.effectful-logger-namespace
+            p.effectful-logger-ns
             p.effectful-stm
             p.effectful-terminal
             p.effectful-thread
@@ -90,8 +90,8 @@
           packages.effectful-fs = mkPkgsCallStack "effectful-fs" ./effectful-fs;
           packages.effectful-ioref = mkPkgsCallStack "effectful-ioref" ./effectful-ioref;
           packages.effectful-logger = mkPkgsCallStack "effectful-logger" ./effectful-logger;
-          packages.effectful-logger-namespace =
-            mkPkg "effectful-logger-namespace" ./effectful-logger-namespace {
+          packages.effectful-logger-ns =
+            mkPkg "effectful-logger-ns" ./effectful-logger-ns {
               effectful-callstack = ./effectful-callstack;
               effectful-logger = ./effectful-logger;
               effectful-time = ./effectful-time;

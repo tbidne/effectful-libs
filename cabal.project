@@ -3,7 +3,7 @@ packages:
   ./effectful-fs
   ./effectful-ioref
   ./effectful-logger
-  ./effectful-logger-namespace
+  ./effectful-logger-ns
   ./effectful-stm
   ./effectful-terminal
   ./effectful-thread

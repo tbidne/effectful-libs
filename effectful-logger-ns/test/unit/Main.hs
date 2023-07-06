@@ -32,7 +32,7 @@ import Effectful.LoggerNamespace
   ( LocStrategy (LocNone, LocPartial, LocStable),
     LogFormatter (..),
     LogStr,
-    LoggerNamespaceEffect (..),
+    LoggerNSEffect (..),
     Namespace,
     addNamespace,
     formatLog,
@@ -169,7 +169,7 @@ formatLocPartial =
     gpath = goldenPath </> "format-locpartial.golden"
 
 formatNamespaced ::
-  ( LoggerNamespaceEffect :> es,
+  ( LoggerNSEffect :> es,
     TimeEffect :> es
   ) =>
   LogFormatter ->
@@ -206,7 +206,7 @@ runTimePure = interpret $ \_ -> \case
   GetMonotonicTime -> pure 50
 
 runLoggerNamespacePure ::
-  Eff (LoggerNamespaceEffect : es) a ->
+  Eff (LoggerNSEffect : es) a ->
   Eff es a
 runLoggerNamespacePure = reinterpret (evalState ([] :: Namespace)) $ \env -> \case
   GetNamespace -> get
@@ -217,7 +217,7 @@ runCallStackPure = interpret $ \env -> \case
   ThrowWithCallStack _ -> error "threw exception"
   AddCallStack m -> localSeqUnlift env $ \run -> run m
 
-runEffLoggerNamespace :: Eff '[LoggerNamespaceEffect, TimeEffect, CallStackEffect] a -> a
+runEffLoggerNamespace :: Eff '[LoggerNSEffect, TimeEffect, CallStackEffect] a -> a
 runEffLoggerNamespace =
   runPureEff
     . runCallStackPure

@@ -43,8 +43,8 @@ jobs:
       - name: Test effectful-callstack
         run: cabal test effectful-callstack
 
-      - name: Test effectful-logger-namespace
-        run: cabal test effectful-logger-namespace
+      - name: Test effectful-logger-ns
+        run: cabal test effectful-logger-ns
 
       - name: Test effectful-time
         run: cabal test effectful-time --test-options '--hedgehog-tests 100000'
@@ -73,7 +73,7 @@ jobs:
             .#effectful-fs \
             .#effectful-ioref \
             .#effectful-logger \
-            .#effectful-logger-namespace \
+            .#effectful-logger-ns \
             .#effectful-stm \
             .#effectful-terminal \
             .#effectful-thread \

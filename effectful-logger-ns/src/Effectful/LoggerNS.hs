@@ -4,9 +4,9 @@
 -- | Provides namespaced logging functionality on top of 'MonadLogger'.
 --
 -- @since 0.1
-module Effectful.LoggerNamespace
+module Effectful.LoggerNS
   ( -- * Effect
-    LoggerNamespaceEffect (..),
+    LoggerNSEffect (..),
     Namespace (..),
 
     -- ** Functions
@@ -116,25 +116,25 @@ displayNamespace =
 -- | Effect for namespaced logger.
 --
 -- @since 0.1
-data LoggerNamespaceEffect :: Effect where
-  GetNamespace :: (HasCallStack) => LoggerNamespaceEffect es Namespace
+data LoggerNSEffect :: Effect where
+  GetNamespace :: (HasCallStack) => LoggerNSEffect es Namespace
   LocalNamespace ::
     (HasCallStack) =>
     (Namespace -> Namespace) ->
     m a ->
-    LoggerNamespaceEffect m a
+    LoggerNSEffect m a
 
 -- | @since 0.1
-type instance DispatchOf LoggerNamespaceEffect = Dynamic
+type instance DispatchOf LoggerNSEffect = Dynamic
 
 -- | @since 0.1
-getNamespace :: (HasCallStack, LoggerNamespaceEffect :> es) => Eff es Namespace
+getNamespace :: (HasCallStack, LoggerNSEffect :> es) => Eff es Namespace
 getNamespace = send GetNamespace
 
 -- | @since 0.1
 localNamespace ::
   ( HasCallStack,
-    LoggerNamespaceEffect :> es
+    LoggerNSEffect :> es
   ) =>
   (Namespace -> Namespace) ->
   Eff es a ->
@@ -146,7 +146,7 @@ localNamespace f = send . LocalNamespace f
 -- @since 0.1
 addNamespace ::
   ( HasCallStack,
-    LoggerNamespaceEffect :> es
+    LoggerNSEffect :> es
   ) =>
   Text ->
   Eff es a ->
@@ -232,7 +232,7 @@ defaultLogFormatter loc =
 -- @since 0.1
 formatLog ::
   ( HasCallStack,
-    LoggerNamespaceEffect :> es,
+    LoggerNSEffect :> es,
     TimeEffect :> es,
     ToLogStr msg
   ) =>
