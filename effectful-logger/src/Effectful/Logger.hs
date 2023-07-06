@@ -213,7 +213,7 @@ logTHShow :: LogLevel -> Q Exp
 logTHShow level =
   [|
     monadLoggerLog $(qLocation >>= liftLoc) (pack "") $(lift level)
-      . ((pack . show) :: Show a => a -> Text)
+      . ((pack . show) :: (Show a) => a -> Text)
     |]
 
 -- | Generates a function that takes a 'Text' and logs a 'LevelDebug' message. Usage:

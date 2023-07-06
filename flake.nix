@@ -2,34 +2,29 @@
   description = "A Collection of Effectful Effects";
 
   # nix
-  inputs.flake-compat = {
-    url = "github:edolstra/flake-compat";
-    flake = false;
-  };
   inputs.flake-parts.url = "github:hercules-ci/flake-parts";
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+  inputs.nix-hs-utils.url = "github:tbidne/nix-hs-utils";
 
   # haskell
   inputs.algebra-simple = {
     url = "github:tbidne/algebra-simple";
-    inputs.flake-compat.follows = "flake-compat";
     inputs.flake-parts.follows = "flake-parts";
     inputs.nixpkgs.follows = "nixpkgs";
+    inputs.nix-hs-utils.follows = "nix-hs-utils";
   };
   inputs.bounds = {
     url = "github:tbidne/bounds";
-    inputs.flake-compat.follows = "flake-compat";
     inputs.flake-parts.follows = "flake-parts";
-    inputs.nixpkgs.follows = "nixpkgs";
+    inputs.nix-hs-utils.follows = "nix-hs-utils";
   };
   outputs =
-    { algebra-simple
-    , bounds
-    , flake-parts
+    inputs@{ flake-parts
+    , nix-hs-utils
     , self
     , ...
     }:
-    flake-parts.lib.mkFlake { inherit self; } {
+    flake-parts.lib.mkFlake { inherit inputs; } {
       perSystem = { pkgs, ... }:
         let
           buildTools = c: with c; [
@@ -41,18 +36,20 @@
             ghcid
             haskell-language-server
           ];
-          ghc-version = "ghc925";
+          ghc-version = "ghc945";
           hlib = pkgs.haskell.lib;
           compiler = pkgs.haskell.packages."${ghc-version}".override {
             overrides = final: prev: {
-              algebra-simple = final.callCabal2nix "algebra-simple" algebra-simple { };
-              bounds = final.callCabal2nix "bounds" bounds { };
+              apply-refact = prev.apply-refact_0_11_0_0;
               # These tests seems to hang, see:
               # https://github.com/ddssff/listlike/issues/23
               ListLike = hlib.dontCheck prev.ListLike;
               hedgehog = prev.hedgehog_1_2;
-              tasty-hedgehog = prev.tasty-hedgehog_1_4_0_0;
-            };
+              tasty-hedgehog = prev.tasty-hedgehog_1_4_0_1;
+            } // nix-hs-utils.mkLibs inputs final [
+              "algebra-simple"
+              "bounds"
+            ];
           };
           hsOverlay =
             (compiler.extend (hlib.compose.packageSourceOverrides {
@@ -85,6 +82,8 @@
           mkPkgsCallStack = name: root: mkPkg name root {
             effectful-callstack = ./effectful-callstack;
           };
+
+          hsDirs = "effectful-*";
         in
         {
           packages.effectful-callstack = mkPkg "effectful-callstack" ./effectful-callstack { };
@@ -105,15 +104,25 @@
           devShells.default = hsOverlay.shellFor {
             inherit packages;
             withHoogle = true;
-            buildInputs = (buildTools compiler) ++ (devTools compiler);
+            buildInputs =
+              (nix-hs-utils.mkBuildTools pkgs compiler)
+              ++ (nix-hs-utils.mkDevTools { inherit pkgs compiler; });
           };
-          devShells.ci = hsOverlay.shellFor {
-            inherit packages;
-            withHoogle = false;
-            buildInputs = buildTools compiler;
+
+          apps = {
+            format = nix-hs-utils.format {
+              inherit compiler hsDirs pkgs;
+            };
+            lint = nix-hs-utils.lint {
+              inherit compiler hsDirs pkgs;
+            };
+            lint-refactor = nix-hs-utils.lint-refactor {
+              inherit compiler hsDirs pkgs;
+            };
           };
         };
       systems = [
+        "x86_64-darwin"
         "x86_64-linux"
       ];
     };

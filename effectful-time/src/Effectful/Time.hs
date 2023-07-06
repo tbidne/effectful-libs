@@ -104,7 +104,6 @@ import Numeric.Algebra
     ASemigroup ((.+.)),
     MSemiSpace ((.*)),
     MSpace ((.%)),
-    NonZero (MkNonZero),
     Normed (norm),
     Semimodule,
     SemivectorSpace,
@@ -172,7 +171,7 @@ instance MSemiSpace TimeSpec Natural where
 
 -- | @since 0.1
 instance MSpace TimeSpec Natural where
-  ts .% MkNonZero k = fromDouble (toDouble ts / fromIntegral k)
+  ts .% k = fromDouble (toDouble ts / fromIntegral k)
 
 -- | @since 0.1
 instance Semimodule TimeSpec Natural
@@ -239,9 +238,9 @@ normalizeTimeSpec = fromNanoSeconds . toNanoSeconds
 --
 -- @since 0.1
 data TimeEffect :: Effect where
-  GetSystemTime :: HasCallStack => TimeEffect m LocalTime
-  GetSystemZonedTime :: HasCallStack => TimeEffect m ZonedTime
-  GetMonotonicTime :: HasCallStack => TimeEffect m Double
+  GetSystemTime :: (HasCallStack) => TimeEffect m LocalTime
+  GetSystemZonedTime :: (HasCallStack) => TimeEffect m ZonedTime
+  GetMonotonicTime :: (HasCallStack) => TimeEffect m Double
 
 -- | @since 0.1
 type instance DispatchOf TimeEffect = Dynamic
@@ -338,7 +337,7 @@ getSystemZonedTimeString = fmap formatZonedTime getSystemZonedTime
 -- 'parseLocalTimeCallStack'.
 --
 -- @since 0.1
-parseLocalTime :: MonadFail f => String -> f LocalTime
+parseLocalTime :: (MonadFail f) => String -> f LocalTime
 parseLocalTime =
   Format.parseTimeM
     True
@@ -378,7 +377,7 @@ parseLocalTimeCallStack = addCallStack . parseLocalTime
 -- * +HHMM (e.g. +1300)
 --
 -- @since 0.1
-parseZonedTime :: MonadFail f => String -> f ZonedTime
+parseZonedTime :: (MonadFail f) => String -> f ZonedTime
 parseZonedTime =
   Format.parseTimeM
     True

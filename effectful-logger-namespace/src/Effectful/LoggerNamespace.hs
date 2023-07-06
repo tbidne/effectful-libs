@@ -117,9 +117,9 @@ displayNamespace =
 --
 -- @since 0.1
 data LoggerNamespaceEffect :: Effect where
-  GetNamespace :: HasCallStack => LoggerNamespaceEffect es Namespace
+  GetNamespace :: (HasCallStack) => LoggerNamespaceEffect es Namespace
   LocalNamespace ::
-    HasCallStack =>
+    (HasCallStack) =>
     (Namespace -> Namespace) ->
     m a ->
     LoggerNamespaceEffect m a

@@ -45,11 +45,11 @@ import GHC.Stack (HasCallStack)
 --
 -- @since 0.1
 data IORefEffect :: Effect where
-  NewIORef :: HasCallStack => a -> IORefEffect m (IORef a)
-  ReadIORef :: HasCallStack => IORef a -> IORefEffect m a
-  WriteIORef :: HasCallStack => IORef a -> a -> IORefEffect m ()
-  ModifyIORef' :: HasCallStack => IORef a -> (a -> a) -> IORefEffect m ()
-  AtomicModifyIORef' :: HasCallStack => IORef a -> (a -> (a, b)) -> IORefEffect m b
+  NewIORef :: (HasCallStack) => a -> IORefEffect m (IORef a)
+  ReadIORef :: (HasCallStack) => IORef a -> IORefEffect m a
+  WriteIORef :: (HasCallStack) => IORef a -> a -> IORefEffect m ()
+  ModifyIORef' :: (HasCallStack) => IORef a -> (a -> a) -> IORefEffect m ()
+  AtomicModifyIORef' :: (HasCallStack) => IORef a -> (a -> (a, b)) -> IORefEffect m b
 
 -- | @since 0.1
 type instance DispatchOf IORefEffect = Dynamic

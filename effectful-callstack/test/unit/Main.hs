@@ -64,5 +64,5 @@ goldenPath = "test/unit/"
 diff :: FilePath -> FilePath -> [FilePath]
 diff ref new = ["diff", "-u", ref, new]
 
-stableCallStack :: Exception e => e -> String
+stableCallStack :: (Exception e) => e -> String
 stableCallStack = unlines . take 2 . lines . displayCallStack

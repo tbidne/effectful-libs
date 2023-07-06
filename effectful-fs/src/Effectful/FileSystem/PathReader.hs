@@ -84,34 +84,34 @@ import System.Directory qualified as Dir
 --
 -- @since 0.1
 data PathReaderEffect :: Effect where
-  ListDirectory :: HasCallStack => Path -> PathReaderEffect m [Path]
-  GetDirectoryContents :: HasCallStack => Path -> PathReaderEffect m [Path]
-  GetCurrentDirectory :: HasCallStack => PathReaderEffect m Path
-  GetHomeDirectory :: HasCallStack => PathReaderEffect m Path
-  GetXdgDirectory :: HasCallStack => XdgDirectory -> Path -> PathReaderEffect m Path
-  GetXdgDirectoryList :: HasCallStack => XdgDirectoryList -> PathReaderEffect m [Path]
-  GetAppUserDataDirectory :: HasCallStack => Path -> PathReaderEffect m Path
-  GetUserDocumentsDirectory :: HasCallStack => PathReaderEffect m Path
-  GetTemporaryDirectory :: HasCallStack => PathReaderEffect m Path
-  GetFileSize :: HasCallStack => Path -> PathReaderEffect m Integer
-  CanonicalizePath :: HasCallStack => Path -> PathReaderEffect m Path
-  MakeAbsolute :: HasCallStack => Path -> PathReaderEffect m Path
-  MakeRelativeToCurrentDirectory :: HasCallStack => Path -> PathReaderEffect m Path
-  DoesPathExist :: HasCallStack => Path -> PathReaderEffect m Bool
-  DoesFileExist :: HasCallStack => Path -> PathReaderEffect m Bool
-  DoesDirectoryExist :: HasCallStack => Path -> PathReaderEffect m Bool
-  FindExecutable :: HasCallStack => String -> PathReaderEffect m (Maybe Path)
-  FindExecutables :: HasCallStack => String -> PathReaderEffect m [Path]
-  FindExecutablesInDirectories :: HasCallStack => [Path] -> String -> PathReaderEffect m [Path]
-  FindFile :: HasCallStack => [Path] -> String -> PathReaderEffect m (Maybe Path)
-  FindFiles :: HasCallStack => [Path] -> String -> PathReaderEffect m [Path]
-  FindFileWith :: HasCallStack => (Path -> m Bool) -> [Path] -> String -> PathReaderEffect m (Maybe Path)
-  FindFilesWith :: HasCallStack => (Path -> m Bool) -> [Path] -> String -> PathReaderEffect m [Path]
-  PathIsSymbolicLink :: HasCallStack => Path -> PathReaderEffect m Bool
-  GetSymbolicLinkTarget :: HasCallStack => Path -> PathReaderEffect m Path
-  GetPermissions :: HasCallStack => Path -> PathReaderEffect m Permissions
-  GetAccessTime :: HasCallStack => Path -> PathReaderEffect m UTCTime
-  GetModificationTime :: HasCallStack => Path -> PathReaderEffect m UTCTime
+  ListDirectory :: (HasCallStack) => Path -> PathReaderEffect m [Path]
+  GetDirectoryContents :: (HasCallStack) => Path -> PathReaderEffect m [Path]
+  GetCurrentDirectory :: (HasCallStack) => PathReaderEffect m Path
+  GetHomeDirectory :: (HasCallStack) => PathReaderEffect m Path
+  GetXdgDirectory :: (HasCallStack) => XdgDirectory -> Path -> PathReaderEffect m Path
+  GetXdgDirectoryList :: (HasCallStack) => XdgDirectoryList -> PathReaderEffect m [Path]
+  GetAppUserDataDirectory :: (HasCallStack) => Path -> PathReaderEffect m Path
+  GetUserDocumentsDirectory :: (HasCallStack) => PathReaderEffect m Path
+  GetTemporaryDirectory :: (HasCallStack) => PathReaderEffect m Path
+  GetFileSize :: (HasCallStack) => Path -> PathReaderEffect m Integer
+  CanonicalizePath :: (HasCallStack) => Path -> PathReaderEffect m Path
+  MakeAbsolute :: (HasCallStack) => Path -> PathReaderEffect m Path
+  MakeRelativeToCurrentDirectory :: (HasCallStack) => Path -> PathReaderEffect m Path
+  DoesPathExist :: (HasCallStack) => Path -> PathReaderEffect m Bool
+  DoesFileExist :: (HasCallStack) => Path -> PathReaderEffect m Bool
+  DoesDirectoryExist :: (HasCallStack) => Path -> PathReaderEffect m Bool
+  FindExecutable :: (HasCallStack) => String -> PathReaderEffect m (Maybe Path)
+  FindExecutables :: (HasCallStack) => String -> PathReaderEffect m [Path]
+  FindExecutablesInDirectories :: (HasCallStack) => [Path] -> String -> PathReaderEffect m [Path]
+  FindFile :: (HasCallStack) => [Path] -> String -> PathReaderEffect m (Maybe Path)
+  FindFiles :: (HasCallStack) => [Path] -> String -> PathReaderEffect m [Path]
+  FindFileWith :: (HasCallStack) => (Path -> m Bool) -> [Path] -> String -> PathReaderEffect m (Maybe Path)
+  FindFilesWith :: (HasCallStack) => (Path -> m Bool) -> [Path] -> String -> PathReaderEffect m [Path]
+  PathIsSymbolicLink :: (HasCallStack) => Path -> PathReaderEffect m Bool
+  GetSymbolicLinkTarget :: (HasCallStack) => Path -> PathReaderEffect m Path
+  GetPermissions :: (HasCallStack) => Path -> PathReaderEffect m Permissions
+  GetAccessTime :: (HasCallStack) => Path -> PathReaderEffect m UTCTime
+  GetModificationTime :: (HasCallStack) => Path -> PathReaderEffect m UTCTime
 
 -- | @since 0.1
 type instance DispatchOf PathReaderEffect = Dynamic

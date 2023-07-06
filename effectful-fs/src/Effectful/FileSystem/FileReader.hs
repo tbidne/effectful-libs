@@ -55,7 +55,7 @@ import GHC.Stack (HasCallStack)
 --
 -- @since 0.1
 data FileReaderEffect :: Effect where
-  ReadBinaryFile :: HasCallStack => Path -> FileReaderEffect m ByteString
+  ReadBinaryFile :: (HasCallStack) => Path -> FileReaderEffect m ByteString
 
 -- | @since 0.1
 type instance DispatchOf FileReaderEffect = Dynamic

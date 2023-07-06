@@ -80,26 +80,26 @@ import System.Directory qualified as Dir
 --
 -- @since 0.1
 data PathWriterEffect :: Effect where
-  CreateDirectory :: HasCallStack => Path -> PathWriterEffect m ()
-  CreateDirectoryIfMissing :: HasCallStack => Bool -> Path -> PathWriterEffect m ()
-  RemoveDirectory :: HasCallStack => Path -> PathWriterEffect m ()
-  RemoveDirectoryRecursive :: HasCallStack => Path -> PathWriterEffect m ()
-  RemovePathForcibly :: HasCallStack => Path -> PathWriterEffect m ()
-  RenameDirectory :: HasCallStack => Path -> Path -> PathWriterEffect m ()
-  SetCurrentDirectory :: HasCallStack => Path -> PathWriterEffect m ()
-  WithCurrentDirectory :: HasCallStack => Path -> m a -> PathWriterEffect m a
-  RemoveFile :: HasCallStack => Path -> PathWriterEffect m ()
-  RenameFile :: HasCallStack => Path -> Path -> PathWriterEffect m ()
-  RenamePath :: HasCallStack => Path -> Path -> PathWriterEffect m ()
-  CopyFile :: HasCallStack => Path -> Path -> PathWriterEffect m ()
-  CopyFileWithMetadata :: HasCallStack => Path -> Path -> PathWriterEffect m ()
-  CreateFileLink :: HasCallStack => Path -> Path -> PathWriterEffect m ()
-  CreateDirectoryLink :: HasCallStack => Path -> Path -> PathWriterEffect m ()
-  RemoveDirectoryLink :: HasCallStack => Path -> PathWriterEffect m ()
-  SetPermissions :: HasCallStack => Path -> Permissions -> PathWriterEffect m ()
-  CopyPermissions :: HasCallStack => Path -> Path -> PathWriterEffect m ()
-  SetAccessTime :: HasCallStack => Path -> UTCTime -> PathWriterEffect m ()
-  SetModificationTime :: HasCallStack => Path -> UTCTime -> PathWriterEffect m ()
+  CreateDirectory :: (HasCallStack) => Path -> PathWriterEffect m ()
+  CreateDirectoryIfMissing :: (HasCallStack) => Bool -> Path -> PathWriterEffect m ()
+  RemoveDirectory :: (HasCallStack) => Path -> PathWriterEffect m ()
+  RemoveDirectoryRecursive :: (HasCallStack) => Path -> PathWriterEffect m ()
+  RemovePathForcibly :: (HasCallStack) => Path -> PathWriterEffect m ()
+  RenameDirectory :: (HasCallStack) => Path -> Path -> PathWriterEffect m ()
+  SetCurrentDirectory :: (HasCallStack) => Path -> PathWriterEffect m ()
+  WithCurrentDirectory :: (HasCallStack) => Path -> m a -> PathWriterEffect m a
+  RemoveFile :: (HasCallStack) => Path -> PathWriterEffect m ()
+  RenameFile :: (HasCallStack) => Path -> Path -> PathWriterEffect m ()
+  RenamePath :: (HasCallStack) => Path -> Path -> PathWriterEffect m ()
+  CopyFile :: (HasCallStack) => Path -> Path -> PathWriterEffect m ()
+  CopyFileWithMetadata :: (HasCallStack) => Path -> Path -> PathWriterEffect m ()
+  CreateFileLink :: (HasCallStack) => Path -> Path -> PathWriterEffect m ()
+  CreateDirectoryLink :: (HasCallStack) => Path -> Path -> PathWriterEffect m ()
+  RemoveDirectoryLink :: (HasCallStack) => Path -> PathWriterEffect m ()
+  SetPermissions :: (HasCallStack) => Path -> Permissions -> PathWriterEffect m ()
+  CopyPermissions :: (HasCallStack) => Path -> Path -> PathWriterEffect m ()
+  SetAccessTime :: (HasCallStack) => Path -> UTCTime -> PathWriterEffect m ()
+  SetModificationTime :: (HasCallStack) => Path -> UTCTime -> PathWriterEffect m ()
 
 -- | @since 0.1
 type instance DispatchOf PathWriterEffect = Dynamic
@@ -379,6 +379,6 @@ removePathForciblyIfExists ::
 removePathForciblyIfExists =
   removeIfExists doesPathExist removePathForcibly
 
-removeIfExists :: Monad m => (t -> m Bool) -> (t -> m ()) -> t -> m ()
+removeIfExists :: (Monad m) => (t -> m Bool) -> (t -> m ()) -> t -> m ()
 removeIfExists existsFn deleteFn f =
   existsFn f >>= \b -> when b (deleteFn f)

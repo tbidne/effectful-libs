@@ -77,7 +77,7 @@ import Numeric.Natural (Natural)
 --
 -- @since 0.1
 data STMEffect :: Effect where
-  Atomically :: HasCallStack => STM a -> STMEffect m a
+  Atomically :: (HasCallStack) => STM a -> STMEffect m a
 
 -- | @since 0.1
 type instance DispatchOf STMEffect = Dynamic
@@ -102,10 +102,10 @@ atomically = send . Atomically
 --
 -- @since 0.1
 data TVarEffect :: Effect where
-  NewTVarE :: HasCallStack => a -> TVarEffect m (TVar a)
-  ReadTVarE :: HasCallStack => TVar a -> TVarEffect m a
-  WriteTVarE :: HasCallStack => TVar a -> a -> TVarEffect m ()
-  ModifyTVarE' :: HasCallStack => TVar a -> (a -> a) -> TVarEffect m ()
+  NewTVarE :: (HasCallStack) => a -> TVarEffect m (TVar a)
+  ReadTVarE :: (HasCallStack) => TVar a -> TVarEffect m a
+  WriteTVarE :: (HasCallStack) => TVar a -> a -> TVarEffect m ()
+  ModifyTVarE' :: (HasCallStack) => TVar a -> (a -> a) -> TVarEffect m ()
 
 -- | @since 0.1
 type instance DispatchOf TVarEffect = Dynamic
@@ -145,11 +145,11 @@ modifyTVarE' var = send . ModifyTVarE' var
 --
 -- @since 0.1
 data TBQueueEffect :: Effect where
-  NewTBQueueE :: HasCallStack => Natural -> TBQueueEffect m (TBQueue a)
-  ReadTBQueueE :: HasCallStack => TBQueue a -> TBQueueEffect m a
-  TryReadTBQueueE :: HasCallStack => TBQueue a -> TBQueueEffect m (Maybe a)
-  WriteTBQueueE :: HasCallStack => TBQueue a -> a -> TBQueueEffect m ()
-  FlushTBQueueE :: HasCallStack => TBQueue a -> TBQueueEffect m [a]
+  NewTBQueueE :: (HasCallStack) => Natural -> TBQueueEffect m (TBQueue a)
+  ReadTBQueueE :: (HasCallStack) => TBQueue a -> TBQueueEffect m a
+  TryReadTBQueueE :: (HasCallStack) => TBQueue a -> TBQueueEffect m (Maybe a)
+  WriteTBQueueE :: (HasCallStack) => TBQueue a -> a -> TBQueueEffect m ()
+  FlushTBQueueE :: (HasCallStack) => TBQueue a -> TBQueueEffect m [a]
 
 -- | @since 0.1
 type instance DispatchOf TBQueueEffect = Dynamic

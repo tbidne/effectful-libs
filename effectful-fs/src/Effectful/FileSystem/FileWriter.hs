@@ -48,8 +48,8 @@ import GHC.Stack (HasCallStack)
 --
 -- @since 0.1
 data FileWriterEffect :: Effect where
-  WriteBinaryFile :: HasCallStack => Path -> ByteString -> FileWriterEffect m ()
-  AppendBinaryFile :: HasCallStack => Path -> ByteString -> FileWriterEffect m ()
+  WriteBinaryFile :: (HasCallStack) => Path -> ByteString -> FileWriterEffect m ()
+  AppendBinaryFile :: (HasCallStack) => Path -> ByteString -> FileWriterEffect m ()
 
 -- | @since 0.1
 type instance DispatchOf FileWriterEffect = Dynamic

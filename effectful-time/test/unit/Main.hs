@@ -501,7 +501,7 @@ genTimeSpec = MkTimeSpec <$> genSec <*> genNSec
     genSec = Gen.integral (R.linearFrom 5 0 10)
     genNSec = Gen.integral (R.linearFrom 0 0 10_000_000_000)
 
-stableCallStack :: Exception e => e -> String
+stableCallStack :: (Exception e) => e -> String
 stableCallStack = unlines . take 2 . lines . displayCallStack
 
 runEffTime :: Eff '[TimeEffect, CallStackEffect, Fail, IOE] a -> IO a

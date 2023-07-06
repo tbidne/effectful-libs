@@ -76,17 +76,17 @@ type instance DispatchOf HandleWriterEffect = Dynamic
 --
 -- @since 0.1
 data HandleWriterEffect :: Effect where
-  HOpenBinaryFile :: HasCallStack => Path -> IOMode -> HandleWriterEffect m Handle
-  HWithBinaryFile :: HasCallStack => Path -> IOMode -> (Handle -> m a) -> HandleWriterEffect m a
-  HClose :: HasCallStack => Handle -> HandleWriterEffect m ()
-  HFlush :: HasCallStack => Handle -> HandleWriterEffect m ()
-  HSetFileSize :: HasCallStack => Handle -> Integer -> HandleWriterEffect m ()
-  HSetBuffering :: HasCallStack => Handle -> BufferMode -> HandleWriterEffect m ()
-  HSeek :: HasCallStack => Handle -> SeekMode -> Integer -> HandleWriterEffect m ()
-  HTell :: HasCallStack => Handle -> HandleWriterEffect m Integer
-  HSetEcho :: HasCallStack => Handle -> Bool -> HandleWriterEffect m ()
-  HPut :: HasCallStack => Handle -> ByteString -> HandleWriterEffect m ()
-  HPutNonBlocking :: HasCallStack => Handle -> ByteString -> HandleWriterEffect m ByteString
+  HOpenBinaryFile :: (HasCallStack) => Path -> IOMode -> HandleWriterEffect m Handle
+  HWithBinaryFile :: (HasCallStack) => Path -> IOMode -> (Handle -> m a) -> HandleWriterEffect m a
+  HClose :: (HasCallStack) => Handle -> HandleWriterEffect m ()
+  HFlush :: (HasCallStack) => Handle -> HandleWriterEffect m ()
+  HSetFileSize :: (HasCallStack) => Handle -> Integer -> HandleWriterEffect m ()
+  HSetBuffering :: (HasCallStack) => Handle -> BufferMode -> HandleWriterEffect m ()
+  HSeek :: (HasCallStack) => Handle -> SeekMode -> Integer -> HandleWriterEffect m ()
+  HTell :: (HasCallStack) => Handle -> HandleWriterEffect m Integer
+  HSetEcho :: (HasCallStack) => Handle -> Bool -> HandleWriterEffect m ()
+  HPut :: (HasCallStack) => Handle -> ByteString -> HandleWriterEffect m ()
+  HPutNonBlocking :: (HasCallStack) => Handle -> ByteString -> HandleWriterEffect m ByteString
 
 -- | Runs 'HandleWriterEffect' in 'IO'.
 --

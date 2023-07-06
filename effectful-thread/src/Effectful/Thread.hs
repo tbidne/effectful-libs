@@ -64,7 +64,7 @@ import GHC.Stack (HasCallStack)
 --
 -- @since 0.1
 data ThreadEffect :: Effect where
-  Microsleep :: HasCallStack => Natural -> ThreadEffect m ()
+  Microsleep :: (HasCallStack) => Natural -> ThreadEffect m ()
 
 -- | @since 0.1
 type instance DispatchOf ThreadEffect = Dynamic
@@ -112,12 +112,12 @@ i2n = fromIntegral
 --
 -- @since 0.1
 data QSemEffect :: Effect where
-  NewQSem :: HasCallStack => Int -> QSemEffect m QSem
-  WaitQSem :: HasCallStack => QSem -> QSemEffect m ()
-  SignalQSem :: HasCallStack => QSem -> QSemEffect m ()
-  NewQSemN :: HasCallStack => Int -> QSemEffect m QSemN
-  WaitQSemN :: HasCallStack => QSemN -> Int -> QSemEffect m ()
-  SignalQSemN :: HasCallStack => QSemN -> Int -> QSemEffect m ()
+  NewQSem :: (HasCallStack) => Int -> QSemEffect m QSem
+  WaitQSem :: (HasCallStack) => QSem -> QSemEffect m ()
+  SignalQSem :: (HasCallStack) => QSem -> QSemEffect m ()
+  NewQSemN :: (HasCallStack) => Int -> QSemEffect m QSemN
+  WaitQSemN :: (HasCallStack) => QSemN -> Int -> QSemEffect m ()
+  SignalQSemN :: (HasCallStack) => QSemN -> Int -> QSemEffect m ()
 
 -- | @since 0.1
 type instance DispatchOf QSemEffect = Dynamic

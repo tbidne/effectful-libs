@@ -57,12 +57,12 @@ type instance DispatchOf CallStackEffect = Dynamic
 -- @since 0.1
 data CallStackEffect :: Effect where
   ThrowWithCallStack :: (Exception e, HasCallStack) => e -> CallStackEffect m a
-  AddCallStack :: HasCallStack => m a -> CallStackEffect m a
+  AddCallStack :: (HasCallStack) => m a -> CallStackEffect m a
 
 -- | Runs 'CallStackEffect' in 'IO'.
 --
 -- @since 0.1
-runCallStackIO :: IOE :> es => Eff (CallStackEffect : es) a -> Eff es a
+runCallStackIO :: (IOE :> es) => Eff (CallStackEffect : es) a -> Eff es a
 runCallStackIO = interpret $ \env -> \case
   ThrowWithCallStack ex -> liftIO $ Ann.throwWithCallStack ex
   AddCallStack m -> localSeqUnliftIO env $ \runInIO ->
@@ -86,7 +86,7 @@ addCallStack = send . AddCallStack
 -- display any found 'CallStack's in a pretty way.
 --
 -- @since 0.1
-displayCallStack :: forall e. Exception e => e -> String
+displayCallStack :: forall e. (Exception e) => e -> String
 displayCallStack ex =
   case fromException @(AnnotatedException SomeException) (toException ex) of
     Nothing -> displayException ex

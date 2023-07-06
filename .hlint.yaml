@@ -1,0 +1,15 @@
+- ignore:
+    name: "Redundant bracket"
+    within:
+      - "Effectful.CallStack"
+      - "Effectful.LoggerNamespace"
+      - "Effectful.FileSystem.FileReader"
+      - "Effectful.FileSystem.FileWriter"
+      - "Effectful.FileSystem.HandleReader"
+      - "Effectful.FileSystem.HandleWriter"
+      - "Effectful.FileSystem.PathReader"
+      - "Effectful.FileSystem.PathWriter"
+      - "Effectful.IORef"
+      - "Effectful.STM"
+      - "Effectful.Time"
+      - "Effectful.Thread"

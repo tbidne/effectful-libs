@@ -1,5 +1,7 @@
 {-# LANGUAGE CPP #-}
 
+{- ORMOLU_DISABLE -}
+
 -- | Provides a Terminal effect.
 --
 -- @since 0.1
@@ -77,6 +79,8 @@ data TerminalEffect :: Effect where
 #endif
   GetTerminalSize :: HasCallStack => TerminalEffect m (Window Natural)
 
+{- ORMOLU_ENABLE -}
+
 -- | @since 0.1
 type instance DispatchOf TerminalEffect = Dynamic
 
@@ -92,6 +96,8 @@ data TermSizeException = MkTermSizeException
 -- | @since 0.1
 instance Exception TermSizeException where
   displayException = const "Failed to detect the terminal size."
+
+{- ORMOLU_DISABLE -}
 
 -- | Runs 'TerminalEffect' in 'IO'.
 --
@@ -114,6 +120,8 @@ runTerminalIO = interpret $ \_ -> \case
     liftIO size >>= \case
       Just h -> pure h
       Nothing -> throwWithCallStack MkTermSizeException
+
+{- ORMOLU_ENABLE -}
 
 -- | @since 0.1
 putStr :: (HasCallStack, TerminalEffect :> es) => String -> Eff es ()

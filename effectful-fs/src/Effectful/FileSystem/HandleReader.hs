@@ -84,23 +84,23 @@ import System.IO qualified as IO
 --
 -- @since 0.1
 data HandleReaderEffect :: Effect where
-  HIsEOF :: HasCallStack => Handle -> HandleReaderEffect m Bool
-  HGetBuffering :: HasCallStack => Handle -> HandleReaderEffect m BufferMode
-  HIsOpen :: HasCallStack => Handle -> HandleReaderEffect m Bool
-  HIsClosed :: HasCallStack => Handle -> HandleReaderEffect m Bool
-  HIsReadable :: HasCallStack => Handle -> HandleReaderEffect m Bool
-  HIsWritable :: HasCallStack => Handle -> HandleReaderEffect m Bool
-  HIsSeekable :: HasCallStack => Handle -> HandleReaderEffect m Bool
-  HIsTerminalDevice :: HasCallStack => Handle -> HandleReaderEffect m Bool
-  HGetEcho :: HasCallStack => Handle -> HandleReaderEffect m Bool
-  HWaitForInput :: HasCallStack => Handle -> Int -> HandleReaderEffect m Bool
-  HReady :: HasCallStack => Handle -> HandleReaderEffect m Bool
-  HGetChar :: HasCallStack => Handle -> HandleReaderEffect m Char
-  HGetLine :: HasCallStack => Handle -> HandleReaderEffect m ByteString
-  HGetContents :: HasCallStack => Handle -> HandleReaderEffect m ByteString
-  HGet :: HasCallStack => Handle -> Int -> HandleReaderEffect m ByteString
-  HGetSome :: HasCallStack => Handle -> Int -> HandleReaderEffect m ByteString
-  HGetNonBlocking :: HasCallStack => Handle -> Int -> HandleReaderEffect m ByteString
+  HIsEOF :: (HasCallStack) => Handle -> HandleReaderEffect m Bool
+  HGetBuffering :: (HasCallStack) => Handle -> HandleReaderEffect m BufferMode
+  HIsOpen :: (HasCallStack) => Handle -> HandleReaderEffect m Bool
+  HIsClosed :: (HasCallStack) => Handle -> HandleReaderEffect m Bool
+  HIsReadable :: (HasCallStack) => Handle -> HandleReaderEffect m Bool
+  HIsWritable :: (HasCallStack) => Handle -> HandleReaderEffect m Bool
+  HIsSeekable :: (HasCallStack) => Handle -> HandleReaderEffect m Bool
+  HIsTerminalDevice :: (HasCallStack) => Handle -> HandleReaderEffect m Bool
+  HGetEcho :: (HasCallStack) => Handle -> HandleReaderEffect m Bool
+  HWaitForInput :: (HasCallStack) => Handle -> Int -> HandleReaderEffect m Bool
+  HReady :: (HasCallStack) => Handle -> HandleReaderEffect m Bool
+  HGetChar :: (HasCallStack) => Handle -> HandleReaderEffect m Char
+  HGetLine :: (HasCallStack) => Handle -> HandleReaderEffect m ByteString
+  HGetContents :: (HasCallStack) => Handle -> HandleReaderEffect m ByteString
+  HGet :: (HasCallStack) => Handle -> Int -> HandleReaderEffect m ByteString
+  HGetSome :: (HasCallStack) => Handle -> Int -> HandleReaderEffect m ByteString
+  HGetNonBlocking :: (HasCallStack) => Handle -> Int -> HandleReaderEffect m ByteString
 
 -- | @since 0.1
 type instance DispatchOf HandleReaderEffect = Dynamic
