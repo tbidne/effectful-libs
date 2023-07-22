@@ -6,43 +6,25 @@ module Effectful.STM
 
     -- ** Effect
     STMEffect (..),
-
-    -- *** Functions
     atomically,
 
-    -- *** Handlers
+    -- ** Handlers
     runSTMIO,
 
     -- * TVar
-
-    -- ** Effect
-    TVarEffect (..),
-
-    -- *** Functions
-    newTVarE,
-    readTVarE,
-    writeTVarE,
-    modifyTVarE',
-
-    -- ** Handler
-    runTVarIO,
+    newTVarA,
+    readTVarA,
+    writeTVarA,
+    modifyTVarA',
 
     -- * TVar
+    newTBQueueA,
+    readTBQueueA,
+    tryReadTBQueueA,
+    writeTBQueueA,
+    flushTBQueueA,
 
-    -- ** Effect
-    TBQueueEffect (..),
-
-    -- *** Functions
-    newTBQueueE,
-    readTBQueueE,
-    tryReadTBQueueE,
-    writeTBQueueE,
-    flushTBQueueE,
-
-    -- ** Handler
-    runTBQueueIO,
-
-    -- * Reexports
+    -- * Re-exports
     STM,
     TVar,
     TBQueue,
@@ -92,92 +74,38 @@ runSTMIO = interpret $ \_ -> \case
 atomically :: (STMEffect :> es) => STM a -> Eff es a
 atomically = send . Atomically
 
--- | Effect for 'TVar'.
---
--- @since 0.1
-data TVarEffect :: Effect where
-  NewTVarE :: a -> TVarEffect m (TVar a)
-  ReadTVarE :: TVar a -> TVarEffect m a
-  WriteTVarE :: TVar a -> a -> TVarEffect m ()
-  ModifyTVarE' :: TVar a -> (a -> a) -> TVarEffect m ()
+-- | @since 0.1
+newTVarA :: (STMEffect :> es) => a -> Eff es (TVar a)
+newTVarA = atomically . TVar.newTVar
 
 -- | @since 0.1
-type instance DispatchOf TVarEffect = Dynamic
-
--- | Runs 'TVarEffect' in 'IO'.
---
--- @since 0.1
-runTVarIO ::
-  ( IOE :> es
-  ) =>
-  Eff (TVarEffect : es) a ->
-  Eff es a
-runTVarIO = interpret $ \_ -> \case
-  NewTVarE x -> liftIO $ STM.atomically $ TVar.newTVar x
-  ReadTVarE var -> liftIO $ STM.atomically $ TVar.readTVar var
-  WriteTVarE var x -> liftIO $ STM.atomically $ TVar.writeTVar var x
-  ModifyTVarE' var f -> liftIO $ STM.atomically $ TVar.modifyTVar' var f
+readTVarA :: (STMEffect :> es) => TVar a -> Eff es a
+readTVarA = atomically . TVar.readTVar
 
 -- | @since 0.1
-newTVarE :: (TVarEffect :> es) => a -> Eff es (TVar a)
-newTVarE = send . NewTVarE
+writeTVarA :: (STMEffect :> es) => TVar a -> a -> Eff es ()
+writeTVarA var = atomically . TVar.writeTVar var
 
 -- | @since 0.1
-readTVarE :: (TVarEffect :> es) => TVar a -> Eff es a
-readTVarE = send . ReadTVarE
+modifyTVarA' :: (STMEffect :> es) => TVar a -> (a -> a) -> Eff es ()
+modifyTVarA' var = atomically . TVar.modifyTVar' var
 
 -- | @since 0.1
-writeTVarE :: (TVarEffect :> es) => TVar a -> a -> Eff es ()
-writeTVarE var = send . WriteTVarE var
+newTBQueueA :: (STMEffect :> es) => Natural -> Eff es (TBQueue a)
+newTBQueueA = atomically . TBQueue.newTBQueue
 
 -- | @since 0.1
-modifyTVarE' :: (TVarEffect :> es) => TVar a -> (a -> a) -> Eff es ()
-modifyTVarE' var = send . ModifyTVarE' var
-
--- | Effect for 'TBQueue'.
---
--- @since 0.1
-data TBQueueEffect :: Effect where
-  NewTBQueueE :: Natural -> TBQueueEffect m (TBQueue a)
-  ReadTBQueueE :: TBQueue a -> TBQueueEffect m a
-  TryReadTBQueueE :: TBQueue a -> TBQueueEffect m (Maybe a)
-  WriteTBQueueE :: TBQueue a -> a -> TBQueueEffect m ()
-  FlushTBQueueE :: TBQueue a -> TBQueueEffect m [a]
+readTBQueueA :: (STMEffect :> es) => TBQueue a -> Eff es a
+readTBQueueA = atomically . TBQueue.readTBQueue
 
 -- | @since 0.1
-type instance DispatchOf TBQueueEffect = Dynamic
-
--- | Runs 'TBQueueEffect' in 'IO'.
---
--- @since 0.1
-runTBQueueIO ::
-  ( IOE :> es
-  ) =>
-  Eff (TBQueueEffect : es) a ->
-  Eff es a
-runTBQueueIO = interpret $ \_ -> \case
-  NewTBQueueE n -> liftIO $ STM.atomically $ TBQueue.newTBQueue n
-  ReadTBQueueE q -> liftIO $ STM.atomically $ TBQueue.readTBQueue q
-  TryReadTBQueueE q -> liftIO $ STM.atomically $ TBQueue.tryReadTBQueue q
-  WriteTBQueueE q x -> liftIO $ STM.atomically $ TBQueue.writeTBQueue q x
-  FlushTBQueueE q -> liftIO $ STM.atomically $ TBQueue.flushTBQueue q
+tryReadTBQueueA :: (STMEffect :> es) => TBQueue a -> Eff es (Maybe a)
+tryReadTBQueueA = atomically . TBQueue.tryReadTBQueue
 
 -- | @since 0.1
-newTBQueueE :: (TBQueueEffect :> es) => Natural -> Eff es (TBQueue a)
-newTBQueueE = send . NewTBQueueE
+writeTBQueueA :: (STMEffect :> es) => TBQueue a -> a -> Eff es ()
+writeTBQueueA q = atomically . TBQueue.writeTBQueue q
 
 -- | @since 0.1
-readTBQueueE :: (TBQueueEffect :> es) => TBQueue a -> Eff es a
-readTBQueueE = send . ReadTBQueueE
-
--- | @since 0.1
-tryReadTBQueueE :: (TBQueueEffect :> es) => TBQueue a -> Eff es (Maybe a)
-tryReadTBQueueE = send . TryReadTBQueueE
-
--- | @since 0.1
-writeTBQueueE :: (TBQueueEffect :> es) => TBQueue a -> a -> Eff es ()
-writeTBQueueE q = send . WriteTBQueueE q
-
--- | @since 0.1
-flushTBQueueE :: (TBQueueEffect :> es) => TBQueue a -> Eff es [a]
-flushTBQueueE = send . FlushTBQueueE
+flushTBQueueA :: (STMEffect :> es) => TBQueue a -> Eff es [a]
+flushTBQueueA = atomically . TBQueue.flushTBQueue
