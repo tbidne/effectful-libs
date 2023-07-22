@@ -8,8 +8,6 @@
 module Effectful.Time
   ( -- * Effect
     TimeEffect (..),
-
-    -- ** Functions
     getSystemTime,
     getSystemZonedTime,
     getMonotonicTime,
@@ -48,7 +46,7 @@ module Effectful.Time
     getSystemTimeString,
     getSystemZonedTimeString,
 
-    -- * Reexports
+    -- * Re-exports
 
     -- ** Time
     LocalTime (..),

@@ -7,8 +7,6 @@ module Effectful.FileSystem.PathReader
   ( -- * Effect
     PathReaderEffect (..),
     Path,
-
-    -- ** Functions
     listDirectory,
     getDirectoryContents,
     getCurrentDirectory,
@@ -44,7 +42,7 @@ module Effectful.FileSystem.PathReader
     -- * Xdg Utils
     getXdgConfig,
 
-    -- * Reexports
+    -- * Re-exports
     XdgDirectory (..),
     XdgDirectoryList (..),
     Permissions (..),

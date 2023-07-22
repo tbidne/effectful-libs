@@ -9,8 +9,6 @@ module Effectful.Terminal
   ( -- * Effect
     TerminalEffect (..),
     TermSizeException (..),
-
-    -- ** Functions
     putStr,
     putStrLn,
     getChar,
@@ -35,7 +33,7 @@ module Effectful.Terminal
     getTerminalWidth,
     getTerminalHeight,
 
-    -- * Reexports
+    -- * Re-exports
     Natural,
     Window (..),
     Text,

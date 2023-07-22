@@ -8,8 +8,6 @@ module Effectful.LoggerNS
   ( -- * Effect
     LoggerNSEffect (..),
     Namespace (..),
-
-    -- ** Functions
     addNamespace,
 
     -- * Formatting
@@ -27,7 +25,7 @@ module Effectful.LoggerNS
     _LocStable,
     _LocNone,
 
-    -- * Reexports
+    -- * Re-exports
     LogStr,
     Loc,
   )

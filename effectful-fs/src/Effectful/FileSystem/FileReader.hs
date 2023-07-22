@@ -5,8 +5,6 @@ module Effectful.FileSystem.FileReader
   ( -- * Effect
     FileReaderEffect (..),
     Path,
-
-    -- ** Functions
     readBinaryFile,
 
     -- ** Handlers
@@ -20,7 +18,7 @@ module Effectful.FileSystem.FileReader
     decodeUtf8Lenient,
     decodeUtf8ThrowM,
 
-    -- * Reexports
+    -- * Re-exports
     ByteString,
     Text,
     UnicodeException,

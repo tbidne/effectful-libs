@@ -5,8 +5,6 @@ module Effectful.FileSystem.FileWriter
   ( -- * Effect
     FileWriterEffect (..),
     Path,
-
-    -- ** Functions
     writeBinaryFile,
     appendBinaryFile,
 
@@ -18,7 +16,7 @@ module Effectful.FileSystem.FileWriter
     appendFileUtf8,
     encodeUtf8,
 
-    -- * Reexports
+    -- * Re-exports
     ByteString,
     Text,
   )

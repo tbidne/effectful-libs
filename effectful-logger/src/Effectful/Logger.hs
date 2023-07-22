@@ -7,8 +7,6 @@
 module Effectful.Logger
   ( -- * Effect
     LoggerEffect (..),
-
-    -- ** Functions
     loggerLog,
 
     -- * Types

@@ -5,8 +5,6 @@ module Effectful.FileSystem.HandleWriter
   ( -- * Effect
     HandleWriterEffect (..),
     Path,
-
-    -- ** Functions
     hOpenBinaryFile,
     hWithBinaryFile,
     hClose,
@@ -29,7 +27,7 @@ module Effectful.FileSystem.HandleWriter
     hPutNonBlockingUtf8Lenient,
     hPutNonBlockingUtf8ThrowM,
 
-    -- * Reexports
+    -- * Re-exports
     BufferMode (..),
     ByteString,
     IOMode (..),

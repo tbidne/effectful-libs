@@ -7,8 +7,6 @@ module Effectful.FileSystem.PathWriter
   ( -- * Effect
     PathWriterEffect (..),
     Path,
-
-    -- ** Functions
     createDirectory,
     createDirectoryIfMissing,
     removeDirectory,
@@ -39,7 +37,7 @@ module Effectful.FileSystem.PathWriter
     removeDirectoryRecursiveIfExists,
     removePathForciblyIfExists,
 
-    -- * Reexports
+    -- * Re-exports
     Permissions (..),
     UTCTime (..),
   )

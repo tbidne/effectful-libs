@@ -4,8 +4,6 @@
 module Effectful.FileSystem.HandleReader
   ( -- * Effect
     HandleReaderEffect (..),
-
-    -- ** Functions
     hIsEOF,
     hGetBuffering,
     hIsOpen,
@@ -44,7 +42,7 @@ module Effectful.FileSystem.HandleReader
     hGetNonBlockingUtf8Lenient,
     hGetNonBlockingUtf8ThrowM,
 
-    -- * Reexports
+    -- * Re-exports
     ByteString,
     Handle,
     Text,

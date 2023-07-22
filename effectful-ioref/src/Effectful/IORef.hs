@@ -4,8 +4,6 @@
 module Effectful.IORef
   ( -- * Effect
     IORefEffect (..),
-
-    -- ** Functions
     newIORef,
     readIORef,
     writeIORef,
@@ -18,7 +16,7 @@ module Effectful.IORef
     -- * Utils
     atomicModifyIORef'_,
 
-    -- * Reexports
+    -- * Re-exports
     IORef,
   )
 where
