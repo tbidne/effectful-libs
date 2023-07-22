@@ -21,6 +21,9 @@ module Effectful.Terminal
     -- ** Handlers
     runTerminalIO,
 
+    -- * Functions
+    print,
+
     -- * Text
     putText,
     putTextLn,
@@ -57,7 +60,7 @@ import Effectful.Dispatch.Dynamic (interpret, send)
 import GHC.Natural (Natural)
 import System.Console.Terminal.Size (Window (..), size)
 import System.IO qualified as IO
-import Prelude hiding (getChar, getLine, putStr, putStrLn)
+import Prelude hiding (getChar, getLine, print, putStr, putStrLn)
 
 -- | Terminal effect.
 --
@@ -143,6 +146,10 @@ getContents' = send GetContents'
 -- | @since 0.1
 getTerminalSize :: (TerminalEffect :> es) => Eff es (Window Natural)
 getTerminalSize = send GetTerminalSize
+
+-- | @since 0.1
+print :: (Show a, TerminalEffect :> es) => a -> Eff es ()
+print = putStrLn . show
 
 -- | 'Text' version of 'putStr'.
 --
