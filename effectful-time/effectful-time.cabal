@@ -44,14 +44,14 @@ library
   import:           common
   exposed-modules:  Effectful.Time
   build-depends:
-    , algebra-simple       ^>=0.1
-    , base                 >=4.14.0.0 && <4.18
-    , bounds               ^>=0.1
-    , deepseq              ^>=1.4.4.0
-    , effectful-callstack  ^>=0.1
-    , effectful-core       ^>=2.2.1.0
-    , optics-th            ^>=0.4
-    , time                 >=1.9.3    && <1.14
+    , algebra-simple        ^>=0.1
+    , base                  >=4.14.0.0 && <4.18
+    , bounds                ^>=0.1
+    , deepseq               ^>=1.4.4.0
+    , effectful-core        ^>=2.2.1.0
+    , effectful-exceptions  ^>=0.1
+    , optics-th             ^>=0.4
+    , time                  >=1.9.3    && <1.14
 
   hs-source-dirs:   src
   default-language: Haskell2010
@@ -62,16 +62,16 @@ test-suite unit
   main-is:          Main.hs
   build-depends:
     , base
-    , effectful-callstack
     , effectful-core
+    , effectful-exceptions
     , effectful-time
-    , filepath             ^>=1.4.2.1
-    , hedgehog             >=1.0.2    && <1.3
-    , optics-core          ^>=0.4
-    , tasty                >=1.1.0.3  && <1.5
-    , tasty-golden         ^>=2.3.1.1
-    , tasty-hedgehog       >=1.2.0.0  && <1.5
-    , tasty-hunit          >=0.9      && <0.11
+    , filepath              ^>=1.4.2.1
+    , hedgehog              >=1.0.2    && <1.3
+    , optics-core           ^>=0.4
+    , tasty                 >=1.1.0.3  && <1.5
+    , tasty-golden          ^>=2.3.1.1
+    , tasty-hedgehog        >=1.2.0.0  && <1.5
+    , tasty-hunit           >=0.9      && <0.11
     , time
 
   hs-source-dirs:   test/unit

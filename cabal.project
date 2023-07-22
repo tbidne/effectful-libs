@@ -1,5 +1,5 @@
 packages:
-  ./effectful-callstack
+  ./effectful-exceptions
   ./effectful-fs
   ./effectful-ioref
   ./effectful-logger

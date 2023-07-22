@@ -1,4 +1,4 @@
-# Revision history for effectful-callstack
+# Revision history for effectful-exceptions
 
 ## 0.1 -- YYYY-mm-dd
 

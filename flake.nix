@@ -53,7 +53,7 @@
           };
           hsOverlay =
             (compiler.extend (hlib.compose.packageSourceOverrides {
-              effectful-callstack = ./effectful-callstack;
+              effectful-exceptions = ./effectful-exceptions;
               effectful-fs = ./effectful-fs;
               effectful-ioref = ./effectful-ioref;
               effectful-logger = ./effectful-logger;
@@ -64,7 +64,7 @@
               effectful-time = ./effectful-time;
             }));
           packages = p: [
-            p.effectful-callstack
+            p.effectful-exceptions
             p.effectful-fs
             p.effectful-ioref
             p.effectful-logger
@@ -79,27 +79,27 @@
             inherit name root source-overrides;
             returnShellEnv = false;
           };
-          mkPkgsCallStack = name: root: mkPkg name root {
-            effectful-callstack = ./effectful-callstack;
+          mkPkgsExceptions = name: root: mkPkg name root {
+            effectful-exceptions = ./effectful-exceptions;
           };
 
           hsDirs = "effectful-*";
         in
         {
-          packages.effectful-callstack = mkPkg "effectful-callstack" ./effectful-callstack { };
-          packages.effectful-fs = mkPkgsCallStack "effectful-fs" ./effectful-fs;
-          packages.effectful-ioref = mkPkgsCallStack "effectful-ioref" ./effectful-ioref;
-          packages.effectful-logger = mkPkgsCallStack "effectful-logger" ./effectful-logger;
+          packages.effectful-exceptions = mkPkg "effectful-exceptions" ./effectful-exceptions { };
+          packages.effectful-fs = mkPkgsExceptions "effectful-fs" ./effectful-fs;
+          packages.effectful-ioref = mkPkgsExceptions "effectful-ioref" ./effectful-ioref;
+          packages.effectful-logger = mkPkgsExceptions "effectful-logger" ./effectful-logger;
           packages.effectful-logger-ns =
             mkPkg "effectful-logger-ns" ./effectful-logger-ns {
-              effectful-callstack = ./effectful-callstack;
+              effectful-exceptions = ./effectful-exceptions;
               effectful-logger = ./effectful-logger;
               effectful-time = ./effectful-time;
             };
-          packages.effectful-stm = mkPkgsCallStack "effectful-stm" ./effectful-stm;
-          packages.effectful-terminal = mkPkgsCallStack "effectful-terminal" ./effectful-terminal;
-          packages.effectful-thread = mkPkgsCallStack "effectful-thread" ./effectful-thread;
-          packages.effectful-time = mkPkgsCallStack "effectful-thread" ./effectful-time;
+          packages.effectful-stm = mkPkgsExceptions "effectful-stm" ./effectful-stm;
+          packages.effectful-terminal = mkPkgsExceptions "effectful-terminal" ./effectful-terminal;
+          packages.effectful-thread = mkPkgsExceptions "effectful-thread" ./effectful-thread;
+          packages.effectful-time = mkPkgsExceptions "effectful-thread" ./effectful-time;
 
           devShells.default = hsOverlay.shellFor {
             inherit packages;
