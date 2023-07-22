@@ -42,7 +42,7 @@ import Effectful
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
 import Effectful.Exception (throwM)
-import Effectful.FileSystem.Path (Path, readBinaryFileIO)
+import Effectful.FileSystem.Internal (Path, readBinaryFileIO)
 
 -- | Effect for reading files.
 --

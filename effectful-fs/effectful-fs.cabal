@@ -48,6 +48,7 @@ library
     Effectful.FileSystem.HandleReader
     Effectful.FileSystem.HandleWriter
     Effectful.FileSystem.Path
+    Effectful.FileSystem.Internal
     Effectful.FileSystem.PathReader
     Effectful.FileSystem.PathWriter
 

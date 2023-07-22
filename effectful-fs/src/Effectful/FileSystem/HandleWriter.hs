@@ -58,7 +58,7 @@ import Effectful.FileSystem.FileReader
     decodeUtf8ThrowM,
   )
 import Effectful.FileSystem.FileWriter (encodeUtf8)
-import Effectful.FileSystem.Path (Path, openBinaryFileIO, withBinaryFileIO)
+import Effectful.FileSystem.Internal (Path, openBinaryFileIO, withBinaryFileIO)
 import System.IO (BufferMode (..), Handle, IOMode (..), SeekMode (..))
 import System.IO qualified as IO
 
