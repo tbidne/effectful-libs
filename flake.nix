@@ -87,7 +87,11 @@
         in
         {
           packages.effectful-exceptions = mkPkg "effectful-exceptions" ./effectful-exceptions { };
-          packages.effectful-fs = mkPkgsExceptions "effectful-fs" ./effectful-fs;
+          packages.effectful-fs =
+            mkPkg "effectful-fs" ./effectful-fs {
+              effectful-exceptions = ./effectful-exceptions;
+              effectful-ioref = ./effectful-ioref;
+            };
           packages.effectful-ioref = mkPkgsExceptions "effectful-ioref" ./effectful-ioref;
           packages.effectful-logger = mkPkgsExceptions "effectful-logger" ./effectful-logger;
           packages.effectful-logger-ns =

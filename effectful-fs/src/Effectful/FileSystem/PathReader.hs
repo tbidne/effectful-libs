@@ -1,5 +1,7 @@
 {-# LANGUAGE CPP #-}
 
+{- ORMOLU_DISABLE -}
+
 -- | Provides an effect for reading paths.
 --
 -- @since 0.1
@@ -26,8 +28,6 @@ module Effectful.FileSystem.PathReader
     findExecutable,
     findExecutables,
     findExecutablesInDirectories,
-    findFile,
-    findFiles,
     findFileWith,
     findFilesWith,
     pathIsSymbolicLink,
@@ -39,8 +39,20 @@ module Effectful.FileSystem.PathReader
     -- ** Handlers
     runPathReaderIO,
 
-    -- * Xdg Utils
+    -- * Functions
+    findFile,
+    findFiles,
+
+    -- ** XDG Utils
+    getXdgData,
     getXdgConfig,
+    getXdgCache,
+#if MIN_VERSION_directory(1,3,7)
+    getXdgState,
+#endif
+
+    -- * Misc
+    listDirectoryRecursive,
 
     -- * Re-exports
     XdgDirectory (..),
@@ -61,7 +73,7 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
-import Effectful.FileSystem.Path (Path)
+import Effectful.FileSystem.Internal ( Path, (</>) )
 import System.Directory
   ( Permissions (..),
     XdgDirectory (..),
@@ -72,6 +84,8 @@ import System.Directory.OsPath qualified as Dir
 #else
 import System.Directory qualified as Dir
 #endif
+
+{- ORMOLU_ENABLE -}
 
 -- | Effect for reading paths.
 --
@@ -96,8 +110,6 @@ data PathReaderEffect :: Effect where
   FindExecutable :: String -> PathReaderEffect m (Maybe Path)
   FindExecutables :: String -> PathReaderEffect m [Path]
   FindExecutablesInDirectories :: [Path] -> String -> PathReaderEffect m [Path]
-  FindFile :: [Path] -> String -> PathReaderEffect m (Maybe Path)
-  FindFiles :: [Path] -> String -> PathReaderEffect m [Path]
   FindFileWith :: (Path -> m Bool) -> [Path] -> String -> PathReaderEffect m (Maybe Path)
   FindFilesWith :: (Path -> m Bool) -> [Path] -> String -> PathReaderEffect m [Path]
   PathIsSymbolicLink :: Path -> PathReaderEffect m Bool
@@ -137,8 +149,6 @@ runPathReaderIO = interpret $ \env -> \case
   FindExecutable p -> liftIO $ Dir.findExecutable p
   FindExecutables p -> liftIO $ Dir.findExecutables p
   FindExecutablesInDirectories ps str -> liftIO $ Dir.findExecutablesInDirectories ps str
-  FindFile ps str -> liftIO $ Dir.findFile ps str
-  FindFiles ps str -> liftIO $ Dir.findFiles ps str
   FindFileWith f ps str -> localSeqUnliftIO env $ \runInIO ->
     liftIO $ Dir.findFileWith (runInIO . f) ps str
   FindFilesWith f ps str -> localSeqUnliftIO env $ \runInIO ->
@@ -148,6 +158,25 @@ runPathReaderIO = interpret $ \env -> \case
   GetPermissions p -> liftIO $ Dir.getPermissions p
   GetAccessTime p -> liftIO $ Dir.getAccessTime p
   GetModificationTime p -> liftIO $ Dir.getModificationTime p
+
+-- | Search through the given list of directories for the given file.
+--
+-- The behavior is equivalent to 'findFileWith', returning only the first
+-- occurrence. Details can be found in the documentation of 'findFileWith'.
+--
+-- @since 0.1
+findFile :: (PathReaderEffect :> es) => [Path] -> Path -> Eff es (Maybe Path)
+findFile = findFileWith (\_ -> pure True)
+
+-- | Search through the given list of directories for the given file and
+-- returns all paths where the given file exists.
+--
+-- The behavior is equivalent to 'findFilesWith'. Details can be found in the
+-- documentation of 'findFilesWith'.
+--
+-- @since 0.1
+findFiles :: (PathReaderEffect :> es) => [Path] -> Path -> Eff es [Path]
+findFiles = findFilesWith (\_ -> pure True)
 
 -- | @since 0.1
 listDirectory ::
@@ -300,24 +329,6 @@ findExecutablesInDirectories ::
 findExecutablesInDirectories ps = send . FindExecutablesInDirectories ps
 
 -- | @since 0.1
-findFile ::
-  ( PathReaderEffect :> es
-  ) =>
-  [Path] ->
-  String ->
-  Eff es (Maybe Path)
-findFile ps = send . FindFile ps
-
--- | @since 0.1
-findFiles ::
-  ( PathReaderEffect :> es
-  ) =>
-  [Path] ->
-  String ->
-  Eff es [Path]
-findFiles ps = send . FindFiles ps
-
--- | @since 0.1
 findFileWith ::
   ( PathReaderEffect :> es
   ) =>
@@ -377,7 +388,17 @@ getModificationTime ::
   Eff es UTCTime
 getModificationTime = send . GetModificationTime
 
--- | Retrieves the Xdg Config directory.
+-- | Retrieves the XDG data directory e.g. @~/.local\/share@.
+--
+-- @since 0.1
+getXdgData ::
+  ( PathReaderEffect :> es
+  ) =>
+  Path ->
+  Eff es Path
+getXdgData = getXdgDirectory XdgData
+
+-- | Retrieves the XDG config directory e.g. @~/.config@.
 --
 -- @since 0.1
 getXdgConfig ::
@@ -386,3 +407,66 @@ getXdgConfig ::
   Path ->
   Eff es Path
 getXdgConfig = getXdgDirectory XdgConfig
+
+-- | Retrieves the XDG cache directory e.g. @~/.cache@.
+--
+-- @since 0.1
+getXdgCache ::
+  ( PathReaderEffect :> es
+  ) =>
+  Path ->
+  Eff es Path
+getXdgCache = getXdgDirectory XdgCache
+
+-- | Retrieves the XDG state directory e.g. @~/.local\/state@.
+--
+-- @since 0.1
+getXdgState ::
+  ( PathReaderEffect :> es
+  ) =>
+  Path ->
+  Eff es Path
+getXdgState = getXdgDirectory XdgState
+
+-- | Retrieves the recursive directory contents; splits the sub folders and
+-- directories apart.
+--
+-- @since 0.1
+listDirectoryRecursive ::
+  forall es.
+  ( PathReaderEffect :> es
+  ) =>
+  -- | Root path.
+  Path ->
+  -- | (files, directories)
+  Eff es ([Path], [Path])
+listDirectoryRecursive root = recurseDirs [emptyPath]
+  where
+    recurseDirs :: [Path] -> Eff es ([Path], [Path])
+    recurseDirs [] = pure ([], [])
+    recurseDirs (d : ds) = do
+      (files, dirs) <- splitPaths root d [] [] =<< listDirectory (root </> d)
+      (files', dirs') <- recurseDirs (dirs ++ ds)
+      pure (files ++ files', dirs ++ dirs')
+    emptyPath = mempty
+
+splitPaths ::
+  forall es.
+  ( PathReaderEffect :> es
+  ) =>
+  Path ->
+  Path ->
+  [Path] ->
+  [Path] ->
+  [Path] ->
+  Eff es ([Path], [Path])
+splitPaths root d = go
+  where
+    go :: [Path] -> [Path] -> [Path] -> Eff es ([Path], [Path])
+    go files dirs [] = pure (reverse files, reverse dirs)
+    go files dirs (p : ps) = do
+      let dirEntry = d </> p
+      isDir <- doesDirectoryExist (root </> dirEntry)
+      if isDir
+        then go files (dirEntry : dirs) ps
+        else go (dirEntry : files) dirs ps
