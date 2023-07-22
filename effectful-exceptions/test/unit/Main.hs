@@ -4,7 +4,7 @@ import Control.Exception (Exception, SomeException, throwIO, try)
 import Data.Functor ((<&>))
 import Data.String (IsString (fromString))
 import Effectful (Eff, IOE, runEff)
-import Effectful.CallStack
+import Effectful.Exception
   ( CallStackEffect,
     addCallStack,
     displayCallStack,

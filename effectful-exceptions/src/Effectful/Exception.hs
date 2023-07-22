@@ -3,7 +3,7 @@
 -- | Provides an effect for handling exceptions with callstacks.
 --
 -- @since 0.1
-module Effectful.CallStack
+module Effectful.Exception
   ( -- * Effect
     CallStackEffect (..),
 

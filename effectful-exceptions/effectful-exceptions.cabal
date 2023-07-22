@@ -42,7 +42,7 @@ common common
 
 library
   import:           common
-  exposed-modules:  Effectful.CallStack
+  exposed-modules:  Effectful.Exception
   build-depends:
     , annotated-exception  ^>=0.2.0.4
     , base                 >=4.14.0.0 && <4.18

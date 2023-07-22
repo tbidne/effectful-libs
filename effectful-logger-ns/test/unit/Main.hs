@@ -16,7 +16,7 @@ import Effectful
     runPureEff,
     type (:>),
   )
-import Effectful.CallStack
+import Effectful.Exception
   ( CallStackEffect (..),
   )
 import Effectful.Dispatch.Dynamic

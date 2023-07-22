@@ -86,7 +86,7 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.CallStack
+import Effectful.Exception
   ( CallStackEffect,
     addCallStack,
   )

@@ -1,7 +1,7 @@
 - ignore:
     name: "Redundant bracket"
     within:
-      - "Effectful.CallStack"
+      - "Effectful.Exception"
       - "Effectful.LoggerNamespace"
       - "Effectful.FileSystem.FileReader"
       - "Effectful.FileSystem.FileWriter"

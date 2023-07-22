@@ -14,7 +14,7 @@ import Effectful
     IOE,
     runEff,
   )
-import Effectful.CallStack (CallStackEffect, displayCallStack, runCallStackIO)
+import Effectful.Exception (CallStackEffect, displayCallStack, runCallStackIO)
 import Effectful.Fail (Fail, runFailIO)
 import Effectful.Time
   ( LocalTime (LocalTime),
