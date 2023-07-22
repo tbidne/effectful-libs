@@ -91,7 +91,6 @@ import GHC.Float (properFractionDouble)
 #endif
 import GHC.Generics (Generic)
 import GHC.Natural (Natural)
-import GHC.Stack (HasCallStack)
 import Numeric.Algebra
   ( AMonoid (zero),
     ASemigroup ((.+.)),
@@ -231,9 +230,9 @@ normalizeTimeSpec = fromNanoSeconds . toNanoSeconds
 --
 -- @since 0.1
 data TimeEffect :: Effect where
-  GetSystemTime :: (HasCallStack) => TimeEffect m LocalTime
-  GetSystemZonedTime :: (HasCallStack) => TimeEffect m ZonedTime
-  GetMonotonicTime :: (HasCallStack) => TimeEffect m Double
+  GetSystemTime :: TimeEffect m LocalTime
+  GetSystemZonedTime :: TimeEffect m ZonedTime
+  GetMonotonicTime :: TimeEffect m Double
 
 -- | @since 0.1
 type instance DispatchOf TimeEffect = Dynamic
@@ -256,27 +255,26 @@ runTimeIO = interpret $ \_ -> \case
 -- | Returns the local system time.
 --
 -- @since 0.1
-getSystemTime :: (HasCallStack, TimeEffect :> es) => Eff es LocalTime
+getSystemTime :: (TimeEffect :> es) => Eff es LocalTime
 getSystemTime = send GetSystemTime
 
 -- | Returns the zoned system time
 --
 -- @since 0.1
-getSystemZonedTime :: (HasCallStack, TimeEffect :> es) => Eff es ZonedTime
+getSystemZonedTime :: (TimeEffect :> es) => Eff es ZonedTime
 getSystemZonedTime = send GetSystemZonedTime
 
 -- | Returns the zoned system time
 --
 -- @since 0.1
-getMonotonicTime :: (HasCallStack, TimeEffect :> es) => Eff es Double
+getMonotonicTime :: (TimeEffect :> es) => Eff es Double
 getMonotonicTime = send GetMonotonicTime
 
 -- | Runs an action, returning the elapsed time.
 --
 -- @since 0.1
 withTiming ::
-  ( HasCallStack,
-    TimeEffect :> es
+  ( TimeEffect :> es
   ) =>
   Eff es a ->
   Eff es (TimeSpec, a)
@@ -290,8 +288,7 @@ withTiming m = do
 --
 -- @since 0.1
 withTiming_ ::
-  ( HasCallStack,
-    TimeEffect :> es
+  ( TimeEffect :> es
   ) =>
   Eff es a ->
   Eff es TimeSpec
@@ -308,7 +305,7 @@ formatZonedTime = Format.formatTime Format.defaultTimeLocale zonedTimeFormat
 -- | Retrieves the formatted 'LocalTime'.
 --
 -- @since 0.1
-getSystemTimeString :: (HasCallStack, TimeEffect :> es) => Eff es String
+getSystemTimeString :: (TimeEffect :> es) => Eff es String
 getSystemTimeString = fmap formatLocalTime getSystemTime
 
 -- | Formats the 'LocalTime' to @YYYY-MM-DD HH:MM:SS@.
@@ -320,7 +317,7 @@ formatLocalTime = Format.formatTime Format.defaultTimeLocale localTimeFormat
 -- | Retrieves the formatted 'ZonedTime'.
 --
 -- @since 0.1
-getSystemZonedTimeString :: (HasCallStack, TimeEffect :> es) => Eff es String
+getSystemZonedTimeString :: (TimeEffect :> es) => Eff es String
 getSystemZonedTimeString = fmap formatZonedTime getSystemZonedTime
 
 -- | Parses the 'LocalTime' from @YYYY-MM-DD HH:MM:SS@. If the 'MonadFail'

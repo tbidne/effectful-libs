@@ -54,13 +54,12 @@ import Effectful
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
 import GHC.Natural (Natural)
-import GHC.Stack (HasCallStack)
 
 -- | Effects for general threads.
 --
 -- @since 0.1
 data ThreadEffect :: Effect where
-  Microsleep :: (HasCallStack) => Natural -> ThreadEffect m ()
+  Microsleep :: Natural -> ThreadEffect m ()
 
 -- | @since 0.1
 type instance DispatchOf ThreadEffect = Dynamic
@@ -77,14 +76,14 @@ runThreadIO = interpret $ \_ -> \case
   Microsleep n -> liftIO $ for_ (natToInts n) threadDelay
 
 -- | @since 0.1
-microsleep :: (HasCallStack, ThreadEffect :> es) => Natural -> Eff es ()
+microsleep :: (ThreadEffect :> es) => Natural -> Eff es ()
 microsleep = send . Microsleep
 
 -- | Runs sleep in the current thread for the specified number of
 -- seconds.
 --
 -- @since 0.1
-sleep :: (HasCallStack, ThreadEffect :> es) => Natural -> Eff es ()
+sleep :: (ThreadEffect :> es) => Natural -> Eff es ()
 sleep = microsleep . (* 1_000_000)
 
 natToInts :: Natural -> [Int]
@@ -107,12 +106,12 @@ i2n = fromIntegral
 --
 -- @since 0.1
 data QSemEffect :: Effect where
-  NewQSem :: (HasCallStack) => Int -> QSemEffect m QSem
-  WaitQSem :: (HasCallStack) => QSem -> QSemEffect m ()
-  SignalQSem :: (HasCallStack) => QSem -> QSemEffect m ()
-  NewQSemN :: (HasCallStack) => Int -> QSemEffect m QSemN
-  WaitQSemN :: (HasCallStack) => QSemN -> Int -> QSemEffect m ()
-  SignalQSemN :: (HasCallStack) => QSemN -> Int -> QSemEffect m ()
+  NewQSem :: Int -> QSemEffect m QSem
+  WaitQSem :: QSem -> QSemEffect m ()
+  SignalQSem :: QSem -> QSemEffect m ()
+  NewQSemN :: Int -> QSemEffect m QSemN
+  WaitQSemN :: QSemN -> Int -> QSemEffect m ()
+  SignalQSemN :: QSemN -> Int -> QSemEffect m ()
 
 -- | @since 0.1
 type instance DispatchOf QSemEffect = Dynamic
@@ -134,25 +133,25 @@ runQSemIO = interpret $ \_ -> \case
   SignalQSemN q i -> liftIO $ QSemN.signalQSemN q i
 
 -- | @since 0.1
-newQSem :: (HasCallStack, QSemEffect :> es) => Int -> Eff es QSem
+newQSem :: (QSemEffect :> es) => Int -> Eff es QSem
 newQSem = send . NewQSem
 
 -- | @since 0.1
-waitQSem :: (HasCallStack, QSemEffect :> es) => QSem -> Eff es ()
+waitQSem :: (QSemEffect :> es) => QSem -> Eff es ()
 waitQSem = send . WaitQSem
 
 -- | @since 0.1
-signalQSem :: (HasCallStack, QSemEffect :> es) => QSem -> Eff es ()
+signalQSem :: (QSemEffect :> es) => QSem -> Eff es ()
 signalQSem = send . SignalQSem
 
 -- | @since 0.1
-newQSemN :: (HasCallStack, QSemEffect :> es) => Int -> Eff es QSemN
+newQSemN :: (QSemEffect :> es) => Int -> Eff es QSemN
 newQSemN = send . NewQSemN
 
 -- | @since 0.1
-waitQSemN :: (HasCallStack, QSemEffect :> es) => QSemN -> Int -> Eff es ()
+waitQSemN :: (QSemEffect :> es) => QSemN -> Int -> Eff es ()
 waitQSemN q = send . WaitQSemN q
 
 -- | @since 0.1
-signalQSemN :: (HasCallStack, QSemEffect :> es) => QSemN -> Int -> Eff es ()
+signalQSemN :: (QSemEffect :> es) => QSemN -> Int -> Eff es ()
 signalQSemN q = send . SignalQSemN q

@@ -57,7 +57,6 @@ import Effectful
 import Effectful.Exception ( throwM)
 import Effectful.Dispatch.Dynamic (interpret, send)
 import GHC.Natural (Natural)
-import GHC.Stack (HasCallStack)
 import System.Console.Terminal.Size (Window (..), size)
 import System.IO qualified as IO
 import Prelude hiding (getChar, getLine, putStr, putStrLn)
@@ -66,14 +65,14 @@ import Prelude hiding (getChar, getLine, putStr, putStrLn)
 --
 -- @since 0.1
 data TerminalEffect :: Effect where
-  PutStr :: HasCallStack => String -> TerminalEffect m ()
-  PutStrLn :: HasCallStack => String -> TerminalEffect m ()
-  GetChar :: HasCallStack => TerminalEffect m Char
-  GetLine :: HasCallStack => TerminalEffect m String
+  PutStr :: String -> TerminalEffect m ()
+  PutStrLn :: String -> TerminalEffect m ()
+  GetChar :: TerminalEffect m Char
+  GetLine :: TerminalEffect m String
 #if MIN_VERSION_base(4,15,0)
-  GetContents' :: HasCallStack => TerminalEffect m String
+  GetContents' :: TerminalEffect m String
 #endif
-  GetTerminalSize :: HasCallStack => TerminalEffect m (Window Natural)
+  GetTerminalSize :: TerminalEffect m (Window Natural)
 
 {- ORMOLU_ENABLE -}
 
@@ -120,53 +119,53 @@ runTerminalIO = interpret $ \_ -> \case
 {- ORMOLU_ENABLE -}
 
 -- | @since 0.1
-putStr :: (HasCallStack, TerminalEffect :> es) => String -> Eff es ()
+putStr :: (TerminalEffect :> es) => String -> Eff es ()
 putStr = send . PutStr
 
 -- | @since 0.1
-putStrLn :: (HasCallStack, TerminalEffect :> es) => String -> Eff es ()
+putStrLn :: (TerminalEffect :> es) => String -> Eff es ()
 putStrLn = send . PutStrLn
 
 -- | @since 0.1
-getChar :: (HasCallStack, TerminalEffect :> es) => Eff es Char
+getChar :: (TerminalEffect :> es) => Eff es Char
 getChar = send GetChar
 
 -- | @since 0.1
-getLine :: (HasCallStack, TerminalEffect :> es) => Eff es String
+getLine :: (TerminalEffect :> es) => Eff es String
 getLine = send GetLine
 
 #if MIN_VERSION_base(4,15,0)
 
 -- | @since 0.1
-getContents' :: (HasCallStack, TerminalEffect :> es) => Eff es String
+getContents' :: ( TerminalEffect :> es) => Eff es String
 getContents' = send GetContents'
 
 #endif
 
 -- | @since 0.1
-getTerminalSize :: (HasCallStack, TerminalEffect :> es) => Eff es (Window Natural)
+getTerminalSize :: (TerminalEffect :> es) => Eff es (Window Natural)
 getTerminalSize = send GetTerminalSize
 
 -- | 'Text' version of 'putStr'.
 --
 -- @since 0.1
-putText :: (HasCallStack, TerminalEffect :> es) => Text -> Eff es ()
+putText :: (TerminalEffect :> es) => Text -> Eff es ()
 putText = putStr . T.unpack
 
 -- | 'Text' version of 'putStrLn'.
 --
 -- @since 0.1
-putTextLn :: (HasCallStack, TerminalEffect :> es) => Text -> Eff es ()
+putTextLn :: (TerminalEffect :> es) => Text -> Eff es ()
 putTextLn = putStrLn . T.unpack
 
 -- | @since 0.1
-getTextLine :: (HasCallStack, TerminalEffect :> es) => Eff es Text
+getTextLine :: (TerminalEffect :> es) => Eff es Text
 getTextLine = T.pack <$> getLine
 
 #if MIN_VERSION_base(4,15,0)
 
 -- | @since 0.1
-getTextContents' :: (HasCallStack, TerminalEffect :> es) => Eff es Text
+getTextContents' :: ( TerminalEffect :> es) => Eff es Text
 getTextContents' = T.pack <$> getContents'
 
 #endif
@@ -174,11 +173,11 @@ getTextContents' = T.pack <$> getContents'
 -- | Retrieves the terminal width.
 --
 -- @since 0.1
-getTerminalWidth :: (HasCallStack, TerminalEffect :> es) => Eff es Natural
+getTerminalWidth :: (TerminalEffect :> es) => Eff es Natural
 getTerminalWidth = width <$> getTerminalSize
 
 -- | Retrieves the terminal height.
 --
 -- @since 0.1
-getTerminalHeight :: (HasCallStack, TerminalEffect :> es) => Eff es Natural
+getTerminalHeight :: (TerminalEffect :> es) => Eff es Natural
 getTerminalHeight = height <$> getTerminalSize

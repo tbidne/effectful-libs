@@ -45,13 +45,12 @@ import Effectful
 import Effectful.Dispatch.Dynamic (interpret, send)
 import Effectful.Exception (throwM)
 import Effectful.FileSystem.Path (Path, readBinaryFileIO)
-import GHC.Stack (HasCallStack)
 
 -- | Effect for reading files.
 --
 -- @since 0.1
 data FileReaderEffect :: Effect where
-  ReadBinaryFile :: (HasCallStack) => Path -> FileReaderEffect m ByteString
+  ReadBinaryFile :: Path -> FileReaderEffect m ByteString
 
 -- | @since 0.1
 type instance DispatchOf FileReaderEffect = Dynamic

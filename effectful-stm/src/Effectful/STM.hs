@@ -66,14 +66,13 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
-import GHC.Stack (HasCallStack)
 import Numeric.Natural (Natural)
 
 -- | Effect for 'STM'.
 --
 -- @since 0.1
 data STMEffect :: Effect where
-  Atomically :: (HasCallStack) => STM a -> STMEffect m a
+  Atomically :: STM a -> STMEffect m a
 
 -- | @since 0.1
 type instance DispatchOf STMEffect = Dynamic
@@ -90,17 +89,17 @@ runSTMIO = interpret $ \_ -> \case
   Atomically x -> liftIO $ STM.atomically x
 
 -- | @since 0.1
-atomically :: (HasCallStack, STMEffect :> es) => STM a -> Eff es a
+atomically :: (STMEffect :> es) => STM a -> Eff es a
 atomically = send . Atomically
 
 -- | Effect for 'TVar'.
 --
 -- @since 0.1
 data TVarEffect :: Effect where
-  NewTVarE :: (HasCallStack) => a -> TVarEffect m (TVar a)
-  ReadTVarE :: (HasCallStack) => TVar a -> TVarEffect m a
-  WriteTVarE :: (HasCallStack) => TVar a -> a -> TVarEffect m ()
-  ModifyTVarE' :: (HasCallStack) => TVar a -> (a -> a) -> TVarEffect m ()
+  NewTVarE :: a -> TVarEffect m (TVar a)
+  ReadTVarE :: TVar a -> TVarEffect m a
+  WriteTVarE :: TVar a -> a -> TVarEffect m ()
+  ModifyTVarE' :: TVar a -> (a -> a) -> TVarEffect m ()
 
 -- | @since 0.1
 type instance DispatchOf TVarEffect = Dynamic
@@ -120,30 +119,30 @@ runTVarIO = interpret $ \_ -> \case
   ModifyTVarE' var f -> liftIO $ STM.atomically $ TVar.modifyTVar' var f
 
 -- | @since 0.1
-newTVarE :: (HasCallStack, TVarEffect :> es) => a -> Eff es (TVar a)
+newTVarE :: (TVarEffect :> es) => a -> Eff es (TVar a)
 newTVarE = send . NewTVarE
 
 -- | @since 0.1
-readTVarE :: (HasCallStack, TVarEffect :> es) => TVar a -> Eff es a
+readTVarE :: (TVarEffect :> es) => TVar a -> Eff es a
 readTVarE = send . ReadTVarE
 
 -- | @since 0.1
-writeTVarE :: (HasCallStack, TVarEffect :> es) => TVar a -> a -> Eff es ()
+writeTVarE :: (TVarEffect :> es) => TVar a -> a -> Eff es ()
 writeTVarE var = send . WriteTVarE var
 
 -- | @since 0.1
-modifyTVarE' :: (HasCallStack, TVarEffect :> es) => TVar a -> (a -> a) -> Eff es ()
+modifyTVarE' :: (TVarEffect :> es) => TVar a -> (a -> a) -> Eff es ()
 modifyTVarE' var = send . ModifyTVarE' var
 
 -- | Effect for 'TBQueue'.
 --
 -- @since 0.1
 data TBQueueEffect :: Effect where
-  NewTBQueueE :: (HasCallStack) => Natural -> TBQueueEffect m (TBQueue a)
-  ReadTBQueueE :: (HasCallStack) => TBQueue a -> TBQueueEffect m a
-  TryReadTBQueueE :: (HasCallStack) => TBQueue a -> TBQueueEffect m (Maybe a)
-  WriteTBQueueE :: (HasCallStack) => TBQueue a -> a -> TBQueueEffect m ()
-  FlushTBQueueE :: (HasCallStack) => TBQueue a -> TBQueueEffect m [a]
+  NewTBQueueE :: Natural -> TBQueueEffect m (TBQueue a)
+  ReadTBQueueE :: TBQueue a -> TBQueueEffect m a
+  TryReadTBQueueE :: TBQueue a -> TBQueueEffect m (Maybe a)
+  WriteTBQueueE :: TBQueue a -> a -> TBQueueEffect m ()
+  FlushTBQueueE :: TBQueue a -> TBQueueEffect m [a]
 
 -- | @since 0.1
 type instance DispatchOf TBQueueEffect = Dynamic
@@ -164,21 +163,21 @@ runTBQueueIO = interpret $ \_ -> \case
   FlushTBQueueE q -> liftIO $ STM.atomically $ TBQueue.flushTBQueue q
 
 -- | @since 0.1
-newTBQueueE :: (HasCallStack, TBQueueEffect :> es) => Natural -> Eff es (TBQueue a)
+newTBQueueE :: (TBQueueEffect :> es) => Natural -> Eff es (TBQueue a)
 newTBQueueE = send . NewTBQueueE
 
 -- | @since 0.1
-readTBQueueE :: (HasCallStack, TBQueueEffect :> es) => TBQueue a -> Eff es a
+readTBQueueE :: (TBQueueEffect :> es) => TBQueue a -> Eff es a
 readTBQueueE = send . ReadTBQueueE
 
 -- | @since 0.1
-tryReadTBQueueE :: (HasCallStack, TBQueueEffect :> es) => TBQueue a -> Eff es (Maybe a)
+tryReadTBQueueE :: (TBQueueEffect :> es) => TBQueue a -> Eff es (Maybe a)
 tryReadTBQueueE = send . TryReadTBQueueE
 
 -- | @since 0.1
-writeTBQueueE :: (HasCallStack, TBQueueEffect :> es) => TBQueue a -> a -> Eff es ()
+writeTBQueueE :: (TBQueueEffect :> es) => TBQueue a -> a -> Eff es ()
 writeTBQueueE q = send . WriteTBQueueE q
 
 -- | @since 0.1
-flushTBQueueE :: (HasCallStack, TBQueueEffect :> es) => TBQueue a -> Eff es [a]
+flushTBQueueE :: (TBQueueEffect :> es) => TBQueue a -> Eff es [a]
 flushTBQueueE = send . FlushTBQueueE

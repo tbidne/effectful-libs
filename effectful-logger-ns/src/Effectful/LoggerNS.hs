@@ -61,7 +61,6 @@ import Effectful.Time (TimeEffect)
 import Effectful.Time qualified as TimeEffect
 import GHC.Exts (IsList (Item, fromList, toList))
 import GHC.Generics (Generic)
-import GHC.Stack (HasCallStack)
 import Language.Haskell.TH (Loc (loc_filename, loc_start))
 import Optics.Core (over', view, (%), (^.), _1, _2)
 import Optics.TH (makeFieldLabelsNoPrefix, makePrisms)
@@ -117,9 +116,8 @@ displayNamespace =
 --
 -- @since 0.1
 data LoggerNSEffect :: Effect where
-  GetNamespace :: (HasCallStack) => LoggerNSEffect es Namespace
+  GetNamespace :: LoggerNSEffect es Namespace
   LocalNamespace ::
-    (HasCallStack) =>
     (Namespace -> Namespace) ->
     m a ->
     LoggerNSEffect m a
@@ -128,13 +126,12 @@ data LoggerNSEffect :: Effect where
 type instance DispatchOf LoggerNSEffect = Dynamic
 
 -- | @since 0.1
-getNamespace :: (HasCallStack, LoggerNSEffect :> es) => Eff es Namespace
+getNamespace :: (LoggerNSEffect :> es) => Eff es Namespace
 getNamespace = send GetNamespace
 
 -- | @since 0.1
 localNamespace ::
-  ( HasCallStack,
-    LoggerNSEffect :> es
+  ( LoggerNSEffect :> es
   ) =>
   (Namespace -> Namespace) ->
   Eff es a ->
@@ -145,8 +142,7 @@ localNamespace f = send . LocalNamespace f
 --
 -- @since 0.1
 addNamespace ::
-  ( HasCallStack,
-    LoggerNSEffect :> es
+  ( LoggerNSEffect :> es
   ) =>
   Text ->
   Eff es a ->
@@ -231,8 +227,7 @@ defaultLogFormatter loc =
 --
 -- @since 0.1
 formatLog ::
-  ( HasCallStack,
-    LoggerNSEffect :> es,
+  ( LoggerNSEffect :> es,
     TimeEffect :> es,
     ToLogStr msg
   ) =>

@@ -91,7 +91,6 @@ import Effectful.Dispatch.Dynamic (send)
 import GHC.Generics (Generic)
 import GHC.Stack
   ( CallStack,
-    HasCallStack,
     SrcLoc
       ( srcLocEndCol,
         srcLocEndLine,
@@ -125,8 +124,7 @@ import System.Log.FastLogger (LogStr, ToLogStr (..), fromLogStr)
 -- @since 0.1
 data LoggerEffect :: Effect where
   LoggerLog ::
-    ( HasCallStack,
-      ToLogStr msg
+    ( ToLogStr msg
     ) =>
     Loc ->
     LogSource ->
@@ -141,8 +139,7 @@ type instance DispatchOf LoggerEffect = Dynamic
 --
 -- @since 0.1
 loggerLog ::
-  ( HasCallStack,
-    LoggerEffect :> es,
+  ( LoggerEffect :> es,
     ToLogStr msg
   ) =>
   Loc ->
@@ -428,8 +425,7 @@ isDefaultLoc _ = False
 
 -- | @since 0.1
 logWithoutLoc ::
-  ( HasCallStack,
-    LoggerEffect :> es,
+  ( LoggerEffect :> es,
     ToLogStr msg
   ) =>
   LogSource ->
@@ -439,43 +435,43 @@ logWithoutLoc ::
 logWithoutLoc = loggerLog defaultLoc
 
 -- | @since 0.1
-logDebugN :: (HasCallStack, LoggerEffect :> es) => Text -> Eff es ()
+logDebugN :: (LoggerEffect :> es) => Text -> Eff es ()
 logDebugN = logWithoutLoc "" LevelDebug
 
 -- | @since 0.1
-logInfoN :: (HasCallStack, LoggerEffect :> es) => Text -> Eff es ()
+logInfoN :: (LoggerEffect :> es) => Text -> Eff es ()
 logInfoN = logWithoutLoc "" LevelInfo
 
 -- | @since 0.1
-logWarnN :: (HasCallStack, LoggerEffect :> es) => Text -> Eff es ()
+logWarnN :: (LoggerEffect :> es) => Text -> Eff es ()
 logWarnN = logWithoutLoc "" LevelWarn
 
 -- | @since 0.1
-logErrorN :: (HasCallStack, LoggerEffect :> es) => Text -> Eff es ()
+logErrorN :: (LoggerEffect :> es) => Text -> Eff es ()
 logErrorN = logWithoutLoc "" LevelError
 
 -- | @since 0.1
-logOtherN :: (HasCallStack, LoggerEffect :> es) => LogLevel -> Text -> Eff es ()
+logOtherN :: (LoggerEffect :> es) => LogLevel -> Text -> Eff es ()
 logOtherN = logWithoutLoc ""
 
 -- | @since 0.1
-logDebugNS :: (HasCallStack, LoggerEffect :> es) => LogSource -> Text -> Eff es ()
+logDebugNS :: (LoggerEffect :> es) => LogSource -> Text -> Eff es ()
 logDebugNS src = logWithoutLoc src LevelDebug
 
 -- | @since 0.1
-logInfoNS :: (HasCallStack, LoggerEffect :> es) => LogSource -> Text -> Eff es ()
+logInfoNS :: (LoggerEffect :> es) => LogSource -> Text -> Eff es ()
 logInfoNS src = logWithoutLoc src LevelInfo
 
 -- | @since 0.1
-logWarnNS :: (HasCallStack, LoggerEffect :> es) => LogSource -> Text -> Eff es ()
+logWarnNS :: (LoggerEffect :> es) => LogSource -> Text -> Eff es ()
 logWarnNS src = logWithoutLoc src LevelWarn
 
 -- | @since 0.1
-logErrorNS :: (HasCallStack, LoggerEffect :> es) => LogSource -> Text -> Eff es ()
+logErrorNS :: (LoggerEffect :> es) => LogSource -> Text -> Eff es ()
 logErrorNS src = logWithoutLoc src LevelError
 
 -- | @since 0.1
-logOtherNS :: (HasCallStack, LoggerEffect :> es) => LogSource -> LogLevel -> Text -> Eff es ()
+logOtherNS :: (LoggerEffect :> es) => LogSource -> LogLevel -> Text -> Eff es ()
 logOtherNS = logWithoutLoc
 
 -- | @since 0.1
@@ -503,7 +499,7 @@ locFromCS cs = case getCallStack cs of
 
 -- | @since 0.1
 logCS ::
-  (HasCallStack, LoggerEffect :> es, ToLogStr msg) =>
+  (LoggerEffect :> es, ToLogStr msg) =>
   CallStack ->
   LogSource ->
   LogLevel ->
@@ -516,29 +512,29 @@ logCS cs = loggerLog (locFromCS cs)
 -- functions for 'CallStack' based logging.
 --
 -- @since 0.1
-logDebugCS :: (HasCallStack, LoggerEffect :> es) => CallStack -> Text -> Eff es ()
+logDebugCS :: (LoggerEffect :> es) => CallStack -> Text -> Eff es ()
 logDebugCS cs = logCS cs "" LevelDebug
 
 -- | See 'logDebugCS'
 --
 -- @since 0.1
-logInfoCS :: (HasCallStack, LoggerEffect :> es) => CallStack -> Text -> Eff es ()
+logInfoCS :: (LoggerEffect :> es) => CallStack -> Text -> Eff es ()
 logInfoCS cs = logCS cs "" LevelInfo
 
 -- | See 'logDebugCS'
 --
 -- @since 0.1
-logWarnCS :: (HasCallStack, LoggerEffect :> es) => CallStack -> Text -> Eff es ()
+logWarnCS :: (LoggerEffect :> es) => CallStack -> Text -> Eff es ()
 logWarnCS cs = logCS cs "" LevelWarn
 
 -- | See 'logDebugCS'
 --
 -- @since 0.1
-logErrorCS :: (HasCallStack, LoggerEffect :> es) => CallStack -> Text -> Eff es ()
+logErrorCS :: (LoggerEffect :> es) => CallStack -> Text -> Eff es ()
 logErrorCS cs = logCS cs "" LevelError
 
 -- | See 'logDebugCS'
 --
 -- @since 0.1
-logOtherCS :: (HasCallStack, LoggerEffect :> es) => CallStack -> LogLevel -> Text -> Eff es ()
+logOtherCS :: (LoggerEffect :> es) => CallStack -> LogLevel -> Text -> Eff es ()
 logOtherCS cs = logCS cs ""
