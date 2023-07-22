@@ -66,10 +66,6 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Exception
-  ( CallStackEffect,
-    addCallStack,
-  )
 import Effectful.Dispatch.Dynamic (interpret, send)
 import Effectful.FileSystem.FileReader
   ( decodeUtf8,
@@ -109,29 +105,28 @@ type instance DispatchOf HandleReaderEffect = Dynamic
 --
 -- @since 0.1
 runHandleReaderIO ::
-  ( CallStackEffect :> es,
-    IOE :> es
+  ( IOE :> es
   ) =>
   Eff (HandleReaderEffect : es) a ->
   Eff es a
 runHandleReaderIO = interpret $ \_ -> \case
-  HIsEOF h -> addCallStack $ liftIO $ IO.hIsEOF h
-  HGetBuffering h -> addCallStack $ liftIO $ IO.hGetBuffering h
-  HIsOpen h -> addCallStack $ liftIO $ IO.hIsOpen h
-  HIsClosed h -> addCallStack $ liftIO $ IO.hIsClosed h
-  HIsReadable h -> addCallStack $ liftIO $ IO.hIsReadable h
-  HIsWritable h -> addCallStack $ liftIO $ IO.hIsWritable h
-  HIsSeekable h -> addCallStack $ liftIO $ IO.hIsSeekable h
-  HIsTerminalDevice h -> addCallStack $ liftIO $ IO.hIsTerminalDevice h
-  HGetEcho h -> addCallStack $ liftIO $ IO.hGetEcho h
-  HWaitForInput h i -> addCallStack $ liftIO $ IO.hWaitForInput h i
-  HReady h -> addCallStack $ liftIO $ IO.hReady h
-  HGetChar h -> addCallStack $ liftIO $ IO.hGetChar h
-  HGetLine h -> addCallStack $ liftIO $ BS.hGetLine h
-  HGetContents h -> addCallStack $ liftIO $ BS.hGetContents h
-  HGet h i -> addCallStack $ liftIO $ BS.hGet h i
-  HGetSome h i -> addCallStack $ liftIO $ BS.hGetSome h i
-  HGetNonBlocking h i -> addCallStack $ liftIO $ BS.hGetNonBlocking h i
+  HIsEOF h -> liftIO $ IO.hIsEOF h
+  HGetBuffering h -> liftIO $ IO.hGetBuffering h
+  HIsOpen h -> liftIO $ IO.hIsOpen h
+  HIsClosed h -> liftIO $ IO.hIsClosed h
+  HIsReadable h -> liftIO $ IO.hIsReadable h
+  HIsWritable h -> liftIO $ IO.hIsWritable h
+  HIsSeekable h -> liftIO $ IO.hIsSeekable h
+  HIsTerminalDevice h -> liftIO $ IO.hIsTerminalDevice h
+  HGetEcho h -> liftIO $ IO.hGetEcho h
+  HWaitForInput h i -> liftIO $ IO.hWaitForInput h i
+  HReady h -> liftIO $ IO.hReady h
+  HGetChar h -> liftIO $ IO.hGetChar h
+  HGetLine h -> liftIO $ BS.hGetLine h
+  HGetContents h -> liftIO $ BS.hGetContents h
+  HGet h i -> liftIO $ BS.hGet h i
+  HGetSome h i -> liftIO $ BS.hGetSome h i
+  HGetNonBlocking h i -> liftIO $ BS.hGetNonBlocking h i
 
 -- | @since 0.1
 hIsEOF :: (HandleReaderEffect :> es) => Handle -> Eff es Bool
@@ -305,8 +300,7 @@ hGetLineUtf8Lenient = fmap decodeUtf8Lenient . hGetLine
 
 -- | @since 0.1
 hGetLineUtf8ThrowM ::
-  ( CallStackEffect :> es,
-    HandleReaderEffect :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -333,8 +327,7 @@ hGetContentsUtf8Lenient = fmap decodeUtf8Lenient . hGetContents
 
 -- | @since 0.1
 hGetContentsUtf8ThrowM ::
-  ( CallStackEffect :> es,
-    HandleReaderEffect :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -363,8 +356,7 @@ hGetUtf8Lenient h = fmap decodeUtf8Lenient . hGet h
 
 -- | @since 0.1
 hGetUtf8ThrowM ::
-  ( CallStackEffect :> es,
-    HandleReaderEffect :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -394,8 +386,7 @@ hGetSomeUtf8Lenient h = fmap decodeUtf8Lenient . hGetSome h
 
 -- | @since 0.1
 hGetSomeUtf8ThrowM ::
-  ( CallStackEffect :> es,
-    HandleReaderEffect :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->
@@ -425,8 +416,7 @@ hGetNonBlockingUtf8Lenient h = fmap decodeUtf8Lenient . hGetNonBlocking h
 
 -- | @since 0.1
 hGetNonBlockingUtf8ThrowM ::
-  ( CallStackEffect :> es,
-    HandleReaderEffect :> es,
+  ( HandleReaderEffect :> es,
     HasCallStack
   ) =>
   Handle ->

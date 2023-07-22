@@ -42,9 +42,7 @@ module Effectful.Time
 
     -- * Parsing
     parseLocalTime,
-    parseLocalTimeCallStack,
     parseZonedTime,
-    parseZonedTimeCallStack,
 
     -- * Misc
     getSystemTimeString,
@@ -86,12 +84,7 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Exception
-  ( CallStackEffect,
-    addCallStack,
-  )
 import Effectful.Dispatch.Dynamic (interpret, send)
-import Effectful.Fail (Fail)
 import GHC.Clock qualified as C
 #if MIN_VERSION_base(4,17,0)
 import GHC.Float (properFractionDouble)
@@ -249,18 +242,16 @@ type instance DispatchOf TimeEffect = Dynamic
 --
 -- @since 0.1
 runTimeIO ::
-  ( CallStackEffect :> es,
-    IOE :> es
+  ( IOE :> es
   ) =>
   Eff (TimeEffect : es) a ->
   Eff es a
 runTimeIO = interpret $ \_ -> \case
   GetSystemTime ->
-    addCallStack $
-      liftIO $
-        Local.zonedTimeToLocalTime <$> Local.getZonedTime
-  GetSystemZonedTime -> addCallStack $ liftIO Local.getZonedTime
-  GetMonotonicTime -> addCallStack $ liftIO C.getMonotonicTime
+    liftIO $
+      Local.zonedTimeToLocalTime <$> Local.getZonedTime
+  GetSystemZonedTime -> liftIO Local.getZonedTime
+  GetMonotonicTime -> liftIO C.getMonotonicTime
 
 -- | Returns the local system time.
 --
@@ -344,19 +335,6 @@ parseLocalTime =
     Format.defaultTimeLocale
     localTimeFormat
 
--- | Variant of 'parseLocalTime' that includes CallStack for thrown
--- exceptions.
---
--- @since 0.1
-parseLocalTimeCallStack ::
-  ( HasCallStack,
-    CallStackEffect :> es,
-    Fail :> es
-  ) =>
-  String ->
-  Eff es LocalTime
-parseLocalTimeCallStack = addCallStack . parseLocalTime
-
 -- | Parses the 'ZonedTime' from @YYYY-MM-DD HH:MM:SS Z@. If the 'MonadFail'
 -- instance throws an 'Control.Exception.Exception' consider
 -- 'parseZonedTimeCallStack'.
@@ -383,19 +361,6 @@ parseZonedTime =
     True
     Format.defaultTimeLocale
     zonedTimeFormat
-
--- | Variant of 'parseZonedTime' that includes CallStack for thrown
--- exceptions.
---
--- @since 0.1
-parseZonedTimeCallStack ::
-  ( HasCallStack,
-    CallStackEffect :> es,
-    Fail :> es
-  ) =>
-  String ->
-  Eff es ZonedTime
-parseZonedTimeCallStack = addCallStack . parseZonedTime
 
 localTimeFormat :: String
 localTimeFormat = "%0Y-%m-%d %H:%M:%S"

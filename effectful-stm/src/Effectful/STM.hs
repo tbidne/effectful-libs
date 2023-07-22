@@ -65,10 +65,6 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Exception
-  ( CallStackEffect,
-    addCallStack,
-  )
 import Effectful.Dispatch.Dynamic (interpret, send)
 import GHC.Stack (HasCallStack)
 import Numeric.Natural (Natural)
@@ -86,13 +82,12 @@ type instance DispatchOf STMEffect = Dynamic
 --
 -- @since 0.1
 runSTMIO ::
-  ( CallStackEffect :> es,
-    IOE :> es
+  ( IOE :> es
   ) =>
   Eff (STMEffect : es) a ->
   Eff es a
 runSTMIO = interpret $ \_ -> \case
-  Atomically x -> addCallStack $ liftIO $ STM.atomically x
+  Atomically x -> liftIO $ STM.atomically x
 
 -- | @since 0.1
 atomically :: (HasCallStack, STMEffect :> es) => STM a -> Eff es a
@@ -114,16 +109,15 @@ type instance DispatchOf TVarEffect = Dynamic
 --
 -- @since 0.1
 runTVarIO ::
-  ( CallStackEffect :> es,
-    IOE :> es
+  ( IOE :> es
   ) =>
   Eff (TVarEffect : es) a ->
   Eff es a
 runTVarIO = interpret $ \_ -> \case
-  NewTVarE x -> addCallStack $ liftIO $ STM.atomically $ TVar.newTVar x
-  ReadTVarE var -> addCallStack $ liftIO $ STM.atomically $ TVar.readTVar var
-  WriteTVarE var x -> addCallStack $ liftIO $ STM.atomically $ TVar.writeTVar var x
-  ModifyTVarE' var f -> addCallStack $ liftIO $ STM.atomically $ TVar.modifyTVar' var f
+  NewTVarE x -> liftIO $ STM.atomically $ TVar.newTVar x
+  ReadTVarE var -> liftIO $ STM.atomically $ TVar.readTVar var
+  WriteTVarE var x -> liftIO $ STM.atomically $ TVar.writeTVar var x
+  ModifyTVarE' var f -> liftIO $ STM.atomically $ TVar.modifyTVar' var f
 
 -- | @since 0.1
 newTVarE :: (HasCallStack, TVarEffect :> es) => a -> Eff es (TVar a)
@@ -158,17 +152,16 @@ type instance DispatchOf TBQueueEffect = Dynamic
 --
 -- @since 0.1
 runTBQueueIO ::
-  ( CallStackEffect :> es,
-    IOE :> es
+  ( IOE :> es
   ) =>
   Eff (TBQueueEffect : es) a ->
   Eff es a
 runTBQueueIO = interpret $ \_ -> \case
-  NewTBQueueE n -> addCallStack $ liftIO $ STM.atomically $ TBQueue.newTBQueue n
-  ReadTBQueueE q -> addCallStack $ liftIO $ STM.atomically $ TBQueue.readTBQueue q
-  TryReadTBQueueE q -> addCallStack $ liftIO $ STM.atomically $ TBQueue.tryReadTBQueue q
-  WriteTBQueueE q x -> addCallStack $ liftIO $ STM.atomically $ TBQueue.writeTBQueue q x
-  FlushTBQueueE q -> addCallStack $ liftIO $ STM.atomically $ TBQueue.flushTBQueue q
+  NewTBQueueE n -> liftIO $ STM.atomically $ TBQueue.newTBQueue n
+  ReadTBQueueE q -> liftIO $ STM.atomically $ TBQueue.readTBQueue q
+  TryReadTBQueueE q -> liftIO $ STM.atomically $ TBQueue.tryReadTBQueue q
+  WriteTBQueueE q x -> liftIO $ STM.atomically $ TBQueue.writeTBQueue q x
+  FlushTBQueueE q -> liftIO $ STM.atomically $ TBQueue.flushTBQueue q
 
 -- | @since 0.1
 newTBQueueE :: (HasCallStack, TBQueueEffect :> es) => Natural -> Eff es (TBQueue a)

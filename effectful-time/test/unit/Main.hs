@@ -1,11 +1,9 @@
 module Main (main) where
 
 import Control.Concurrent (threadDelay)
-import Control.Exception (Exception, SomeException, try)
 import Control.Monad (void)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Fixed (Fixed (MkFixed))
-import Data.Functor ((<&>))
 import Data.String (IsString (fromString))
 import Data.Time.Calendar.OrdinalDate (fromOrdinalDate)
 import Data.Time.LocalTime (TimeOfDay (TimeOfDay), utc)
@@ -14,8 +12,6 @@ import Effectful
     IOE,
     runEff,
   )
-import Effectful.Exception (CallStackEffect, displayCallStack, runCallStackIO)
-import Effectful.Fail (Fail, runFailIO)
 import Effectful.Time
   ( LocalTime (LocalTime),
     TimeEffect,
@@ -266,8 +262,7 @@ localTimeTests =
     [ formatsLocalTime,
       parsesLocalTime,
       formatParseLocalTimeRoundTrip,
-      parseFormatLocalTimeEpsilon,
-      parsesLocalTimeCallStack
+      parseFormatLocalTimeEpsilon
     ]
 
 zonedTimeTests :: TestTree
@@ -277,8 +272,7 @@ zonedTimeTests =
     [ formatsZonedTime,
       parsesZonedTime,
       formatParseZonedTimeRoundTrip,
-      parseFormatZonedTimeEpsilon,
-      parsesZonedTimeCallStack
+      parseFormatZonedTimeEpsilon
     ]
 
 formatsLocalTime :: TestTree
@@ -322,17 +316,6 @@ parseFormatLocalTimeEpsilon = testPropertyNamed desc "parseFormatLocalTimeEpsilo
   where
     desc = "(parseLocalTime . formatLocalTime) x ~= x (up to < 1 second)"
 
-parsesLocalTimeCallStack :: TestTree
-parsesLocalTimeCallStack =
-  goldenVsStringDiff desc gdiff gpath $
-    try @SomeException parseAction <&> \case
-      Left e -> fromString $ stableCallStack e
-      Right _ -> "Error: did not catch expected exception."
-  where
-    parseAction = runEffTime $ TimeEffect.parseLocalTimeCallStack "2022-02-08 10:20:05 UTC"
-    desc = "Parses LocalTime failure gives CallStack"
-    gpath = goldenPath </> "localtime-parse-callstack.golden"
-
 formatsZonedTime :: TestTree
 formatsZonedTime =
   goldenVsStringDiff desc gdiff gpath $
@@ -375,17 +358,6 @@ parseFormatZonedTimeEpsilon = testPropertyNamed desc "parseFormatZonedTimeEpsilo
     diff zt eqZonedTimeEpsilon zt'
   where
     desc = "(parseZonedTime . formatZonedTime) x ~= x (up to < 1 second)"
-
-parsesZonedTimeCallStack :: TestTree
-parsesZonedTimeCallStack =
-  goldenVsStringDiff desc gdiff gpath $
-    try @SomeException parseAction <&> \case
-      Left e -> fromString $ stableCallStack e
-      Right _ -> "Error: did not catch expected exception."
-  where
-    parseAction = runEffTime $ TimeEffect.parseZonedTimeCallStack "2022-02-08 10:20:05"
-    desc = "Parses ZonedTime failure gives CallStack"
-    gpath = goldenPath </> "zonedtime-parse-callstack.golden"
 
 localTime :: LocalTime
 localTime = LocalTime day tod
@@ -501,8 +473,5 @@ genTimeSpec = MkTimeSpec <$> genSec <*> genNSec
     genSec = Gen.integral (R.linearFrom 5 0 10)
     genNSec = Gen.integral (R.linearFrom 0 0 10_000_000_000)
 
-stableCallStack :: (Exception e) => e -> String
-stableCallStack = unlines . take 2 . lines . displayCallStack
-
-runEffTime :: Eff '[TimeEffect, CallStackEffect, Fail, IOE] a -> IO a
-runEffTime = runEff . runFailIO . runCallStackIO . runTimeIO
+runEffTime :: Eff '[TimeEffect, IOE] a -> IO a
+runEffTime = runEff . runTimeIO

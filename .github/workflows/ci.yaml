@@ -40,9 +40,6 @@ jobs:
       - name: Compile
         run: cabal build all
 
-      - name: Test effectful-callstack
-        run: cabal test effectful-callstack
-
       - name: Test effectful-logger-ns
         run: cabal test effectful-logger-ns
 
@@ -69,7 +66,7 @@ jobs:
       - name: Build & Test
         run: |
           nix build \
-            .#effectful-callstack \
+            .#effectful-exceptions \
             .#effectful-fs \
             .#effectful-ioref \
             .#effectful-logger \

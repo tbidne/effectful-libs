@@ -36,10 +36,6 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Exception
-  ( CallStackEffect,
-    addCallStack,
-  )
 import Effectful.Dispatch.Dynamic (interpret, send)
 import Effectful.FileSystem.Path (Path, appendBinaryFileIO, writeBinaryFileIO)
 import GHC.Stack (HasCallStack)
@@ -58,14 +54,13 @@ type instance DispatchOf FileWriterEffect = Dynamic
 --
 -- @since 0.1
 runFileWriterIO ::
-  ( CallStackEffect :> es,
-    IOE :> es
+  ( IOE :> es
   ) =>
   Eff (FileWriterEffect : es) a ->
   Eff es a
 runFileWriterIO = interpret $ \_ -> \case
-  WriteBinaryFile p bs -> addCallStack $ liftIO $ writeBinaryFileIO p bs
-  AppendBinaryFile p bs -> addCallStack $ liftIO $ appendBinaryFileIO p bs
+  WriteBinaryFile p bs -> liftIO $ writeBinaryFileIO p bs
+  AppendBinaryFile p bs -> liftIO $ appendBinaryFileIO p bs
 
 -- | @since 0.1
 writeBinaryFile ::

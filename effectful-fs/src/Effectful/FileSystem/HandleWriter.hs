@@ -52,10 +52,6 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Exception
-  ( CallStackEffect,
-    addCallStack,
-  )
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
 import Effectful.FileSystem.FileReader
   ( UnicodeException,
@@ -92,24 +88,23 @@ data HandleWriterEffect :: Effect where
 --
 -- @since 0.1
 runHandleWriterIO ::
-  ( CallStackEffect :> es,
-    IOE :> es
+  ( IOE :> es
   ) =>
   Eff (HandleWriterEffect : es) a ->
   Eff es a
 runHandleWriterIO = interpret $ \env -> \case
-  HOpenBinaryFile p m -> addCallStack $ liftIO $ openBinaryFileIO p m
-  HWithBinaryFile p m f -> addCallStack $ localSeqUnliftIO env $ \runInIO ->
+  HOpenBinaryFile p m -> liftIO $ openBinaryFileIO p m
+  HWithBinaryFile p m f -> localSeqUnliftIO env $ \runInIO ->
     liftIO $ withBinaryFileIO p m (runInIO . f)
-  HClose h -> addCallStack $ liftIO $ IO.hClose h
-  HFlush h -> addCallStack $ liftIO $ IO.hFlush h
-  HSetFileSize h i -> addCallStack $ liftIO $ IO.hSetFileSize h i
-  HSetBuffering h m -> addCallStack $ liftIO $ IO.hSetBuffering h m
-  HSeek h m i -> addCallStack $ liftIO $ IO.hSeek h m i
-  HTell h -> addCallStack $ liftIO $ IO.hTell h
-  HSetEcho h b -> addCallStack $ liftIO $ IO.hSetEcho h b
-  HPut h bs -> addCallStack $ liftIO $ BS.hPut h bs
-  HPutNonBlocking h bs -> addCallStack $ liftIO $ BS.hPutNonBlocking h bs
+  HClose h -> liftIO $ IO.hClose h
+  HFlush h -> liftIO $ IO.hFlush h
+  HSetFileSize h i -> liftIO $ IO.hSetFileSize h i
+  HSetBuffering h m -> liftIO $ IO.hSetBuffering h m
+  HSeek h m i -> liftIO $ IO.hSeek h m i
+  HTell h -> liftIO $ IO.hTell h
+  HSetEcho h b -> liftIO $ IO.hSetEcho h b
+  HPut h bs -> liftIO $ BS.hPut h bs
+  HPutNonBlocking h bs -> liftIO $ BS.hPutNonBlocking h bs
 
 -- | @since 0.1
 hOpenBinaryFile ::
@@ -265,8 +260,7 @@ hPutNonBlockingUtf8Lenient h =
 
 -- | @since 0.1
 hPutNonBlockingUtf8ThrowM ::
-  ( CallStackEffect :> es,
-    HandleWriterEffect :> es,
+  ( HandleWriterEffect :> es,
     HasCallStack
   ) =>
   Handle ->

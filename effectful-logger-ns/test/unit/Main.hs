@@ -16,9 +16,6 @@ import Effectful
     runPureEff,
     type (:>),
   )
-import Effectful.Exception
-  ( CallStackEffect (..),
-  )
 import Effectful.Dispatch.Dynamic
   ( interpret,
     localSeqUnlift,
@@ -45,31 +42,6 @@ import Effectful.Time
 import System.FilePath ((</>))
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Test.Tasty.Golden (goldenVsStringDiff)
-
--- newtype Logger = MkLogger {runLogger :: Namespace}
--- deriving stock (Functor)
-
-{-instance Applicative Logger where
-  pure x = MkLogger $ const x
-  MkLogger f <*> MkLogger g = MkLogger $ \ns -> f ns (g ns)
-
-instance Monad Logger where
-  MkLogger f >>= k = MkLogger $ \ns ->
-    let a = f ns
-        MkLogger mkB = k a
-     in mkB ns-}
-
-{-instance MonadTime Logger where
-  getSystemTime = pure localTime
-  getSystemZonedTime = pure zonedTime
-  getMonotonicTime = pure 50
-
---instance MonadLogger Logger where
---  monadLoggerLog _loc _src _lvl _msg = pure ()
-
-instance MonadLoggerNamespace Logger where
-  getNamespace = MkLogger id
-  localNamespace f (MkLogger g) = MkLogger (g . f)-}
 
 main :: IO ()
 main =
@@ -212,14 +184,8 @@ runLoggerNamespacePure = reinterpret (evalState ([] :: Namespace)) $ \env -> \ca
   GetNamespace -> get
   LocalNamespace f m -> localSeqUnlift env $ \run -> modify f *> run m
 
-runCallStackPure :: Eff (CallStackEffect : es) a -> Eff es a
-runCallStackPure = interpret $ \env -> \case
-  ThrowWithCallStack _ -> error "threw exception"
-  AddCallStack m -> localSeqUnlift env $ \run -> run m
-
-runEffLoggerNamespace :: Eff '[LoggerNSEffect, TimeEffect, CallStackEffect] a -> a
+runEffLoggerNamespace :: Eff '[LoggerNSEffect, TimeEffect] a -> a
 runEffLoggerNamespace =
   runPureEff
-    . runCallStackPure
     . runTimePure
     . runLoggerNamespacePure

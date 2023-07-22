@@ -62,10 +62,6 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Exception
-  ( CallStackEffect,
-    addCallStack,
-  )
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
 import Effectful.FileSystem.Path (Path)
 import GHC.Stack (HasCallStack)
@@ -120,42 +116,41 @@ type instance DispatchOf PathReaderEffect = Dynamic
 --
 -- @since 0.1
 runPathReaderIO ::
-  ( CallStackEffect :> es,
-    IOE :> es
+  ( IOE :> es
   ) =>
   Eff (PathReaderEffect : es) a ->
   Eff es a
 runPathReaderIO = interpret $ \env -> \case
-  ListDirectory p -> addCallStack $ liftIO $ Dir.listDirectory p
-  GetDirectoryContents p -> addCallStack $ liftIO $ Dir.getDirectoryContents p
-  GetCurrentDirectory -> addCallStack $ liftIO Dir.getCurrentDirectory
-  GetHomeDirectory -> addCallStack $ liftIO Dir.getHomeDirectory
-  GetXdgDirectory xdg p -> addCallStack $ liftIO $ Dir.getXdgDirectory xdg p
-  GetXdgDirectoryList xdg -> addCallStack $ liftIO $ Dir.getXdgDirectoryList xdg
-  GetAppUserDataDirectory p -> addCallStack $ liftIO $ Dir.getAppUserDataDirectory p
-  GetUserDocumentsDirectory -> addCallStack $ liftIO Dir.getUserDocumentsDirectory
-  GetTemporaryDirectory -> addCallStack $ liftIO Dir.getTemporaryDirectory
-  GetFileSize p -> addCallStack $ liftIO $ Dir.getFileSize p
-  CanonicalizePath p -> addCallStack $ liftIO $ Dir.canonicalizePath p
-  MakeAbsolute p -> addCallStack $ liftIO $ Dir.makeAbsolute p
-  MakeRelativeToCurrentDirectory p -> addCallStack $ liftIO $ Dir.makeRelativeToCurrentDirectory p
-  DoesPathExist p -> addCallStack $ liftIO $ Dir.doesPathExist p
-  DoesFileExist p -> addCallStack $ liftIO $ Dir.doesFileExist p
-  DoesDirectoryExist p -> addCallStack $ liftIO $ Dir.doesDirectoryExist p
-  FindExecutable p -> addCallStack $ liftIO $ Dir.findExecutable p
-  FindExecutables p -> addCallStack $ liftIO $ Dir.findExecutables p
-  FindExecutablesInDirectories ps str -> addCallStack $ liftIO $ Dir.findExecutablesInDirectories ps str
-  FindFile ps str -> addCallStack $ liftIO $ Dir.findFile ps str
-  FindFiles ps str -> addCallStack $ liftIO $ Dir.findFiles ps str
-  FindFileWith f ps str -> addCallStack $ localSeqUnliftIO env $ \runInIO ->
+  ListDirectory p -> liftIO $ Dir.listDirectory p
+  GetDirectoryContents p -> liftIO $ Dir.getDirectoryContents p
+  GetCurrentDirectory -> liftIO Dir.getCurrentDirectory
+  GetHomeDirectory -> liftIO Dir.getHomeDirectory
+  GetXdgDirectory xdg p -> liftIO $ Dir.getXdgDirectory xdg p
+  GetXdgDirectoryList xdg -> liftIO $ Dir.getXdgDirectoryList xdg
+  GetAppUserDataDirectory p -> liftIO $ Dir.getAppUserDataDirectory p
+  GetUserDocumentsDirectory -> liftIO Dir.getUserDocumentsDirectory
+  GetTemporaryDirectory -> liftIO Dir.getTemporaryDirectory
+  GetFileSize p -> liftIO $ Dir.getFileSize p
+  CanonicalizePath p -> liftIO $ Dir.canonicalizePath p
+  MakeAbsolute p -> liftIO $ Dir.makeAbsolute p
+  MakeRelativeToCurrentDirectory p -> liftIO $ Dir.makeRelativeToCurrentDirectory p
+  DoesPathExist p -> liftIO $ Dir.doesPathExist p
+  DoesFileExist p -> liftIO $ Dir.doesFileExist p
+  DoesDirectoryExist p -> liftIO $ Dir.doesDirectoryExist p
+  FindExecutable p -> liftIO $ Dir.findExecutable p
+  FindExecutables p -> liftIO $ Dir.findExecutables p
+  FindExecutablesInDirectories ps str -> liftIO $ Dir.findExecutablesInDirectories ps str
+  FindFile ps str -> liftIO $ Dir.findFile ps str
+  FindFiles ps str -> liftIO $ Dir.findFiles ps str
+  FindFileWith f ps str -> localSeqUnliftIO env $ \runInIO ->
     liftIO $ Dir.findFileWith (runInIO . f) ps str
-  FindFilesWith f ps str -> addCallStack $ localSeqUnliftIO env $ \runInIO ->
+  FindFilesWith f ps str -> localSeqUnliftIO env $ \runInIO ->
     liftIO $ Dir.findFilesWith (runInIO . f) ps str
-  PathIsSymbolicLink p -> addCallStack $ liftIO $ Dir.pathIsSymbolicLink p
-  GetSymbolicLinkTarget p -> addCallStack $ liftIO $ Dir.getSymbolicLinkTarget p
-  GetPermissions p -> addCallStack $ liftIO $ Dir.getPermissions p
-  GetAccessTime p -> addCallStack $ liftIO $ Dir.getAccessTime p
-  GetModificationTime p -> addCallStack $ liftIO $ Dir.getModificationTime p
+  PathIsSymbolicLink p -> liftIO $ Dir.pathIsSymbolicLink p
+  GetSymbolicLinkTarget p -> liftIO $ Dir.getSymbolicLinkTarget p
+  GetPermissions p -> liftIO $ Dir.getPermissions p
+  GetAccessTime p -> liftIO $ Dir.getAccessTime p
+  GetModificationTime p -> liftIO $ Dir.getModificationTime p
 
 -- | @since 0.1
 listDirectory ::

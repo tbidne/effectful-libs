@@ -34,10 +34,6 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Exception
-  ( CallStackEffect,
-    addCallStack,
-  )
 import Effectful.Dispatch.Dynamic (interpret, send)
 import GHC.Stack (HasCallStack)
 
@@ -58,17 +54,16 @@ type instance DispatchOf IORefEffect = Dynamic
 --
 -- @since 0.1
 runIORefIO ::
-  ( CallStackEffect :> es,
-    IOE :> es
+  ( IOE :> es
   ) =>
   Eff (IORefEffect : es) a ->
   Eff es a
 runIORefIO = interpret $ \_ -> \case
-  NewIORef x -> addCallStack $ liftIO $ IORef.newIORef x
-  ReadIORef ref -> addCallStack $ liftIO $ IORef.readIORef ref
-  WriteIORef ref x -> addCallStack $ liftIO $ IORef.writeIORef ref x
-  ModifyIORef' ref f -> addCallStack $ liftIO $ IORef.modifyIORef' ref f
-  AtomicModifyIORef' ref f -> addCallStack $ liftIO $ IORef.atomicModifyIORef' ref f
+  NewIORef x -> liftIO $ IORef.newIORef x
+  ReadIORef ref -> liftIO $ IORef.readIORef ref
+  WriteIORef ref x -> liftIO $ IORef.writeIORef ref x
+  ModifyIORef' ref f -> liftIO $ IORef.modifyIORef' ref f
+  AtomicModifyIORef' ref f -> liftIO $ IORef.atomicModifyIORef' ref f
 
 -- | @since 0.1
 newIORef :: (HasCallStack, IORefEffect :> es) => a -> Eff es (IORef a)

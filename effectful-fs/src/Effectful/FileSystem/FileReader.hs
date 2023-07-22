@@ -42,12 +42,8 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Exception
-  ( CallStackEffect,
-    addCallStack,
-    throwWithCallStack,
-  )
 import Effectful.Dispatch.Dynamic (interpret, send)
+import Effectful.Exception (throwM)
 import Effectful.FileSystem.Path (Path, readBinaryFileIO)
 import GHC.Stack (HasCallStack)
 
@@ -64,18 +60,16 @@ type instance DispatchOf FileReaderEffect = Dynamic
 --
 -- @since 0.1
 runFileReaderIO ::
-  ( CallStackEffect :> es,
-    IOE :> es
+  ( IOE :> es
   ) =>
   Eff (FileReaderEffect : es) a ->
   Eff es a
 runFileReaderIO = interpret $ \_ -> \case
-  ReadBinaryFile p -> addCallStack $ liftIO $ readBinaryFileIO p
+  ReadBinaryFile p -> liftIO $ readBinaryFileIO p
 
 -- | @since 0.1
 readBinaryFile ::
-  ( FileReaderEffect :> es,
-    HasCallStack
+  ( FileReaderEffect :> es
   ) =>
   Path ->
   Eff es ByteString
@@ -97,22 +91,18 @@ decodeUtf8Lenient = TEnc.decodeUtf8With TEncError.lenientDecode
 --
 -- @since 0.1
 decodeUtf8ThrowM ::
-  ( CallStackEffect :> es,
-    HasCallStack
-  ) =>
   ByteString ->
   Eff es Text
 decodeUtf8ThrowM =
   TEnc.decodeUtf8' >.> \case
     Right txt -> pure txt
-    Left ex -> throwWithCallStack ex
+    Left ex -> throwM ex
 
 -- | Reads a file as UTF-8.
 --
 -- @since 0.1
 readFileUtf8 ::
-  ( FileReaderEffect :> es,
-    HasCallStack
+  ( FileReaderEffect :> es
   ) =>
   Path ->
   Eff es (Either UnicodeException Text)
@@ -122,8 +112,7 @@ readFileUtf8 = fmap decodeUtf8 . readBinaryFile
 --
 -- @since 0.1
 readFileUtf8Lenient ::
-  ( FileReaderEffect :> es,
-    HasCallStack
+  ( FileReaderEffect :> es
   ) =>
   Path ->
   Eff es Text
@@ -133,9 +122,7 @@ readFileUtf8Lenient = fmap decodeUtf8Lenient . readBinaryFile
 --
 -- @since 0.1
 readFileUtf8ThrowM ::
-  ( CallStackEffect :> es,
-    FileReaderEffect :> es,
-    HasCallStack
+  ( FileReaderEffect :> es
   ) =>
   Path ->
   Eff es Text

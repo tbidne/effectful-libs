@@ -56,10 +56,6 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Exception
-  ( CallStackEffect,
-    addCallStack,
-  )
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
 import Effectful.FileSystem.Path (Path)
 import Effectful.FileSystem.PathReader
@@ -108,33 +104,32 @@ type instance DispatchOf PathWriterEffect = Dynamic
 --
 -- @since 0.1
 runPathWriterIO ::
-  ( CallStackEffect :> es,
-    IOE :> es
+  ( IOE :> es
   ) =>
   Eff (PathWriterEffect : es) a ->
   Eff es a
 runPathWriterIO = interpret $ \env -> \case
-  CreateDirectory p -> addCallStack $ liftIO $ Dir.createDirectory p
-  CreateDirectoryIfMissing b p -> addCallStack $ liftIO $ Dir.createDirectoryIfMissing b p
-  RemoveDirectory p -> addCallStack $ liftIO $ Dir.removeDirectory p
-  RemoveDirectoryRecursive p -> addCallStack $ liftIO $ Dir.removeDirectoryRecursive p
-  RemovePathForcibly p -> addCallStack $ liftIO $ Dir.removePathForcibly p
-  RenameDirectory p p' -> addCallStack $ liftIO $ Dir.renameDirectory p p'
-  SetCurrentDirectory p -> addCallStack $ liftIO $ Dir.setCurrentDirectory p
-  WithCurrentDirectory p m -> addCallStack $ localSeqUnliftIO env $ \runInIO ->
+  CreateDirectory p -> liftIO $ Dir.createDirectory p
+  CreateDirectoryIfMissing b p -> liftIO $ Dir.createDirectoryIfMissing b p
+  RemoveDirectory p -> liftIO $ Dir.removeDirectory p
+  RemoveDirectoryRecursive p -> liftIO $ Dir.removeDirectoryRecursive p
+  RemovePathForcibly p -> liftIO $ Dir.removePathForcibly p
+  RenameDirectory p p' -> liftIO $ Dir.renameDirectory p p'
+  SetCurrentDirectory p -> liftIO $ Dir.setCurrentDirectory p
+  WithCurrentDirectory p m -> localSeqUnliftIO env $ \runInIO ->
     liftIO $ Dir.withCurrentDirectory p (runInIO m)
-  RemoveFile p -> addCallStack $ liftIO $ Dir.removeFile p
-  RenameFile p p' -> addCallStack $ liftIO $ Dir.renameFile p p'
-  RenamePath p p' -> addCallStack $ liftIO $ Dir.renamePath p p'
-  CopyFile p p' -> addCallStack $ liftIO $ Dir.copyFile p p'
-  CopyFileWithMetadata p p' -> addCallStack $ liftIO $ Dir.copyFileWithMetadata p p'
-  CreateFileLink p p' -> addCallStack $ liftIO $ Dir.createFileLink p p'
-  CreateDirectoryLink p p' -> addCallStack $ liftIO $ Dir.createDirectoryLink p p'
-  RemoveDirectoryLink p -> addCallStack $ liftIO $ Dir.removeDirectoryLink p
-  SetPermissions p ps -> addCallStack $ liftIO $ Dir.setPermissions p ps
-  CopyPermissions p ps -> addCallStack $ liftIO $ Dir.copyPermissions p ps
-  SetAccessTime p t -> addCallStack $ liftIO $ Dir.setAccessTime p t
-  SetModificationTime p t -> addCallStack $ liftIO $ Dir.setModificationTime p t
+  RemoveFile p -> liftIO $ Dir.removeFile p
+  RenameFile p p' -> liftIO $ Dir.renameFile p p'
+  RenamePath p p' -> liftIO $ Dir.renamePath p p'
+  CopyFile p p' -> liftIO $ Dir.copyFile p p'
+  CopyFileWithMetadata p p' -> liftIO $ Dir.copyFileWithMetadata p p'
+  CreateFileLink p p' -> liftIO $ Dir.createFileLink p p'
+  CreateDirectoryLink p p' -> liftIO $ Dir.createDirectoryLink p p'
+  RemoveDirectoryLink p -> liftIO $ Dir.removeDirectoryLink p
+  SetPermissions p ps -> liftIO $ Dir.setPermissions p ps
+  CopyPermissions p ps -> liftIO $ Dir.copyPermissions p ps
+  SetAccessTime p t -> liftIO $ Dir.setAccessTime p t
+  SetModificationTime p t -> liftIO $ Dir.setModificationTime p t
 
 -- | @since 0.1
 createDirectory ::

@@ -54,11 +54,7 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Exception
-  ( CallStackEffect,
-    addCallStack,
-    throwWithCallStack,
-  )
+import Effectful.Exception ( throwM)
 import Effectful.Dispatch.Dynamic (interpret, send)
 import GHC.Natural (Natural)
 import GHC.Stack (HasCallStack)
@@ -103,23 +99,23 @@ instance Exception TermSizeException where
 --
 -- @since 0.1
 runTerminalIO ::
-  ( CallStackEffect :> es,
+  ( 
     IOE :> es
   ) =>
   Eff (TerminalEffect : es) a ->
   Eff es a
 runTerminalIO = interpret $ \_ -> \case
-  PutStr s -> addCallStack $ liftIO $ IO.putStr s
-  PutStrLn s -> addCallStack $ liftIO $ IO.putStrLn s
-  GetChar -> addCallStack $ liftIO IO.getChar
-  GetLine -> addCallStack $ liftIO IO.getLine
+  PutStr s -> liftIO $ IO.putStr s
+  PutStrLn s -> liftIO $ IO.putStrLn s
+  GetChar -> liftIO IO.getChar
+  GetLine -> liftIO IO.getLine
 #if MIN_VERSION_base(4,15,0)
-  GetContents' -> addCallStack $ liftIO IO.getContents'
+  GetContents' -> liftIO IO.getContents'
 #endif
   GetTerminalSize ->
     liftIO size >>= \case
       Just h -> pure h
-      Nothing -> throwWithCallStack MkTermSizeException
+      Nothing -> throwM MkTermSizeException
 
 {- ORMOLU_ENABLE -}
 

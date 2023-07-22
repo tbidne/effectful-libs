@@ -52,10 +52,6 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Exception
-  ( CallStackEffect,
-    addCallStack,
-  )
 import Effectful.Dispatch.Dynamic (interpret, send)
 import GHC.Natural (Natural)
 import GHC.Stack (HasCallStack)
@@ -73,13 +69,12 @@ type instance DispatchOf ThreadEffect = Dynamic
 --
 -- @since 0.1
 runThreadIO ::
-  ( CallStackEffect :> es,
-    IOE :> es
+  ( IOE :> es
   ) =>
   Eff (ThreadEffect : es) a ->
   Eff es a
 runThreadIO = interpret $ \_ -> \case
-  Microsleep n -> addCallStack $ liftIO $ for_ (natToInts n) threadDelay
+  Microsleep n -> liftIO $ for_ (natToInts n) threadDelay
 
 -- | @since 0.1
 microsleep :: (HasCallStack, ThreadEffect :> es) => Natural -> Eff es ()
@@ -126,18 +121,17 @@ type instance DispatchOf QSemEffect = Dynamic
 --
 -- @since 0.1
 runQSemIO ::
-  ( CallStackEffect :> es,
-    IOE :> es
+  ( IOE :> es
   ) =>
   Eff (QSemEffect : es) a ->
   Eff es a
 runQSemIO = interpret $ \_ -> \case
-  NewQSem i -> addCallStack $ liftIO $ QSem.newQSem i
-  WaitQSem q -> addCallStack $ liftIO $ QSem.waitQSem q
-  SignalQSem q -> addCallStack $ liftIO $ QSem.signalQSem q
-  NewQSemN i -> addCallStack $ liftIO $ QSemN.newQSemN i
-  WaitQSemN q i -> addCallStack $ liftIO $ QSemN.waitQSemN q i
-  SignalQSemN q i -> addCallStack $ liftIO $ QSemN.signalQSemN q i
+  NewQSem i -> liftIO $ QSem.newQSem i
+  WaitQSem q -> liftIO $ QSem.waitQSem q
+  SignalQSem q -> liftIO $ QSem.signalQSem q
+  NewQSemN i -> liftIO $ QSemN.newQSemN i
+  WaitQSemN q i -> liftIO $ QSemN.waitQSemN q i
+  SignalQSemN q i -> liftIO $ QSemN.signalQSemN q i
 
 -- | @since 0.1
 newQSem :: (HasCallStack, QSemEffect :> es) => Int -> Eff es QSem
