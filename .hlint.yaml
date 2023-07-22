@@ -2,7 +2,7 @@
     name: "Redundant bracket"
     within:
       - "Effectful.Exception"
-      - "Effectful.LoggerNamespace"
+      - "Effectful.LoggerNS"
       - "Effectful.FileSystem.FileReader"
       - "Effectful.FileSystem.FileWriter"
       - "Effectful.FileSystem.HandleReader"
