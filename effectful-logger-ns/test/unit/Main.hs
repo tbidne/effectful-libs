@@ -28,7 +28,7 @@ import Effectful.Logger
   ( Loc (Loc),
     LogLevel (..),
   )
-import Effectful.LoggerNamespace
+import Effectful.LoggerNS
   ( LocStrategy (LocNone, LocPartial, LocStable),
     LogFormatter (..),
     LogStr,
