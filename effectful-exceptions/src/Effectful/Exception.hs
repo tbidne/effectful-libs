@@ -84,6 +84,14 @@ import System.Exit (ExitCode (..))
 --                           MonadGlobalException                            --
 -------------------------------------------------------------------------------
 
+-- NOTE: We have kept the typeclass as we are __not__ providing our own
+-- exception machinery; Eff already has instances for MonadThrow, etc.
+-- But we could have an effect for MonadGlobalException...should we?
+--
+-- The typeclass is arguably more consistent, since Eff can use exceptions at
+-- any time. It might be strange if we could throw/catch/mask at any point,
+-- but cannot set the global handlers.
+
 -- | Effect for global exception mechanisms.
 --
 -- @since 0.1

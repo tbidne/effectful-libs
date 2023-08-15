@@ -171,14 +171,18 @@ runProcessIO = interpret $ \env -> \case
   StopProcess p -> liftIO $ P.stopProcess p
   ReadProcessInterleaved_ pc -> liftIO $ P.readProcessInterleaved_ pc
 
--- | @since 0.1
+-- | Lifted 'P.readProcessInterleaved'.
+--
+-- @since 0.1
 readProcessInterleaved ::
   (ProcessEffect :> es) =>
   ProcessConfig stdin stdoutIgnored stderrIgnored ->
   Eff es (ExitCode, BSL.ByteString)
 readProcessInterleaved = send . ReadProcessInterleaved
 
--- | @since 0.1
+-- | Lifted 'P.withProcessTerm'.
+--
+-- @since 0.1
 withProcessTerm ::
   (ProcessEffect :> es) =>
   ProcessConfig stdin stdout stderr ->
@@ -186,21 +190,27 @@ withProcessTerm ::
   Eff es a
 withProcessTerm pc = send . WithProcessTerm pc
 
--- | @since 0.1
+-- | Lifted 'P.startProcess'.
+--
+-- @since 0.1
 startProcess ::
   (ProcessEffect :> es) =>
   ProcessConfig stdin stdout stderr ->
   Eff es (Process stdin stdout stderr)
 startProcess = send . StartProcess
 
--- | @since 0.1
+-- | Lifted 'P.stopProcess'.
+--
+-- @since 0.1
 stopProcess ::
   (ProcessEffect :> es) =>
   Process stdin stdout stderr ->
   Eff es ()
 stopProcess = send . StopProcess
 
--- | @since 0.1
+-- | Lifted 'P.readProcessInterleaved'.
+--
+-- @since 0.1
 readProcessInterleaved_ ::
   (ProcessEffect :> es) =>
   ProcessConfig stdin stdoutIgnored stderrIgnored ->

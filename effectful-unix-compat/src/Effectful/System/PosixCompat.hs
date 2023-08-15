@@ -125,98 +125,146 @@ runPosixCompatIO = interpret $ \_ -> \case
   GetPathVar p m -> liftIO $ PFiles.getPathVar p m
   GetFdPathVar fd m -> liftIO $ PFiles.getFdPathVar fd m
 
--- | @since 0.1
+-- | Lifted 'PFiles.setFileMode'.
+--
+-- @since 0.1
 setFileMode :: (PosixCompatEffect :> es) => FilePath -> FileMode -> Eff es ()
 setFileMode p = send . SetFileMode p
 
--- | @since 0.1
+-- | Lifted 'PFiles.setFdMode'.
+--
+-- @since 0.1
 setFdMode :: (PosixCompatEffect :> es) => Fd -> FileMode -> Eff es ()
 setFdMode p = send . SetFdMode p
 
--- | @since 0.1
+-- | Lifted 'PFiles.setFileCreationMask'.
+--
+-- @since 0.1
 setFileCreationMask :: (PosixCompatEffect :> es) => FileMode -> Eff es FileMode
 setFileCreationMask = send . SetFileCreationMask
 
--- | @since 0.1
+-- | Lifted 'PFiles.fileAccess'.
+--
+-- @since 0.1
 fileAccess :: (PosixCompatEffect :> es) => FilePath -> Bool -> Bool -> Bool -> Eff es Bool
 fileAccess p b c = send . FileAccess p b c
 
--- | @since 0.1
+-- | Lifted 'PFiles.fileExist'.
+--
+-- @since 0.1
 fileExist :: (PosixCompatEffect :> es) => FilePath -> Eff es Bool
 fileExist = send . FileExist
 
--- | @since 0.1
+-- | Lifted 'PFiles.getFileStatus'.
+--
+-- @since 0.1
 getFileStatus :: (PosixCompatEffect :> es) => FilePath -> Eff es FileStatus
 getFileStatus = send . GetFileStatus
 
--- | @since 0.1
+-- | Lifted 'PFiles.getFdStatus'.
+--
+-- @since 0.1
 getFdStatus :: (PosixCompatEffect :> es) => Fd -> Eff es FileStatus
 getFdStatus = send . GetFdStatus
 
--- | @since 0.1
+-- | Lifted 'PFiles.getSymbolicLinkStatus'.
+--
+-- @since 0.1
 getSymbolicLinkStatus :: (PosixCompatEffect :> es) => FilePath -> Eff es FileStatus
 getSymbolicLinkStatus = send . GetSymbolicLinkStatus
 
--- | @since 0.1
+-- | Lifted 'PFiles.createNamedPipe'.
+--
+-- @since 0.1
 createNamedPipe :: (PosixCompatEffect :> es) => FilePath -> FileMode -> Eff es ()
 createNamedPipe p = send . CreateNamedPipe p
 
--- | @since 0.1
+-- | Lifted 'PFiles.createDevice'.
+--
+-- @since 0.1
 createDevice :: (PosixCompatEffect :> es) => FilePath -> FileMode -> DeviceID -> Eff es ()
 createDevice p m = send . CreateDevice p m
 
--- | @since 0.1
+-- | Lifted 'PFiles.createLink'.
+--
+-- @since 0.1
 createLink :: (PosixCompatEffect :> es) => FilePath -> FilePath -> Eff es ()
 createLink p = send . CreateLink p
 
--- | @since 0.1
+-- | Lifted 'PFiles.removeLink'.
+--
+-- @since 0.1
 removeLink :: (PosixCompatEffect :> es) => FilePath -> Eff es ()
 removeLink = send . RemoveLink
 
--- | @since 0.1
+-- | Lifted 'PFiles.createSymbolicLink'.
+--
+-- @since 0.1
 createSymbolicLink :: (PosixCompatEffect :> es) => FilePath -> FilePath -> Eff es ()
 createSymbolicLink p = send . CreateSymbolicLink p
 
--- | @since 0.1
+-- | Lifted 'PFiles.readSymbolicLink'.
+--
+-- @since 0.1
 readSymbolicLink :: (PosixCompatEffect :> es) => FilePath -> Eff es FilePath
 readSymbolicLink = send . ReadSymbolicLink
 
--- | @since 0.1
+-- | Lifted 'PFiles.rename'.
+--
+-- @since 0.1
 rename :: (PosixCompatEffect :> es) => FilePath -> FilePath -> Eff es ()
 rename p = send . Rename p
 
--- | @since 0.1
+-- | Lifted 'PFiles.setOwnerAndGroup'.
+--
+-- @since 0.1
 setOwnerAndGroup :: (PosixCompatEffect :> es) => FilePath -> UserID -> GroupID -> Eff es ()
 setOwnerAndGroup p uid = send . SetOwnerAndGroup p uid
 
--- | @since 0.1
+-- | Lifted 'PFiles.setFdOwnerAndGroup'.
+--
+-- @since 0.1
 setFdOwnerAndGroup :: (PosixCompatEffect :> es) => Fd -> UserID -> GroupID -> Eff es ()
 setFdOwnerAndGroup fd uid = send . SetFdOwnerAndGroup fd uid
 
--- | @since 0.1
+-- | Lifted 'PFiles.setSymbolicLinkOwnerAndGroup'.
+--
+-- @since 0.1
 setSymbolicLinkOwnerAndGroup :: (PosixCompatEffect :> es) => FilePath -> UserID -> GroupID -> Eff es ()
 setSymbolicLinkOwnerAndGroup p uid = send . SetSymbolicLinkOwnerAndGroup p uid
 
--- | @since 0.1
+-- | Lifted 'PFiles.setFileTimes'.
+--
+-- @since 0.1
 setFileTimes :: (PosixCompatEffect :> es) => FilePath -> EpochTime -> EpochTime -> Eff es ()
 setFileTimes p t = send . SetFileTimes p t
 
--- | @since 0.1
+-- | Lifted 'PFiles.touchFile'.
+--
+-- @since 0.1
 touchFile :: (PosixCompatEffect :> es) => FilePath -> Eff es ()
 touchFile = send . TouchFile
 
--- | @since 0.1
+-- | Lifted 'PFiles.setFileSize'.
+--
+-- @since 0.1
 setFileSize :: (PosixCompatEffect :> es) => FilePath -> FileOffset -> Eff es ()
 setFileSize p = send . SetFileSize p
 
--- | @since 0.1
+-- | Lifted 'PFiles.setFdSize'.
+--
+-- @since 0.1
 setFdSize :: (PosixCompatEffect :> es) => Fd -> FileOffset -> Eff es ()
 setFdSize fd = send . SetFdSize fd
 
--- | @since 0.1
+-- | Lifted 'PFiles.getPathVar'.
+--
+-- @since 0.1
 getPathVar :: (PosixCompatEffect :> es) => FilePath -> PathVar -> Eff es Limit
 getPathVar p = send . GetPathVar p
 
--- | @since 0.1
+-- | Lifted 'PFiles.getFdPathVar'.
+--
+-- @since 0.1
 getFdPathVar :: (PosixCompatEffect :> es) => Fd -> PathVar -> Eff es Limit
 getFdPathVar fd = send . GetFdPathVar fd

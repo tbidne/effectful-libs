@@ -174,7 +174,9 @@ runPathWriterIO = interpret $ \env -> \case
   SetAccessTime p t -> liftIO $ Dir.setAccessTime p t
   SetModificationTime p t -> liftIO $ Dir.setModificationTime p t
 
--- | @since 0.1
+-- | Lifted 'Dir.createDirectory'.
+--
+-- @since 0.1
 createDirectory ::
   ( PathWriterEffect :> es
   ) =>
@@ -182,7 +184,9 @@ createDirectory ::
   Eff es ()
 createDirectory = send . CreateDirectory
 
--- | @since 0.1
+-- | Lifted 'Dir.createDirectoryIfMissing'.
+--
+-- @since 0.1
 createDirectoryIfMissing ::
   ( PathWriterEffect :> es
   ) =>
@@ -191,7 +195,9 @@ createDirectoryIfMissing ::
   Eff es ()
 createDirectoryIfMissing b = send . CreateDirectoryIfMissing b
 
--- | @since 0.1
+-- | Lifted 'Dir.removeDirectory'.
+--
+-- @since 0.1
 removeDirectory ::
   ( PathWriterEffect :> es
   ) =>
@@ -199,7 +205,9 @@ removeDirectory ::
   Eff es ()
 removeDirectory = send . RemoveDirectory
 
--- | @since 0.1
+-- | Lifted 'Dir.removeDirectoryRecursive'.
+--
+-- @since 0.1
 removeDirectoryRecursive ::
   ( PathWriterEffect :> es
   ) =>
@@ -207,7 +215,9 @@ removeDirectoryRecursive ::
   Eff es ()
 removeDirectoryRecursive = send . RemoveDirectoryRecursive
 
--- | @since 0.1
+-- | Lifted 'Dir.removePathForcibly'.
+--
+-- @since 0.1
 removePathForcibly ::
   ( PathWriterEffect :> es
   ) =>
@@ -215,7 +225,9 @@ removePathForcibly ::
   Eff es ()
 removePathForcibly = send . RemovePathForcibly
 
--- | @since 0.1
+-- | Lifted 'Dir.renameDirectory'.
+--
+-- @since 0.1
 renameDirectory ::
   ( PathWriterEffect :> es
   ) =>
@@ -224,7 +236,9 @@ renameDirectory ::
   Eff es ()
 renameDirectory p = send . RenameDirectory p
 
--- | @since 0.1
+-- | Lifted 'Dir.setCurrentDirectory'.
+--
+-- @since 0.1
 setCurrentDirectory ::
   ( PathWriterEffect :> es
   ) =>
@@ -232,7 +246,9 @@ setCurrentDirectory ::
   Eff es ()
 setCurrentDirectory = send . SetCurrentDirectory
 
--- | @since 0.1
+-- | Lifted 'Dir.withCurrentDirectory'.
+--
+-- @since 0.1
 withCurrentDirectory ::
   ( PathWriterEffect :> es
   ) =>
@@ -241,7 +257,9 @@ withCurrentDirectory ::
   Eff es a
 withCurrentDirectory p = send . WithCurrentDirectory p
 
--- | @since 0.1
+-- | Lifted 'Dir.removeFile'.
+--
+-- @since 0.1
 removeFile ::
   ( PathWriterEffect :> es
   ) =>
@@ -249,7 +267,9 @@ removeFile ::
   Eff es ()
 removeFile = send . RemoveFile
 
--- | @since 0.1
+-- | Lifted 'Dir.renameFile'.
+--
+-- @since 0.1
 renameFile ::
   ( PathWriterEffect :> es
   ) =>
@@ -258,7 +278,9 @@ renameFile ::
   Eff es ()
 renameFile p = send . RenameFile p
 
--- | @since 0.1
+-- | Lifted 'Dir.renamePath'.
+--
+-- @since 0.1
 renamePath ::
   ( PathWriterEffect :> es
   ) =>
@@ -267,7 +289,9 @@ renamePath ::
   Eff es ()
 renamePath p = send . RenamePath p
 
--- | @since 0.1
+-- | Lifted 'Dir.copyFile'.
+--
+-- @since 0.1
 copyFile ::
   ( PathWriterEffect :> es
   ) =>
@@ -276,7 +300,9 @@ copyFile ::
   Eff es ()
 copyFile p = send . CopyFile p
 
--- | @since 0.1
+-- | Lifted 'Dir.copyFileWithMetadata'.
+--
+-- @since 0.1
 copyFileWithMetadata ::
   ( PathWriterEffect :> es
   ) =>
@@ -285,7 +311,9 @@ copyFileWithMetadata ::
   Eff es ()
 copyFileWithMetadata p = send . CopyFileWithMetadata p
 
--- | @since 0.1
+-- | Lifted 'Dir.createFileLink'.
+--
+-- @since 0.1
 createFileLink ::
   ( PathWriterEffect :> es
   ) =>
@@ -294,7 +322,9 @@ createFileLink ::
   Eff es ()
 createFileLink p = send . CreateFileLink p
 
--- | @since 0.1
+-- | Lifted 'Dir.createDirectoryLink'.
+--
+-- @since 0.1
 createDirectoryLink ::
   ( PathWriterEffect :> es
   ) =>
@@ -303,7 +333,9 @@ createDirectoryLink ::
   Eff es ()
 createDirectoryLink p = send . CreateDirectoryLink p
 
--- | @since 0.1
+-- | Lifted 'Dir.removeDirectoryLink'.
+--
+-- @since 0.1
 removeDirectoryLink ::
   ( PathWriterEffect :> es
   ) =>
@@ -311,7 +343,9 @@ removeDirectoryLink ::
   Eff es ()
 removeDirectoryLink = send . RemoveDirectoryLink
 
--- | @since 0.1
+-- | Lifted 'Dir.setPermissions'.
+--
+-- @since 0.1
 setPermissions ::
   ( PathWriterEffect :> es
   ) =>
@@ -320,7 +354,9 @@ setPermissions ::
   Eff es ()
 setPermissions p = send . SetPermissions p
 
--- | @since 0.1
+-- | Lifted 'Dir.copyPermissions'.
+--
+-- @since 0.1
 copyPermissions ::
   ( PathWriterEffect :> es
   ) =>
@@ -329,7 +365,9 @@ copyPermissions ::
   Eff es ()
 copyPermissions p = send . CopyPermissions p
 
--- | @since 0.1
+-- | Lifted 'Dir.setAccessTime'.
+--
+-- @since 0.1
 setAccessTime ::
   ( PathWriterEffect :> es
   ) =>
@@ -338,7 +376,9 @@ setAccessTime ::
   Eff es ()
 setAccessTime p = send . SetAccessTime p
 
--- | @since 0.1
+-- | Lifted 'Dir.setModificationTime'.
+--
+-- @since 0.1
 setModificationTime ::
   ( PathWriterEffect :> es
   ) =>

@@ -62,19 +62,27 @@ runIORefIO = interpret $ \_ -> \case
   ModifyIORef' ref f -> liftIO $ IORef.modifyIORef' ref f
   AtomicModifyIORef' ref f -> liftIO $ IORef.atomicModifyIORef' ref f
 
--- | @since 0.1
+-- | Lifted 'IORef.newIORef'.
+--
+-- @since 0.1
 newIORef :: (IORefEffect :> es) => a -> Eff es (IORef a)
 newIORef = send . NewIORef
 
--- | @since 0.1
+-- | Lifted 'IORef.readIORef'.
+--
+-- @since 0.1
 readIORef :: (IORefEffect :> es) => IORef a -> Eff es a
 readIORef = send . ReadIORef
 
--- | @since 0.1
+-- | Lifted 'IORef.writeIORef'.
+--
+-- @since 0.1
 writeIORef :: (IORefEffect :> es) => IORef a -> a -> Eff es ()
 writeIORef ref = send . WriteIORef ref
 
--- | @since 0.1
+-- | Lifted 'IORef.modifyIORef''.
+--
+-- @since 0.1
 modifyIORef' ::
   ( IORefEffect :> es
   ) =>
@@ -83,7 +91,9 @@ modifyIORef' ::
   Eff es ()
 modifyIORef' ref = send . ModifyIORef' ref
 
--- | @since 0.1
+-- | Lifted 'IORef.atomicModifyIORef''.
+--
+-- @since 0.1
 atomicModifyIORef' ::
   ( IORefEffect :> es
   ) =>
@@ -92,7 +102,9 @@ atomicModifyIORef' ::
   Eff es b
 atomicModifyIORef' ref = send . AtomicModifyIORef' ref
 
--- | Variant of 'atomicModifyIORef'' which ignores the return value
+-- | Variant of 'atomicModifyIORef'' which ignores the return value.
+--
+-- @since 0.1
 atomicModifyIORef'_ ::
   ( IORefEffect :> es
   ) =>

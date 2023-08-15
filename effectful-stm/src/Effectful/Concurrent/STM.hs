@@ -70,7 +70,9 @@ runSTMIO ::
 runSTMIO = interpret $ \_ -> \case
   Atomically x -> liftIO $ STM.atomically x
 
--- | @since 0.1
+-- | Lifted 'STM.atomically'.
+--
+-- @since 0.1
 atomically :: (STMEffect :> es) => STM a -> Eff es a
 atomically = send . Atomically
 

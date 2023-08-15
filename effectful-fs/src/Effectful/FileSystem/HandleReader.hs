@@ -26,18 +26,28 @@ module Effectful.FileSystem.HandleReader
     runHandleReaderIO,
 
     -- * UTF-8 Utils
+
+    -- ** GetLine
     hGetLineUtf8,
     hGetLineUtf8Lenient,
     hGetLineUtf8ThrowM,
+
+    -- ** GetContents
     hGetContentsUtf8,
     hGetContentsUtf8Lenient,
     hGetContentsUtf8ThrowM,
+
+    -- ** Get
     hGetUtf8,
     hGetUtf8Lenient,
     hGetUtf8ThrowM,
+
+    -- ** GetSome
     hGetSomeUtf8,
     hGetSomeUtf8Lenient,
     hGetSomeUtf8ThrowM,
+
+    -- ** GetNonBlocking
     hGetNonBlockingUtf8,
     hGetNonBlockingUtf8Lenient,
     hGetNonBlockingUtf8ThrowM,
@@ -125,11 +135,15 @@ runHandleReaderIO = interpret $ \_ -> \case
   HGetSome h i -> liftIO $ BS.hGetSome h i
   HGetNonBlocking h i -> liftIO $ BS.hGetNonBlocking h i
 
--- | @since 0.1
+-- | Lifted 'IO.hIsEof'.
+--
+-- @since 0.1
 hIsEOF :: (HandleReaderEffect :> es) => Handle -> Eff es Bool
 hIsEOF = send . HIsEOF
 
--- | @since 0.1
+-- | Lifted 'IO.hGetBuffering'.
+--
+-- @since 0.1
 hGetBuffering ::
   ( HandleReaderEffect :> es
   ) =>
@@ -137,7 +151,9 @@ hGetBuffering ::
   Eff es BufferMode
 hGetBuffering = send . HGetBuffering
 
--- | @since 0.1
+-- | Lifted 'IO.hIsOpen'.
+--
+-- @since 0.1
 hIsOpen ::
   ( HandleReaderEffect :> es
   ) =>
@@ -145,7 +161,9 @@ hIsOpen ::
   Eff es Bool
 hIsOpen = send . HIsOpen
 
--- | @since 0.1
+-- | Lifted 'IO.hIsClosed'.
+--
+-- @since 0.1
 hIsClosed ::
   ( HandleReaderEffect :> es
   ) =>
@@ -153,7 +171,9 @@ hIsClosed ::
   Eff es Bool
 hIsClosed = send . HIsClosed
 
--- | @since 0.1
+-- | Lifted 'IO.hIsReadable'.
+--
+-- @since 0.1
 hIsReadable ::
   ( HandleReaderEffect :> es
   ) =>
@@ -161,7 +181,9 @@ hIsReadable ::
   Eff es Bool
 hIsReadable = send . HIsReadable
 
--- | @since 0.1
+-- | Lifted 'IO.hIsWritable'.
+--
+-- @since 0.1
 hIsWritable ::
   ( HandleReaderEffect :> es
   ) =>
@@ -169,7 +191,9 @@ hIsWritable ::
   Eff es Bool
 hIsWritable = send . HIsWritable
 
--- | @since 0.1
+-- | Lifted 'IO.hIsSeekable'.
+--
+-- @since 0.1
 hIsSeekable ::
   ( HandleReaderEffect :> es
   ) =>
@@ -177,7 +201,9 @@ hIsSeekable ::
   Eff es Bool
 hIsSeekable = send . HIsSeekable
 
--- | @since 0.1
+-- | Lifted 'IO.hIsTerminalDevice'.
+--
+-- @since 0.1
 hIsTerminalDevice ::
   ( HandleReaderEffect :> es
   ) =>
@@ -185,7 +211,9 @@ hIsTerminalDevice ::
   Eff es Bool
 hIsTerminalDevice = send . HIsTerminalDevice
 
--- | @since 0.1
+-- | Lifted 'IO.hGetEcho'.
+--
+-- @since 0.1
 hGetEcho ::
   ( HandleReaderEffect :> es
   ) =>
@@ -193,7 +221,9 @@ hGetEcho ::
   Eff es Bool
 hGetEcho = send . HGetEcho
 
--- | @since 0.1
+-- | Lifted 'IO.hWaitForInput'.
+--
+-- @since 0.1
 hWaitForInput ::
   ( HandleReaderEffect :> es
   ) =>
@@ -202,7 +232,9 @@ hWaitForInput ::
   Eff es Bool
 hWaitForInput h = send . HWaitForInput h
 
--- | @since 0.1
+-- | Lifted 'IO.hReady'.
+--
+-- @since 0.1
 hReady ::
   ( HandleReaderEffect :> es
   ) =>
@@ -210,7 +242,9 @@ hReady ::
   Eff es Bool
 hReady = send . HReady
 
--- | @since 0.1
+-- | Lifted 'IO.hGetChar'.
+--
+-- @since 0.1
 hGetChar ::
   ( HandleReaderEffect :> es
   ) =>
@@ -218,7 +252,9 @@ hGetChar ::
   Eff es Char
 hGetChar = send . HGetChar
 
--- | @since 0.1
+-- | Lifted 'BS.hGetLine'.
+--
+-- @since 0.1
 hGetLine ::
   ( HandleReaderEffect :> es
   ) =>
@@ -226,7 +262,9 @@ hGetLine ::
   Eff es ByteString
 hGetLine = send . HGetLine
 
--- | @since 0.1
+-- | Lifted 'BS.hGetContents'.
+--
+-- @since 0.1
 hGetContents ::
   ( HandleReaderEffect :> es
   ) =>
@@ -234,7 +272,9 @@ hGetContents ::
   Eff es ByteString
 hGetContents = send . HGetContents
 
--- | @since 0.1
+-- | Lifted 'BS.hGet'.
+--
+-- @since 0.1
 hGet ::
   ( HandleReaderEffect :> es
   ) =>
@@ -243,7 +283,9 @@ hGet ::
   Eff es ByteString
 hGet h = send . HGet h
 
--- | @since 0.1
+-- | Lifted 'BS.hGetSome'.
+--
+-- @since 0.1
 hGetSome ::
   ( HandleReaderEffect :> es
   ) =>
@@ -252,7 +294,9 @@ hGetSome ::
   Eff es ByteString
 hGetSome h = send . HGetSome h
 
--- | @since 0.1
+-- | Lifted 'BS.hGetNonBlocking'.
+--
+-- @since 0.1
 hGetNonBlocking ::
   ( HandleReaderEffect :> es
   ) =>
@@ -261,7 +305,9 @@ hGetNonBlocking ::
   Eff es ByteString
 hGetNonBlocking h = send . HGetNonBlocking h
 
--- | @since 0.1
+-- | 'hGetLine' and 'decodeUtf8'.
+--
+-- @since 0.1
 hGetLineUtf8 ::
   ( HandleReaderEffect :> es
   ) =>
@@ -269,7 +315,9 @@ hGetLineUtf8 ::
   Eff es (Either UnicodeException Text)
 hGetLineUtf8 = fmap decodeUtf8 . hGetLine
 
--- | @since 0.1
+-- | 'hGetLine' and 'decodeUtf8Lenient'.
+--
+-- @since 0.1
 hGetLineUtf8Lenient ::
   ( HandleReaderEffect :> es
   ) =>
@@ -277,7 +325,9 @@ hGetLineUtf8Lenient ::
   Eff es Text
 hGetLineUtf8Lenient = fmap decodeUtf8Lenient . hGetLine
 
--- | @since 0.1
+-- | 'hGetLine' and 'decodeUtf8ThrowM'.
+--
+-- @since 0.1
 hGetLineUtf8ThrowM ::
   ( HandleReaderEffect :> es
   ) =>
@@ -285,7 +335,9 @@ hGetLineUtf8ThrowM ::
   Eff es Text
 hGetLineUtf8ThrowM = hGetLine >=> decodeUtf8ThrowM
 
--- | @since 0.1
+-- | 'hGetContents' and 'decodeUtf8'.
+--
+-- @since 0.1
 hGetContentsUtf8 ::
   ( HandleReaderEffect :> es
   ) =>
@@ -293,7 +345,9 @@ hGetContentsUtf8 ::
   Eff es (Either UnicodeException Text)
 hGetContentsUtf8 = fmap decodeUtf8 . hGetContents
 
--- | @since 0.1
+-- | 'hGetContents' and 'decodeUtf8Lenient'.
+--
+-- @since 0.1
 hGetContentsUtf8Lenient ::
   ( HandleReaderEffect :> es
   ) =>
@@ -301,7 +355,9 @@ hGetContentsUtf8Lenient ::
   Eff es Text
 hGetContentsUtf8Lenient = fmap decodeUtf8Lenient . hGetContents
 
--- | @since 0.1
+-- | 'hGetContents' and 'decodeUtf8ThrowM'.
+--
+-- @since 0.1
 hGetContentsUtf8ThrowM ::
   ( HandleReaderEffect :> es
   ) =>
@@ -309,7 +365,9 @@ hGetContentsUtf8ThrowM ::
   Eff es Text
 hGetContentsUtf8ThrowM = hGetContents >=> decodeUtf8ThrowM
 
--- | @since 0.1
+-- | 'hGet' and 'decodeUtf8'.
+--
+-- @since 0.1
 hGetUtf8 ::
   ( HandleReaderEffect :> es
   ) =>
@@ -318,7 +376,9 @@ hGetUtf8 ::
   Eff es (Either UnicodeException Text)
 hGetUtf8 h = fmap decodeUtf8 . hGet h
 
--- | @since 0.1
+-- | 'hGet' and 'decodeUtf8Lenient'.
+--
+-- @since 0.1
 hGetUtf8Lenient ::
   ( HandleReaderEffect :> es
   ) =>
@@ -327,7 +387,9 @@ hGetUtf8Lenient ::
   Eff es Text
 hGetUtf8Lenient h = fmap decodeUtf8Lenient . hGet h
 
--- | @since 0.1
+-- | 'hGet' and 'decodeUtf8ThrowM'.
+--
+-- @since 0.1
 hGetUtf8ThrowM ::
   ( HandleReaderEffect :> es
   ) =>
@@ -336,7 +398,9 @@ hGetUtf8ThrowM ::
   Eff es Text
 hGetUtf8ThrowM h = hGet h >=> decodeUtf8ThrowM
 
--- | @since 0.1
+-- | 'hGetSome' and 'decodeUtf8'.
+--
+-- @since 0.1
 hGetSomeUtf8 ::
   ( HandleReaderEffect :> es
   ) =>
@@ -345,7 +409,9 @@ hGetSomeUtf8 ::
   Eff es (Either UnicodeException Text)
 hGetSomeUtf8 h = fmap decodeUtf8 . hGetSome h
 
--- | @since 0.1
+-- | 'hGetSome' and 'decodeUtf8Lenient'.
+--
+-- @since 0.1
 hGetSomeUtf8Lenient ::
   ( HandleReaderEffect :> es
   ) =>
@@ -354,7 +420,9 @@ hGetSomeUtf8Lenient ::
   Eff es Text
 hGetSomeUtf8Lenient h = fmap decodeUtf8Lenient . hGetSome h
 
--- | @since 0.1
+-- | 'hGetSome' and 'decodeUtf8ThrowM'.
+--
+-- @since 0.1
 hGetSomeUtf8ThrowM ::
   ( HandleReaderEffect :> es
   ) =>
@@ -363,7 +431,9 @@ hGetSomeUtf8ThrowM ::
   Eff es Text
 hGetSomeUtf8ThrowM h = hGetSome h >=> decodeUtf8ThrowM
 
--- | @since 0.1
+-- | 'hGetNonBlocking' and 'decodeUtf8'.
+--
+-- @since 0.1
 hGetNonBlockingUtf8 ::
   ( HandleReaderEffect :> es
   ) =>
@@ -372,7 +442,9 @@ hGetNonBlockingUtf8 ::
   Eff es (Either UnicodeException Text)
 hGetNonBlockingUtf8 h = fmap decodeUtf8 . hGetNonBlocking h
 
--- | @since 0.1
+-- | 'hGetNonBlocking' and 'decodeUtf8Lenient'.
+--
+-- @since 0.1
 hGetNonBlockingUtf8Lenient ::
   ( HandleReaderEffect :> es
   ) =>
@@ -381,7 +453,9 @@ hGetNonBlockingUtf8Lenient ::
   Eff es Text
 hGetNonBlockingUtf8Lenient h = fmap decodeUtf8Lenient . hGetNonBlocking h
 
--- | @since 0.1
+-- | 'hGetNonBlocking' and 'decodeUtf8ThrowM'.
+--
+-- @since 0.1
 hGetNonBlockingUtf8ThrowM ::
   ( HandleReaderEffect :> es
   ) =>

@@ -35,7 +35,11 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
-import Effectful.FileSystem.Internal (Path, appendBinaryFileIO, writeBinaryFileIO)
+import Effectful.FileSystem.Internal
+  ( Path,
+    appendBinaryFileIO,
+    writeBinaryFileIO,
+  )
 
 -- | Effect for reading files.
 --

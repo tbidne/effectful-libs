@@ -178,7 +178,9 @@ findFile = findFileWith (\_ -> pure True)
 findFiles :: (PathReaderEffect :> es) => [Path] -> Path -> Eff es [Path]
 findFiles = findFilesWith (\_ -> pure True)
 
--- | @since 0.1
+-- | Lifted 'Dir.listDirectory'.
+--
+-- @since 0.1
 listDirectory ::
   ( PathReaderEffect :> es
   ) =>
@@ -186,7 +188,9 @@ listDirectory ::
   Eff es [Path]
 listDirectory = send . ListDirectory
 
--- | @since 0.1
+-- | Lifted 'Dir.getDirectoryContents'.
+--
+-- @since 0.1
 getDirectoryContents ::
   ( PathReaderEffect :> es
   ) =>
@@ -194,21 +198,27 @@ getDirectoryContents ::
   Eff es [Path]
 getDirectoryContents = send . GetDirectoryContents
 
--- | @since 0.1
+-- | Lifted 'Dir.getCurrentDirectory'.
+--
+-- @since 0.1
 getCurrentDirectory ::
   ( PathReaderEffect :> es
   ) =>
   Eff es Path
 getCurrentDirectory = send GetCurrentDirectory
 
--- | @since 0.1
+-- | Lifted 'Dir.getHomeDirectory'.
+--
+-- @since 0.1
 getHomeDirectory ::
   ( PathReaderEffect :> es
   ) =>
   Eff es Path
 getHomeDirectory = send GetHomeDirectory
 
--- | @since 0.1
+-- | Lifted 'Dir.getXdgDirectory'.
+--
+-- @since 0.1
 getXdgDirectory ::
   ( PathReaderEffect :> es
   ) =>
@@ -217,7 +227,9 @@ getXdgDirectory ::
   Eff es Path
 getXdgDirectory xdg = send . GetXdgDirectory xdg
 
--- | @since 0.1
+-- | Lifted 'Dir.getXdgDirectoryList'.
+--
+-- @since 0.1
 getXdgDirectoryList ::
   ( PathReaderEffect :> es
   ) =>
@@ -225,7 +237,9 @@ getXdgDirectoryList ::
   Eff es [Path]
 getXdgDirectoryList = send . GetXdgDirectoryList
 
--- | @since 0.1
+-- | Lifted 'Dir.getAppUserDataDirectory'.
+--
+-- @since 0.1
 getAppUserDataDirectory ::
   ( PathReaderEffect :> es
   ) =>
@@ -233,21 +247,27 @@ getAppUserDataDirectory ::
   Eff es Path
 getAppUserDataDirectory = send . GetAppUserDataDirectory
 
--- | @since 0.1
+-- | Lifted 'Dir.getUserDocumentsDirectory'.
+--
+-- @since 0.1
 getUserDocumentsDirectory ::
   ( PathReaderEffect :> es
   ) =>
   Eff es Path
 getUserDocumentsDirectory = send GetUserDocumentsDirectory
 
--- | @since 0.1
+-- | Lifted 'Dir.getTemporaryDirectory'.
+--
+-- @since 0.1
 getTemporaryDirectory ::
   ( PathReaderEffect :> es
   ) =>
   Eff es Path
 getTemporaryDirectory = send GetTemporaryDirectory
 
--- | @since 0.1
+-- | Lifted 'Dir.getFileSize'.
+--
+-- @since 0.1
 getFileSize ::
   ( PathReaderEffect :> es
   ) =>
@@ -255,7 +275,9 @@ getFileSize ::
   Eff es Integer
 getFileSize = send . GetFileSize
 
--- | @since 0.1
+-- | Lifted 'Dir.canonicalizePath'.
+--
+-- @since 0.1
 canonicalizePath ::
   ( PathReaderEffect :> es
   ) =>
@@ -263,7 +285,9 @@ canonicalizePath ::
   Eff es Path
 canonicalizePath = send . CanonicalizePath
 
--- | @since 0.1
+-- | Lifted 'Dir.makeAbsolute'.
+--
+-- @since 0.1
 makeAbsolute ::
   ( PathReaderEffect :> es
   ) =>
@@ -271,7 +295,9 @@ makeAbsolute ::
   Eff es Path
 makeAbsolute = send . MakeAbsolute
 
--- | @since 0.1
+-- | Lifted 'Dir.makeRelativeToCurrentDirectory'.
+--
+-- @since 0.1
 makeRelativeToCurrentDirectory ::
   ( PathReaderEffect :> es
   ) =>
@@ -279,7 +305,9 @@ makeRelativeToCurrentDirectory ::
   Eff es Path
 makeRelativeToCurrentDirectory = send . MakeRelativeToCurrentDirectory
 
--- | @since 0.1
+-- | Lifted 'Dir.doesPathExist'.
+--
+-- @since 0.1
 doesPathExist ::
   ( PathReaderEffect :> es
   ) =>
@@ -287,7 +315,9 @@ doesPathExist ::
   Eff es Bool
 doesPathExist = send . DoesPathExist
 
--- | @since 0.1
+-- | Lifted 'Dir.doesFileExist'.
+--
+-- @since 0.1
 doesFileExist ::
   ( PathReaderEffect :> es
   ) =>
@@ -295,7 +325,9 @@ doesFileExist ::
   Eff es Bool
 doesFileExist = send . DoesFileExist
 
--- | @since 0.1
+-- | Lifted 'Dir.doesDirectoryExist'.
+--
+-- @since 0.1
 doesDirectoryExist ::
   ( PathReaderEffect :> es
   ) =>
@@ -303,7 +335,9 @@ doesDirectoryExist ::
   Eff es Bool
 doesDirectoryExist = send . DoesDirectoryExist
 
--- | @since 0.1
+-- | Lifted 'Dir.findExecutable'.
+--
+-- @since 0.1
 findExecutable ::
   ( PathReaderEffect :> es
   ) =>
@@ -311,7 +345,9 @@ findExecutable ::
   Eff es (Maybe Path)
 findExecutable = send . FindExecutable
 
--- | @since 0.1
+-- | Lifted 'Dir.findExecutables'.
+--
+-- @since 0.1
 findExecutables ::
   ( PathReaderEffect :> es
   ) =>
@@ -319,7 +355,9 @@ findExecutables ::
   Eff es [Path]
 findExecutables = send . FindExecutables
 
--- | @since 0.1
+-- | Lifted 'Dir.findExecutablesInDirectories'.
+--
+-- @since 0.1
 findExecutablesInDirectories ::
   ( PathReaderEffect :> es
   ) =>
@@ -328,7 +366,9 @@ findExecutablesInDirectories ::
   Eff es [Path]
 findExecutablesInDirectories ps = send . FindExecutablesInDirectories ps
 
--- | @since 0.1
+-- | Lifted 'Dir.findFileWith'.
+--
+-- @since 0.1
 findFileWith ::
   ( PathReaderEffect :> es
   ) =>
@@ -338,7 +378,9 @@ findFileWith ::
   Eff es (Maybe Path)
 findFileWith f ps = send . FindFileWith f ps
 
--- | @since 0.1
+-- | Lifted 'Dir.findFilesWith'.
+--
+-- @since 0.1
 findFilesWith ::
   ( PathReaderEffect :> es
   ) =>
@@ -348,7 +390,9 @@ findFilesWith ::
   Eff es [Path]
 findFilesWith f ps = send . FindFilesWith f ps
 
--- | @since 0.1
+-- | Lifted 'Dir.pathIsSymbolicLink'.
+--
+-- @since 0.1
 pathIsSymbolicLink ::
   ( PathReaderEffect :> es
   ) =>
@@ -356,7 +400,9 @@ pathIsSymbolicLink ::
   Eff es Bool
 pathIsSymbolicLink = send . PathIsSymbolicLink
 
--- | @since 0.1
+-- | Lifted 'Dir.getSymbolicLinkTarget'.
+--
+-- @since 0.1
 getSymbolicLinkTarget ::
   ( PathReaderEffect :> es
   ) =>
@@ -364,7 +410,9 @@ getSymbolicLinkTarget ::
   Eff es Path
 getSymbolicLinkTarget = send . GetSymbolicLinkTarget
 
--- | @since 0.1
+-- | Lifted 'Dir.getPermissions'.
+--
+-- @since 0.1
 getPermissions ::
   ( PathReaderEffect :> es
   ) =>
@@ -372,7 +420,9 @@ getPermissions ::
   Eff es Permissions
 getPermissions = send . GetPermissions
 
--- | @since 0.1
+-- | Lifted 'Dir.getAccessTime'.
+--
+-- @since 0.1
 getAccessTime ::
   ( PathReaderEffect :> es
   ) =>
@@ -380,7 +430,9 @@ getAccessTime ::
   Eff es UTCTime
 getAccessTime = send . GetAccessTime
 
--- | @since 0.1
+-- | Lifted 'Dir.getModificationTime'.
+--
+-- @since 0.1
 getModificationTime ::
   ( PathReaderEffect :> es
   ) =>

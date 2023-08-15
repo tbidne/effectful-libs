@@ -22,10 +22,7 @@ module Effectful.FileSystem.HandleWriter
 
     -- * UTF-8 Utils
     hPutUtf8,
-    hPutNonBlockingUtf8',
     hPutNonBlockingUtf8,
-    hPutNonBlockingUtf8Lenient,
-    hPutNonBlockingUtf8ThrowM,
 
     -- * Re-exports
     BufferMode (..),
@@ -37,7 +34,6 @@ module Effectful.FileSystem.HandleWriter
   )
 where
 
-import Control.Monad ((>=>))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
@@ -51,12 +47,6 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
-import Effectful.FileSystem.FileReader
-  ( UnicodeException,
-    decodeUtf8,
-    decodeUtf8Lenient,
-    decodeUtf8ThrowM,
-  )
 import Effectful.FileSystem.FileWriter (encodeUtf8)
 import Effectful.FileSystem.Internal (Path, openBinaryFileIO, withBinaryFileIO)
 import System.IO (BufferMode (..), Handle, IOMode (..), SeekMode (..))
@@ -103,7 +93,9 @@ runHandleWriterIO = interpret $ \env -> \case
   HPut h bs -> liftIO $ BS.hPut h bs
   HPutNonBlocking h bs -> liftIO $ BS.hPutNonBlocking h bs
 
--- | @since 0.1
+-- | Lifted 'IO.openBinaryFile'.
+--
+-- @since 0.1
 hOpenBinaryFile ::
   ( HandleWriterEffect :> es
   ) =>
@@ -112,7 +104,9 @@ hOpenBinaryFile ::
   Eff es Handle
 hOpenBinaryFile p = send . HOpenBinaryFile p
 
--- | @since 0.1
+-- | Lifted 'IO.withBinaryFile'.
+--
+-- @since 0.1
 hWithBinaryFile ::
   ( HandleWriterEffect :> es
   ) =>
@@ -122,7 +116,9 @@ hWithBinaryFile ::
   Eff es a
 hWithBinaryFile p m = send . HWithBinaryFile p m
 
--- | @since 0.1
+-- | Lifted 'IO.hClose'.
+--
+-- @since 0.1
 hClose ::
   ( HandleWriterEffect :> es
   ) =>
@@ -130,7 +126,9 @@ hClose ::
   Eff es ()
 hClose = send . HClose
 
--- | @since 0.1
+-- | Lifted 'IO.hFlush'.
+--
+-- @since 0.1
 hFlush ::
   ( HandleWriterEffect :> es
   ) =>
@@ -138,7 +136,9 @@ hFlush ::
   Eff es ()
 hFlush = send . HFlush
 
--- | @since 0.1
+-- | Lifted 'IO.hSetFileSize'.
+--
+-- @since 0.1
 hSetFileSize ::
   ( HandleWriterEffect :> es
   ) =>
@@ -147,7 +147,9 @@ hSetFileSize ::
   Eff es ()
 hSetFileSize h = send . HSetFileSize h
 
--- | @since 0.1
+-- | Lifted 'IO.hSetBuffering'.
+--
+-- @since 0.1
 hSetBuffering ::
   ( HandleWriterEffect :> es
   ) =>
@@ -156,7 +158,9 @@ hSetBuffering ::
   Eff es ()
 hSetBuffering h = send . HSetBuffering h
 
--- | @since 0.1
+-- | Lifted 'IO.hSeek'.
+--
+-- @since 0.1
 hSeek ::
   ( HandleWriterEffect :> es
   ) =>
@@ -166,7 +170,9 @@ hSeek ::
   Eff es ()
 hSeek h m = send . HSeek h m
 
--- | @since 0.1
+-- | Lifted 'IO.hTell'.
+--
+-- @since 0.1
 hTell ::
   ( HandleWriterEffect :> es
   ) =>
@@ -174,7 +180,9 @@ hTell ::
   Eff es Integer
 hTell = send . HTell
 
--- | @since 0.1
+-- | Lifted 'IO.hSetEcho'.
+--
+-- @since 0.1
 hSetEcho ::
   ( HandleWriterEffect :> es
   ) =>
@@ -183,7 +191,9 @@ hSetEcho ::
   Eff es ()
 hSetEcho h = send . HSetEcho h
 
--- | @since 0.1
+-- | Lifted 'BS.hPut'.
+--
+-- @since 0.1
 hPut ::
   ( HandleWriterEffect :> es
   ) =>
@@ -192,7 +202,9 @@ hPut ::
   Eff es ()
 hPut h = send . HPut h
 
--- | @since 0.1
+-- | Lifted 'BS.hPutNonBlocking'.
+--
+-- @since 0.1
 hPutNonBlocking ::
   ( HandleWriterEffect :> es
   ) =>
@@ -201,7 +213,9 @@ hPutNonBlocking ::
   Eff es ByteString
 hPutNonBlocking h = send . HPutNonBlocking h
 
--- | @since 0.1
+-- | 'hPut' and 'encodeUtf8'.
+--
+-- @since 0.1
 hPutUtf8 ::
   ( HandleWriterEffect :> es
   ) =>
@@ -210,42 +224,13 @@ hPutUtf8 ::
   Eff es ()
 hPutUtf8 h = hPut h . encodeUtf8
 
--- | @since 0.1
-hPutNonBlockingUtf8' ::
-  ( HandleWriterEffect :> es
-  ) =>
-  Handle ->
-  Text ->
-  Eff es ByteString
-hPutNonBlockingUtf8' h = hPutNonBlocking h . encodeUtf8
-
--- | @since 0.1
+-- | 'hPutNonBlocking' and 'encodeUtf8'.
+--
+-- @since 0.1
 hPutNonBlockingUtf8 ::
   ( HandleWriterEffect :> es
   ) =>
   Handle ->
   Text ->
-  Eff es (Either UnicodeException Text)
-hPutNonBlockingUtf8 h = fmap decodeUtf8 . hPutNonBlocking h . encodeUtf8
-
--- | @since 0.1
-hPutNonBlockingUtf8Lenient ::
-  ( HandleWriterEffect :> es
-  ) =>
-  Handle ->
-  Text ->
-  Eff es Text
-hPutNonBlockingUtf8Lenient h =
-  fmap decodeUtf8Lenient
-    . hPutNonBlocking h
-    . encodeUtf8
-
--- | @since 0.1
-hPutNonBlockingUtf8ThrowM ::
-  ( HandleWriterEffect :> es
-  ) =>
-  Handle ->
-  Text ->
-  Eff es Text
-hPutNonBlockingUtf8ThrowM h =
-  (hPutNonBlocking h . encodeUtf8) >=> decodeUtf8ThrowM
+  Eff es ByteString
+hPutNonBlockingUtf8 h = hPutNonBlocking h . encodeUtf8

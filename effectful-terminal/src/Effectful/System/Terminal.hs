@@ -119,25 +119,35 @@ runTerminalIO = interpret $ \_ -> \case
 
 {- ORMOLU_ENABLE -}
 
--- | @since 0.1
+-- | Lifted 'IO.putStr'.
+--
+-- @since 0.1
 putStr :: (TerminalEffect :> es) => String -> Eff es ()
 putStr = send . PutStr
 
--- | @since 0.1
+-- | Lifted 'IO.putStrLn'.
+--
+-- @since 0.1
 putStrLn :: (TerminalEffect :> es) => String -> Eff es ()
 putStrLn = send . PutStrLn
 
--- | @since 0.1
+-- | Lifted 'IO.getChar'.
+--
+-- @since 0.1
 getChar :: (TerminalEffect :> es) => Eff es Char
 getChar = send GetChar
 
--- | @since 0.1
+-- | Lifted 'IO.getLine'.
+--
+-- @since 0.1
 getLine :: (TerminalEffect :> es) => Eff es String
 getLine = send GetLine
 
 #if MIN_VERSION_base(4,15,0)
 
--- | @since 0.1
+-- | Lifted 'IO.getContents''.
+--
+-- @since 0.1
 getContents' :: ( TerminalEffect :> es) => Eff es String
 getContents' = send GetContents'
 

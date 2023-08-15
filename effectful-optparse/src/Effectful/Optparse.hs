@@ -22,9 +22,9 @@ import Effectful
     IOE,
     type (:>),
   )
+import Effectful.Dispatch.Dynamic (interpret, send)
 import Options.Applicative (ParserInfo, ParserPrefs, ParserResult)
 import Options.Applicative qualified as OA
-import Effectful.Dispatch.Dynamic (interpret, send)
 
 -- | Effect for optparse-applicative.
 --
@@ -50,14 +50,20 @@ runOptparseIO = interpret $ \_ -> \case
   CustomExecParser prefs i -> liftIO $ OA.customExecParser prefs i
   HandleParseResult r -> liftIO $ OA.handleParseResult r
 
--- | @since 0.1
+-- | Lifted 'OA.execParser'.
+--
+-- @since 0.1
 execParser :: (OptparseEffect :> es) => ParserInfo a -> Eff es a
 execParser = send . ExecParser
 
--- | @since 0.1
+-- | Lifted 'OA.customExecParser'.
+--
+-- @since 0.1
 customExecParser :: (OptparseEffect :> es) => ParserPrefs -> ParserInfo a -> Eff es a
 customExecParser prefs = send . CustomExecParser prefs
 
--- | @since 0.1
+-- | Lifted 'OA.handleParseResult'.
+--
+-- @since 0.1
 handleParseResult :: (OptparseEffect :> es) => ParserResult a -> Eff es a
 handleParseResult = send . HandleParseResult

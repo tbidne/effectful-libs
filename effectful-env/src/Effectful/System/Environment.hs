@@ -82,7 +82,7 @@ data QueryExePath
 
 {- ORMOLU_DISABLE -}
 
--- | Runs 'STMEffect' in 'IO'.
+-- | Runs 'EnvEffect' in 'IO'.
 --
 -- @since 0.1
 runEnvIO ::
@@ -112,50 +112,72 @@ runEnvIO = interpret $ \env -> \case
 
 {- ORMOLU_ENABLE -}
 
--- | @since 0.1
+-- | Lifted 'Env.getArgs'.
+--
+-- @since 0.1
 getArgs :: (EnvEffect :> es) => Eff es [String]
 getArgs = send GetArgs
 
--- | @since 0.1
+-- | Lifted 'Env.getProgName'.
+--
+-- @since 0.1
 getProgName :: (EnvEffect :> es) => Eff es String
 getProgName = send GetProgName
 
 #if MIN_VERSION_base(4,17,0)
 
--- | @since 0.1
+-- | Lifted 'Env.executablePath'.
+--
+-- @since 0.1
 executablePath :: (EnvEffect :> es) => Eff es QueryExePath
 executablePath = send ExecutablePath
 
 #endif
 
--- | @since 0.1
+-- | Lifted 'Env.getExecutablePath'.
+--
+-- @since 0.1
 getExecutablePath :: (EnvEffect :> es) => Eff es FilePath
 getExecutablePath = send GetExecutablePath
 
--- | @since 0.1
+-- | Lifted 'Env.getEnv'.
+--
+-- @since 0.1
 getEnv :: (EnvEffect :> es) => String -> Eff es String
 getEnv = send . GetEnv
 
--- | @since 0.1
+-- | Lifted 'Env.lookupEnv'.
+--
+-- @since 0.1
 lookupEnv :: (EnvEffect :> es) => String -> Eff es (Maybe String)
 lookupEnv = send . LookupEnv
 
--- | @since 0.1
+-- | Lifted 'Env.setEnv'.
+--
+-- @since 0.1
 setEnv :: (EnvEffect :> es) => String -> String -> Eff es ()
 setEnv s = send . SetEnv s
 
--- | @since 0.1
+-- | Lifted 'Env.unsetEnv'.
+--
+-- @since 0.1
 unsetEnv :: (EnvEffect :> es) => String -> Eff es ()
 unsetEnv = send . UnsetEnv
 
--- | @since 0.1
+-- | Lifted 'Env.withArgs'.
+--
+-- @since 0.1
 withArgs :: (EnvEffect :> es) => [String] -> (Eff es) a -> Eff es a
 withArgs args = send . WithArgs args
 
--- | @since 0.1
+-- | Lifted 'Env.withProgName'.
+--
+-- @since 0.1
 withProgName :: (EnvEffect :> es) => String -> (Eff es) () -> Eff es ()
 withProgName name = send . WithProgName name
 
--- | @since 0.1
+-- | Lifted 'Env.getEnvironment'.
+--
+-- @since 0.1
 getEnvironment :: (EnvEffect :> es) => Eff es [(String, String)]
 getEnvironment = send GetEnvironment

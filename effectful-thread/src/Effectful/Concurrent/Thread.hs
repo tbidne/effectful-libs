@@ -94,23 +94,33 @@ runThreadIO = interpret $ \_ -> \case
   SetNumCapabilities i -> liftIO $ CC.setNumCapabilities i
   ThreadCapability tid -> liftIO $ CC.threadCapability tid
 
--- | @since 0.1
+-- | Lifted 'CC.threadDelay'.
+--
+-- @since 0.1
 threadDelay :: (ThreadEffect :> es) => Int -> Eff es ()
 threadDelay = send . ThreadDelay
 
--- | @since 0.1
+-- | Lifted 'CC.throwTo'.
+--
+-- @since 0.1
 throwTo :: (Exception e, ThreadEffect :> es) => ThreadId -> e -> Eff es ()
 throwTo tid = send . ThrowTo tid
 
--- | @since 0.1
+-- | Lifted 'CC.getNumCapabilities'.
+--
+-- @since 0.1
 getNumCapabilities :: (ThreadEffect :> es) => Eff es Int
 getNumCapabilities = send GetNumCapabilities
 
--- | @since 0.1
+-- | Lifted 'CC.setNumCapabilities'.
+--
+-- @since 0.1
 setNumCapabilities :: (ThreadEffect :> es) => Int -> Eff es ()
 setNumCapabilities = send . SetNumCapabilities
 
--- | @since 0.1
+-- | Lifted 'CC.threadCapability'.
+--
+-- @since 0.1
 threadCapability :: (ThreadEffect :> es) => ThreadId -> Eff es (Int, Bool)
 threadCapability = send . ThreadCapability
 
@@ -168,15 +178,21 @@ runQSemIO = interpret $ \_ -> \case
   WaitQSem q -> liftIO $ QSem.waitQSem q
   SignalQSem q -> liftIO $ QSem.signalQSem q
 
--- | @since 0.1
+-- | Lifted 'QSem.newQSem'.
+--
+-- @since 0.1
 newQSem :: (QSemEffect :> es) => Int -> Eff es QSem
 newQSem = send . NewQSem
 
--- | @since 0.1
+-- | Lifted 'QSem.waitQSem'.
+--
+-- @since 0.1
 waitQSem :: (QSemEffect :> es) => QSem -> Eff es ()
 waitQSem = send . WaitQSem
 
--- | @since 0.1
+-- | Lifted 'QSem.signalQSem'.
+--
+-- @since 0.1
 signalQSem :: (QSemEffect :> es) => QSem -> Eff es ()
 signalQSem = send . SignalQSem
 
@@ -204,14 +220,20 @@ runQSemNIO = interpret $ \_ -> \case
   WaitQSemN q i -> liftIO $ QSemN.waitQSemN q i
   SignalQSemN q i -> liftIO $ QSemN.signalQSemN q i
 
--- | @since 0.1
+-- | Lifted 'QSemN.newQSemN'.
+--
+-- @since 0.1
 newQSemN :: (QSemNEffect :> es) => Int -> Eff es QSemN
 newQSemN = send . NewQSemN
 
--- | @since 0.1
+-- | Lifted 'QSemN.waitQSemN'.
+--
+-- @since 0.1
 waitQSemN :: (QSemNEffect :> es) => QSemN -> Int -> Eff es ()
 waitQSemN q = send . WaitQSemN q
 
--- | @since 0.1
+-- | Lifted 'QSemN.signalQSemN'.
+--
+-- @since 0.1
 signalQSemN :: (QSemNEffect :> es) => QSemN -> Int -> Eff es ()
 signalQSemN q = send . SignalQSemN q
