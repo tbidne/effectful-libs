@@ -418,6 +418,8 @@ getXdgCache ::
   Eff es Path
 getXdgCache = getXdgDirectory XdgCache
 
+#if MIN_VERSION_directory(1,3,7)
+
 -- | Retrieves the XDG state directory e.g. @~/.local\/state@.
 --
 -- @since 0.1
@@ -427,6 +429,8 @@ getXdgState ::
   Path ->
   Eff es Path
 getXdgState = getXdgDirectory XdgState
+
+#endif
 
 -- | Retrieves the recursive directory contents; splits the sub folders and
 -- directories apart.
