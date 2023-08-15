@@ -1,7 +1,7 @@
 -- | Effect for 'STM'.
 --
 -- @since 0.1
-module Effectful.STM
+module Effectful.Concurrent.STM
   ( -- * STM
 
     -- ** Effect
@@ -49,6 +49,8 @@ import Effectful
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
 import Numeric.Natural (Natural)
+
+-- TODO: Rename to Concurrent.STM!!!
 
 -- | Effect for 'STM'.
 --

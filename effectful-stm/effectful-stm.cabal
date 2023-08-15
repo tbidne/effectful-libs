@@ -42,7 +42,7 @@ common common
 
 library
   import:           common
-  exposed-modules:  Effectful.STM
+  exposed-modules:  Effectful.Concurrent.STM
   build-depends:
     , base            >=4.14.0.0 && <4.18
     , effectful-core  ^>=2.2.1.0
