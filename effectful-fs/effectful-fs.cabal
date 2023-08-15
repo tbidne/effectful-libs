@@ -47,14 +47,14 @@ common common
 library
   import:           common
   exposed-modules:
-    Effectful.FileSystem.FileReader
-    Effectful.FileSystem.FileWriter
-    Effectful.FileSystem.HandleReader
-    Effectful.FileSystem.HandleWriter
+    Effectful.FileSystem.FileReader.Dynamic
+    Effectful.FileSystem.FileWriter.Dynamic
+    Effectful.FileSystem.HandleReader.Dynamic
+    Effectful.FileSystem.HandleWriter.Dynamic
     Effectful.FileSystem.Internal
     Effectful.FileSystem.Path
-    Effectful.FileSystem.PathReader
-    Effectful.FileSystem.PathWriter
+    Effectful.FileSystem.PathReader.Dynamic
+    Effectful.FileSystem.PathWriter.Dynamic
 
   build-depends:
     , base                  >=4.14.0.0  && <4.18

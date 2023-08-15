@@ -1,5 +1,8 @@
 cradle:
   cabal:
+    - path: "./effectful-concurrent/src"
+      component: "lib:effectful-concurrent"
+
     - path: "./effectful-env/src"
       component: "lib:effectful-env"
 
@@ -24,14 +27,14 @@ cradle:
     - path: "./effectful-logger-ns/test/unit"
       component: "effectful-logger-ns:test:unit"
 
+    - path: "./effectful-optparse/src"
+      component: "lib:effectful-optparse"
+
     - path: "./effectful-stm/src"
       component: "lib:effectful-stm"
 
     - path: "./effectful-terminal/src"
       component: "lib:effectful-terminal"
-
-    - path: "./effectful-thread/src"
-      component: "lib:effectful-thread"
 
     - path: "./effectful-time/src"
       component: "lib:effectful-time"

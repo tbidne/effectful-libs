@@ -1,4 +1,5 @@
 packages:
+  ./effectful-concurrent
   ./effectful-env
   ./effectful-exceptions
   ./effectful-fs
@@ -8,7 +9,6 @@ packages:
   ./effectful-optparse
   ./effectful-stm
   ./effectful-terminal
-  ./effectful-thread
   ./effectful-time
   ./effectful-typed-process
   ./effectful-unix-compat

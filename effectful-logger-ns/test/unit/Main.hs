@@ -21,11 +21,11 @@ import Effectful.Dispatch.Dynamic
     localSeqUnlift,
     reinterpret,
   )
-import Effectful.Logger
+import Effectful.Logger.Dynamic
   ( Loc (Loc),
     LogLevel (..),
   )
-import Effectful.LoggerNS
+import Effectful.LoggerNS.Dynamic
   ( LocStrategy (LocNone, LocPartial, LocStable),
     LogFormatter (..),
     LogStr,

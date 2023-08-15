@@ -2,8 +2,8 @@ module Main (main) where
 
 import Effectful (Eff, IOE, runEff)
 import Effectful.FileSystem.Path (Path, (</>))
-import Effectful.FileSystem.PathReader (PathReaderEffect, getTemporaryDirectory, runPathReaderIO)
-import Effectful.FileSystem.PathWriter
+import Effectful.FileSystem.PathReader.Dynamic (PathReaderEffect, getTemporaryDirectory, runPathReaderIO)
+import Effectful.FileSystem.PathWriter.Dynamic
   ( PathWriterEffect,
     createDirectoryIfMissing,
     removeDirectoryRecursiveIfExists,

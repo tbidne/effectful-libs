@@ -48,7 +48,7 @@ common common-lang
 
 library
   import:           common-lang
-  exposed-modules:  Effectful.System.Environment
+  exposed-modules:  Effectful.Environment.Dynamic
   build-depends:
     , base            >=4.14.0.0 && <4.19
     , effectful-core  ^>=2.2.1.0

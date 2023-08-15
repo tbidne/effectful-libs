@@ -16,21 +16,21 @@ import Effectful.Exception
     throwString,
     try,
   )
-import Effectful.FileSystem.FileReader (readBinaryFile, runFileReaderIO)
-import Effectful.FileSystem.FileWriter
+import Effectful.FileSystem.FileReader.Dynamic (readBinaryFile, runFileReaderIO)
+import Effectful.FileSystem.FileWriter.Dynamic
   ( FileWriterEffect,
     Path,
     runFileWriterIO,
     writeBinaryFile,
   )
 import Effectful.FileSystem.Path ((</>))
-import Effectful.FileSystem.PathReader
+import Effectful.FileSystem.PathReader.Dynamic
   ( PathReaderEffect,
     doesDirectoryExist,
     doesFileExist,
     runPathReaderIO,
   )
-import Effectful.FileSystem.PathWriter
+import Effectful.FileSystem.PathWriter.Dynamic
   ( CopyDirConfig (..),
     Overwrite (..),
     PathDoesNotExistException,
@@ -52,7 +52,7 @@ import Effectful.FileSystem.PathWriter
     removeFile,
     runPathWriterIO,
   )
-import Effectful.FileSystem.PathWriter qualified as PathWriter
+import Effectful.FileSystem.PathWriter.Dynamic qualified as PathWriter
 import Effectful.IORef
   ( IORefEffect,
     modifyIORef',

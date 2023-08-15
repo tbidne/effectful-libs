@@ -52,7 +52,7 @@ common common-lang
 
 library
   import:           common-lang
-  exposed-modules:  Effectful.System.Process
+  exposed-modules:  Effectful.Process.Typed.Dynamic
   build-depends:
     , base                  >=4.14.0.0  && <4.19
     , bytestring            >=0.10.12.0 && <0.12

@@ -63,7 +63,7 @@
               effectful-optparse = ./effectful-optparse;
               effectful-stm = ./effectful-stm;
               effectful-terminal = ./effectful-terminal;
-              effectful-thread = ./effectful-thread;
+              effectful-concurrent = ./effectful-concurrent;
               effectful-time = ./effectful-time;
               effectful-typed-process = ./effectful-typed-process;
               effectful-unix-compat = ./effectful-unix-compat;
@@ -78,7 +78,7 @@
             p.effectful-optparse
             p.effectful-stm
             p.effectful-terminal
-            p.effectful-thread
+            p.effectful-concurrent
             p.effectful-time
             p.effectful-typed-process
             p.effectful-unix-compat
@@ -113,7 +113,7 @@
           packages.effectful-optparse = mkPkg "effectful-optparse" ./effectful-optparse { };
           packages.effectful-stm = mkPkgsExceptions "effectful-stm" ./effectful-stm;
           packages.effectful-terminal = mkPkgsExceptions "effectful-terminal" ./effectful-terminal;
-          packages.effectful-thread = mkPkgsExceptions "effectful-thread" ./effectful-thread;
+          packages.effectful-concurrent = mkPkgsExceptions "effectful-concurrent" ./effectful-concurrent;
           packages.effectful-time = mkPkgsExceptions "effectful-time" ./effectful-time;
           packages.effectful-typed-process =
             mkPkg "effectful-typed-process" ./effectful-typed-process {

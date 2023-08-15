@@ -42,7 +42,11 @@ common common
 
 library
   import:           common
-  exposed-modules:  Effectful.Concurrent.STM
+  exposed-modules:
+    Effectful.Concurrent.STM.Dynamic
+    Effectful.Concurrent.STM.TBQueue.Dynamic
+    Effectful.Concurrent.STM.TVar.Dynamic
+
   build-depends:
     , base            >=4.14.0.0 && <4.18
     , effectful-core  ^>=2.2.1.0

@@ -5,8 +5,8 @@ module PathReader (tests) where
 import Control.Monad (zipWithM_)
 import Data.List qualified as L
 import Effectful (Eff, IOE, runEff)
-import Effectful.FileSystem.PathReader (PathReaderEffect, runPathReaderIO)
-import Effectful.FileSystem.PathReader qualified as PathReader
+import Effectful.FileSystem.PathReader.Dynamic (PathReaderEffect, runPathReaderIO)
+import Effectful.FileSystem.PathReader.Dynamic qualified as PathReader
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase, (@=?))
 import Utils qualified as U
