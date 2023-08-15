@@ -75,6 +75,7 @@ jobs:
             .#effectful-ioref \
             .#effectful-logger \
             .#effectful-logger-ns \
+            .#effectful-optparse \
             .#effectful-stm \
             .#effectful-terminal \
             .#effectful-thread \

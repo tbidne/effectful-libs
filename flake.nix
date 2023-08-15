@@ -60,6 +60,7 @@
               effectful-ioref = ./effectful-ioref;
               effectful-logger = ./effectful-logger;
               effectful-logger-ns = ./effectful-logger-ns;
+              effectful-optparse = ./effectful-optparse;
               effectful-stm = ./effectful-stm;
               effectful-terminal = ./effectful-terminal;
               effectful-thread = ./effectful-thread;
@@ -74,6 +75,7 @@
             p.effectful-ioref
             p.effectful-logger
             p.effectful-logger-ns
+            p.effectful-optparse
             p.effectful-stm
             p.effectful-terminal
             p.effectful-thread
@@ -108,6 +110,7 @@
               effectful-logger = ./effectful-logger;
               effectful-time = ./effectful-time;
             };
+          packages.effectful-optparse = mkPkg "effectful-optparse" ./effectful-optparse { };
           packages.effectful-stm = mkPkgsExceptions "effectful-stm" ./effectful-stm;
           packages.effectful-terminal = mkPkgsExceptions "effectful-terminal" ./effectful-terminal;
           packages.effectful-thread = mkPkgsExceptions "effectful-thread" ./effectful-thread;
