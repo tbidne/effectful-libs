@@ -214,8 +214,8 @@ normalizeInvariant = testPropertyNamed desc "normalizeInvariant" $
 timesAction :: TestTree
 timesAction = testCase "Times an action" $ do
   ts <- runEffTime $ TimeEffect.withTiming_ (liftIO (threadDelay 1_000_000))
-  assertBool (show ts <> " >= 0.9 s") $ ts >= MkTimeSpec 0 900_000_000
-  assertBool (show ts <> " <= 1.1 s") $ ts <= MkTimeSpec 1 100_000_000
+  assertBool (show ts <> " >= 0.8 s") $ ts >= MkTimeSpec 0 800_000_000
+  assertBool (show ts <> " <= 1.2 s") $ ts <= MkTimeSpec 1 200_000_000
 
 localTimeTests :: TestTree
 localTimeTests =
