@@ -1,5 +1,4 @@
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Provides an effect for Time.
@@ -98,7 +97,7 @@ import Numeric.Algebra
     Semimodule,
     SemivectorSpace,
   )
-import Optics.TH (makeFieldLabelsNoPrefix)
+import Optics.Core (A_Lens, LabelOptic (labelOptic), lensVL)
 
 -- | Structure for holding time data. 'Eq' and 'Ord' are defined in terms of
 -- an equivalence class e.g.
@@ -130,7 +129,22 @@ data TimeSpec = MkTimeSpec
     )
 
 -- | @since 0.1
-makeFieldLabelsNoPrefix ''TimeSpec
+instance
+  (k ~ A_Lens, a ~ Natural, b ~ Natural) =>
+  LabelOptic "sec" k TimeSpec TimeSpec a b
+  where
+  labelOptic = lensVL $ \f (MkTimeSpec _sec _nsec) ->
+    fmap (`MkTimeSpec` _nsec) (f _sec)
+  {-# INLINE labelOptic #-}
+
+-- | @since 0.1
+instance
+  (k ~ A_Lens, a ~ Natural, b ~ Natural) =>
+  LabelOptic "nsec" k TimeSpec TimeSpec a b
+  where
+  labelOptic = lensVL $ \f (MkTimeSpec _sec _nsec) ->
+    fmap (MkTimeSpec _sec) (f _nsec)
+  {-# INLINE labelOptic #-}
 
 -- | @since 0.1
 instance Eq TimeSpec where
