@@ -40,6 +40,9 @@ jobs:
       - name: Compile
         run: cabal build all
 
+      - name: Test effects-fs
+        run: cabal test effects-fs
+
       - name: Test effectful-logger-ns
         run: cabal test effectful-logger-ns
 

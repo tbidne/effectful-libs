@@ -6,6 +6,8 @@ cradle:
       component: "effectful-exceptions:test:unit"
     - path: "./effectful-fs/src"
       component: "lib:effectful-fs"
+    - path: "./effectful-fs/test"
+      component: "effectful-fs:test:unit"
     - path: "./effectful-ioref/src"
       component: "lib:effectful-ioref"
     - path: "./effectful-logger/src"
