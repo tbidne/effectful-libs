@@ -28,6 +28,7 @@ common common-lang
     DeriveGeneric
     DerivingStrategies
     DerivingVia
+    FlexibleContexts
     FlexibleInstances
     GADTs
     GeneralizedNewtypeDeriving
