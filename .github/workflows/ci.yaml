@@ -69,6 +69,7 @@ jobs:
       - name: Build & Test
         run: |
           nix build \
+            .#effectful-concurrent \
             .#effectful-env \
             .#effectful-exceptions \
             .#effectful-fs \
@@ -78,7 +79,6 @@ jobs:
             .#effectful-optparse \
             .#effectful-stm \
             .#effectful-terminal \
-            .#effectful-thread \
             .#effectful-time \
             .#effectful-typed-process \
             .#effectful-unix-compat
