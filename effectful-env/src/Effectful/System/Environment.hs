@@ -1,6 +1,8 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts #-}
 
+{- ORMOLU_DISABLE -}
+
 -- | Provides the 'EnvEffect' effect.
 --
 -- @since 0.1
@@ -58,6 +60,8 @@ data EnvEffect :: Effect where
   WithProgName :: String -> m () -> EnvEffect m ()
   GetEnvironment :: EnvEffect m [(String, String)]
 
+{- ORMOLU_ENABLE -}
+
 -- | @since 0.1
 type instance DispatchOf EnvEffect = Dynamic
 
@@ -70,11 +74,13 @@ data QueryExePath
     --
     -- @since 0.1
     NoQuery
-    -- | The result of querying the executable name.
+  | -- | The result of querying the executable name.
     --
     -- @since 0.1
-  | QueryResult (Maybe FilePath)
+    QueryResult (Maybe FilePath)
   deriving stock (Eq, Show)
+
+{- ORMOLU_DISABLE -}
 
 -- | Runs 'STMEffect' in 'IO'.
 --
@@ -103,6 +109,8 @@ runEnvIO = interpret $ \env -> \case
   WithProgName name m -> localSeqUnliftIO env $ \runInIO ->
     liftIO $ Env.withProgName name (runInIO m)
   GetEnvironment -> liftIO Env.getEnvironment
+
+{- ORMOLU_ENABLE -}
 
 -- | @since 0.1
 getArgs :: (EnvEffect :> es) => Eff es [String]
