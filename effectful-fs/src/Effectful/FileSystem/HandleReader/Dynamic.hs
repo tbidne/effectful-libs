@@ -3,7 +3,7 @@
 -- @since 0.1
 module Effectful.FileSystem.HandleReader.Dynamic
   ( -- * Effect
-    HandleReaderEffect (..),
+    HandleReaderDynamic (..),
     hIsEOF,
     hGetBuffering,
     hIsOpen,
@@ -23,7 +23,7 @@ module Effectful.FileSystem.HandleReader.Dynamic
     hGetNonBlocking,
 
     -- ** Handlers
-    runHandleReaderIO,
+    runHandleReaderDynamicIO,
 
     -- * UTF-8 Utils
 
@@ -86,37 +86,37 @@ import System.IO qualified as IO
 -- | Effect for reading a handle.
 --
 -- @since 0.1
-data HandleReaderEffect :: Effect where
-  HIsEOF :: Handle -> HandleReaderEffect m Bool
-  HGetBuffering :: Handle -> HandleReaderEffect m BufferMode
-  HIsOpen :: Handle -> HandleReaderEffect m Bool
-  HIsClosed :: Handle -> HandleReaderEffect m Bool
-  HIsReadable :: Handle -> HandleReaderEffect m Bool
-  HIsWritable :: Handle -> HandleReaderEffect m Bool
-  HIsSeekable :: Handle -> HandleReaderEffect m Bool
-  HIsTerminalDevice :: Handle -> HandleReaderEffect m Bool
-  HGetEcho :: Handle -> HandleReaderEffect m Bool
-  HWaitForInput :: Handle -> Int -> HandleReaderEffect m Bool
-  HReady :: Handle -> HandleReaderEffect m Bool
-  HGetChar :: Handle -> HandleReaderEffect m Char
-  HGetLine :: Handle -> HandleReaderEffect m ByteString
-  HGetContents :: Handle -> HandleReaderEffect m ByteString
-  HGet :: Handle -> Int -> HandleReaderEffect m ByteString
-  HGetSome :: Handle -> Int -> HandleReaderEffect m ByteString
-  HGetNonBlocking :: Handle -> Int -> HandleReaderEffect m ByteString
+data HandleReaderDynamic :: Effect where
+  HIsEOF :: Handle -> HandleReaderDynamic m Bool
+  HGetBuffering :: Handle -> HandleReaderDynamic m BufferMode
+  HIsOpen :: Handle -> HandleReaderDynamic m Bool
+  HIsClosed :: Handle -> HandleReaderDynamic m Bool
+  HIsReadable :: Handle -> HandleReaderDynamic m Bool
+  HIsWritable :: Handle -> HandleReaderDynamic m Bool
+  HIsSeekable :: Handle -> HandleReaderDynamic m Bool
+  HIsTerminalDevice :: Handle -> HandleReaderDynamic m Bool
+  HGetEcho :: Handle -> HandleReaderDynamic m Bool
+  HWaitForInput :: Handle -> Int -> HandleReaderDynamic m Bool
+  HReady :: Handle -> HandleReaderDynamic m Bool
+  HGetChar :: Handle -> HandleReaderDynamic m Char
+  HGetLine :: Handle -> HandleReaderDynamic m ByteString
+  HGetContents :: Handle -> HandleReaderDynamic m ByteString
+  HGet :: Handle -> Int -> HandleReaderDynamic m ByteString
+  HGetSome :: Handle -> Int -> HandleReaderDynamic m ByteString
+  HGetNonBlocking :: Handle -> Int -> HandleReaderDynamic m ByteString
 
 -- | @since 0.1
-type instance DispatchOf HandleReaderEffect = Dynamic
+type instance DispatchOf HandleReaderDynamic = Dynamic
 
--- | Runs 'HandleReaderEffect' in 'IO'.
+-- | Runs 'HandleReaderDynamic' in 'IO'.
 --
 -- @since 0.1
-runHandleReaderIO ::
+runHandleReaderDynamicIO ::
   ( IOE :> es
   ) =>
-  Eff (HandleReaderEffect : es) a ->
+  Eff (HandleReaderDynamic : es) a ->
   Eff es a
-runHandleReaderIO = interpret $ \_ -> \case
+runHandleReaderDynamicIO = interpret $ \_ -> \case
   HIsEOF h -> liftIO $ IO.hIsEOF h
   HGetBuffering h -> liftIO $ IO.hGetBuffering h
   HIsOpen h -> liftIO $ IO.hIsOpen h
@@ -138,14 +138,14 @@ runHandleReaderIO = interpret $ \_ -> \case
 -- | Lifted 'IO.hIsEof'.
 --
 -- @since 0.1
-hIsEOF :: (HandleReaderEffect :> es) => Handle -> Eff es Bool
+hIsEOF :: (HandleReaderDynamic :> es) => Handle -> Eff es Bool
 hIsEOF = send . HIsEOF
 
 -- | Lifted 'IO.hGetBuffering'.
 --
 -- @since 0.1
 hGetBuffering ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Eff es BufferMode
@@ -155,7 +155,7 @@ hGetBuffering = send . HGetBuffering
 --
 -- @since 0.1
 hIsOpen ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Eff es Bool
@@ -165,7 +165,7 @@ hIsOpen = send . HIsOpen
 --
 -- @since 0.1
 hIsClosed ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Eff es Bool
@@ -175,7 +175,7 @@ hIsClosed = send . HIsClosed
 --
 -- @since 0.1
 hIsReadable ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Eff es Bool
@@ -185,7 +185,7 @@ hIsReadable = send . HIsReadable
 --
 -- @since 0.1
 hIsWritable ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Eff es Bool
@@ -195,7 +195,7 @@ hIsWritable = send . HIsWritable
 --
 -- @since 0.1
 hIsSeekable ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Eff es Bool
@@ -205,7 +205,7 @@ hIsSeekable = send . HIsSeekable
 --
 -- @since 0.1
 hIsTerminalDevice ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Eff es Bool
@@ -215,7 +215,7 @@ hIsTerminalDevice = send . HIsTerminalDevice
 --
 -- @since 0.1
 hGetEcho ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Eff es Bool
@@ -225,7 +225,7 @@ hGetEcho = send . HGetEcho
 --
 -- @since 0.1
 hWaitForInput ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Int ->
@@ -236,7 +236,7 @@ hWaitForInput h = send . HWaitForInput h
 --
 -- @since 0.1
 hReady ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Eff es Bool
@@ -246,7 +246,7 @@ hReady = send . HReady
 --
 -- @since 0.1
 hGetChar ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Eff es Char
@@ -256,7 +256,7 @@ hGetChar = send . HGetChar
 --
 -- @since 0.1
 hGetLine ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Eff es ByteString
@@ -266,7 +266,7 @@ hGetLine = send . HGetLine
 --
 -- @since 0.1
 hGetContents ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Eff es ByteString
@@ -276,7 +276,7 @@ hGetContents = send . HGetContents
 --
 -- @since 0.1
 hGet ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Int ->
@@ -287,7 +287,7 @@ hGet h = send . HGet h
 --
 -- @since 0.1
 hGetSome ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Int ->
@@ -298,7 +298,7 @@ hGetSome h = send . HGetSome h
 --
 -- @since 0.1
 hGetNonBlocking ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Int ->
@@ -309,7 +309,7 @@ hGetNonBlocking h = send . HGetNonBlocking h
 --
 -- @since 0.1
 hGetLineUtf8 ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Eff es (Either UnicodeException Text)
@@ -319,7 +319,7 @@ hGetLineUtf8 = fmap decodeUtf8 . hGetLine
 --
 -- @since 0.1
 hGetLineUtf8Lenient ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Eff es Text
@@ -329,7 +329,7 @@ hGetLineUtf8Lenient = fmap decodeUtf8Lenient . hGetLine
 --
 -- @since 0.1
 hGetLineUtf8ThrowM ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Eff es Text
@@ -339,7 +339,7 @@ hGetLineUtf8ThrowM = hGetLine >=> decodeUtf8ThrowM
 --
 -- @since 0.1
 hGetContentsUtf8 ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Eff es (Either UnicodeException Text)
@@ -349,7 +349,7 @@ hGetContentsUtf8 = fmap decodeUtf8 . hGetContents
 --
 -- @since 0.1
 hGetContentsUtf8Lenient ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Eff es Text
@@ -359,7 +359,7 @@ hGetContentsUtf8Lenient = fmap decodeUtf8Lenient . hGetContents
 --
 -- @since 0.1
 hGetContentsUtf8ThrowM ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Eff es Text
@@ -369,7 +369,7 @@ hGetContentsUtf8ThrowM = hGetContents >=> decodeUtf8ThrowM
 --
 -- @since 0.1
 hGetUtf8 ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Int ->
@@ -380,7 +380,7 @@ hGetUtf8 h = fmap decodeUtf8 . hGet h
 --
 -- @since 0.1
 hGetUtf8Lenient ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Int ->
@@ -391,7 +391,7 @@ hGetUtf8Lenient h = fmap decodeUtf8Lenient . hGet h
 --
 -- @since 0.1
 hGetUtf8ThrowM ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Int ->
@@ -402,7 +402,7 @@ hGetUtf8ThrowM h = hGet h >=> decodeUtf8ThrowM
 --
 -- @since 0.1
 hGetSomeUtf8 ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Int ->
@@ -413,7 +413,7 @@ hGetSomeUtf8 h = fmap decodeUtf8 . hGetSome h
 --
 -- @since 0.1
 hGetSomeUtf8Lenient ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Int ->
@@ -424,7 +424,7 @@ hGetSomeUtf8Lenient h = fmap decodeUtf8Lenient . hGetSome h
 --
 -- @since 0.1
 hGetSomeUtf8ThrowM ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Int ->
@@ -435,7 +435,7 @@ hGetSomeUtf8ThrowM h = hGetSome h >=> decodeUtf8ThrowM
 --
 -- @since 0.1
 hGetNonBlockingUtf8 ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Int ->
@@ -446,7 +446,7 @@ hGetNonBlockingUtf8 h = fmap decodeUtf8 . hGetNonBlocking h
 --
 -- @since 0.1
 hGetNonBlockingUtf8Lenient ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Int ->
@@ -457,7 +457,7 @@ hGetNonBlockingUtf8Lenient h = fmap decodeUtf8Lenient . hGetNonBlocking h
 --
 -- @since 0.1
 hGetNonBlockingUtf8ThrowM ::
-  ( HandleReaderEffect :> es
+  ( HandleReaderDynamic :> es
   ) =>
   Handle ->
   Int ->

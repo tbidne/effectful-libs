@@ -29,7 +29,7 @@ import Effectful.LoggerNS.Dynamic
   ( LocStrategy (LocNone, LocPartial, LocStable),
     LogFormatter (..),
     LogStr,
-    LoggerNSEffect (..),
+    LoggerNSDynamic (..),
     Namespace,
     addNamespace,
     formatLog,
@@ -37,7 +37,7 @@ import Effectful.LoggerNS.Dynamic
   )
 import Effectful.State.Static.Local (evalState, get, modify)
 import Effectful.Time
-  ( TimeEffect (..),
+  ( TimeDynamic (..),
   )
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Test.Tasty.HUnit (testCase, (@=?))
@@ -120,8 +120,8 @@ formatLocPartial =
         }
 
 formatNamespaced ::
-  ( LoggerNSEffect :> es,
-    TimeEffect :> es
+  ( LoggerNSDynamic :> es,
+    TimeDynamic :> es
   ) =>
   LogFormatter ->
   Eff es LogStr
@@ -146,7 +146,7 @@ zonedTime :: ZonedTime
 zonedTime = ZonedTime localTime utc
 
 runTimePure ::
-  Eff (TimeEffect : es) a ->
+  Eff (TimeDynamic : es) a ->
   Eff es a
 runTimePure = interpret $ \_ -> \case
   GetSystemTime -> pure localTime
@@ -154,13 +154,13 @@ runTimePure = interpret $ \_ -> \case
   GetMonotonicTime -> pure 50
 
 runLoggerNamespacePure ::
-  Eff (LoggerNSEffect : es) a ->
+  Eff (LoggerNSDynamic : es) a ->
   Eff es a
 runLoggerNamespacePure = reinterpret (evalState ([] :: Namespace)) $ \env -> \case
   GetNamespace -> get
   LocalNamespace f m -> localSeqUnlift env $ \run -> modify f *> run m
 
-runEffLoggerNamespace :: Eff '[LoggerNSEffect, TimeEffect] a -> a
+runEffLoggerNamespace :: Eff '[LoggerNSDynamic, TimeDynamic] a -> a
 runEffLoggerNamespace =
   runPureEff
     . runTimePure

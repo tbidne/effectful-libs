@@ -6,7 +6,7 @@
 -- @since 0.1
 module Effectful.Logger.Dynamic
   ( -- * Effect
-    LoggerEffect (..),
+    LoggerDynamic (..),
     loggerLog,
 
     -- * Types
@@ -120,7 +120,7 @@ import System.Log.FastLogger (LogStr, ToLogStr (..), fromLogStr)
 -- | Logging effect.
 --
 -- @since 0.1
-data LoggerEffect :: Effect where
+data LoggerDynamic :: Effect where
   LoggerLog ::
     ( ToLogStr msg
     ) =>
@@ -128,16 +128,16 @@ data LoggerEffect :: Effect where
     LogSource ->
     LogLevel ->
     msg ->
-    LoggerEffect m ()
+    LoggerDynamic m ()
 
 -- | @since 0.1
-type instance DispatchOf LoggerEffect = Dynamic
+type instance DispatchOf LoggerDynamic = Dynamic
 
 -- | Returns the local system time.
 --
 -- @since 0.1
 loggerLog ::
-  ( LoggerEffect :> es,
+  ( LoggerDynamic :> es,
     ToLogStr msg
   ) =>
   Loc ->
@@ -423,7 +423,7 @@ isDefaultLoc _ = False
 
 -- | @since 0.1
 logWithoutLoc ::
-  ( LoggerEffect :> es,
+  ( LoggerDynamic :> es,
     ToLogStr msg
   ) =>
   LogSource ->
@@ -433,43 +433,43 @@ logWithoutLoc ::
 logWithoutLoc = loggerLog defaultLoc
 
 -- | @since 0.1
-logDebugN :: (LoggerEffect :> es) => Text -> Eff es ()
+logDebugN :: (LoggerDynamic :> es) => Text -> Eff es ()
 logDebugN = logWithoutLoc "" LevelDebug
 
 -- | @since 0.1
-logInfoN :: (LoggerEffect :> es) => Text -> Eff es ()
+logInfoN :: (LoggerDynamic :> es) => Text -> Eff es ()
 logInfoN = logWithoutLoc "" LevelInfo
 
 -- | @since 0.1
-logWarnN :: (LoggerEffect :> es) => Text -> Eff es ()
+logWarnN :: (LoggerDynamic :> es) => Text -> Eff es ()
 logWarnN = logWithoutLoc "" LevelWarn
 
 -- | @since 0.1
-logErrorN :: (LoggerEffect :> es) => Text -> Eff es ()
+logErrorN :: (LoggerDynamic :> es) => Text -> Eff es ()
 logErrorN = logWithoutLoc "" LevelError
 
 -- | @since 0.1
-logOtherN :: (LoggerEffect :> es) => LogLevel -> Text -> Eff es ()
+logOtherN :: (LoggerDynamic :> es) => LogLevel -> Text -> Eff es ()
 logOtherN = logWithoutLoc ""
 
 -- | @since 0.1
-logDebugNS :: (LoggerEffect :> es) => LogSource -> Text -> Eff es ()
+logDebugNS :: (LoggerDynamic :> es) => LogSource -> Text -> Eff es ()
 logDebugNS src = logWithoutLoc src LevelDebug
 
 -- | @since 0.1
-logInfoNS :: (LoggerEffect :> es) => LogSource -> Text -> Eff es ()
+logInfoNS :: (LoggerDynamic :> es) => LogSource -> Text -> Eff es ()
 logInfoNS src = logWithoutLoc src LevelInfo
 
 -- | @since 0.1
-logWarnNS :: (LoggerEffect :> es) => LogSource -> Text -> Eff es ()
+logWarnNS :: (LoggerDynamic :> es) => LogSource -> Text -> Eff es ()
 logWarnNS src = logWithoutLoc src LevelWarn
 
 -- | @since 0.1
-logErrorNS :: (LoggerEffect :> es) => LogSource -> Text -> Eff es ()
+logErrorNS :: (LoggerDynamic :> es) => LogSource -> Text -> Eff es ()
 logErrorNS src = logWithoutLoc src LevelError
 
 -- | @since 0.1
-logOtherNS :: (LoggerEffect :> es) => LogSource -> LogLevel -> Text -> Eff es ()
+logOtherNS :: (LoggerDynamic :> es) => LogSource -> LogLevel -> Text -> Eff es ()
 logOtherNS = logWithoutLoc
 
 -- | @since 0.1
@@ -497,7 +497,7 @@ locFromCS cs = case getCallStack cs of
 
 -- | @since 0.1
 logCS ::
-  (LoggerEffect :> es, ToLogStr msg) =>
+  (LoggerDynamic :> es, ToLogStr msg) =>
   CallStack ->
   LogSource ->
   LogLevel ->
@@ -510,29 +510,29 @@ logCS cs = loggerLog (locFromCS cs)
 -- functions for 'CallStack' based logging.
 --
 -- @since 0.1
-logDebugCS :: (LoggerEffect :> es) => CallStack -> Text -> Eff es ()
+logDebugCS :: (LoggerDynamic :> es) => CallStack -> Text -> Eff es ()
 logDebugCS cs = logCS cs "" LevelDebug
 
 -- | See 'logDebugCS'
 --
 -- @since 0.1
-logInfoCS :: (LoggerEffect :> es) => CallStack -> Text -> Eff es ()
+logInfoCS :: (LoggerDynamic :> es) => CallStack -> Text -> Eff es ()
 logInfoCS cs = logCS cs "" LevelInfo
 
 -- | See 'logDebugCS'
 --
 -- @since 0.1
-logWarnCS :: (LoggerEffect :> es) => CallStack -> Text -> Eff es ()
+logWarnCS :: (LoggerDynamic :> es) => CallStack -> Text -> Eff es ()
 logWarnCS cs = logCS cs "" LevelWarn
 
 -- | See 'logDebugCS'
 --
 -- @since 0.1
-logErrorCS :: (LoggerEffect :> es) => CallStack -> Text -> Eff es ()
+logErrorCS :: (LoggerDynamic :> es) => CallStack -> Text -> Eff es ()
 logErrorCS cs = logCS cs "" LevelError
 
 -- | See 'logDebugCS'
 --
 -- @since 0.1
-logOtherCS :: (LoggerEffect :> es) => CallStack -> LogLevel -> Text -> Eff es ()
+logOtherCS :: (LoggerDynamic :> es) => CallStack -> LogLevel -> Text -> Eff es ()
 logOtherCS cs = logCS cs ""

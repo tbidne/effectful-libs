@@ -5,7 +5,7 @@ module PathReader (tests) where
 import Control.Monad (zipWithM_)
 import Data.List qualified as L
 import Effectful (Eff, IOE, runEff)
-import Effectful.FileSystem.PathReader.Dynamic (PathReaderEffect, runPathReaderIO)
+import Effectful.FileSystem.PathReader.Dynamic (PathReaderDynamic, runPathReaderDynamicIO)
 import Effectful.FileSystem.PathReader.Dynamic qualified as PathReader
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase, (@=?))
@@ -59,5 +59,5 @@ testListDirectoryRecursive = testCase "Recursively lists sub-files/dirs" $ do
       ]
 #endif
 
-runEffPathReader :: Eff '[PathReaderEffect, IOE] a -> IO a
-runEffPathReader = runEff . runPathReaderIO
+runEffPathReader :: Eff '[PathReaderDynamic, IOE] a -> IO a
+runEffPathReader = runEff . runPathReaderDynamicIO

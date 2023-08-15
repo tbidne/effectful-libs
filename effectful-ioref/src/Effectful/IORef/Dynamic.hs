@@ -3,7 +3,7 @@
 -- @since 0.1
 module Effectful.IORef.Dynamic
   ( -- * Effect
-    IORefEffect (..),
+    IORefDynamic (..),
     newIORef,
     readIORef,
     writeIORef,
@@ -11,7 +11,7 @@ module Effectful.IORef.Dynamic
     atomicModifyIORef',
 
     -- ** Handlers
-    runIORefIO,
+    runIORefDynamicIO,
 
     -- * Utils
     atomicModifyIORef'_,
@@ -37,25 +37,25 @@ import Effectful.Dispatch.Dynamic (interpret, send)
 -- | Effect for 'IORef'.
 --
 -- @since 0.1
-data IORefEffect :: Effect where
-  NewIORef :: a -> IORefEffect m (IORef a)
-  ReadIORef :: IORef a -> IORefEffect m a
-  WriteIORef :: IORef a -> a -> IORefEffect m ()
-  ModifyIORef' :: IORef a -> (a -> a) -> IORefEffect m ()
-  AtomicModifyIORef' :: IORef a -> (a -> (a, b)) -> IORefEffect m b
+data IORefDynamic :: Effect where
+  NewIORef :: a -> IORefDynamic m (IORef a)
+  ReadIORef :: IORef a -> IORefDynamic m a
+  WriteIORef :: IORef a -> a -> IORefDynamic m ()
+  ModifyIORef' :: IORef a -> (a -> a) -> IORefDynamic m ()
+  AtomicModifyIORef' :: IORef a -> (a -> (a, b)) -> IORefDynamic m b
 
 -- | @since 0.1
-type instance DispatchOf IORefEffect = Dynamic
+type instance DispatchOf IORefDynamic = Dynamic
 
--- | Runs 'IORefEffect' in 'IO'.
+-- | Runs 'IORefDynamic' in 'IO'.
 --
 -- @since 0.1
-runIORefIO ::
+runIORefDynamicIO ::
   ( IOE :> es
   ) =>
-  Eff (IORefEffect : es) a ->
+  Eff (IORefDynamic : es) a ->
   Eff es a
-runIORefIO = interpret $ \_ -> \case
+runIORefDynamicIO = interpret $ \_ -> \case
   NewIORef x -> liftIO $ IORef.newIORef x
   ReadIORef ref -> liftIO $ IORef.readIORef ref
   WriteIORef ref x -> liftIO $ IORef.writeIORef ref x
@@ -65,26 +65,26 @@ runIORefIO = interpret $ \_ -> \case
 -- | Lifted 'IORef.newIORef'.
 --
 -- @since 0.1
-newIORef :: (IORefEffect :> es) => a -> Eff es (IORef a)
+newIORef :: (IORefDynamic :> es) => a -> Eff es (IORef a)
 newIORef = send . NewIORef
 
 -- | Lifted 'IORef.readIORef'.
 --
 -- @since 0.1
-readIORef :: (IORefEffect :> es) => IORef a -> Eff es a
+readIORef :: (IORefDynamic :> es) => IORef a -> Eff es a
 readIORef = send . ReadIORef
 
 -- | Lifted 'IORef.writeIORef'.
 --
 -- @since 0.1
-writeIORef :: (IORefEffect :> es) => IORef a -> a -> Eff es ()
+writeIORef :: (IORefDynamic :> es) => IORef a -> a -> Eff es ()
 writeIORef ref = send . WriteIORef ref
 
 -- | Lifted 'IORef.modifyIORef''.
 --
 -- @since 0.1
 modifyIORef' ::
-  ( IORefEffect :> es
+  ( IORefDynamic :> es
   ) =>
   IORef a ->
   (a -> a) ->
@@ -95,7 +95,7 @@ modifyIORef' ref = send . ModifyIORef' ref
 --
 -- @since 0.1
 atomicModifyIORef' ::
-  ( IORefEffect :> es
+  ( IORefDynamic :> es
   ) =>
   IORef a ->
   (a -> (a, b)) ->
@@ -106,7 +106,7 @@ atomicModifyIORef' ref = send . AtomicModifyIORef' ref
 --
 -- @since 0.1
 atomicModifyIORef'_ ::
-  ( IORefEffect :> es
+  ( IORefDynamic :> es
   ) =>
   IORef a ->
   (a -> a) ->

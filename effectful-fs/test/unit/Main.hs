@@ -2,13 +2,17 @@ module Main (main) where
 
 import Effectful (Eff, IOE, runEff)
 import Effectful.FileSystem.Path (Path, (</>))
-import Effectful.FileSystem.PathReader.Dynamic (PathReaderEffect, getTemporaryDirectory, runPathReaderIO)
+import Effectful.FileSystem.PathReader.Dynamic
+  ( PathReaderDynamic,
+    getTemporaryDirectory,
+    runPathReaderDynamicIO,
+  )
 import Effectful.FileSystem.PathWriter.Dynamic
-  ( PathWriterEffect,
+  ( PathWriterDynamic,
     createDirectoryIfMissing,
     removeDirectoryRecursiveIfExists,
     removePathForcibly,
-    runPathWriterIO,
+    runPathWriterDynamicIO,
   )
 import PathReader qualified
 import PathWriter qualified
@@ -30,9 +34,9 @@ setup :: IO Path
 setup = do
   tmpDir <-
     (\s -> s </> U.strToPath "effectful-fs" </> U.strToPath "unit")
-      <$> runPathIO getTemporaryDirectory
+      <$> runPathDynamicIO getTemporaryDirectory
 
-  runPathIO $ do
+  runPathDynamicIO $ do
     removeDirectoryRecursiveIfExists tmpDir
     createDirectoryIfMissing True tmpDir
   pure tmpDir
@@ -40,8 +44,8 @@ setup = do
 teardown :: Path -> IO ()
 teardown fp = guardOrElse' "NO_CLEANUP" ExpectEnvSet doNothing cleanup
   where
-    cleanup = runPathIO $ removePathForcibly fp
+    cleanup = runPathDynamicIO $ removePathForcibly fp
     doNothing = putStrLn $ "*** Not cleaning up tmp dir: " <> U.pathToStr fp
 
-runPathIO :: Eff [PathWriterEffect, PathReaderEffect, IOE] a -> IO a
-runPathIO = runEff . runPathReaderIO . runPathWriterIO
+runPathDynamicIO :: Eff [PathWriterDynamic, PathReaderDynamic, IOE] a -> IO a
+runPathDynamicIO = runEff . runPathReaderDynamicIO . runPathWriterDynamicIO

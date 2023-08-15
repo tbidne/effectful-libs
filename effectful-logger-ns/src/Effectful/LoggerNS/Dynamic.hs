@@ -5,7 +5,7 @@
 -- @since 0.1
 module Effectful.LoggerNS.Dynamic
   ( -- * Effect
-    LoggerNSEffect (..),
+    LoggerNSDynamic (..),
     Namespace (..),
     addNamespace,
 
@@ -54,8 +54,8 @@ import Effectful.Logger.Dynamic
     LogStr,
     ToLogStr (toLogStr),
   )
-import Effectful.Time.Dynamic (TimeEffect)
-import Effectful.Time.Dynamic qualified as TimeEffect
+import Effectful.Time.Dynamic (TimeDynamic)
+import Effectful.Time.Dynamic qualified as TimeDynamic
 import GHC.Exts (IsList (Item, fromList, toList))
 import GHC.Generics (Generic)
 import Language.Haskell.TH (Loc (loc_filename, loc_start))
@@ -130,23 +130,23 @@ displayNamespace =
 -- | Effect for namespaced logger.
 --
 -- @since 0.1
-data LoggerNSEffect :: Effect where
-  GetNamespace :: LoggerNSEffect es Namespace
+data LoggerNSDynamic :: Effect where
+  GetNamespace :: LoggerNSDynamic es Namespace
   LocalNamespace ::
     (Namespace -> Namespace) ->
     m a ->
-    LoggerNSEffect m a
+    LoggerNSDynamic m a
 
 -- | @since 0.1
-type instance DispatchOf LoggerNSEffect = Dynamic
+type instance DispatchOf LoggerNSDynamic = Dynamic
 
 -- | @since 0.1
-getNamespace :: (LoggerNSEffect :> es) => Eff es Namespace
+getNamespace :: (LoggerNSDynamic :> es) => Eff es Namespace
 getNamespace = send GetNamespace
 
 -- | @since 0.1
 localNamespace ::
-  ( LoggerNSEffect :> es
+  ( LoggerNSDynamic :> es
   ) =>
   (Namespace -> Namespace) ->
   Eff es a ->
@@ -157,7 +157,7 @@ localNamespace f = send . LocalNamespace f
 --
 -- @since 0.1
 addNamespace ::
-  ( LoggerNSEffect :> es
+  ( LoggerNSDynamic :> es
   ) =>
   Text ->
   Eff es a ->
@@ -296,8 +296,8 @@ defaultLogFormatter loc =
 --
 -- @since 0.1
 formatLog ::
-  ( LoggerNSEffect :> es,
-    TimeEffect :> es,
+  ( LoggerNSDynamic :> es,
+    TimeDynamic :> es,
     ToLogStr msg
   ) =>
   LogFormatter ->
@@ -331,9 +331,9 @@ formatLog formatter lvl msg = do
   where
     timeFn
       | formatter ^. #timezone =
-          toLogStr <$> TimeEffect.getSystemZonedTimeString
+          toLogStr <$> TimeDynamic.getSystemZonedTimeString
       | otherwise =
-          toLogStr <$> TimeEffect.getSystemTimeString
+          toLogStr <$> TimeDynamic.getSystemTimeString
 
 partialLoc :: Loc -> Builder
 partialLoc loc =

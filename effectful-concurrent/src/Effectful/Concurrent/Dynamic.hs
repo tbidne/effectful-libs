@@ -3,7 +3,7 @@
 -- @since 0.1
 module Effectful.Concurrent.Dynamic
   ( -- * Effect
-    ConcurrentEffect (..),
+    ConcurrentDynamic (..),
     threadDelay,
     throwTo,
     getNumCapabilities,
@@ -11,7 +11,7 @@ module Effectful.Concurrent.Dynamic
     threadCapability,
 
     -- ** Handlers
-    runThreadIO,
+    runThreadDynamicIO,
 
     -- * Functions
     microsleep,
@@ -41,25 +41,25 @@ import GHC.Natural (Natural)
 -- | Effects for general threads.
 --
 -- @since 0.1
-data ConcurrentEffect :: Effect where
-  ThreadDelay :: Int -> ConcurrentEffect m ()
-  ThrowTo :: (Exception e) => ThreadId -> e -> ConcurrentEffect m ()
-  GetNumCapabilities :: ConcurrentEffect m Int
-  SetNumCapabilities :: Int -> ConcurrentEffect m ()
-  ThreadCapability :: ThreadId -> ConcurrentEffect m (Int, Bool)
+data ConcurrentDynamic :: Effect where
+  ThreadDelay :: Int -> ConcurrentDynamic m ()
+  ThrowTo :: (Exception e) => ThreadId -> e -> ConcurrentDynamic m ()
+  GetNumCapabilities :: ConcurrentDynamic m Int
+  SetNumCapabilities :: Int -> ConcurrentDynamic m ()
+  ThreadCapability :: ThreadId -> ConcurrentDynamic m (Int, Bool)
 
 -- | @since 0.1
-type instance DispatchOf ConcurrentEffect = Dynamic
+type instance DispatchOf ConcurrentDynamic = Dynamic
 
--- | Runs 'ConcurrentEffect' in 'IO'.
+-- | Runs 'ConcurrentDynamic' in 'IO'.
 --
 -- @since 0.1
-runThreadIO ::
+runThreadDynamicIO ::
   ( IOE :> es
   ) =>
-  Eff (ConcurrentEffect : es) a ->
+  Eff (ConcurrentDynamic : es) a ->
   Eff es a
-runThreadIO = interpret $ \_ -> \case
+runThreadDynamicIO = interpret $ \_ -> \case
   ThreadDelay n -> liftIO $ CC.threadDelay n
   ThrowTo tid e -> liftIO $ CC.throwTo tid e
   GetNumCapabilities -> liftIO CC.getNumCapabilities
@@ -69,45 +69,45 @@ runThreadIO = interpret $ \_ -> \case
 -- | Lifted 'CC.threadDelay'.
 --
 -- @since 0.1
-threadDelay :: (ConcurrentEffect :> es) => Int -> Eff es ()
+threadDelay :: (ConcurrentDynamic :> es) => Int -> Eff es ()
 threadDelay = send . ThreadDelay
 
 -- | Lifted 'CC.throwTo'.
 --
 -- @since 0.1
-throwTo :: (Exception e, ConcurrentEffect :> es) => ThreadId -> e -> Eff es ()
+throwTo :: (Exception e, ConcurrentDynamic :> es) => ThreadId -> e -> Eff es ()
 throwTo tid = send . ThrowTo tid
 
 -- | Lifted 'CC.getNumCapabilities'.
 --
 -- @since 0.1
-getNumCapabilities :: (ConcurrentEffect :> es) => Eff es Int
+getNumCapabilities :: (ConcurrentDynamic :> es) => Eff es Int
 getNumCapabilities = send GetNumCapabilities
 
 -- | Lifted 'CC.setNumCapabilities'.
 --
 -- @since 0.1
-setNumCapabilities :: (ConcurrentEffect :> es) => Int -> Eff es ()
+setNumCapabilities :: (ConcurrentDynamic :> es) => Int -> Eff es ()
 setNumCapabilities = send . SetNumCapabilities
 
 -- | Lifted 'CC.threadCapability'.
 --
 -- @since 0.1
-threadCapability :: (ConcurrentEffect :> es) => ThreadId -> Eff es (Int, Bool)
+threadCapability :: (ConcurrentDynamic :> es) => ThreadId -> Eff es (Int, Bool)
 threadCapability = send . ThreadCapability
 
 -- | 'threadDelay' in terms of unbounded 'Natural' rather than 'Int' i.e.
 -- runs sleep in the current thread for the specified number of microseconds.
 --
 -- @since 0.1
-microsleep :: (ConcurrentEffect :> es) => Natural -> Eff es ()
+microsleep :: (ConcurrentDynamic :> es) => Natural -> Eff es ()
 microsleep n = for_ (natToInts n) threadDelay
 
 -- | Runs sleep in the current thread for the specified number of
 -- seconds.
 --
 -- @since 0.1
-sleep :: (ConcurrentEffect :> es) => Natural -> Eff es ()
+sleep :: (ConcurrentDynamic :> es) => Natural -> Eff es ()
 sleep = microsleep . (* 1_000_000)
 
 natToInts :: Natural -> [Int]

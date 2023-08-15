@@ -3,13 +3,13 @@
 -- @since 0.1
 module Effectful.Concurrent.QSemN.Dynamic
   ( -- * Effect
-    QSemNEffect (..),
+    QSemNDynamic (..),
     newQSemN,
     waitQSemN,
     signalQSemN,
 
     -- ** Handlers
-    runQSemNIO,
+    runQSemNDynamicIO,
   )
 where
 
@@ -29,23 +29,23 @@ import Effectful.Dispatch.Dynamic (interpret, send)
 -- | Effects for QSemN.
 --
 -- @since 0.1
-data QSemNEffect :: Effect where
-  NewQSemN :: Int -> QSemNEffect m QSemN
-  WaitQSemN :: QSemN -> Int -> QSemNEffect m ()
-  SignalQSemN :: QSemN -> Int -> QSemNEffect m ()
+data QSemNDynamic :: Effect where
+  NewQSemN :: Int -> QSemNDynamic m QSemN
+  WaitQSemN :: QSemN -> Int -> QSemNDynamic m ()
+  SignalQSemN :: QSemN -> Int -> QSemNDynamic m ()
 
 -- | @since 0.1
-type instance DispatchOf QSemNEffect = Dynamic
+type instance DispatchOf QSemNDynamic = Dynamic
 
--- | Runs 'ConcurrentEffect' in 'IO'.
+-- | Runs 'ConcurrentDynamic' in 'IO'.
 --
 -- @since 0.1
-runQSemNIO ::
+runQSemNDynamicIO ::
   ( IOE :> es
   ) =>
-  Eff (QSemNEffect : es) a ->
+  Eff (QSemNDynamic : es) a ->
   Eff es a
-runQSemNIO = interpret $ \_ -> \case
+runQSemNDynamicIO = interpret $ \_ -> \case
   NewQSemN i -> liftIO $ QSemN.newQSemN i
   WaitQSemN q i -> liftIO $ QSemN.waitQSemN q i
   SignalQSemN q i -> liftIO $ QSemN.signalQSemN q i
@@ -53,17 +53,17 @@ runQSemNIO = interpret $ \_ -> \case
 -- | Lifted 'QSemN.newQSemN'.
 --
 -- @since 0.1
-newQSemN :: (QSemNEffect :> es) => Int -> Eff es QSemN
+newQSemN :: (QSemNDynamic :> es) => Int -> Eff es QSemN
 newQSemN = send . NewQSemN
 
 -- | Lifted 'QSemN.waitQSemN'.
 --
 -- @since 0.1
-waitQSemN :: (QSemNEffect :> es) => QSemN -> Int -> Eff es ()
+waitQSemN :: (QSemNDynamic :> es) => QSemN -> Int -> Eff es ()
 waitQSemN q = send . WaitQSemN q
 
 -- | Lifted 'QSemN.signalQSemN'.
 --
 -- @since 0.1
-signalQSemN :: (QSemNEffect :> es) => QSemN -> Int -> Eff es ()
+signalQSemN :: (QSemNDynamic :> es) => QSemN -> Int -> Eff es ()
 signalQSemN q = send . SignalQSemN q

@@ -16,26 +16,26 @@ import Effectful.Exception
     throwString,
     try,
   )
-import Effectful.FileSystem.FileReader.Dynamic (readBinaryFile, runFileReaderIO)
+import Effectful.FileSystem.FileReader.Dynamic (readBinaryFile, runFileReaderDynamicIO)
 import Effectful.FileSystem.FileWriter.Dynamic
-  ( FileWriterEffect,
+  ( FileWriterDynamic,
     Path,
-    runFileWriterIO,
+    runFileWriterDynamicIO,
     writeBinaryFile,
   )
 import Effectful.FileSystem.Path ((</>))
 import Effectful.FileSystem.PathReader.Dynamic
-  ( PathReaderEffect,
+  ( PathReaderDynamic,
     doesDirectoryExist,
     doesFileExist,
-    runPathReaderIO,
+    runPathReaderDynamicIO,
   )
 import Effectful.FileSystem.PathWriter.Dynamic
   ( CopyDirConfig (..),
     Overwrite (..),
     PathDoesNotExistException,
     PathExistsException,
-    PathWriterEffect
+    PathWriterDynamic
       ( CopyFileWithMetadata,
         CreateDirectory,
         CreateDirectoryIfMissing,
@@ -50,15 +50,15 @@ import Effectful.FileSystem.PathWriter.Dynamic
     removeDirectory,
     removeDirectoryRecursive,
     removeFile,
-    runPathWriterIO,
+    runPathWriterDynamicIO,
   )
 import Effectful.FileSystem.PathWriter.Dynamic qualified as PathWriter
 import Effectful.IORef
-  ( IORefEffect,
+  ( IORefDynamic,
     modifyIORef',
     newIORef,
     readIORef,
-    runIORefIO,
+    runIORefDynamicIO,
   )
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (assertBool, assertFailure, testCase, (@=?))
@@ -240,7 +240,7 @@ cdrnPartialFails getTmpDir = testCase desc $ do
   -- copy files
   result <-
     try $
-      runPartialIO $
+      runPartialDynamicIO $
         PathWriter.copyDirectoryRecursiveConfig
           (overwriteConfig OverwriteNone)
           srcDir
@@ -569,7 +569,7 @@ cdrtPartialFails getTmpDir = testCase desc $ do
   -- copy files
   result <-
     try $
-      runPartialIO $
+      runPartialDynamicIO $
         PathWriter.copyDirectoryRecursiveConfig
           (overwriteConfig OverwriteDirectories)
           srcDir
@@ -607,7 +607,7 @@ cdrtOverwritePartialFails getTmpDir = testCase desc $ do
   -- copy files
   result <-
     try $
-      runPartialIO $
+      runPartialDynamicIO $
         PathWriter.copyDirectoryRecursiveConfig
           (overwriteConfig OverwriteDirectories)
           srcDir
@@ -673,9 +673,9 @@ cdraOverwriteFileSucceeds getTmpDir = testCase desc $ do
 -------------------------------------------------------------------------------
 
 setupSrc :: Path -> IO Path
-setupSrc = runEff . runFileWriterIO . runPathWriterIO . setupSrcEff
+setupSrc = runEff . runFileWriterDynamicIO . runPathWriterDynamicIO . setupSrcEff
 
-setupSrcEff :: (FileWriterEffect :> es, IOE :> es, PathWriterEffect :> es) => Path -> Eff es Path
+setupSrcEff :: (FileWriterDynamic :> es, IOE :> es, PathWriterDynamic :> es) => Path -> Eff es Path
 setupSrcEff baseDir = do
   let files = U.strToPath <$> ["a/b/c/f1", "a/f2", "a/b/f3", "a/f4", "a/f5", "a/b/f5"]
       srcDir = baseDir </> U.strToPath "src"
@@ -691,7 +691,7 @@ setupSrcEff baseDir = do
   liftIO $ assertSrcExists baseDir
   pure srcDir
 
-writeFiles :: (FileWriterEffect :> es) => [(Path, ByteString)] -> Eff es ()
+writeFiles :: (FileWriterDynamic :> es) => [(Path, ByteString)] -> Eff es ()
 writeFiles = traverse_ (uncurry writeBinaryFile)
 
 overwriteConfig :: Overwrite -> CopyDirConfig
@@ -701,24 +701,24 @@ overwriteConfig ow = MkCopyDirConfig ow TargetNameSrc
 --                                  Mock                                     --
 -------------------------------------------------------------------------------
 
-runPartialIO :: Eff [PathWriterEffect, PathReaderEffect, IORefEffect, IOE] a -> IO a
-runPartialIO effs = do
-  counterRef <- runEff $ runIORefIO $ newIORef 0
+runPartialDynamicIO :: Eff [PathWriterDynamic, PathReaderDynamic, IORefDynamic, IOE] a -> IO a
+runPartialDynamicIO effs = do
+  counterRef <- runEff $ runIORefDynamicIO $ newIORef 0
 
   runEff
-    . runIORefIO
-    . runPathReaderIO
+    . runIORefDynamicIO
+    . runPathReaderDynamicIO
     . runBlah counterRef
     $ effs
   where
     runBlah ::
       ( IOE :> es,
-        IORefEffect :> es
+        IORefDynamic :> es
       ) =>
       IORef Int ->
-      Eff (PathWriterEffect : es) a ->
+      Eff (PathWriterDynamic : es) a ->
       Eff es a
-    runBlah counterRef = reinterpret runPathWriterIO $ \_ -> \case
+    runBlah counterRef = reinterpret runPathWriterDynamicIO $ \_ -> \case
       CreateDirectory p -> createDirectory p
       CreateDirectoryIfMissing b p -> createDirectoryIfMissing b p
       RemoveDirectoryRecursive p -> removeDirectoryRecursive p
@@ -786,7 +786,7 @@ assertFileContents :: [(Path, ByteString)] -> IO ()
 assertFileContents = traverse_ $ \(p, expected) -> do
   exists <- runEffPathWriter $ doesFileExist p
   assertBool ("Expected file to exist: " <> U.pathToStr p) exists
-  actual <- runEff $ runFileReaderIO $ readBinaryFile p
+  actual <- runEff $ runFileReaderDynamicIO $ readBinaryFile p
   expected @=? actual
 
 assertDirsExist :: [Path] -> IO ()
@@ -804,10 +804,10 @@ mkTestPath getPath s = do
   p <- getPath
   pure $ p </> U.strToPath s
 
-runEffPathWriter :: Eff '[IORefEffect, PathReaderEffect, PathWriterEffect, FileWriterEffect, IOE] a -> IO a
+runEffPathWriter :: Eff '[IORefDynamic, PathReaderDynamic, PathWriterDynamic, FileWriterDynamic, IOE] a -> IO a
 runEffPathWriter =
   runEff
-    . runFileWriterIO
-    . runPathWriterIO
-    . runPathReaderIO
-    . runIORefIO
+    . runFileWriterDynamicIO
+    . runPathWriterDynamicIO
+    . runPathReaderDynamicIO
+    . runIORefDynamicIO

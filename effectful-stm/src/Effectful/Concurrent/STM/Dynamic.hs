@@ -5,11 +5,11 @@ module Effectful.Concurrent.STM.Dynamic
   ( -- * STM
 
     -- ** Effect
-    STMEffect (..),
+    STMDynamic (..),
     atomically,
 
     -- ** Handlers
-    runSTMIO,
+    runSTMDynamicIO,
 
     -- * Re-exports
     STM,
@@ -32,25 +32,25 @@ import Effectful.Dispatch.Dynamic (interpret, send)
 -- | Effect for 'STM'.
 --
 -- @since 0.1
-data STMEffect :: Effect where
-  Atomically :: STM a -> STMEffect m a
+data STMDynamic :: Effect where
+  Atomically :: STM a -> STMDynamic m a
 
 -- | @since 0.1
-type instance DispatchOf STMEffect = Dynamic
+type instance DispatchOf STMDynamic = Dynamic
 
--- | Runs 'STMEffect' in 'IO'.
+-- | Runs 'STMDynamic' in 'IO'.
 --
 -- @since 0.1
-runSTMIO ::
+runSTMDynamicIO ::
   ( IOE :> es
   ) =>
-  Eff (STMEffect : es) a ->
+  Eff (STMDynamic : es) a ->
   Eff es a
-runSTMIO = interpret $ \_ -> \case
+runSTMDynamicIO = interpret $ \_ -> \case
   Atomically x -> liftIO $ STM.atomically x
 
 -- | Lifted 'STM.atomically'.
 --
 -- @since 0.1
-atomically :: (STMEffect :> es) => STM a -> Eff es a
+atomically :: (STMDynamic :> es) => STM a -> Eff es a
 atomically = send . Atomically

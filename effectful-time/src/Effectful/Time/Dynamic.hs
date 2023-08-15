@@ -6,13 +6,13 @@
 -- @since 0.1
 module Effectful.Time.Dynamic
   ( -- * Effect
-    TimeEffect (..),
+    TimeDynamic (..),
     getSystemTime,
     getSystemZonedTime,
     getMonotonicTime,
 
     -- ** Handlers
-    runTimeIO,
+    runTimeDynamicIO,
 
     -- * Timing
     withTiming,
@@ -241,23 +241,23 @@ normalizeTimeSpec = fromNanoSeconds . toNanoSeconds
 -- | Timing effect.
 --
 -- @since 0.1
-data TimeEffect :: Effect where
-  GetSystemTime :: TimeEffect m LocalTime
-  GetSystemZonedTime :: TimeEffect m ZonedTime
-  GetMonotonicTime :: TimeEffect m Double
+data TimeDynamic :: Effect where
+  GetSystemTime :: TimeDynamic m LocalTime
+  GetSystemZonedTime :: TimeDynamic m ZonedTime
+  GetMonotonicTime :: TimeDynamic m Double
 
 -- | @since 0.1
-type instance DispatchOf TimeEffect = Dynamic
+type instance DispatchOf TimeDynamic = Dynamic
 
--- | Runs 'TimeEffect' in 'IO'.
+-- | Runs 'TimeDynamic' in 'IO'.
 --
 -- @since 0.1
-runTimeIO ::
+runTimeDynamicIO ::
   ( IOE :> es
   ) =>
-  Eff (TimeEffect : es) a ->
+  Eff (TimeDynamic : es) a ->
   Eff es a
-runTimeIO = interpret $ \_ -> \case
+runTimeDynamicIO = interpret $ \_ -> \case
   GetSystemTime ->
     liftIO $
       Local.zonedTimeToLocalTime <$> Local.getZonedTime
@@ -267,26 +267,26 @@ runTimeIO = interpret $ \_ -> \case
 -- | Returns the local system time.
 --
 -- @since 0.1
-getSystemTime :: (TimeEffect :> es) => Eff es LocalTime
+getSystemTime :: (TimeDynamic :> es) => Eff es LocalTime
 getSystemTime = send GetSystemTime
 
 -- | Returns the zoned system time
 --
 -- @since 0.1
-getSystemZonedTime :: (TimeEffect :> es) => Eff es ZonedTime
+getSystemZonedTime :: (TimeDynamic :> es) => Eff es ZonedTime
 getSystemZonedTime = send GetSystemZonedTime
 
 -- | Returns the zoned system time
 --
 -- @since 0.1
-getMonotonicTime :: (TimeEffect :> es) => Eff es Double
+getMonotonicTime :: (TimeDynamic :> es) => Eff es Double
 getMonotonicTime = send GetMonotonicTime
 
 -- | Runs an action, returning the elapsed time.
 --
 -- @since 0.1
 withTiming ::
-  ( TimeEffect :> es
+  ( TimeDynamic :> es
   ) =>
   Eff es a ->
   Eff es (TimeSpec, a)
@@ -300,7 +300,7 @@ withTiming m = do
 --
 -- @since 0.1
 withTiming_ ::
-  ( TimeEffect :> es
+  ( TimeDynamic :> es
   ) =>
   Eff es a ->
   Eff es TimeSpec
@@ -317,7 +317,7 @@ formatZonedTime = Format.formatTime Format.defaultTimeLocale zonedTimeFormat
 -- | Retrieves the formatted 'LocalTime'.
 --
 -- @since 0.1
-getSystemTimeString :: (TimeEffect :> es) => Eff es String
+getSystemTimeString :: (TimeDynamic :> es) => Eff es String
 getSystemTimeString = fmap formatLocalTime getSystemTime
 
 -- | Formats the 'LocalTime' to @YYYY-MM-DD HH:MM:SS@.
@@ -329,7 +329,7 @@ formatLocalTime = Format.formatTime Format.defaultTimeLocale localTimeFormat
 -- | Retrieves the formatted 'ZonedTime'.
 --
 -- @since 0.1
-getSystemZonedTimeString :: (TimeEffect :> es) => Eff es String
+getSystemZonedTimeString :: (TimeDynamic :> es) => Eff es String
 getSystemZonedTimeString = fmap formatZonedTime getSystemZonedTime
 
 -- | Parses the 'LocalTime' from @YYYY-MM-DD HH:MM:SS@. If the 'MonadFail'

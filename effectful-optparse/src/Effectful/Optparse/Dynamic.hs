@@ -3,13 +3,13 @@
 -- @since 0.1
 module Effectful.Optparse.Dynamic
   ( -- * Effect
-    OptparseEffect (..),
+    OptparseDynamic (..),
     execParser,
     customExecParser,
     handleParseResult,
 
     -- ** Handler
-    runOptparseIO,
+    runOptparseDynamicIO,
   )
 where
 
@@ -29,23 +29,23 @@ import Options.Applicative qualified as OA
 -- | Effect for optparse-applicative.
 --
 -- @since 0.1
-data OptparseEffect :: Effect where
-  ExecParser :: ParserInfo a -> OptparseEffect m a
-  CustomExecParser :: ParserPrefs -> ParserInfo a -> OptparseEffect m a
-  HandleParseResult :: ParserResult a -> OptparseEffect m a
+data OptparseDynamic :: Effect where
+  ExecParser :: ParserInfo a -> OptparseDynamic m a
+  CustomExecParser :: ParserPrefs -> ParserInfo a -> OptparseDynamic m a
+  HandleParseResult :: ParserResult a -> OptparseDynamic m a
 
 -- | @since 0.1
-type instance DispatchOf OptparseEffect = Dynamic
+type instance DispatchOf OptparseDynamic = Dynamic
 
--- | Runs 'OptparseEffect' in 'IO'.
+-- | Runs 'OptparseDynamic' in 'IO'.
 --
 -- @since 0.1
-runOptparseIO ::
+runOptparseDynamicIO ::
   ( IOE :> es
   ) =>
-  Eff (OptparseEffect : es) a ->
+  Eff (OptparseDynamic : es) a ->
   Eff es a
-runOptparseIO = interpret $ \_ -> \case
+runOptparseDynamicIO = interpret $ \_ -> \case
   ExecParser i -> liftIO $ OA.execParser i
   CustomExecParser prefs i -> liftIO $ OA.customExecParser prefs i
   HandleParseResult r -> liftIO $ OA.handleParseResult r
@@ -53,17 +53,17 @@ runOptparseIO = interpret $ \_ -> \case
 -- | Lifted 'OA.execParser'.
 --
 -- @since 0.1
-execParser :: (OptparseEffect :> es) => ParserInfo a -> Eff es a
+execParser :: (OptparseDynamic :> es) => ParserInfo a -> Eff es a
 execParser = send . ExecParser
 
 -- | Lifted 'OA.customExecParser'.
 --
 -- @since 0.1
-customExecParser :: (OptparseEffect :> es) => ParserPrefs -> ParserInfo a -> Eff es a
+customExecParser :: (OptparseDynamic :> es) => ParserPrefs -> ParserInfo a -> Eff es a
 customExecParser prefs = send . CustomExecParser prefs
 
 -- | Lifted 'OA.handleParseResult'.
 --
 -- @since 0.1
-handleParseResult :: (OptparseEffect :> es) => ParserResult a -> Eff es a
+handleParseResult :: (OptparseDynamic :> es) => ParserResult a -> Eff es a
 handleParseResult = send . HandleParseResult
