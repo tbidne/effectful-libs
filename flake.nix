@@ -46,6 +46,7 @@
               ListLike = hlib.dontCheck prev.ListLike;
               hedgehog = prev.hedgehog_1_2;
               tasty-hedgehog = prev.tasty-hedgehog_1_4_0_1;
+              unix-compat = prev.unix-compat_0_7;
             } // nix-hs-utils.mkLibs inputs final [
               "algebra-simple"
               "bounds"
@@ -113,10 +114,11 @@
           packages.effectful-time = mkPkgsExceptions "effectful-time" ./effectful-time;
           packages.effectful-typed-process =
             mkPkg "effectful-typed-process" ./effectful-typed-process {
-              effects-exceptions = ./effectful-exceptions;
-              effects-stm = ./effectful-stm;
+              effectful-exceptions = ./effectful-exceptions;
+              effectful-stm = ./effectful-stm;
             };
-          packages.effectful-unix-compat = mkPkg "effectful-unix-compat" ./effectful-unix-compat { };
+          packages.effectful-unix-compat =
+            mkPkgsExceptions "effectful-unix-compat" ./effectful-unix-compat;
 
           devShells.default = hsOverlay.shellFor {
             inherit packages;
