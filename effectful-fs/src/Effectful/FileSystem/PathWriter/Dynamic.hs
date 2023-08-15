@@ -7,7 +7,6 @@
 module Effectful.FileSystem.PathWriter.Dynamic
   ( -- * Effect
     PathWriterDynamic (..),
-    Path,
     createDirectory,
     createDirectoryIfMissing,
     removeDirectory,
@@ -63,6 +62,7 @@ module Effectful.FileSystem.PathWriter.Dynamic
     PathDoesNotExistException (..),
 
     -- * Re-exports
+    OsPath,
     Permissions (..),
     UTCTime (..),
   )
@@ -88,7 +88,7 @@ import Effectful.Exception
     onException,
     throwM,
   )
-import Effectful.FileSystem.Path (Path, (</>))
+import Effectful.FileSystem.Path (OsPath, (</>))
 import Effectful.FileSystem.PathReader.Dynamic
   ( PathReaderDynamic,
     doesDirectoryExist,
@@ -107,38 +107,33 @@ import Optics.Core
     (^.),
   )
 import System.Directory (Permissions (..))
-#if MIN_VERSION_filepath(1,4,100) && MIN_VERSION_directory(1,3,8)
 import System.Directory.OsPath qualified as Dir
 import System.OsPath qualified as FP
-#else
-import System.Directory qualified as Dir
-import System.FilePath qualified as FP
-#endif
 
 -- | Effect for writing paths.
 --
 -- @since 0.1
 data PathWriterDynamic :: Effect where
-  CreateDirectory :: Path -> PathWriterDynamic m ()
-  CreateDirectoryIfMissing :: Bool -> Path -> PathWriterDynamic m ()
-  RemoveDirectory :: Path -> PathWriterDynamic m ()
-  RemoveDirectoryRecursive :: Path -> PathWriterDynamic m ()
-  RemovePathForcibly :: Path -> PathWriterDynamic m ()
-  RenameDirectory :: Path -> Path -> PathWriterDynamic m ()
-  SetCurrentDirectory :: Path -> PathWriterDynamic m ()
-  WithCurrentDirectory :: Path -> m a -> PathWriterDynamic m a
-  RemoveFile :: Path -> PathWriterDynamic m ()
-  RenameFile :: Path -> Path -> PathWriterDynamic m ()
-  RenamePath :: Path -> Path -> PathWriterDynamic m ()
-  CopyFile :: Path -> Path -> PathWriterDynamic m ()
-  CopyFileWithMetadata :: Path -> Path -> PathWriterDynamic m ()
-  CreateFileLink :: Path -> Path -> PathWriterDynamic m ()
-  CreateDirectoryLink :: Path -> Path -> PathWriterDynamic m ()
-  RemoveDirectoryLink :: Path -> PathWriterDynamic m ()
-  SetPermissions :: Path -> Permissions -> PathWriterDynamic m ()
-  CopyPermissions :: Path -> Path -> PathWriterDynamic m ()
-  SetAccessTime :: Path -> UTCTime -> PathWriterDynamic m ()
-  SetModificationTime :: Path -> UTCTime -> PathWriterDynamic m ()
+  CreateDirectory :: OsPath -> PathWriterDynamic m ()
+  CreateDirectoryIfMissing :: Bool -> OsPath -> PathWriterDynamic m ()
+  RemoveDirectory :: OsPath -> PathWriterDynamic m ()
+  RemoveDirectoryRecursive :: OsPath -> PathWriterDynamic m ()
+  RemovePathForcibly :: OsPath -> PathWriterDynamic m ()
+  RenameDirectory :: OsPath -> OsPath -> PathWriterDynamic m ()
+  SetCurrentDirectory :: OsPath -> PathWriterDynamic m ()
+  WithCurrentDirectory :: OsPath -> m a -> PathWriterDynamic m a
+  RemoveFile :: OsPath -> PathWriterDynamic m ()
+  RenameFile :: OsPath -> OsPath -> PathWriterDynamic m ()
+  RenamePath :: OsPath -> OsPath -> PathWriterDynamic m ()
+  CopyFile :: OsPath -> OsPath -> PathWriterDynamic m ()
+  CopyFileWithMetadata :: OsPath -> OsPath -> PathWriterDynamic m ()
+  CreateFileLink :: OsPath -> OsPath -> PathWriterDynamic m ()
+  CreateDirectoryLink :: OsPath -> OsPath -> PathWriterDynamic m ()
+  RemoveDirectoryLink :: OsPath -> PathWriterDynamic m ()
+  SetPermissions :: OsPath -> Permissions -> PathWriterDynamic m ()
+  CopyPermissions :: OsPath -> OsPath -> PathWriterDynamic m ()
+  SetAccessTime :: OsPath -> UTCTime -> PathWriterDynamic m ()
+  SetModificationTime :: OsPath -> UTCTime -> PathWriterDynamic m ()
 
 -- | @since 0.1
 type instance DispatchOf PathWriterDynamic = Dynamic
@@ -180,7 +175,7 @@ runPathWriterDynamicIO = interpret $ \env -> \case
 createDirectory ::
   ( PathWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es ()
 createDirectory = send . CreateDirectory
 
@@ -191,7 +186,7 @@ createDirectoryIfMissing ::
   ( PathWriterDynamic :> es
   ) =>
   Bool ->
-  Path ->
+  OsPath ->
   Eff es ()
 createDirectoryIfMissing b = send . CreateDirectoryIfMissing b
 
@@ -201,7 +196,7 @@ createDirectoryIfMissing b = send . CreateDirectoryIfMissing b
 removeDirectory ::
   ( PathWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es ()
 removeDirectory = send . RemoveDirectory
 
@@ -211,7 +206,7 @@ removeDirectory = send . RemoveDirectory
 removeDirectoryRecursive ::
   ( PathWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es ()
 removeDirectoryRecursive = send . RemoveDirectoryRecursive
 
@@ -221,7 +216,7 @@ removeDirectoryRecursive = send . RemoveDirectoryRecursive
 removePathForcibly ::
   ( PathWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es ()
 removePathForcibly = send . RemovePathForcibly
 
@@ -231,8 +226,8 @@ removePathForcibly = send . RemovePathForcibly
 renameDirectory ::
   ( PathWriterDynamic :> es
   ) =>
-  Path ->
-  Path ->
+  OsPath ->
+  OsPath ->
   Eff es ()
 renameDirectory p = send . RenameDirectory p
 
@@ -242,7 +237,7 @@ renameDirectory p = send . RenameDirectory p
 setCurrentDirectory ::
   ( PathWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es ()
 setCurrentDirectory = send . SetCurrentDirectory
 
@@ -252,7 +247,7 @@ setCurrentDirectory = send . SetCurrentDirectory
 withCurrentDirectory ::
   ( PathWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es a ->
   Eff es a
 withCurrentDirectory p = send . WithCurrentDirectory p
@@ -263,7 +258,7 @@ withCurrentDirectory p = send . WithCurrentDirectory p
 removeFile ::
   ( PathWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es ()
 removeFile = send . RemoveFile
 
@@ -273,8 +268,8 @@ removeFile = send . RemoveFile
 renameFile ::
   ( PathWriterDynamic :> es
   ) =>
-  Path ->
-  Path ->
+  OsPath ->
+  OsPath ->
   Eff es ()
 renameFile p = send . RenameFile p
 
@@ -284,8 +279,8 @@ renameFile p = send . RenameFile p
 renamePath ::
   ( PathWriterDynamic :> es
   ) =>
-  Path ->
-  Path ->
+  OsPath ->
+  OsPath ->
   Eff es ()
 renamePath p = send . RenamePath p
 
@@ -295,8 +290,8 @@ renamePath p = send . RenamePath p
 copyFile ::
   ( PathWriterDynamic :> es
   ) =>
-  Path ->
-  Path ->
+  OsPath ->
+  OsPath ->
   Eff es ()
 copyFile p = send . CopyFile p
 
@@ -306,8 +301,8 @@ copyFile p = send . CopyFile p
 copyFileWithMetadata ::
   ( PathWriterDynamic :> es
   ) =>
-  Path ->
-  Path ->
+  OsPath ->
+  OsPath ->
   Eff es ()
 copyFileWithMetadata p = send . CopyFileWithMetadata p
 
@@ -317,8 +312,8 @@ copyFileWithMetadata p = send . CopyFileWithMetadata p
 createFileLink ::
   ( PathWriterDynamic :> es
   ) =>
-  Path ->
-  Path ->
+  OsPath ->
+  OsPath ->
   Eff es ()
 createFileLink p = send . CreateFileLink p
 
@@ -328,8 +323,8 @@ createFileLink p = send . CreateFileLink p
 createDirectoryLink ::
   ( PathWriterDynamic :> es
   ) =>
-  Path ->
-  Path ->
+  OsPath ->
+  OsPath ->
   Eff es ()
 createDirectoryLink p = send . CreateDirectoryLink p
 
@@ -339,7 +334,7 @@ createDirectoryLink p = send . CreateDirectoryLink p
 removeDirectoryLink ::
   ( PathWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es ()
 removeDirectoryLink = send . RemoveDirectoryLink
 
@@ -349,7 +344,7 @@ removeDirectoryLink = send . RemoveDirectoryLink
 setPermissions ::
   ( PathWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Permissions ->
   Eff es ()
 setPermissions p = send . SetPermissions p
@@ -360,8 +355,8 @@ setPermissions p = send . SetPermissions p
 copyPermissions ::
   ( PathWriterDynamic :> es
   ) =>
-  Path ->
-  Path ->
+  OsPath ->
+  OsPath ->
   Eff es ()
 copyPermissions p = send . CopyPermissions p
 
@@ -371,7 +366,7 @@ copyPermissions p = send . CopyPermissions p
 setAccessTime ::
   ( PathWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   UTCTime ->
   Eff es ()
 setAccessTime p = send . SetAccessTime p
@@ -382,7 +377,7 @@ setAccessTime p = send . SetAccessTime p
 setModificationTime ::
   ( PathWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   UTCTime ->
   Eff es ()
 setModificationTime p = send . SetModificationTime p
@@ -394,7 +389,7 @@ removeFileIfExists ::
   ( PathReaderDynamic :> es,
     PathWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es ()
 removeFileIfExists = removeIfExists doesFileExist removeFile
 
@@ -405,7 +400,7 @@ removeDirectoryIfExists ::
   ( PathReaderDynamic :> es,
     PathWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es ()
 removeDirectoryIfExists = removeIfExists doesDirectoryExist removeDirectory
 
@@ -416,7 +411,7 @@ removeDirectoryRecursiveIfExists ::
   ( PathReaderDynamic :> es,
     PathWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es ()
 removeDirectoryRecursiveIfExists =
   removeIfExists doesDirectoryExist removeDirectoryRecursive
@@ -428,7 +423,7 @@ removePathForciblyIfExists ::
   ( PathReaderDynamic :> es,
     PathWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es ()
 removePathForciblyIfExists =
   removeIfExists doesPathExist removePathForcibly
@@ -440,7 +435,7 @@ removeIfExists existsFn deleteFn f =
 -- | Exception for trying to create a path that already exists.
 --
 -- @since 0.1
-newtype PathExistsException = MkPathExistsException Path
+newtype PathExistsException = MkPathExistsException OsPath
   deriving stock
     ( -- | @since 0.1
       Show
@@ -454,7 +449,7 @@ instance Exception PathExistsException where
 -- | Exception for when a path does not exist.
 --
 -- @since 0.1
-newtype PathDoesNotExistException = MkPathDoesNotExistException Path
+newtype PathDoesNotExistException = MkPathDoesNotExistException OsPath
   deriving stock
     ( -- | @since 0.1
       Show
@@ -538,7 +533,7 @@ data TargetName
   | -- | Uses the given literal as the dest name i.e. @dest/\<targetName\>@.
     --
     -- @since 0.1
-    TargetNameLiteral !Path
+    TargetNameLiteral !OsPath
   | -- | Uses dest itself as the target i.e. @dest/@ (top-level copy).
     --
     -- @since 0.1
@@ -568,7 +563,7 @@ _TargetNameSrc =
 {-# INLINE _TargetNameSrc #-}
 
 -- | @since 0.1
-_TargetNameLiteral :: Prism' TargetName Path
+_TargetNameLiteral :: Prism' TargetName OsPath
 _TargetNameLiteral =
   prism
     TargetNameLiteral
@@ -651,9 +646,9 @@ copyDirectoryRecursive ::
     PathWriterDynamic :> es
   ) =>
   -- | Source
-  Path ->
+  OsPath ->
   -- | Destination
-  Path ->
+  OsPath ->
   Eff es ()
 copyDirectoryRecursive = copyDirectoryRecursiveConfig defaultCopyDirConfig
 
@@ -698,9 +693,9 @@ copyDirectoryRecursiveConfig ::
   -- | Config
   CopyDirConfig ->
   -- | Source
-  Path ->
+  OsPath ->
   -- | Destination
-  Path ->
+  OsPath ->
   Eff es ()
 copyDirectoryRecursiveConfig config src destRoot = do
   destExists <- doesDirectoryExist destRoot
@@ -733,9 +728,9 @@ copyDirectoryOverwrite ::
   -- | Overwrite files
   Bool ->
   -- | Source
-  Path ->
+  OsPath ->
   -- | Destination
-  Path ->
+  OsPath ->
   Eff es ()
 copyDirectoryOverwrite overwriteFiles src dest = do
   -- NOTE: The logic here merits explanation. The idea is if we encounter
@@ -811,9 +806,9 @@ copyDirectoryNoOverwrite ::
     PathWriterDynamic :> es
   ) =>
   -- | Source
-  Path ->
+  OsPath ->
   -- | Destination
-  Path ->
+  OsPath ->
   Eff es ()
 copyDirectoryNoOverwrite src dest = do
   destExists <- doesDirectoryExist dest
@@ -834,9 +829,5 @@ copyDirectoryNoOverwrite src dest = do
 
   copyFiles `onException` mask_ cleanup
 
-pathToStr :: Path -> String
-#if MIN_VERSION_filepath(1,4,100) && MIN_VERSION_directory(1,3,8)
+pathToStr :: OsPath -> String
 pathToStr = fmap FP.toChar . FP.unpack
-#else
-pathToStr = id
-#endif

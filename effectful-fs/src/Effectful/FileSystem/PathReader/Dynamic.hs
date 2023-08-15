@@ -8,7 +8,6 @@
 module Effectful.FileSystem.PathReader.Dynamic
   ( -- * Effect
     PathReaderDynamic (..),
-    Path,
     listDirectory,
     getDirectoryContents,
     getCurrentDirectory,
@@ -55,10 +54,11 @@ module Effectful.FileSystem.PathReader.Dynamic
     listDirectoryRecursive,
 
     -- * Re-exports
-    XdgDirectory (..),
-    XdgDirectoryList (..),
+    OsPath,
     Permissions (..),
     UTCTime (..),
+    XdgDirectory (..),
+    XdgDirectoryList (..),
   )
 where
 
@@ -73,17 +73,14 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
-import Effectful.FileSystem.Internal ( Path, (</>) )
+import Effectful.FileSystem.Path (OsPath, (</>))
 import System.Directory
   ( Permissions (..),
     XdgDirectory (..),
     XdgDirectoryList (..),
   )
-#if MIN_VERSION_filepath(1,4,100) && MIN_VERSION_directory(1,3,8)
+import System.OsString (OsString)
 import System.Directory.OsPath qualified as Dir
-#else
-import System.Directory qualified as Dir
-#endif
 
 {- ORMOLU_ENABLE -}
 
@@ -91,32 +88,43 @@ import System.Directory qualified as Dir
 --
 -- @since 0.1
 data PathReaderDynamic :: Effect where
-  ListDirectory :: Path -> PathReaderDynamic m [Path]
-  GetDirectoryContents :: Path -> PathReaderDynamic m [Path]
-  GetCurrentDirectory :: PathReaderDynamic m Path
-  GetHomeDirectory :: PathReaderDynamic m Path
-  GetXdgDirectory :: XdgDirectory -> Path -> PathReaderDynamic m Path
-  GetXdgDirectoryList :: XdgDirectoryList -> PathReaderDynamic m [Path]
-  GetAppUserDataDirectory :: Path -> PathReaderDynamic m Path
-  GetUserDocumentsDirectory :: PathReaderDynamic m Path
-  GetTemporaryDirectory :: PathReaderDynamic m Path
-  GetFileSize :: Path -> PathReaderDynamic m Integer
-  CanonicalizePath :: Path -> PathReaderDynamic m Path
-  MakeAbsolute :: Path -> PathReaderDynamic m Path
-  MakeRelativeToCurrentDirectory :: Path -> PathReaderDynamic m Path
-  DoesPathExist :: Path -> PathReaderDynamic m Bool
-  DoesFileExist :: Path -> PathReaderDynamic m Bool
-  DoesDirectoryExist :: Path -> PathReaderDynamic m Bool
-  FindExecutable :: String -> PathReaderDynamic m (Maybe Path)
-  FindExecutables :: String -> PathReaderDynamic m [Path]
-  FindExecutablesInDirectories :: [Path] -> String -> PathReaderDynamic m [Path]
-  FindFileWith :: (Path -> m Bool) -> [Path] -> String -> PathReaderDynamic m (Maybe Path)
-  FindFilesWith :: (Path -> m Bool) -> [Path] -> String -> PathReaderDynamic m [Path]
-  PathIsSymbolicLink :: Path -> PathReaderDynamic m Bool
-  GetSymbolicLinkTarget :: Path -> PathReaderDynamic m Path
-  GetPermissions :: Path -> PathReaderDynamic m Permissions
-  GetAccessTime :: Path -> PathReaderDynamic m UTCTime
-  GetModificationTime :: Path -> PathReaderDynamic m UTCTime
+  ListDirectory :: OsPath -> PathReaderDynamic m [OsPath]
+  GetDirectoryContents :: OsPath -> PathReaderDynamic m [OsPath]
+  GetCurrentDirectory :: PathReaderDynamic m OsPath
+  GetHomeDirectory :: PathReaderDynamic m OsPath
+  GetXdgDirectory :: XdgDirectory -> OsPath -> PathReaderDynamic m OsPath
+  GetXdgDirectoryList :: XdgDirectoryList -> PathReaderDynamic m [OsPath]
+  GetAppUserDataDirectory :: OsPath -> PathReaderDynamic m OsPath
+  GetUserDocumentsDirectory :: PathReaderDynamic m OsPath
+  GetTemporaryDirectory :: PathReaderDynamic m OsPath
+  GetFileSize :: OsPath -> PathReaderDynamic m Integer
+  CanonicalizePath :: OsPath -> PathReaderDynamic m OsPath
+  MakeAbsolute :: OsPath -> PathReaderDynamic m OsPath
+  MakeRelativeToCurrentDirectory :: OsPath -> PathReaderDynamic m OsPath
+  DoesPathExist :: OsPath -> PathReaderDynamic m Bool
+  DoesFileExist :: OsPath -> PathReaderDynamic m Bool
+  DoesDirectoryExist :: OsPath -> PathReaderDynamic m Bool
+  FindExecutable :: OsString -> PathReaderDynamic m (Maybe OsPath)
+  FindExecutables :: OsString -> PathReaderDynamic m [OsPath]
+  FindExecutablesInDirectories ::
+    [OsPath] ->
+    OsString ->
+    PathReaderDynamic m [OsPath]
+  FindFileWith ::
+    (OsPath -> m Bool) ->
+    [OsPath] ->
+    OsString ->
+    PathReaderDynamic m (Maybe OsPath)
+  FindFilesWith ::
+    (OsPath -> m Bool) ->
+    [OsPath] ->
+    OsString ->
+    PathReaderDynamic m [OsPath]
+  PathIsSymbolicLink :: OsPath -> PathReaderDynamic m Bool
+  GetSymbolicLinkTarget :: OsPath -> PathReaderDynamic m OsPath
+  GetPermissions :: OsPath -> PathReaderDynamic m Permissions
+  GetAccessTime :: OsPath -> PathReaderDynamic m UTCTime
+  GetModificationTime :: OsPath -> PathReaderDynamic m UTCTime
 
 -- | @since 0.1
 type instance DispatchOf PathReaderDynamic = Dynamic
@@ -148,7 +156,8 @@ runPathReaderDynamicIO = interpret $ \env -> \case
   DoesDirectoryExist p -> liftIO $ Dir.doesDirectoryExist p
   FindExecutable p -> liftIO $ Dir.findExecutable p
   FindExecutables p -> liftIO $ Dir.findExecutables p
-  FindExecutablesInDirectories ps str -> liftIO $ Dir.findExecutablesInDirectories ps str
+  FindExecutablesInDirectories ps str ->
+    liftIO $ Dir.findExecutablesInDirectories ps str
   FindFileWith f ps str -> localSeqUnliftIO env $ \runInDynamicIO ->
     liftIO $ Dir.findFileWith (runInDynamicIO . f) ps str
   FindFilesWith f ps str -> localSeqUnliftIO env $ \runInDynamicIO ->
@@ -165,7 +174,7 @@ runPathReaderDynamicIO = interpret $ \env -> \case
 -- occurrence. Details can be found in the documentation of 'findFileWith'.
 --
 -- @since 0.1
-findFile :: (PathReaderDynamic :> es) => [Path] -> Path -> Eff es (Maybe Path)
+findFile :: (PathReaderDynamic :> es) => [OsPath] -> OsPath -> Eff es (Maybe OsPath)
 findFile = findFileWith (\_ -> pure True)
 
 -- | Search through the given list of directories for the given file and
@@ -175,7 +184,7 @@ findFile = findFileWith (\_ -> pure True)
 -- documentation of 'findFilesWith'.
 --
 -- @since 0.1
-findFiles :: (PathReaderDynamic :> es) => [Path] -> Path -> Eff es [Path]
+findFiles :: (PathReaderDynamic :> es) => [OsPath] -> OsPath -> Eff es [OsPath]
 findFiles = findFilesWith (\_ -> pure True)
 
 -- | Lifted 'Dir.listDirectory'.
@@ -184,8 +193,8 @@ findFiles = findFilesWith (\_ -> pure True)
 listDirectory ::
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
-  Eff es [Path]
+  OsPath ->
+  Eff es [OsPath]
 listDirectory = send . ListDirectory
 
 -- | Lifted 'Dir.getDirectoryContents'.
@@ -194,8 +203,8 @@ listDirectory = send . ListDirectory
 getDirectoryContents ::
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
-  Eff es [Path]
+  OsPath ->
+  Eff es [OsPath]
 getDirectoryContents = send . GetDirectoryContents
 
 -- | Lifted 'Dir.getCurrentDirectory'.
@@ -204,7 +213,7 @@ getDirectoryContents = send . GetDirectoryContents
 getCurrentDirectory ::
   ( PathReaderDynamic :> es
   ) =>
-  Eff es Path
+  Eff es OsPath
 getCurrentDirectory = send GetCurrentDirectory
 
 -- | Lifted 'Dir.getHomeDirectory'.
@@ -213,7 +222,7 @@ getCurrentDirectory = send GetCurrentDirectory
 getHomeDirectory ::
   ( PathReaderDynamic :> es
   ) =>
-  Eff es Path
+  Eff es OsPath
 getHomeDirectory = send GetHomeDirectory
 
 -- | Lifted 'Dir.getXdgDirectory'.
@@ -223,8 +232,8 @@ getXdgDirectory ::
   ( PathReaderDynamic :> es
   ) =>
   XdgDirectory ->
-  Path ->
-  Eff es Path
+  OsPath ->
+  Eff es OsPath
 getXdgDirectory xdg = send . GetXdgDirectory xdg
 
 -- | Lifted 'Dir.getXdgDirectoryList'.
@@ -234,7 +243,7 @@ getXdgDirectoryList ::
   ( PathReaderDynamic :> es
   ) =>
   XdgDirectoryList ->
-  Eff es [Path]
+  Eff es [OsPath]
 getXdgDirectoryList = send . GetXdgDirectoryList
 
 -- | Lifted 'Dir.getAppUserDataDirectory'.
@@ -243,8 +252,8 @@ getXdgDirectoryList = send . GetXdgDirectoryList
 getAppUserDataDirectory ::
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
-  Eff es Path
+  OsPath ->
+  Eff es OsPath
 getAppUserDataDirectory = send . GetAppUserDataDirectory
 
 -- | Lifted 'Dir.getUserDocumentsDirectory'.
@@ -253,7 +262,7 @@ getAppUserDataDirectory = send . GetAppUserDataDirectory
 getUserDocumentsDirectory ::
   ( PathReaderDynamic :> es
   ) =>
-  Eff es Path
+  Eff es OsPath
 getUserDocumentsDirectory = send GetUserDocumentsDirectory
 
 -- | Lifted 'Dir.getTemporaryDirectory'.
@@ -262,7 +271,7 @@ getUserDocumentsDirectory = send GetUserDocumentsDirectory
 getTemporaryDirectory ::
   ( PathReaderDynamic :> es
   ) =>
-  Eff es Path
+  Eff es OsPath
 getTemporaryDirectory = send GetTemporaryDirectory
 
 -- | Lifted 'Dir.getFileSize'.
@@ -271,7 +280,7 @@ getTemporaryDirectory = send GetTemporaryDirectory
 getFileSize ::
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es Integer
 getFileSize = send . GetFileSize
 
@@ -281,8 +290,8 @@ getFileSize = send . GetFileSize
 canonicalizePath ::
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
-  Eff es Path
+  OsPath ->
+  Eff es OsPath
 canonicalizePath = send . CanonicalizePath
 
 -- | Lifted 'Dir.makeAbsolute'.
@@ -291,8 +300,8 @@ canonicalizePath = send . CanonicalizePath
 makeAbsolute ::
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
-  Eff es Path
+  OsPath ->
+  Eff es OsPath
 makeAbsolute = send . MakeAbsolute
 
 -- | Lifted 'Dir.makeRelativeToCurrentDirectory'.
@@ -301,8 +310,8 @@ makeAbsolute = send . MakeAbsolute
 makeRelativeToCurrentDirectory ::
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
-  Eff es Path
+  OsPath ->
+  Eff es OsPath
 makeRelativeToCurrentDirectory = send . MakeRelativeToCurrentDirectory
 
 -- | Lifted 'Dir.doesPathExist'.
@@ -311,7 +320,7 @@ makeRelativeToCurrentDirectory = send . MakeRelativeToCurrentDirectory
 doesPathExist ::
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es Bool
 doesPathExist = send . DoesPathExist
 
@@ -321,7 +330,7 @@ doesPathExist = send . DoesPathExist
 doesFileExist ::
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es Bool
 doesFileExist = send . DoesFileExist
 
@@ -331,7 +340,7 @@ doesFileExist = send . DoesFileExist
 doesDirectoryExist ::
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es Bool
 doesDirectoryExist = send . DoesDirectoryExist
 
@@ -341,8 +350,8 @@ doesDirectoryExist = send . DoesDirectoryExist
 findExecutable ::
   ( PathReaderDynamic :> es
   ) =>
-  String ->
-  Eff es (Maybe Path)
+  OsString ->
+  Eff es (Maybe OsPath)
 findExecutable = send . FindExecutable
 
 -- | Lifted 'Dir.findExecutables'.
@@ -351,8 +360,8 @@ findExecutable = send . FindExecutable
 findExecutables ::
   ( PathReaderDynamic :> es
   ) =>
-  String ->
-  Eff es [Path]
+  OsString ->
+  Eff es [OsPath]
 findExecutables = send . FindExecutables
 
 -- | Lifted 'Dir.findExecutablesInDirectories'.
@@ -361,9 +370,9 @@ findExecutables = send . FindExecutables
 findExecutablesInDirectories ::
   ( PathReaderDynamic :> es
   ) =>
-  [Path] ->
-  String ->
-  Eff es [Path]
+  [OsPath] ->
+  OsString ->
+  Eff es [OsPath]
 findExecutablesInDirectories ps = send . FindExecutablesInDirectories ps
 
 -- | Lifted 'Dir.findFileWith'.
@@ -372,10 +381,10 @@ findExecutablesInDirectories ps = send . FindExecutablesInDirectories ps
 findFileWith ::
   ( PathReaderDynamic :> es
   ) =>
-  (Path -> Eff es Bool) ->
-  [Path] ->
-  String ->
-  Eff es (Maybe Path)
+  (OsPath -> Eff es Bool) ->
+  [OsPath] ->
+  OsString ->
+  Eff es (Maybe OsPath)
 findFileWith f ps = send . FindFileWith f ps
 
 -- | Lifted 'Dir.findFilesWith'.
@@ -384,10 +393,10 @@ findFileWith f ps = send . FindFileWith f ps
 findFilesWith ::
   ( PathReaderDynamic :> es
   ) =>
-  (Path -> Eff es Bool) ->
-  [Path] ->
-  String ->
-  Eff es [Path]
+  (OsPath -> Eff es Bool) ->
+  [OsPath] ->
+  OsString ->
+  Eff es [OsPath]
 findFilesWith f ps = send . FindFilesWith f ps
 
 -- | Lifted 'Dir.pathIsSymbolicLink'.
@@ -396,7 +405,7 @@ findFilesWith f ps = send . FindFilesWith f ps
 pathIsSymbolicLink ::
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es Bool
 pathIsSymbolicLink = send . PathIsSymbolicLink
 
@@ -406,8 +415,8 @@ pathIsSymbolicLink = send . PathIsSymbolicLink
 getSymbolicLinkTarget ::
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
-  Eff es Path
+  OsPath ->
+  Eff es OsPath
 getSymbolicLinkTarget = send . GetSymbolicLinkTarget
 
 -- | Lifted 'Dir.getPermissions'.
@@ -416,7 +425,7 @@ getSymbolicLinkTarget = send . GetSymbolicLinkTarget
 getPermissions ::
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es Permissions
 getPermissions = send . GetPermissions
 
@@ -426,7 +435,7 @@ getPermissions = send . GetPermissions
 getAccessTime ::
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es UTCTime
 getAccessTime = send . GetAccessTime
 
@@ -436,7 +445,7 @@ getAccessTime = send . GetAccessTime
 getModificationTime ::
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es UTCTime
 getModificationTime = send . GetModificationTime
 
@@ -446,8 +455,8 @@ getModificationTime = send . GetModificationTime
 getXdgData ::
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
-  Eff es Path
+  OsPath ->
+  Eff es OsPath
 getXdgData = getXdgDirectory XdgData
 
 -- | Retrieves the XDG config directory e.g. @~/.config@.
@@ -456,8 +465,8 @@ getXdgData = getXdgDirectory XdgData
 getXdgConfig ::
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
-  Eff es Path
+  OsPath ->
+  Eff es OsPath
 getXdgConfig = getXdgDirectory XdgConfig
 
 -- | Retrieves the XDG cache directory e.g. @~/.cache@.
@@ -466,8 +475,8 @@ getXdgConfig = getXdgDirectory XdgConfig
 getXdgCache ::
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
-  Eff es Path
+  OsPath ->
+  Eff es OsPath
 getXdgCache = getXdgDirectory XdgCache
 
 #if MIN_VERSION_directory(1,3,7)
@@ -478,8 +487,8 @@ getXdgCache = getXdgDirectory XdgCache
 getXdgState ::
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
-  Eff es Path
+  OsPath ->
+  Eff es OsPath
 getXdgState = getXdgDirectory XdgState
 
 #endif
@@ -493,12 +502,12 @@ listDirectoryRecursive ::
   ( PathReaderDynamic :> es
   ) =>
   -- | Root path.
-  Path ->
+  OsPath ->
   -- | (files, directories)
-  Eff es ([Path], [Path])
+  Eff es ([OsPath], [OsPath])
 listDirectoryRecursive root = recurseDirs [emptyPath]
   where
-    recurseDirs :: [Path] -> Eff es ([Path], [Path])
+    recurseDirs :: [OsPath] -> Eff es ([OsPath], [OsPath])
     recurseDirs [] = pure ([], [])
     recurseDirs (d : ds) = do
       (files, dirs) <- splitPaths root d [] [] =<< listDirectory (root </> d)
@@ -510,15 +519,15 @@ splitPaths ::
   forall es.
   ( PathReaderDynamic :> es
   ) =>
-  Path ->
-  Path ->
-  [Path] ->
-  [Path] ->
-  [Path] ->
-  Eff es ([Path], [Path])
+  OsPath ->
+  OsPath ->
+  [OsPath] ->
+  [OsPath] ->
+  [OsPath] ->
+  Eff es ([OsPath], [OsPath])
 splitPaths root d = go
   where
-    go :: [Path] -> [Path] -> [Path] -> Eff es ([Path], [Path])
+    go :: [OsPath] -> [OsPath] -> [OsPath] -> Eff es ([OsPath], [OsPath])
     go files dirs [] = pure (reverse files, reverse dirs)
     go files dirs (p : ps) = do
       let dirEntry = d </> p

@@ -4,7 +4,6 @@
 module Effectful.FileSystem.FileWriter.Dynamic
   ( -- * Effect
     FileWriterDynamic (..),
-    Path,
     writeBinaryFile,
     appendBinaryFile,
 
@@ -18,6 +17,7 @@ module Effectful.FileSystem.FileWriter.Dynamic
 
     -- * Re-exports
     ByteString,
+    OsPath,
     Text,
   )
 where
@@ -36,7 +36,7 @@ import Effectful
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
 import Effectful.FileSystem.Internal
-  ( Path,
+  ( OsPath,
     appendBinaryFileIO,
     writeBinaryFileIO,
   )
@@ -45,8 +45,8 @@ import Effectful.FileSystem.Internal
 --
 -- @since 0.1
 data FileWriterDynamic :: Effect where
-  WriteBinaryFile :: Path -> ByteString -> FileWriterDynamic m ()
-  AppendBinaryFile :: Path -> ByteString -> FileWriterDynamic m ()
+  WriteBinaryFile :: OsPath -> ByteString -> FileWriterDynamic m ()
+  AppendBinaryFile :: OsPath -> ByteString -> FileWriterDynamic m ()
 
 -- | @since 0.1
 type instance DispatchOf FileWriterDynamic = Dynamic
@@ -67,7 +67,7 @@ runFileWriterDynamicIO = interpret $ \_ -> \case
 writeBinaryFile ::
   ( FileWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   ByteString ->
   Eff es ()
 writeBinaryFile p = send . WriteBinaryFile p
@@ -76,7 +76,7 @@ writeBinaryFile p = send . WriteBinaryFile p
 appendBinaryFile ::
   ( FileWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   ByteString ->
   Eff es ()
 appendBinaryFile p = send . AppendBinaryFile p
@@ -93,7 +93,7 @@ encodeUtf8 = TEnc.encodeUtf8
 writeFileUtf8 ::
   ( FileWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Text ->
   Eff es ()
 writeFileUtf8 f = writeBinaryFile f . encodeUtf8
@@ -104,7 +104,7 @@ writeFileUtf8 f = writeBinaryFile f . encodeUtf8
 appendFileUtf8 ::
   ( FileWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Text ->
   Eff es ()
 appendFileUtf8 f = appendBinaryFile f . encodeUtf8

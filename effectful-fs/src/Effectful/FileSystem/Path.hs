@@ -1,13 +1,11 @@
-{-# LANGUAGE CPP #-}
-
--- | Provides compatibility for filepaths.
+-- | Convenient utils for 'OsPath'.
 --
 -- @since 0.1
 module Effectful.FileSystem.Path
   ( -- * Path
-    Path,
+    OsPath,
     (</>),
   )
 where
 
-import Effectful.FileSystem.Internal (Path, (</>))
+import Effectful.FileSystem.Internal (OsPath, (</>))

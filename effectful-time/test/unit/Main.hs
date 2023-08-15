@@ -11,14 +11,14 @@ import Effectful
     IOE,
     runEff,
   )
-import Effectful.Time
+import Effectful.Time.Dynamic
   ( LocalTime (LocalTime),
     TimeDynamic,
     TimeSpec (MkTimeSpec),
     ZonedTime (ZonedTime),
     runTimeDynamicIO,
   )
-import Effectful.Time qualified as TimeDynamic
+import Effectful.Time.Dynamic qualified as TimeDynamic
 import Hedgehog (Gen, annotate, annotateShow, diff, forAll, property, (===))
 import Hedgehog.Gen qualified as Gen
 import Hedgehog.Range qualified as R

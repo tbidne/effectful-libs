@@ -4,7 +4,6 @@
 module Effectful.FileSystem.HandleWriter.Dynamic
   ( -- * Effect
     HandleWriterDynamic (..),
-    Path,
     hOpenBinaryFile,
     hWithBinaryFile,
     hClose,
@@ -27,8 +26,9 @@ module Effectful.FileSystem.HandleWriter.Dynamic
     -- * Re-exports
     BufferMode (..),
     ByteString,
-    IOMode (..),
     Handle,
+    IOMode (..),
+    OsPath,
     SeekMode (..),
     Text,
   )
@@ -48,7 +48,7 @@ import Effectful
   )
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
 import Effectful.FileSystem.FileWriter.Dynamic (encodeUtf8)
-import Effectful.FileSystem.Internal (Path, openBinaryFileIO, withBinaryFileIO)
+import Effectful.FileSystem.Internal (OsPath, openBinaryFileIO, withBinaryFileIO)
 import System.IO (BufferMode (..), Handle, IOMode (..), SeekMode (..))
 import System.IO qualified as IO
 
@@ -59,8 +59,8 @@ type instance DispatchOf HandleWriterDynamic = Dynamic
 --
 -- @since 0.1
 data HandleWriterDynamic :: Effect where
-  HOpenBinaryFile :: Path -> IOMode -> HandleWriterDynamic m Handle
-  HWithBinaryFile :: Path -> IOMode -> (Handle -> m a) -> HandleWriterDynamic m a
+  HOpenBinaryFile :: OsPath -> IOMode -> HandleWriterDynamic m Handle
+  HWithBinaryFile :: OsPath -> IOMode -> (Handle -> m a) -> HandleWriterDynamic m a
   HClose :: Handle -> HandleWriterDynamic m ()
   HFlush :: Handle -> HandleWriterDynamic m ()
   HSetFileSize :: Handle -> Integer -> HandleWriterDynamic m ()
@@ -99,7 +99,7 @@ runHandleWriterDynamicIO = interpret $ \env -> \case
 hOpenBinaryFile ::
   ( HandleWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   IOMode ->
   Eff es Handle
 hOpenBinaryFile p = send . HOpenBinaryFile p
@@ -110,7 +110,7 @@ hOpenBinaryFile p = send . HOpenBinaryFile p
 hWithBinaryFile ::
   ( HandleWriterDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   IOMode ->
   (Handle -> Eff es a) ->
   Eff es a

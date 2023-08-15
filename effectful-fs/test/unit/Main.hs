@@ -1,7 +1,7 @@
 module Main (main) where
 
 import Effectful (Eff, IOE, runEff)
-import Effectful.FileSystem.Path (Path, (</>))
+import Effectful.FileSystem.Path (OsPath, (</>))
 import Effectful.FileSystem.PathReader.Dynamic
   ( PathReaderDynamic,
     getTemporaryDirectory,
@@ -30,7 +30,7 @@ main =
           PathWriter.tests args
         ]
 
-setup :: IO Path
+setup :: IO OsPath
 setup = do
   tmpDir <-
     (\s -> s </> U.strToPath "effectful-fs" </> U.strToPath "unit")
@@ -41,7 +41,7 @@ setup = do
     createDirectoryIfMissing True tmpDir
   pure tmpDir
 
-teardown :: Path -> IO ()
+teardown :: OsPath -> IO ()
 teardown fp = guardOrElse' "NO_CLEANUP" ExpectEnvSet doNothing cleanup
   where
     cleanup = runPathDynamicIO $ removePathForcibly fp

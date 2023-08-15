@@ -36,7 +36,7 @@ import Effectful.LoggerNS.Dynamic
     logStrToBs,
   )
 import Effectful.State.Static.Local (evalState, get, modify)
-import Effectful.Time
+import Effectful.Time.Dynamic
   ( TimeDynamic (..),
   )
 import Test.Tasty (TestTree, defaultMain, testGroup)

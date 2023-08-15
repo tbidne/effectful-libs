@@ -55,6 +55,7 @@ module Effectful.FileSystem.HandleReader.Dynamic
     -- * Re-exports
     ByteString,
     Handle,
+    OsPath,
     Text,
     UnicodeException,
   )
@@ -80,6 +81,7 @@ import Effectful.FileSystem.FileReader.Dynamic
     decodeUtf8Lenient,
     decodeUtf8ThrowM,
   )
+import Effectful.FileSystem.Path (OsPath)
 import System.IO (BufferMode, Handle)
 import System.IO qualified as IO
 

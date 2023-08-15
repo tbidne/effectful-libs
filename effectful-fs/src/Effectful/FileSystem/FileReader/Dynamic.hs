@@ -4,7 +4,6 @@
 module Effectful.FileSystem.FileReader.Dynamic
   ( -- * Effect
     FileReaderDynamic (..),
-    Path,
     readBinaryFile,
 
     -- ** Handlers
@@ -20,6 +19,7 @@ module Effectful.FileSystem.FileReader.Dynamic
 
     -- * Re-exports
     ByteString,
+    OsPath,
     Text,
     UnicodeException,
   )
@@ -42,13 +42,13 @@ import Effectful
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
 import Effectful.Exception (throwM)
-import Effectful.FileSystem.Internal (Path, readBinaryFileIO)
+import Effectful.FileSystem.Internal (OsPath, readBinaryFileIO)
 
 -- | Effect for reading files.
 --
 -- @since 0.1
 data FileReaderDynamic :: Effect where
-  ReadBinaryFile :: Path -> FileReaderDynamic m ByteString
+  ReadBinaryFile :: OsPath -> FileReaderDynamic m ByteString
 
 -- | @since 0.1
 type instance DispatchOf FileReaderDynamic = Dynamic
@@ -68,7 +68,7 @@ runFileReaderDynamicIO = interpret $ \_ -> \case
 readBinaryFile ::
   ( FileReaderDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es ByteString
 readBinaryFile = send . ReadBinaryFile
 
@@ -101,7 +101,7 @@ decodeUtf8ThrowM =
 readFileUtf8 ::
   ( FileReaderDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es (Either UnicodeException Text)
 readFileUtf8 = fmap decodeUtf8 . readBinaryFile
 
@@ -111,7 +111,7 @@ readFileUtf8 = fmap decodeUtf8 . readBinaryFile
 readFileUtf8Lenient ::
   ( FileReaderDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es Text
 readFileUtf8Lenient = fmap decodeUtf8Lenient . readBinaryFile
 
@@ -121,7 +121,7 @@ readFileUtf8Lenient = fmap decodeUtf8Lenient . readBinaryFile
 readFileUtf8ThrowM ::
   ( FileReaderDynamic :> es
   ) =>
-  Path ->
+  OsPath ->
   Eff es Text
 readFileUtf8ThrowM = readBinaryFile >=> decodeUtf8ThrowM
 

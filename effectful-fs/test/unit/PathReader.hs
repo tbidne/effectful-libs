@@ -5,7 +5,10 @@ module PathReader (tests) where
 import Control.Monad (zipWithM_)
 import Data.List qualified as L
 import Effectful (Eff, IOE, runEff)
-import Effectful.FileSystem.PathReader.Dynamic (PathReaderDynamic, runPathReaderDynamicIO)
+import Effectful.FileSystem.PathReader.Dynamic
+  ( PathReaderDynamic,
+    runPathReaderDynamicIO,
+  )
 import Effectful.FileSystem.PathReader.Dynamic qualified as PathReader
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase, (@=?))
@@ -29,14 +32,14 @@ testListDirectoryRecursive = testCase "Recursively lists sub-files/dirs" $ do
   where
 #if !WINDOWS
     expectedFiles =
-      [ "Effectful/FileSystem/FileReader.hs",
-        "Effectful/FileSystem/FileWriter.hs",
-        "Effectful/FileSystem/HandleReader.hs",
-        "Effectful/FileSystem/HandleWriter.hs",
+      [ "Effectful/FileSystem/FileReader/Dynamic.hs",
+        "Effectful/FileSystem/FileWriter/Dynamic.hs",
+        "Effectful/FileSystem/HandleReader/Dynamic.hs",
+        "Effectful/FileSystem/HandleWriter/Dynamic.hs",
         "Effectful/FileSystem/Internal.hs",
         "Effectful/FileSystem/Path.hs",
-        "Effectful/FileSystem/PathReader.hs",
-        "Effectful/FileSystem/PathWriter.hs"
+        "Effectful/FileSystem/PathReader/Dynamic.hs",
+        "Effectful/FileSystem/PathWriter/Dynamic.hs"
       ]
     expectedDirs =
       [ "Effectful",
@@ -44,14 +47,14 @@ testListDirectoryRecursive = testCase "Recursively lists sub-files/dirs" $ do
       ]
 #else
     expectedFiles =
-      [ "Effectful\\FileSystem\\FileReader.hs",
-        "Effectful\\FileSystem\\FileWriter.hs",
-        "Effectful\\FileSystem\\HandleReader.hs",
-        "Effectful\\FileSystem\\HandleWriter.hs",
+      [ "Effectful\\FileSystem\\FileReader\\Dynamic.hs",
+        "Effectful\\FileSystem\\FileWriter\\Dynamic.hs",
+        "Effectful\\FileSystem\\HandleReader\\Dynamic.hs",
+        "Effectful\\FileSystem\\HandleWriter\\Dynamic.hs",
         "Effectful\\FileSystem\\Internal.hs",
         "Effectful\\FileSystem\\Path.hs",
-        "Effectful\\FileSystem\\PathReader.hs",
-        "Effectful\\FileSystem\\PathWriter.hs"
+        "Effectful\\FileSystem\\PathReader\\Dynamic.hs",
+        "Effectful\\FileSystem\\PathWriter\\Dynamic.hs"
       ]
     expectedDirs =
       [ "Effectful",
