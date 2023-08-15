@@ -2,7 +2,7 @@
 
 module Main (main) where
 
-import Data.ByteString.Lazy qualified as BSL
+import Data.ByteString.Char8 qualified as Char8
 import Data.Text (Text)
 import Data.Time.Calendar.OrdinalDate (fromOrdinalDate)
 import Data.Time.LocalTime
@@ -39,9 +39,8 @@ import Effectful.State.Static.Local (evalState, get, modify)
 import Effectful.Time
   ( TimeEffect (..),
   )
-import System.FilePath ((</>))
 import Test.Tasty (TestTree, defaultMain, testGroup)
-import Test.Tasty.Golden (goldenVsStringDiff)
+import Test.Tasty.HUnit (testCase, (@=?))
 
 main :: IO ()
 main =
@@ -57,10 +56,8 @@ main =
 
 formatBasic :: TestTree
 formatBasic =
-  goldenVsStringDiff desc gdiff gpath $
-    pure $
-      BSL.fromStrict $
-        logStrToBs logMsg
+  testCase "Formats a basic namespaced log" $
+    "[2022-02-08 10:20:05][one.two][Warn] msg" @=? fromLogStr logMsg
   where
     logMsg = runEffLoggerNamespace (formatNamespaced fmt)
     fmt =
@@ -69,15 +66,11 @@ formatBasic =
           locStrategy = LocNone,
           timezone = False
         }
-    desc = "Formats a basic namespaced log"
-    gpath = goldenPath </> "format-basic.golden"
 
 formatNewline :: TestTree
 formatNewline =
-  goldenVsStringDiff desc gdiff gpath $
-    pure $
-      BSL.fromStrict $
-        logStrToBs logMsg
+  testCase "Formats a log with a newline" $
+    "[2022-02-08 10:20:05][one.two][Warn] msg\n" @=? fromLogStr logMsg
   where
     logMsg = runEffLoggerNamespace (formatNamespaced fmt)
     fmt =
@@ -86,15 +79,11 @@ formatNewline =
           locStrategy = LocNone,
           timezone = False
         }
-    desc = "Formats a log with a newline"
-    gpath = goldenPath </> "format-newline.golden"
 
 formatTimezone :: TestTree
 formatTimezone =
-  goldenVsStringDiff desc gdiff gpath $
-    pure $
-      BSL.fromStrict $
-        logStrToBs logMsg
+  testCase "Formats a log with a timezone" $
+    "[2022-02-08 10:20:05 UTC][one.two][Warn] msg" @=? fromLogStr logMsg
   where
     logMsg = runEffLoggerNamespace (formatNamespaced fmt)
     fmt =
@@ -103,15 +92,11 @@ formatTimezone =
           locStrategy = LocNone,
           timezone = True
         }
-    desc = "Formats a log with a timezone"
-    gpath = goldenPath </> "format-timezone.golden"
 
 formatLocStable :: TestTree
 formatLocStable =
-  goldenVsStringDiff desc gdiff gpath $
-    pure $
-      BSL.fromStrict $
-        logStrToBs logMsg
+  testCase "Formats a log with stable loc" $
+    "[2022-02-08 10:20:05][one.two][Warn][filename] msg" @=? fromLogStr logMsg
   where
     logMsg = runEffLoggerNamespace (formatNamespaced fmt)
     fmt =
@@ -120,15 +105,11 @@ formatLocStable =
           locStrategy = LocStable loc,
           timezone = False
         }
-    desc = "Formats a log with stable loc"
-    gpath = goldenPath </> "format-locstable.golden"
 
 formatLocPartial :: TestTree
 formatLocPartial =
-  goldenVsStringDiff desc gdiff gpath $
-    pure $
-      BSL.fromStrict $
-        logStrToBs logMsg
+  testCase "Formats a log with partial loc" $
+    "[2022-02-08 10:20:05][one.two][Warn][filename:1:2] msg" @=? fromLogStr logMsg
   where
     logMsg = runEffLoggerNamespace (formatNamespaced fmt)
     fmt =
@@ -137,8 +118,6 @@ formatLocPartial =
           locStrategy = LocPartial loc,
           timezone = False
         }
-    desc = "Formats a log with partial loc"
-    gpath = goldenPath </> "format-locpartial.golden"
 
 formatNamespaced ::
   ( LoggerNSEffect :> es,
@@ -151,11 +130,8 @@ formatNamespaced fmt =
     addNamespace "two" $
       formatLog @_ @Text fmt LevelWarn "msg"
 
-goldenPath :: FilePath
-goldenPath = "test/unit/"
-
-gdiff :: FilePath -> FilePath -> [FilePath]
-gdiff ref new = ["diff", "-u", ref, new]
+fromLogStr :: LogStr -> String
+fromLogStr = Char8.unpack . logStrToBs
 
 loc :: Loc
 loc = Loc "filename" "pkg" "module" (1, 2) (3, 4)
