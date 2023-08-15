@@ -1,0 +1,64 @@
+cabal-version:      2.4
+name:               effectful-typed-process
+version:            0.1
+license:            MIT
+license-file:       LICENSE
+tested-with:
+  GHC ==8.10.7 || ==9.0.2 || ==9.2.7 || ==9.4.4 || ==9.6.1
+
+copyright:          2022-2023 Thomas Bidne
+author:             Thomas Bidne
+maintainer:         tbidne@protonmail.com
+homepage:           https://github.com/tbidne/monad-effects/
+bug-reports:        https://github.com/tbidne/monad-effects/issues
+synopsis:           Async effects
+description:        Async effects
+category:           Effects
+extra-source-files: CHANGELOG.md
+
+source-repository head
+  type:     git
+  location: https://github.com/tbidne/monad-effects
+
+common common-lang
+  default-extensions:
+    DataKinds
+    DeriveAnyClass
+    DeriveFunctor
+    DeriveFunctor
+    DeriveGeneric
+    DerivingStrategies
+    DerivingVia
+    FlexibleInstances
+    GADTs
+    GeneralizedNewtypeDeriving
+    ImportQualifiedPost
+    LambdaCase
+    MultiParamTypeClasses
+    NumericUnderscores
+    OverloadedLabels
+    OverloadedStrings
+    RankNTypes
+    ScopedTypeVariables
+    StandaloneDeriving
+    TupleSections
+    TypeApplications
+    TypeFamilies
+    TypeOperators
+
+  if os(windows)
+    cpp-options: -DWINDOWS
+
+library
+  import:           common-lang
+  exposed-modules:  Effectful.System.Process
+  build-depends:
+    , base                  >=4.14.0.0  && <4.19
+    , bytestring            >=0.10.12.0 && <0.12
+    , effectful-core        ^>=2.2.1.0
+    , effectful-exceptions  ^>=0.1
+    , effectful-stm         ^>=0.1
+    , typed-process         >=0.1.0.0   && <0.3
+
+  hs-source-dirs:   src
+  default-language: Haskell2010

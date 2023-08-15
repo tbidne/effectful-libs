@@ -63,6 +63,7 @@
               effectful-terminal = ./effectful-terminal;
               effectful-thread = ./effectful-thread;
               effectful-time = ./effectful-time;
+              effectful-typed-process = ./effectful-typed-process;
             }));
           packages = p: [
             p.effectful-env
@@ -75,6 +76,7 @@
             p.effectful-terminal
             p.effectful-thread
             p.effectful-time
+            p.effectful-typed-process
           ];
 
           mkPkg = name: root: source-overrides: compiler.developPackage {
@@ -106,7 +108,12 @@
           packages.effectful-stm = mkPkgsExceptions "effectful-stm" ./effectful-stm;
           packages.effectful-terminal = mkPkgsExceptions "effectful-terminal" ./effectful-terminal;
           packages.effectful-thread = mkPkgsExceptions "effectful-thread" ./effectful-thread;
-          packages.effectful-time = mkPkgsExceptions "effectful-thread" ./effectful-time;
+          packages.effectful-time = mkPkgsExceptions "effectful-time" ./effectful-time;
+          packages.effectful-typed-process =
+            mkPkg "effectful-typed-process" ./effectful-typed-process {
+              effects-exceptions = ./effectful-exceptions;
+              effects-stm = ./effectful-stm;
+            };
 
           devShells.default = hsOverlay.shellFor {
             inherit packages;

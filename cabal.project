@@ -9,6 +9,7 @@ packages:
   ./effectful-terminal
   ./effectful-thread
   ./effectful-time
+  ./effectful-typed-process
 
 program-options
   ghc-options:
