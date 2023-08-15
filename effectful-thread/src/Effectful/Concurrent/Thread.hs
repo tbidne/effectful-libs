@@ -1,7 +1,7 @@
 -- | Basic thread effects.
 --
 -- @since 0.1
-module Effectful.Thread
+module Effectful.Concurrent.Thread
   ( -- * Threads
 
     -- ** Effect

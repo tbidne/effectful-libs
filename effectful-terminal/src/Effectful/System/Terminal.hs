@@ -5,7 +5,7 @@
 -- | Provides a Terminal effect.
 --
 -- @since 0.1
-module Effectful.Terminal
+module Effectful.System.Terminal
   ( -- * Effect
     TerminalEffect (..),
     TermSizeException (..),
