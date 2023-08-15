@@ -53,6 +53,7 @@
           };
           hsOverlay =
             (compiler.extend (hlib.compose.packageSourceOverrides {
+              effectful-env = ./effectful-env;
               effectful-exceptions = ./effectful-exceptions;
               effectful-fs = ./effectful-fs;
               effectful-ioref = ./effectful-ioref;
@@ -64,6 +65,7 @@
               effectful-time = ./effectful-time;
             }));
           packages = p: [
+            p.effectful-env
             p.effectful-exceptions
             p.effectful-fs
             p.effectful-ioref
@@ -86,6 +88,7 @@
           hsDirs = "effectful-*";
         in
         {
+          packages.effectful-env = mkPkg "effectful-env" ./effectful-env { };
           packages.effectful-exceptions = mkPkg "effectful-exceptions" ./effectful-exceptions { };
           packages.effectful-fs =
             mkPkg "effectful-fs" ./effectful-fs {

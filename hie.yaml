@@ -1,28 +1,40 @@
 cradle:
   cabal:
+    - path: "./effectful-env/src"
+      component: "lib:effectful-env"
+
     - path: "./effectful-exceptions/src"
       component: "lib:effectful-exceptions"
-    - path: "./effectful-exceptions/test/unit"
-      component: "effectful-exceptions:test:unit"
+
     - path: "./effectful-fs/src"
       component: "lib:effectful-fs"
-    - path: "./effectful-fs/test"
+
+    - path: "./effectful-fs/test/unit"
       component: "effectful-fs:test:unit"
+
     - path: "./effectful-ioref/src"
       component: "lib:effectful-ioref"
+
     - path: "./effectful-logger/src"
       component: "lib:effectful-logger"
+
     - path: "./effectful-logger-ns/src"
       component: "lib:effectful-logger-ns"
+
     - path: "./effectful-logger-ns/test/unit"
       component: "effectful-logger-ns:test:unit"
+
     - path: "./effectful-stm/src"
       component: "lib:effectful-stm"
+
     - path: "./effectful-terminal/src"
       component: "lib:effectful-terminal"
+
     - path: "./effectful-thread/src"
       component: "lib:effectful-thread"
+
     - path: "./effectful-time/src"
       component: "lib:effectful-time"
+
     - path: "./effectful-time/test/unit"
       component: "effectful-time:test:unit"
