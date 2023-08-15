@@ -29,7 +29,7 @@ main =
 setup :: IO Path
 setup = do
   tmpDir <-
-    (\s -> s </> U.strToPath "effects-fs" </> U.strToPath "unit")
+    (\s -> s </> U.strToPath "effectful-fs" </> U.strToPath "unit")
       <$> runPathIO getTemporaryDirectory
 
   runPathIO $ do

@@ -177,7 +177,11 @@ cdrnDestNonExtantFails getTmpDir = testCase desc $ do
   where
     desc = "Copy to non-extant dest fails"
 
-    suffix = "effects-fs/unit/cdrnDestNonExtantFails/dest"
+#if !WINDOWS
+    suffix = "effectful-fs/unit/cdrnDestNonExtantFails/dest"
+#else
+    suffix = "effectful-fs\\unit\\cdrnDestNonExtantFails\\dest"
+#endif
 
 cdrnOverwriteFails :: IO Path -> TestTree
 cdrnOverwriteFails getTmpDir = testCase desc $ do
@@ -220,9 +224,9 @@ cdrnOverwriteFails getTmpDir = testCase desc $ do
   where
     desc = "Copy to extant dest/<target> fails"
 #if !WINDOWS
-    suffix = "effects-fs/unit/cdrnExtantFails/dest/src"
+    suffix = "effectful-fs/unit/cdrnExtantFails/dest/src"
 #else
-    suffix = "effects-fs\\unit\\cdrnExtantFails\\dest\\src"
+    suffix = "effectful-fs\\unit\\cdrnExtantFails\\dest\\src"
 #endif
 
 cdrnPartialFails :: IO Path -> TestTree
@@ -321,9 +325,9 @@ cdrtDestNonExtantFails getTmpDir = testCase desc $ do
   where
     desc = "Copy to non-extant dest fails"
 #if !WINDOWS
-    suffix = "effects-fs/unit/cdrtDestNonExtantFails/dest"
+    suffix = "effectful-fs/unit/cdrtDestNonExtantFails/dest"
 #else
-    suffix = "effects-fs\\unit\\cdrtDestNonExtantFails\\dest"
+    suffix = "effectful-fs\\unit\\cdrtDestNonExtantFails\\dest"
 #endif
 
 cdrtOverwriteTargetSucceeds :: IO Path -> TestTree
@@ -508,9 +512,9 @@ cdrtOverwriteTargetMergeFails getTmpDir = testCase desc $ do
     config = MkCopyDirConfig OverwriteDirectories TargetNameDest
 
 #if !WINDOWS
-    suffix = "effects-fs/unit/cdrtOverwriteTargetMergeFails/dest/two/f3"
+    suffix = "effectful-fs/unit/cdrtOverwriteTargetMergeFails/dest/two/f3"
 #else
-    suffix = "effects-fs\\unit\\cdrtOverwriteTargetMergeFails\\dest\\two\\f3"
+    suffix = "effectful-fs\\unit\\cdrtOverwriteTargetMergeFails\\dest\\two\\f3"
 #endif
 
 cdrtOverwriteFileFails :: IO Path -> TestTree
@@ -549,9 +553,9 @@ cdrtOverwriteFileFails getTmpDir = testCase desc $ do
     desc = "copy to extant dest/<target>/file fails"
 
 #if !WINDOWS
-    suffix = "effects-fs/unit/cdrtOverwriteFileFails/dest/src/a/b/c/f1"
+    suffix = "effectful-fs/unit/cdrtOverwriteFileFails/dest/src/a/b/c/f1"
 #else
-    suffix = "effects-fs\\unit\\cdrtOverwriteFileFails\\dest\\src\\a\\b\\c\\f1"
+    suffix = "effectful-fs\\unit\\cdrtOverwriteFileFails\\dest\\src\\a\\b\\c\\f1"
 #endif
 
 cdrtPartialFails :: IO Path -> TestTree
