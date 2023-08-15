@@ -120,9 +120,9 @@ import Effectful
     IOE,
     type (:>),
   )
+import Effectful.Concurrent.STM (STMEffect (..), atomically)
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
 import Effectful.Exception (bracket, finally)
-import Effectful.Concurrent.STM (STMEffect (..), atomically)
 import GHC.Conc (catchSTM, throwSTM)
 import System.Exit (ExitCode)
 import System.Process.Typed

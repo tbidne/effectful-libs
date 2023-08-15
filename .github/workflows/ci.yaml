@@ -79,7 +79,8 @@ jobs:
             .#effectful-terminal \
             .#effectful-thread \
             .#effectful-time \
-            .#effectful-typed-process
+            .#effectful-typed-process \
+            .#effectful-unix-compat
 
   lint:
     runs-on: "ubuntu-latest"

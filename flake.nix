@@ -64,6 +64,7 @@
               effectful-thread = ./effectful-thread;
               effectful-time = ./effectful-time;
               effectful-typed-process = ./effectful-typed-process;
+              effectful-unix-compat = ./effectful-unix-compat;
             }));
           packages = p: [
             p.effectful-env
@@ -77,6 +78,7 @@
             p.effectful-thread
             p.effectful-time
             p.effectful-typed-process
+            p.effectful-unix-compat
           ];
 
           mkPkg = name: root: source-overrides: compiler.developPackage {
@@ -114,6 +116,7 @@
               effects-exceptions = ./effectful-exceptions;
               effects-stm = ./effectful-stm;
             };
+          packages.effectful-unix-compat = mkPkg "effectful-unix-compat" ./effectful-unix-compat { };
 
           devShells.default = hsOverlay.shellFor {
             inherit packages;

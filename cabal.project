@@ -10,6 +10,7 @@ packages:
   ./effectful-thread
   ./effectful-time
   ./effectful-typed-process
+  ./effectful-unix-compat
 
 program-options
   ghc-options:

@@ -41,3 +41,6 @@ cradle:
 
     - path: "./effectful-typed-process/src"
       component: "lib:effectful-typed-process"
+
+    - path: "./effectful-unix-compat/src"
+      component: "lib:effectful-unix-compat"
