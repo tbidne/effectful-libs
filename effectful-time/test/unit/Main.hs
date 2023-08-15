@@ -4,7 +4,6 @@ import Control.Concurrent (threadDelay)
 import Control.Monad (void)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Fixed (Fixed (MkFixed))
-import Data.String (IsString (fromString))
 import Data.Time.Calendar.OrdinalDate (fromOrdinalDate)
 import Data.Time.LocalTime (TimeOfDay (TimeOfDay), utc)
 import Effectful
@@ -25,9 +24,7 @@ import Hedgehog.Gen qualified as Gen
 import Hedgehog.Range qualified as R
 import Numeric.Natural (Natural)
 import Optics.Core (view)
-import System.FilePath ((</>))
 import Test.Tasty (TestTree, defaultMain, testGroup)
-import Test.Tasty.Golden (goldenVsStringDiff)
 import Test.Tasty.HUnit (assertBool, testCase, (@=?))
 import Test.Tasty.Hedgehog (testPropertyNamed)
 
@@ -77,10 +74,10 @@ timeSpecTests =
   testGroup
     "TimeSpec"
     [ eqEquivClass,
-      createFromDouble,
-      elimToDouble,
-      toFromDoubleEpsilon,
-      fromToDoubleEpsilon,
+      createFromSeconds,
+      elimToSeconds,
+      toFromSecondsEpsilon,
+      fromToSecondsEpsilon,
       createFromNanoSeconds,
       elimToNanoseconds,
       toFromNatRoundTrip,
@@ -101,64 +98,49 @@ eqEquivClass = testPropertyNamed desc "eqEquivClass" $
   where
     desc = "Eq equivalence class"
 
-createFromDouble :: TestTree
-createFromDouble =
-  goldenVsStringDiff desc gdiff gpath $
-    pure $
-      fromString $
-        show $
-          TimeEffect.fromDouble 10.123456789
+createFromSeconds :: TestTree
+createFromSeconds =
+  testCase "Creates TimeSpec from Double seconds" $
+    expected @=? TimeEffect.fromSeconds 10.123456789
   where
-    desc = "Creates TimeSpec from Double seconds"
-    gpath = goldenPath </> "timespec-create-double.golden"
+    expected = MkTimeSpec 10 123456789
 
 createFromNanoSeconds :: TestTree
 createFromNanoSeconds =
-  goldenVsStringDiff desc gdiff gpath $
-    pure $
-      fromString $
-        show $
-          TimeEffect.fromNanoSeconds 10_123_456_789
+  testCase "Creates TimeSpec from Natural nanoseconds" $
+    expected @=? TimeEffect.fromNanoSeconds 10_123_456_789
   where
-    desc = "Creates TimeSpec from Natural nanoseconds"
-    gpath = goldenPath </> "timespec-create-natural.golden"
+    expected = MkTimeSpec 10 123456789
 
-elimToDouble :: TestTree
-elimToDouble =
-  goldenVsStringDiff desc gdiff gpath $
-    pure $
-      fromString $
-        show $
-          TimeEffect.toDouble $
-            MkTimeSpec 10 123_456_789
-  where
-    desc = "Maps TimeSpec to Double"
-    gpath = goldenPath </> "timespec-elim-double.golden"
+elimToSeconds :: TestTree
+elimToSeconds =
+  testCase "Maps TimeSpec to seconds" $
+    10.123456789 @=? TimeEffect.toSeconds (MkTimeSpec 10 123_456_789)
 
-toFromDoubleEpsilon :: TestTree
-toFromDoubleEpsilon = testPropertyNamed desc "toFromDoubleEpsilon" $
+toFromSecondsEpsilon :: TestTree
+toFromSecondsEpsilon = testPropertyNamed desc "toFromSecondsEpsilon" $
   property $ do
     s <- forAll genDouble
-    let ts = TimeEffect.fromDouble s
-        s' = TimeEffect.toDouble ts
+    let ts = TimeEffect.fromSeconds s
+        s' = TimeEffect.toSeconds ts
     annotateShow ts
 
     diff (abs (s - s')) (<) 1
   where
-    desc = "(toDouble . fromDouble) x ~= x (up to 1 sec)"
+    desc = "(toSeconds . fromSeconds) x ~= x (up to 1 sec)"
 
-fromToDoubleEpsilon :: TestTree
-fromToDoubleEpsilon = testPropertyNamed desc "fromToDoubleEpsilon" $
+fromToSecondsEpsilon :: TestTree
+fromToSecondsEpsilon = testPropertyNamed desc "fromToSecondsEpsilon" $
   property $ do
     ts <- forAll genTimeSpec
-    let s = TimeEffect.toDouble ts
-        ts' = TimeEffect.fromDouble s
+    let s = TimeEffect.toSeconds ts
+        ts' = TimeEffect.fromSeconds s
     annotateShow s
 
     toSeconds ts === toSeconds ts'
   where
     toSeconds = view #sec . TimeEffect.normalizeTimeSpec
-    desc = "(toDouble . fromDouble) x ~= x (up to 1 sec)"
+    desc = "(toSeconds . fromSeconds) x ~= x (up to 1 sec)"
 
 toFromNatRoundTrip :: TestTree
 toFromNatRoundTrip = testPropertyNamed desc "toFromNatRoundTrip" $
@@ -184,31 +166,16 @@ fromToNatRoundTrip = testPropertyNamed desc "fromToNatRoundTrip" $
 
 elimToNanoseconds :: TestTree
 elimToNanoseconds =
-  goldenVsStringDiff desc gdiff gpath $
-    pure $
-      fromString $
-        show $
-          TimeEffect.toNanoSeconds $
-            MkTimeSpec 10 123_456_789
-  where
-    desc = "Maps TimeSpec to Double"
-    gpath = goldenPath </> "timespec-elim-natural.golden"
+  testCase "Maps TimeSpec to nanoseconds" $
+    10123456789 @=? TimeEffect.toNanoSeconds (MkTimeSpec 10 123_456_789)
 
 diffsTimeSpec :: TestTree
-diffsTimeSpec =
-  goldenVsStringDiff desc gdiff gpath $
-    pure $
-      fromString $
-        unlines
-          [ show $ TimeEffect.diffTimeSpec t1 t2,
-            show $ TimeEffect.diffTimeSpec t2 t1,
-            show $ TimeEffect.diffTimeSpec t1 t2 == TimeEffect.diffTimeSpec t2 t1
-          ]
+diffsTimeSpec = testCase "Diffs TimeSpecs" $ do
+  MkTimeSpec 10 864197532 @=? TimeEffect.diffTimeSpec t1 t2
+  MkTimeSpec 10 864197532 @=? TimeEffect.diffTimeSpec t2 t1
   where
     t1 = MkTimeSpec 10 123_456_789
     t2 = MkTimeSpec 20 987_654_321
-    desc = "Diffs TimeSpecs"
-    gpath = goldenPath </> "timespec-diff.golden"
 
 diffTimeSpecCommutes :: TestTree
 diffTimeSpecCommutes = testPropertyNamed desc "diffsTimeSpec2" $
@@ -223,15 +190,10 @@ diffTimeSpecCommutes = testPropertyNamed desc "diffsTimeSpec2" $
 
 normalizesTimeSpec :: TestTree
 normalizesTimeSpec =
-  goldenVsStringDiff desc gdiff gpath $
-    pure $
-      fromString $
-        show $
-          TimeEffect.normalizeTimeSpec t
+  testCase "Normalizes TimeSpec" $
+    MkTimeSpec 55 123456789 @=? TimeEffect.normalizeTimeSpec t
   where
     t = MkTimeSpec 10 45_123_456_789
-    desc = "Normalizes TimeSpec"
-    gpath = goldenPath </> "timespec-normalize.golden"
 
 normalizeInvariant :: TestTree
 normalizeInvariant = testPropertyNamed desc "normalizeInvariant" $
@@ -277,13 +239,8 @@ zonedTimeTests =
 
 formatsLocalTime :: TestTree
 formatsLocalTime =
-  goldenVsStringDiff desc gdiff gpath $
-    pure $
-      fromString $
-        TimeEffect.formatLocalTime localTime
-  where
-    desc = "Formats LocalTime"
-    gpath = goldenPath </> "localtime-format.golden"
+  testCase "Formats LocalTime" $
+    "2022-02-08 10:20:05" @=? TimeEffect.formatLocalTime localTime
 
 parsesLocalTime :: TestTree
 parsesLocalTime = testCase "Parses LocalTime" $ do
@@ -318,13 +275,8 @@ parseFormatLocalTimeEpsilon = testPropertyNamed desc "parseFormatLocalTimeEpsilo
 
 formatsZonedTime :: TestTree
 formatsZonedTime =
-  goldenVsStringDiff desc gdiff gpath $
-    pure $
-      fromString $
-        TimeEffect.formatZonedTime zonedTime
-  where
-    desc = "Formats ZonedTime"
-    gpath = goldenPath </> "zonedtime-format.golden"
+  testCase "Formats ZonedTime" $
+    "2022-02-08 10:20:05 UTC" @=? TimeEffect.formatZonedTime zonedTime
 
 parsesZonedTime :: TestTree
 parsesZonedTime = testCase "Parses ZonedTime" $ do
@@ -367,12 +319,6 @@ localTime = LocalTime day tod
 
 zonedTime :: ZonedTime
 zonedTime = ZonedTime localTime utc
-
-goldenPath :: FilePath
-goldenPath = "test/unit/"
-
-gdiff :: FilePath -> FilePath -> [FilePath]
-gdiff ref new = ["diff", "-u", ref, new]
 
 eqLocalTimeEpsilon :: LocalTime -> LocalTime -> Bool
 eqLocalTimeEpsilon

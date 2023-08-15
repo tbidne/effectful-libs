@@ -23,11 +23,11 @@ module Effectful.Time
     TimeSpec (..),
 
     -- *** Creation
-    fromDouble,
+    fromSeconds,
     fromNanoSeconds,
 
     -- *** Elimination
-    toDouble,
+    toSeconds,
     toNanoSeconds,
 
     -- *** Operations
@@ -161,7 +161,7 @@ instance MSemiSpace TimeSpec Natural where
 
 -- | @since 0.1
 instance MSpace TimeSpec Natural where
-  ts .% k = fromDouble (toDouble ts / fromIntegral k)
+  ts .% k = fromSeconds (toSeconds ts / fromIntegral k)
 
 -- | @since 0.1
 instance Semimodule TimeSpec Natural
@@ -176,8 +176,8 @@ instance Normed TimeSpec where
 -- | Converts a 'Double' to a 'TimeSpec'.
 --
 -- @since 0.1
-fromDouble :: Double -> TimeSpec
-fromDouble d =
+fromSeconds :: Double -> TimeSpec
+fromSeconds d =
   MkTimeSpec
     { sec = seconds,
       nsec = nanoseconds
@@ -197,8 +197,8 @@ fromNanoSeconds nanoseconds = MkTimeSpec s ns
 -- | Converts a 'TimeSpec' to a 'Double'.
 --
 -- @since 0.1
-toDouble :: TimeSpec -> Double
-toDouble (MkTimeSpec s n) =
+toSeconds :: TimeSpec -> Double
+toSeconds (MkTimeSpec s n) =
   fromIntegral s + (fromIntegral n / 1_000_000_000)
 
 -- | Converts a 'TimeSpec' into 'Natural' nanoseconds.
@@ -280,7 +280,7 @@ withTiming m = do
   start <- getMonotonicTime
   res <- m
   end <- getMonotonicTime
-  pure (fromDouble (end - start), res)
+  pure (fromSeconds (end - start), res)
 
 -- | 'withTiming' but ignores the result value.
 --
