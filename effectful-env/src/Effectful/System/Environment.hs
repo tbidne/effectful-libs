@@ -30,6 +30,7 @@ module Effectful.System.Environment
   )
 where
 
+import Control.Monad.IO.Class (MonadIO (liftIO))
 import System.Environment qualified as Env
 import Effectful
   ( Dispatch (Dynamic),
@@ -37,7 +38,7 @@ import Effectful
     Eff,
     Effect,
     IOE,
-    type (:>), MonadIO (liftIO),
+    type (:>)
   )
 import Effectful.Dispatch.Dynamic (interpret, send, localSeqUnliftIO)
 
