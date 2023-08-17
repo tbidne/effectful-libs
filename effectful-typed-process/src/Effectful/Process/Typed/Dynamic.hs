@@ -7,7 +7,7 @@
 -- @since 0.1
 module Effectful.Process.Typed.Dynamic
   ( -- * Effect
-    ProcessDynamic (..),
+    TypedProcessDynamic (..),
     readProcessInterleaved,
     withProcessTerm,
     startProcess,
@@ -15,7 +15,7 @@ module Effectful.Process.Typed.Dynamic
     readProcessInterleaved_,
 
     -- ** Handlers
-    runProcessDynamicIO,
+    runTypedProcessDynamicIO,
 
     -- * Types
     ProcessConfig,
@@ -136,34 +136,34 @@ import System.Process.Typed qualified as P
 -- | Effect for 'System.Environment'.
 --
 -- @since 0.1
-data ProcessDynamic :: Effect where
+data TypedProcessDynamic :: Effect where
   ReadProcessInterleaved ::
     ProcessConfig stdin stdoutIgnored stderrIgnored ->
-    ProcessDynamic m (ExitCode, BSL.ByteString)
+    TypedProcessDynamic m (ExitCode, BSL.ByteString)
   WithProcessTerm ::
     ProcessConfig stdin stdout stderr ->
     (Process stdin stdout stderr -> m a) ->
-    ProcessDynamic m a
+    TypedProcessDynamic m a
   StartProcess ::
     ProcessConfig stdin stdout stderr ->
-    ProcessDynamic m (Process stdin stdout stderr)
-  StopProcess :: Process stdin stdout stderr -> ProcessDynamic m ()
+    TypedProcessDynamic m (Process stdin stdout stderr)
+  StopProcess :: Process stdin stdout stderr -> TypedProcessDynamic m ()
   ReadProcessInterleaved_ ::
     ProcessConfig stdin stdoutIgnored stderrIgnored ->
-    ProcessDynamic m BSL.ByteString
+    TypedProcessDynamic m BSL.ByteString
 
 -- | @since 0.1
-type instance DispatchOf ProcessDynamic = Dynamic
+type instance DispatchOf TypedProcessDynamic = Dynamic
 
 -- | Runs 'STMDynamic' in 'IO'.
 --
 -- @since 0.1
-runProcessDynamicIO ::
+runTypedProcessDynamicIO ::
   ( IOE :> es
   ) =>
-  Eff (ProcessDynamic : es) a ->
+  Eff (TypedProcessDynamic : es) a ->
   Eff es a
-runProcessDynamicIO = interpret $ \env -> \case
+runTypedProcessDynamicIO = interpret $ \env -> \case
   ReadProcessInterleaved p -> liftIO $ P.readProcessInterleaved p
   WithProcessTerm pc onProcess -> localSeqUnliftIO env $ \runInDynamicIO ->
     liftIO $ P.withProcessTerm pc (runInDynamicIO . onProcess)
@@ -175,7 +175,7 @@ runProcessDynamicIO = interpret $ \env -> \case
 --
 -- @since 0.1
 readProcessInterleaved ::
-  (ProcessDynamic :> es) =>
+  (TypedProcessDynamic :> es) =>
   ProcessConfig stdin stdoutIgnored stderrIgnored ->
   Eff es (ExitCode, BSL.ByteString)
 readProcessInterleaved = send . ReadProcessInterleaved
@@ -184,7 +184,7 @@ readProcessInterleaved = send . ReadProcessInterleaved
 --
 -- @since 0.1
 withProcessTerm ::
-  (ProcessDynamic :> es) =>
+  (TypedProcessDynamic :> es) =>
   ProcessConfig stdin stdout stderr ->
   (Process stdin stdout stderr -> Eff es a) ->
   Eff es a
@@ -194,7 +194,7 @@ withProcessTerm pc = send . WithProcessTerm pc
 --
 -- @since 0.1
 startProcess ::
-  (ProcessDynamic :> es) =>
+  (TypedProcessDynamic :> es) =>
   ProcessConfig stdin stdout stderr ->
   Eff es (Process stdin stdout stderr)
 startProcess = send . StartProcess
@@ -203,7 +203,7 @@ startProcess = send . StartProcess
 --
 -- @since 0.1
 stopProcess ::
-  (ProcessDynamic :> es) =>
+  (TypedProcessDynamic :> es) =>
   Process stdin stdout stderr ->
   Eff es ()
 stopProcess = send . StopProcess
@@ -212,7 +212,7 @@ stopProcess = send . StopProcess
 --
 -- @since 0.1
 readProcessInterleaved_ ::
-  (ProcessDynamic :> es) =>
+  (TypedProcessDynamic :> es) =>
   ProcessConfig stdin stdoutIgnored stderrIgnored ->
   Eff es BSL.ByteString
 readProcessInterleaved_ = send . ReadProcessInterleaved_
@@ -222,7 +222,7 @@ readProcessInterleaved_ = send . ReadProcessInterleaved_
 --
 -- @since 0.1
 runProcess ::
-  (ProcessDynamic :> es, STMDynamic :> es) =>
+  (TypedProcessDynamic :> es, STMDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdout stderr ->
   Eff es ExitCode
@@ -238,7 +238,7 @@ runProcess pc = withProcessTerm pc waitExitCode
 --
 -- @since 0.1
 readProcess ::
-  (ProcessDynamic :> es, STMDynamic :> es) =>
+  (TypedProcessDynamic :> es, STMDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdoutIgnored stderrIgnored ->
   Eff es (ExitCode, BSL.ByteString, BSL.ByteString)
@@ -260,7 +260,7 @@ readProcess pc =
 --
 -- @since 0.1
 readProcessStdout ::
-  (ProcessDynamic :> es, STMDynamic :> es) =>
+  (TypedProcessDynamic :> es, STMDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdoutIgnored stderr ->
   Eff es (ExitCode, BSL.ByteString)
@@ -279,7 +279,7 @@ readProcessStdout pc =
 --
 -- @since 0.1
 readProcessStderr ::
-  (ProcessDynamic :> es, STMDynamic :> es) =>
+  (TypedProcessDynamic :> es, STMDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdout stderrIgnored ->
   Eff es (ExitCode, BSL.ByteString)
@@ -303,7 +303,7 @@ readProcessStderr pc =
 --
 -- @since 0.1
 withProcessWait ::
-  (ProcessDynamic :> es, STMDynamic :> es) =>
+  (TypedProcessDynamic :> es, STMDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdout stderr ->
   (Process stdin stdout stderr -> Eff es a) ->
@@ -320,7 +320,7 @@ withProcessWait config f =
 --
 -- @since 0.1
 runProcess_ ::
-  (ProcessDynamic :> es, STMDynamic :> es) =>
+  (TypedProcessDynamic :> es, STMDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdout stderr ->
   Eff es ()
@@ -334,7 +334,7 @@ runProcess_ pc = withProcessTerm pc checkExitCode
 --
 -- @since 0.1
 readProcess_ ::
-  (ProcessDynamic :> es, STMDynamic :> es) =>
+  (TypedProcessDynamic :> es, STMDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdoutIgnored stderrIgnored ->
   Eff es (BSL.ByteString, BSL.ByteString)
@@ -362,7 +362,7 @@ readProcess_ pc =
 --
 -- @since 0.1
 readProcessStdout_ ::
-  (ProcessDynamic :> es, STMDynamic :> es) =>
+  (TypedProcessDynamic :> es, STMDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdoutIgnored stderr ->
   Eff es BSL.ByteString
@@ -386,7 +386,7 @@ readProcessStdout_ pc =
 --
 -- @since 0.1
 readProcessStderr_ ::
-  (ProcessDynamic :> es, STMDynamic :> es) =>
+  (TypedProcessDynamic :> es, STMDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdout stderrIgnored ->
   Eff es BSL.ByteString
@@ -407,7 +407,7 @@ readProcessStderr_ pc =
 --
 -- @since 0.1
 withProcessWait_ ::
-  (ProcessDynamic :> es, STMDynamic :> es) =>
+  (TypedProcessDynamic :> es, STMDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdout stderr ->
   (Process stdin stdout stderr -> Eff es a) ->
@@ -426,7 +426,7 @@ withProcessWait_ config f =
 --
 -- @since 0.1
 withProcessTerm_ ::
-  (ProcessDynamic :> es, STMDynamic :> es) =>
+  (TypedProcessDynamic :> es, STMDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdout stderr ->
   (Process stdin stdout stderr -> Eff es a) ->
