@@ -42,7 +42,11 @@ common common
 
 library
   import:           common
-  exposed-modules:  Effectful.Terminal.Dynamic
+  exposed-modules:
+    Effectful.Terminal.Dynamic
+    Effectful.Terminal.Static
+    Effectful.Terminal.TermSizeException
+
   build-depends:
     , base                  >=4.14.0.0 && <4.19
     , effectful-core        ^>=2.2.1.0

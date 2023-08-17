@@ -37,13 +37,13 @@ module Effectful.Terminal.Dynamic
     getTerminalHeight,
 
     -- * Re-exports
-    Natural,
     Window (..),
     Text,
   )
 where
 
-import Control.Exception (Exception (displayException))
+{- ORMOLU_ENABLE -}
+
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -55,12 +55,14 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Exception ( throwM)
 import Effectful.Dispatch.Dynamic (interpret, send)
-import GHC.Natural (Natural)
+import Effectful.Exception (throwM)
+import Effectful.Terminal.TermSizeException (TermSizeException (..))
 import System.Console.Terminal.Size (Window (..), size)
 import System.IO qualified as IO
 import Prelude hiding (getChar, getLine, print, putStr, putStrLn)
+
+{- ORMOLU_DISABLE -}
 
 -- | Dynamic terminal effect.
 --
@@ -73,27 +75,10 @@ data TerminalDynamic :: Effect where
 #if MIN_VERSION_base(4,15,0)
   GetContents' :: TerminalDynamic m String
 #endif
-  GetTerminalSize :: TerminalDynamic m (Window Natural)
-
-{- ORMOLU_ENABLE -}
+  GetTerminalSize :: Integral a => TerminalDynamic m (Window a)
 
 -- | @since 0.1
 type instance DispatchOf TerminalDynamic = Dynamic
-
--- | @since 0.1
-data TermSizeException = MkTermSizeException
-  deriving stock
-    ( -- | @since 0.1
-      Eq,
-      -- | @since 0.1
-      Show
-    )
-
--- | @since 0.1
-instance Exception TermSizeException where
-  displayException = const "Failed to detect the terminal size."
-
-{- ORMOLU_DISABLE -}
 
 -- | Runs 'TerminalDynamic' in 'IO'.
 --
@@ -149,7 +134,7 @@ getContents' = send GetContents'
 #endif
 
 -- | @since 0.1
-getTerminalSize :: (TerminalDynamic :> es) => Eff es (Window Natural)
+getTerminalSize :: (Integral a, TerminalDynamic :> es) => Eff es (Window a)
 getTerminalSize = send GetTerminalSize
 
 -- | @since 0.1
@@ -175,7 +160,7 @@ getTextLine = T.pack <$> getLine
 #if MIN_VERSION_base(4,15,0)
 
 -- | @since 0.1
-getTextContents' :: ( TerminalDynamic :> es) => Eff es Text
+getTextContents' :: (TerminalDynamic :> es) => Eff es Text
 getTextContents' = T.pack <$> getContents'
 
 #endif
@@ -183,11 +168,11 @@ getTextContents' = T.pack <$> getContents'
 -- | Retrieves the terminal width.
 --
 -- @since 0.1
-getTerminalWidth :: (TerminalDynamic :> es) => Eff es Natural
+getTerminalWidth :: (Integral a, TerminalDynamic :> es) => Eff es a
 getTerminalWidth = width <$> getTerminalSize
 
 -- | Retrieves the terminal height.
 --
 -- @since 0.1
-getTerminalHeight :: (TerminalDynamic :> es) => Eff es Natural
+getTerminalHeight :: (Integral a, TerminalDynamic :> es) => Eff es a
 getTerminalHeight = height <$> getTerminalSize
