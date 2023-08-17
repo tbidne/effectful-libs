@@ -708,17 +708,17 @@ runPartialDynamicIO effs = do
   runEff
     . runIORefDynamicIO
     . runPathReaderDynamicIO
-    . runBlah counterRef
+    . runMockWriter counterRef
     $ effs
   where
-    runBlah ::
+    runMockWriter ::
       ( IOE :> es,
         IORefDynamic :> es
       ) =>
       IORef Int ->
       Eff (PathWriterDynamic : es) a ->
       Eff es a
-    runBlah counterRef = reinterpret runPathWriterDynamicIO $ \_ -> \case
+    runMockWriter counterRef = reinterpret runPathWriterDynamicIO $ \_ -> \case
       CreateDirectory p -> createDirectory p
       CreateDirectoryIfMissing b p -> createDirectoryIfMissing b p
       RemoveDirectoryRecursive p -> removeDirectoryRecursive p
