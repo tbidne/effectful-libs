@@ -40,6 +40,9 @@ import Effectful.Dispatch.Static
     unsafeEff_,
   )
 
+-- | Static effect for 'IORef'.
+--
+-- @since 0.1
 data IORefStatic :: Effect
 
 type instance DispatchOf IORefStatic = Static WithSideEffects

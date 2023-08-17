@@ -1,7 +1,7 @@
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
--- | Provides the 'PosixCompat' effect.
+-- | Provides a static effect for "System.PosixCompat.Files".
 --
 -- @since 0.1
 module Effectful.PosixCompat.Static
@@ -64,6 +64,9 @@ import System.PosixCompat.Types
     UserID,
   )
 
+-- | Provides a static effect for "System.PosixCompat.Files".
+--
+-- @since 0.1
 data PosixCompatStatic :: Effect
 
 type instance DispatchOf PosixCompatStatic = Static WithSideEffects
@@ -73,7 +76,10 @@ data instance StaticRep PosixCompatStatic = MkPosixCompatStatic
 -- | Runs an OptparseStatic effect.
 --
 -- @since 0.1
-runPosixCompatStaticIO :: (IOE :> es) => Eff (PosixCompatStatic : es) a -> Eff es a
+runPosixCompatStaticIO ::
+  (IOE :> es) =>
+  Eff (PosixCompatStatic : es) a ->
+  Eff es a
 runPosixCompatStaticIO = evalStaticRep MkPosixCompatStatic
 
 -- | Lifted 'PFiles.setFileMode'.
@@ -97,7 +103,13 @@ setFileCreationMask = unsafeEff_ . PFiles.setFileCreationMask
 -- | Lifted 'PFiles.fileAccess'.
 --
 -- @since 0.1
-fileAccess :: (PosixCompatStatic :> es) => FilePath -> Bool -> Bool -> Bool -> Eff es Bool
+fileAccess ::
+  (PosixCompatStatic :> es) =>
+  FilePath ->
+  Bool ->
+  Bool ->
+  Bool ->
+  Eff es Bool
 fileAccess p b c = unsafeEff_ . PFiles.fileAccess p b c
 
 -- | Lifted 'PFiles.fileExist'.
@@ -121,19 +133,31 @@ getFdStatus = unsafeEff_ . PFiles.getFdStatus
 -- | Lifted 'PFiles.getSymbolicLinkStatus'.
 --
 -- @since 0.1
-getSymbolicLinkStatus :: (PosixCompatStatic :> es) => FilePath -> Eff es FileStatus
+getSymbolicLinkStatus ::
+  (PosixCompatStatic :> es) =>
+  FilePath ->
+  Eff es FileStatus
 getSymbolicLinkStatus = unsafeEff_ . PFiles.getSymbolicLinkStatus
 
 -- | Lifted 'PFiles.createNamedPipe'.
 --
 -- @since 0.1
-createNamedPipe :: (PosixCompatStatic :> es) => FilePath -> FileMode -> Eff es ()
+createNamedPipe ::
+  (PosixCompatStatic :> es) =>
+  FilePath ->
+  FileMode ->
+  Eff es ()
 createNamedPipe p = unsafeEff_ . PFiles.createNamedPipe p
 
 -- | Lifted 'PFiles.createDevice'.
 --
 -- @since 0.1
-createDevice :: (PosixCompatStatic :> es) => FilePath -> FileMode -> DeviceID -> Eff es ()
+createDevice ::
+  (PosixCompatStatic :> es) =>
+  FilePath ->
+  FileMode ->
+  DeviceID ->
+  Eff es ()
 createDevice p m = unsafeEff_ . PFiles.createDevice p m
 
 -- | Lifted 'PFiles.createLink'.
@@ -151,7 +175,11 @@ removeLink = unsafeEff_ . PFiles.removeLink
 -- | Lifted 'PFiles.createSymbolicLink'.
 --
 -- @since 0.1
-createSymbolicLink :: (PosixCompatStatic :> es) => FilePath -> FilePath -> Eff es ()
+createSymbolicLink ::
+  (PosixCompatStatic :> es) =>
+  FilePath ->
+  FilePath ->
+  Eff es ()
 createSymbolicLink p = unsafeEff_ . PFiles.createSymbolicLink p
 
 -- | Lifted 'PFiles.readSymbolicLink'.
@@ -169,25 +197,45 @@ rename p = unsafeEff_ . PFiles.rename p
 -- | Lifted 'PFiles.setOwnerAndGroup'.
 --
 -- @since 0.1
-setOwnerAndGroup :: (PosixCompatStatic :> es) => FilePath -> UserID -> GroupID -> Eff es ()
+setOwnerAndGroup ::
+  (PosixCompatStatic :> es) =>
+  FilePath ->
+  UserID ->
+  GroupID ->
+  Eff es ()
 setOwnerAndGroup p uid = unsafeEff_ . PFiles.setOwnerAndGroup p uid
 
 -- | Lifted 'PFiles.setFdOwnerAndGroup'.
 --
 -- @since 0.1
-setFdOwnerAndGroup :: (PosixCompatStatic :> es) => Fd -> UserID -> GroupID -> Eff es ()
+setFdOwnerAndGroup ::
+  (PosixCompatStatic :> es) =>
+  Fd ->
+  UserID ->
+  GroupID ->
+  Eff es ()
 setFdOwnerAndGroup fd uid = unsafeEff_ . PFiles.setFdOwnerAndGroup fd uid
 
 -- | Lifted 'PFiles.setSymbolicLinkOwnerAndGroup'.
 --
 -- @since 0.1
-setSymbolicLinkOwnerAndGroup :: (PosixCompatStatic :> es) => FilePath -> UserID -> GroupID -> Eff es ()
+setSymbolicLinkOwnerAndGroup ::
+  (PosixCompatStatic :> es) =>
+  FilePath ->
+  UserID ->
+  GroupID ->
+  Eff es ()
 setSymbolicLinkOwnerAndGroup p uid = unsafeEff_ . PFiles.setSymbolicLinkOwnerAndGroup p uid
 
 -- | Lifted 'PFiles.setFileTimes'.
 --
 -- @since 0.1
-setFileTimes :: (PosixCompatStatic :> es) => FilePath -> EpochTime -> EpochTime -> Eff es ()
+setFileTimes ::
+  (PosixCompatStatic :> es) =>
+  FilePath ->
+  EpochTime ->
+  EpochTime ->
+  Eff es ()
 setFileTimes p t = unsafeEff_ . PFiles.setFileTimes p t
 
 -- | Lifted 'PFiles.touchFile'.

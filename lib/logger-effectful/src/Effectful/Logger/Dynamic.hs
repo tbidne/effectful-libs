@@ -1,7 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE UndecidableInstances #-}
 
--- | A reimplementation of the Control.Monad.Logger API for Effectful.
+-- | Dynamic effect for "Control.Monad.Logger".
 --
 -- @since 0.1
 module Effectful.Logger.Dynamic
@@ -117,7 +117,7 @@ import Language.Haskell.TH.Syntax
 import System.IO (Handle)
 import System.Log.FastLogger (LogStr, ToLogStr (..), fromLogStr)
 
--- | Logging effect.
+-- | Dynamic logging effect for "Control.Monad.Logger".
 --
 -- @since 0.1
 data LoggerDynamic :: Effect where
@@ -211,7 +211,8 @@ logTHShow level =
       . ((pack . show) :: (Show a) => a -> Text)
     |]
 
--- | Generates a function that takes a 'Text' and logs a 'LevelDebug' message. Usage:
+-- | Generates a function that takes a 'Text' and logs a 'LevelDebug' message.
+-- Usage:
 --
 -- > $(logDebug) "This is a debug log message"
 --
@@ -237,7 +238,8 @@ logWarn = logTH LevelWarn
 logError :: Q Exp
 logError = logTH LevelError
 
--- | Generates a function that takes a 'Text' and logs a 'LevelOther' message. Usage:
+-- | Generates a function that takes a 'Text' and logs a 'LevelOther' message.
+-- Usage:
 --
 -- > $(logOther "My new level") "This is a log message"
 --
@@ -245,7 +247,8 @@ logError = logTH LevelError
 logOther :: Text -> Q Exp
 logOther = logTH . LevelOther
 
--- | Generates a function that takes a 'Show a => a' and logs a 'LevelDebug' message. Usage:
+-- | Generates a function that takes a 'Show a => a' and logs a 'LevelDebug'
+-- message. Usage:
 --
 -- > $(logDebugSH) (Just "This is a debug log message")
 --
@@ -271,7 +274,8 @@ logWarnSH = logTHShow LevelWarn
 logErrorSH :: Q Exp
 logErrorSH = logTHShow LevelError
 
--- | Generates a function that takes a 'Show a => a' and logs a 'LevelOther' message. Usage:
+-- | Generates a function that takes a 'Show a => a' and logs a 'LevelOther'
+-- message. Usage:
 --
 -- > $(logOtherSH "My new level") "This is a log message"
 --
@@ -293,39 +297,53 @@ liftLoc (Loc a b c (d1, d2) (e1, e2)) =
       ($(lift e1), $(lift e2))
     |]
 
--- | Generates a function that takes a 'LogSource' and 'Text' and logs a 'LevelDebug' message. Usage:
+-- | Generates a function that takes a 'LogSource' and 'Text' and logs a
+-- 'LevelDebug' message. Usage:
 --
 -- > $logDebugS "SomeSource" "This is a debug log message"
 --
 -- @since 0.1
 logDebugS :: Q Exp
-logDebugS = [|\a b -> monadLoggerLog $(qLocation >>= liftLoc) a LevelDebug (b :: Text)|]
+logDebugS =
+  [|\a b -> monadLoggerLog $(qLocation >>= liftLoc) a LevelDebug (b :: Text)|]
 
 -- | See 'logDebugS'
 --
 -- @since 0.1
 logInfoS :: Q Exp
-logInfoS = [|\a b -> monadLoggerLog $(qLocation >>= liftLoc) a LevelInfo (b :: Text)|]
+logInfoS =
+  [|\a b -> monadLoggerLog $(qLocation >>= liftLoc) a LevelInfo (b :: Text)|]
 
 -- | See 'logDebugS'
 --
 -- @since 0.1
 logWarnS :: Q Exp
-logWarnS = [|\a b -> monadLoggerLog $(qLocation >>= liftLoc) a LevelWarn (b :: Text)|]
+logWarnS =
+  [|\a b -> monadLoggerLog $(qLocation >>= liftLoc) a LevelWarn (b :: Text)|]
 
 -- | See 'logDebugS'
 --
 -- @since 0.1
 logErrorS :: Q Exp
-logErrorS = [|\a b -> monadLoggerLog $(qLocation >>= liftLoc) a LevelError (b :: Text)|]
+logErrorS =
+  [|\a b -> monadLoggerLog $(qLocation >>= liftLoc) a LevelError (b :: Text)|]
 
--- | Generates a function that takes a 'LogSource', a level name and a 'Text' and logs a 'LevelOther' message. Usage:
+-- | Generates a function that takes a 'LogSource', a level name and a 'Text'
+-- and logs a 'LevelOther' message. Usage:
 --
 -- > $logOtherS "SomeSource" "My new level" "This is a log message"
 --
 -- @since 0.1
 logOtherS :: Q Exp
-logOtherS = [|\src level msg -> monadLoggerLog $(qLocation >>= liftLoc) src (LevelOther level) (msg :: Text)|]
+logOtherS =
+  [|
+    \src level msg ->
+      monadLoggerLog
+        $(qLocation >>= liftLoc)
+        src
+        (LevelOther level)
+        (msg :: Text)
+    |]
 
 -- | @since 0.1
 type LogLine = (Loc, LogSource, LogLevel, LogStr)
@@ -469,7 +487,12 @@ logErrorNS :: (LoggerDynamic :> es) => LogSource -> Text -> Eff es ()
 logErrorNS src = logWithoutLoc src LevelError
 
 -- | @since 0.1
-logOtherNS :: (LoggerDynamic :> es) => LogSource -> LogLevel -> Text -> Eff es ()
+logOtherNS ::
+  (LoggerDynamic :> es) =>
+  LogSource ->
+  LogLevel ->
+  Text ->
+  Eff es ()
 logOtherNS = logWithoutLoc
 
 -- | @since 0.1
@@ -534,5 +557,10 @@ logErrorCS cs = logCS cs "" LevelError
 -- | See 'logDebugCS'
 --
 -- @since 0.1
-logOtherCS :: (LoggerDynamic :> es) => CallStack -> LogLevel -> Text -> Eff es ()
+logOtherCS ::
+  (LoggerDynamic :> es) =>
+  CallStack ->
+  LogLevel ->
+  Text ->
+  Eff es ()
 logOtherCS cs = logCS cs ""

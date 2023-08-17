@@ -1,4 +1,4 @@
--- | Provides an effect for reading a handle.
+-- | Provides a dynamic effect for reading a handle.
 --
 -- @since 0.1
 module Effectful.FileSystem.HandleReader.Dynamic
@@ -85,7 +85,7 @@ import Effectful.FileSystem.Path (OsPath)
 import System.IO (BufferMode, Handle)
 import System.IO qualified as IO
 
--- | Effect for reading a handle.
+-- | Dynamic effect for reading a handle.
 --
 -- @since 0.1
 data HandleReaderDynamic :: Effect where

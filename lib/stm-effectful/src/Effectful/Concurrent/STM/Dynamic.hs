@@ -1,4 +1,5 @@
--- | Effect for 'STM'.
+-- | Dynamic effect for "Control.Concurrent.STM". For the static version, see
+-- https://hackage.haskell.org/package/effectful-2.2.2.0/docs/Effectful-Concurrent-STM.html.
 --
 -- @since 0.1
 module Effectful.Concurrent.STM.Dynamic
@@ -29,7 +30,7 @@ import Effectful
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
 
--- | Effect for 'STM'.
+-- | Dynamic effect for "Control.Concurrent.STM".
 --
 -- @since 0.1
 data STMDynamic :: Effect where

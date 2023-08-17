@@ -2,7 +2,8 @@
 
 {- ORMOLU_DISABLE -}
 
--- | Provides an effect for reading paths.
+-- | Provides a dynamic effect for the readable portion of "System.Directory"'s
+-- interface.
 --
 -- @since 0.1
 module Effectful.FileSystem.PathReader.Dynamic
@@ -84,7 +85,7 @@ import System.Directory.OsPath qualified as Dir
 
 {- ORMOLU_ENABLE -}
 
--- | Effect for reading paths.
+-- | Dynamic effect for reading paths.
 --
 -- @since 0.1
 data PathReaderDynamic :: Effect where

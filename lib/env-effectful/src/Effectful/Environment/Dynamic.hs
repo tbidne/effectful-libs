@@ -2,7 +2,8 @@
 
 {- ORMOLU_DISABLE -}
 
--- | Provides the 'EnvDynamic' effect.
+-- | Dynamic effects for "System.Environment". For static effects, see
+-- https://hackage.haskell.org/package/effectful-2.2.2.0/docs/Effectful-Environment.html.
 --
 -- @since 0.1
 module Effectful.Environment.Dynamic
@@ -42,7 +43,7 @@ import Effectful
   )
 import Effectful.Dispatch.Dynamic (interpret, send, localSeqUnliftIO)
 
--- | Effect for 'System.Environment'.
+-- | Dynamic effects for "System.Environment".
 --
 -- @since 0.1
 data EnvDynamic :: Effect where

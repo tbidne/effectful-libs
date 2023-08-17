@@ -1,4 +1,4 @@
--- | Provides an effect for writing to a handle.
+-- | Provides a dynamic effect for writing to a handle.
 --
 -- @since 0.1
 module Effectful.FileSystem.HandleWriter.Dynamic
@@ -55,7 +55,7 @@ import System.IO qualified as IO
 -- | @since 0.1
 type instance DispatchOf HandleWriterDynamic = Dynamic
 
--- | Effect for writing to a handle.
+-- | Dynamic effect for writing to a handle.
 --
 -- @since 0.1
 data HandleWriterDynamic :: Effect where

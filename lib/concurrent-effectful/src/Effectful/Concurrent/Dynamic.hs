@@ -1,4 +1,5 @@
--- | Basic thread effects.
+-- | Dynamic effects for "Control.Concurrent". For static effects, see
+-- https://hackage.haskell.org/package/effectful-2.2.2.0/docs/Effectful-Concurrent.html.
 --
 -- @since 0.1
 module Effectful.Concurrent.Dynamic
@@ -38,7 +39,7 @@ import Effectful
 import Effectful.Dispatch.Dynamic (interpret, send)
 import GHC.Natural (Natural)
 
--- | Effects for general threads.
+-- | Dynamic effects for "Control.Concurrent".
 --
 -- @since 0.1
 data ConcurrentDynamic :: Effect where

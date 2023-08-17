@@ -1,7 +1,8 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE UndecidableInstances #-}
 
--- | Provides an effect for writing paths.
+-- | Provides a dynamic effect for the writable portion of "System.Directory"'s
+-- interface.
 --
 -- @since 0.1
 module Effectful.FileSystem.PathWriter.Dynamic

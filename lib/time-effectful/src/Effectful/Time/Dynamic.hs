@@ -1,7 +1,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE UndecidableInstances #-}
 
--- | Provides an effect for Time.
+-- | Provides a dynamic effect for "Data.Time".
 --
 -- @since 0.1
 module Effectful.Time.Dynamic
@@ -238,7 +238,7 @@ diffTimeSpec t1 t2
 normalizeTimeSpec :: TimeSpec -> TimeSpec
 normalizeTimeSpec = fromNanoSeconds . toNanoSeconds
 
--- | Timing effect.
+-- | Dynamic effect for "Data.Time".
 --
 -- @since 0.1
 data TimeDynamic :: Effect where
@@ -252,11 +252,7 @@ type instance DispatchOf TimeDynamic = Dynamic
 -- | Runs 'TimeDynamic' in 'IO'.
 --
 -- @since 0.1
-runTimeDynamicIO ::
-  ( IOE :> es
-  ) =>
-  Eff (TimeDynamic : es) a ->
-  Eff es a
+runTimeDynamicIO :: (IOE :> es) => Eff (TimeDynamic : es) a -> Eff es a
 runTimeDynamicIO = interpret $ \_ -> \case
   GetSystemTime ->
     liftIO $
@@ -285,11 +281,7 @@ getMonotonicTime = send GetMonotonicTime
 -- | Runs an action, returning the elapsed time.
 --
 -- @since 0.1
-withTiming ::
-  ( TimeDynamic :> es
-  ) =>
-  Eff es a ->
-  Eff es (TimeSpec, a)
+withTiming :: (TimeDynamic :> es) => Eff es a -> Eff es (TimeSpec, a)
 withTiming m = do
   start <- getMonotonicTime
   res <- m
@@ -299,14 +291,8 @@ withTiming m = do
 -- | 'withTiming' but ignores the result value.
 --
 -- @since 0.1
-withTiming_ ::
-  ( TimeDynamic :> es
-  ) =>
-  Eff es a ->
-  Eff es TimeSpec
+withTiming_ :: (TimeDynamic :> es) => Eff es a -> Eff es TimeSpec
 withTiming_ = fmap fst . withTiming
-
--- TODO: handle more time zones?
 
 -- | Formats the 'ZonedTime' to @YYYY-MM-DD HH:MM:SS Z@.
 --

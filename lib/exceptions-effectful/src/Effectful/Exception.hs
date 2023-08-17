@@ -1,4 +1,4 @@
--- | Exception handling
+-- | Exception handling.
 --
 -- @since 0.1
 module Effectful.Exception

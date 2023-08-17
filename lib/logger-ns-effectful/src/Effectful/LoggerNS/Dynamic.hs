@@ -1,6 +1,6 @@
 {-# LANGUAGE UndecidableInstances #-}
 
--- | Provides namespaced logging functionality on top of 'MonadLogger'.
+-- | Provides namespaced logging functionality on top of 'LoggerDynamic'.
 --
 -- @since 0.1
 module Effectful.LoggerNS.Dynamic
@@ -127,7 +127,7 @@ displayNamespace =
     . Seq.intersperse "."
     . view #unNamespace
 
--- | Effect for namespaced logger.
+-- | Dynamic effect for a namespaced logger.
 --
 -- @since 0.1
 data LoggerNSDynamic :: Effect where
@@ -140,11 +140,15 @@ data LoggerNSDynamic :: Effect where
 -- | @since 0.1
 type instance DispatchOf LoggerNSDynamic = Dynamic
 
--- | @since 0.1
+-- | Retrieves the namespace.
+--
+-- @since 0.1
 getNamespace :: (LoggerNSDynamic :> es) => Eff es Namespace
 getNamespace = send GetNamespace
 
--- | @since 0.1
+-- | Locally modifies the namespace.
+--
+-- @since 0.1
 localNamespace ::
   ( LoggerNSDynamic :> es
   ) =>
@@ -263,7 +267,11 @@ instance
   LabelOptic "locStrategy" k LogFormatter LogFormatter a b
   where
   labelOptic = lensVL $ \f (MkLogFormatter _newline _locStrategy _timezone) ->
-    fmap (\locStrategy' -> MkLogFormatter _newline locStrategy' _timezone) (f _locStrategy)
+    fmap
+      ( \locStrategy' ->
+          MkLogFormatter _newline locStrategy' _timezone
+      )
+      (f _locStrategy)
   {-# INLINE labelOptic #-}
 
 -- | @since 0.1

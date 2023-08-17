@@ -2,7 +2,7 @@
 
 {- ORMOLU_DISABLE -}
 
--- | Provides a Terminal effect.
+-- | Provides a dynamic terminal effect.
 --
 -- @since 0.1
 module Effectful.Terminal.Dynamic
@@ -62,7 +62,7 @@ import System.Console.Terminal.Size (Window (..), size)
 import System.IO qualified as IO
 import Prelude hiding (getChar, getLine, print, putStr, putStrLn)
 
--- | Terminal effect.
+-- | Dynamic terminal effect.
 --
 -- @since 0.1
 data TerminalDynamic :: Effect where
@@ -98,12 +98,7 @@ instance Exception TermSizeException where
 -- | Runs 'TerminalDynamic' in 'IO'.
 --
 -- @since 0.1
-runTerminalDynamicIO ::
-  ( 
-    IOE :> es
-  ) =>
-  Eff (TerminalDynamic : es) a ->
-  Eff es a
+runTerminalDynamicIO :: (IOE :> es) => Eff (TerminalDynamic : es) a -> Eff es a
 runTerminalDynamicIO = interpret $ \_ -> \case
   PutStr s -> liftIO $ IO.putStr s
   PutStrLn s -> liftIO $ IO.putStrLn s

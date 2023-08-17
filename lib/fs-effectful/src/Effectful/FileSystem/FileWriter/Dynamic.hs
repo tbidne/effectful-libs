@@ -1,4 +1,4 @@
--- | Provides an effect for writing files.
+-- | Provides a dynamic effect for writing files.
 --
 -- @since 0.1
 module Effectful.FileSystem.FileWriter.Dynamic
@@ -41,7 +41,7 @@ import Effectful.FileSystem.Internal
     writeBinaryFileIO,
   )
 
--- | Effect for reading files.
+-- | Dynamic effect for reading files.
 --
 -- @since 0.1
 data FileWriterDynamic :: Effect where

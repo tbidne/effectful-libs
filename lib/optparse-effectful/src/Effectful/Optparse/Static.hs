@@ -32,6 +32,9 @@ import Effectful.Dispatch.Static
 import Options.Applicative (ParserInfo, ParserPrefs, ParserResult)
 import Options.Applicative qualified as OA
 
+-- | Static effect for optparse-applicative.
+--
+-- @since 0.1
 data OptparseStatic :: Effect
 
 type instance DispatchOf OptparseStatic = Static WithSideEffects

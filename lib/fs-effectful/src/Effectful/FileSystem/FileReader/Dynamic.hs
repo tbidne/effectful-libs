@@ -1,4 +1,4 @@
--- | Provides an effect for reading files.
+-- | Provides a dynamic effect for reading files.
 --
 -- @since 0.1
 module Effectful.FileSystem.FileReader.Dynamic
@@ -44,7 +44,7 @@ import Effectful.Dispatch.Dynamic (interpret, send)
 import Effectful.Exception (throwM)
 import Effectful.FileSystem.Internal (OsPath, readBinaryFileIO)
 
--- | Effect for reading files.
+-- | Dynamic effect for reading files.
 --
 -- @since 0.1
 data FileReaderDynamic :: Effect where

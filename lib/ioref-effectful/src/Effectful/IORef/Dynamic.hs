@@ -34,7 +34,7 @@ import Effectful
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
 
--- | Effect for 'IORef'.
+-- | Dynamic effect for 'IORef'.
 --
 -- @since 0.1
 data IORefDynamic :: Effect where

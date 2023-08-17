@@ -2,7 +2,8 @@
 
 {- ORMOLU_DISABLE -}
 
--- | Provides the 'MonadProcess' typeclass for process effects.
+-- | Dynamic effect for "System.Process.Typed". For static effects, see
+-- https://github.com/haskell-effectful/typed-process-effectful.
 --
 -- @since 0.1
 module Effectful.Process.Typed.Dynamic
@@ -133,7 +134,7 @@ import System.Process.Typed
   )
 import System.Process.Typed qualified as P
 
--- | Effect for 'System.Environment'.
+-- | Dynamic effect for "System.Process.Typed".
 --
 -- @since 0.1
 data TypedProcessDynamic :: Effect where

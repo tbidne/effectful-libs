@@ -1,4 +1,4 @@
--- | 'TVar' helpers for 'STMDynamic'.
+-- | 'TVar' helpers for static 'Concurrent' effect.
 --
 -- @since 0.1
 module Effectful.Concurrent.STM.TVar.Static

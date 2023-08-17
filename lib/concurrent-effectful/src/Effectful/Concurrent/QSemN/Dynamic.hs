@@ -1,4 +1,5 @@
--- | Effect for 'QSemN'.
+-- | Dynamic effects for "Control.Concurrent.QSemN". For static effects, see
+-- https://hackage.haskell.org/package/effectful-2.2.2.0/docs/Effectful-Concurrent-QSemN.html.
 --
 -- @since 0.1
 module Effectful.Concurrent.QSemN.Dynamic
@@ -26,7 +27,7 @@ import Effectful
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
 
--- | Effects for QSemN.
+-- | Dynamic effects for "Control.Concurrent.QSemN".
 --
 -- @since 0.1
 data QSemNDynamic :: Effect where
@@ -37,7 +38,7 @@ data QSemNDynamic :: Effect where
 -- | @since 0.1
 type instance DispatchOf QSemNDynamic = Dynamic
 
--- | Runs 'ConcurrentDynamic' in 'IO'.
+-- | Runs 'QSemNDynamic' in 'IO'.
 --
 -- @since 0.1
 runQSemNDynamicIO ::

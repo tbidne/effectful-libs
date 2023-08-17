@@ -26,7 +26,7 @@ import Effectful.Dispatch.Dynamic (interpret, send)
 import Options.Applicative (ParserInfo, ParserPrefs, ParserResult)
 import Options.Applicative qualified as OA
 
--- | Effect for optparse-applicative.
+-- | Dynamic effect for optparse-applicative.
 --
 -- @since 0.1
 data OptparseDynamic :: Effect where
@@ -59,7 +59,11 @@ execParser = send . ExecParser
 -- | Lifted 'OA.customExecParser'.
 --
 -- @since 0.1
-customExecParser :: (OptparseDynamic :> es) => ParserPrefs -> ParserInfo a -> Eff es a
+customExecParser ::
+  (OptparseDynamic :> es) =>
+  ParserPrefs ->
+  ParserInfo a ->
+  Eff es a
 customExecParser prefs = send . CustomExecParser prefs
 
 -- | Lifted 'OA.handleParseResult'.

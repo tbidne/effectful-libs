@@ -1,4 +1,4 @@
--- | 'TBQueue' helpers for 'STMDynamic'.
+-- | 'TBQueue' helpers for dynamic 'STMDynamic' effect.
 --
 -- @since 0.1
 module Effectful.Concurrent.STM.TBQueue.Dynamic
@@ -22,22 +22,32 @@ import Effectful (Eff, type (:>))
 import Effectful.Concurrent.STM.Dynamic (STMDynamic, atomically, runSTMDynamicIO)
 import Numeric.Natural (Natural)
 
--- | @since 0.1
+-- | 'TBQueue.newTBQueue' with 'atomically'.
+--
+-- @since 0.1
 newTBQueueA :: (STMDynamic :> es) => Natural -> Eff es (TBQueue a)
 newTBQueueA = atomically . TBQueue.newTBQueue
 
--- | @since 0.1
+-- | 'TBQueue.readTBQueue' with 'atomically'.
+--
+-- @since 0.1
 readTBQueueA :: (STMDynamic :> es) => TBQueue a -> Eff es a
 readTBQueueA = atomically . TBQueue.readTBQueue
 
--- | @since 0.1
+-- | 'TBQueue.tryReadTBQueue' with 'atomically'.
+--
+-- @since 0.1
 tryReadTBQueueA :: (STMDynamic :> es) => TBQueue a -> Eff es (Maybe a)
 tryReadTBQueueA = atomically . TBQueue.tryReadTBQueue
 
--- | @since 0.1
+-- | 'TBQueue.writeTBQueue' with 'atomically'.
+--
+-- @since 0.1
 writeTBQueueA :: (STMDynamic :> es) => TBQueue a -> a -> Eff es ()
 writeTBQueueA q = atomically . TBQueue.writeTBQueue q
 
--- | @since 0.1
+-- | 'TBQueue.flushTBQueue' with 'atomically'.
+--
+-- @since 0.1
 flushTBQueueA :: (STMDynamic :> es) => TBQueue a -> Eff es [a]
 flushTBQueueA = atomically . TBQueue.flushTBQueue
