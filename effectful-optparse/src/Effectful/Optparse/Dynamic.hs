@@ -1,4 +1,4 @@
--- | Provides an effect for optparse-applicative.
+-- | Provides a dynamic effect for optparse-applicative.
 --
 -- @since 0.1
 module Effectful.Optparse.Dynamic
