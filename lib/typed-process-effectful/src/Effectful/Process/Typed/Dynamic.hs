@@ -155,7 +155,7 @@ data TypedProcessDynamic :: Effect where
 -- | @since 0.1
 type instance DispatchOf TypedProcessDynamic = Dynamic
 
--- | Runs 'STMDynamic' in 'IO'.
+-- | Runs 'TypedProcessDynamic' in 'IO'.
 --
 -- @since 0.1
 runTypedProcessDynamicIO ::
