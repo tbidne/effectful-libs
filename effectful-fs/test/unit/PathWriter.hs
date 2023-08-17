@@ -804,8 +804,16 @@ mkTestPath getPath s = do
   p <- getPath
   pure $ p </> U.strToPath s
 
-runEffPathWriter :: Eff '[IORefDynamic,
-  PathReaderDynamic, PathWriterDynamic, FileWriterDynamic, IOE] a -> IO a
+runEffPathWriter ::
+  Eff
+    '[ IORefDynamic,
+       PathReaderDynamic,
+       PathWriterDynamic,
+       FileWriterDynamic,
+       IOE
+     ]
+    a ->
+  IO a
 runEffPathWriter =
   runEff
     . runFileWriterDynamicIO
