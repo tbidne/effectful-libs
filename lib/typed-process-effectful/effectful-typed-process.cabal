@@ -55,7 +55,7 @@ library
   exposed-modules:  Effectful.Process.Typed.Dynamic
   build-depends:
     , base                  >=4.14.0.0  && <4.19
-    , bytestring            >=0.10.12.0 && <0.12
+    , bytestring            >=0.10.12.0 && <0.13
     , effectful-core        ^>=2.2.1.0
     , exceptions-effectful  ^>=0.1
     , stm-effectful         ^>=0.1

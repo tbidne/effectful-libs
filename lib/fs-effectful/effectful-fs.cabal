@@ -57,9 +57,9 @@ library
     Effectful.FileSystem.PathWriter.Dynamic
 
   build-depends:
-    , base                  >=4.14.0.0  && <4.18
-    , bytestring            >=0.10.12.0 && <0.12
-    , deepseq               ^>=1.4.4.0
+    , base                  >=4.14.0.0  && <4.19
+    , bytestring            >=0.10.12.0 && <0.13
+    , deepseq               >=1.4.4.0   && <1.6
     , directory             ^>=1.3.8.0
     , effectful-core        ^>=2.2.1.0
     , exceptions-effectful  ^>=0.1
