@@ -1,4 +1,4 @@
--- | Provides an effect for 'IORef'.
+-- | Provides a dynamic effect for 'IORef'.
 --
 -- @since 0.1
 module Effectful.IORef.Dynamic
