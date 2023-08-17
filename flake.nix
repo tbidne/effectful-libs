@@ -54,34 +54,34 @@
           };
           hsOverlay =
             (compiler.extend (hlib.compose.packageSourceOverrides {
-              effectful-env = ./effectful-env;
-              effectful-exceptions = ./effectful-exceptions;
-              effectful-fs = ./effectful-fs;
-              effectful-ioref = ./effectful-ioref;
-              effectful-logger = ./effectful-logger;
-              effectful-logger-ns = ./effectful-logger-ns;
-              effectful-optparse = ./effectful-optparse;
-              effectful-stm = ./effectful-stm;
-              effectful-terminal = ./effectful-terminal;
-              effectful-concurrent = ./effectful-concurrent;
-              effectful-time = ./effectful-time;
-              effectful-typed-process = ./effectful-typed-process;
-              effectful-unix-compat = ./effectful-unix-compat;
+              env-effectful = ./lib/env-effectful;
+              exceptions-effectful = ./lib/exceptions-effectful;
+              fs-effectful = ./lib/fs-effectful;
+              ioref-effectful = ./lib/ioref-effectful;
+              logger-effectful = ./lib/logger-effectful;
+              logger-ns-effectful = ./lib/logger-ns-effectful;
+              optparse-effectful = ./lib/optparse-effectful;
+              stm-effectful = ./lib/stm-effectful;
+              terminal-effectful = ./lib/terminal-effectful;
+              concurrent-effectful = ./lib/concurrent-effectful;
+              time-effectful = ./lib/time-effectful;
+              typed-process-effectful = ./lib/typed-process-effectful;
+              unix-compat-effectful = ./lib/unix-compat-effectful;
             }));
           packages = p: [
-            p.effectful-env
-            p.effectful-exceptions
-            p.effectful-fs
-            p.effectful-ioref
-            p.effectful-logger
-            p.effectful-logger-ns
-            p.effectful-optparse
-            p.effectful-stm
-            p.effectful-terminal
-            p.effectful-concurrent
-            p.effectful-time
-            p.effectful-typed-process
-            p.effectful-unix-compat
+            p.env-effectful
+            p.exceptions-effectful
+            p.fs-effectful
+            p.ioref-effectful
+            p.logger-effectful
+            p.logger-ns-effectful
+            p.optparse-effectful
+            p.stm-effectful
+            p.terminal-effectful
+            p.concurrent-effectful
+            p.time-effectful
+            p.typed-process-effectful
+            p.unix-compat-effectful
           ];
 
           mkPkg = name: root: source-overrides: compiler.developPackage {
@@ -89,39 +89,39 @@
             returnShellEnv = false;
           };
           mkPkgsExceptions = name: root: mkPkg name root {
-            effectful-exceptions = ./effectful-exceptions;
+            exceptions-effectful = ./exceptions-effectful;
           };
 
-          hsDirs = "effectful-*";
+          hsDirs = "lib/*-effectful";
         in
         {
-          packages.effectful-env = mkPkg "effectful-env" ./effectful-env { };
-          packages.effectful-exceptions = mkPkg "effectful-exceptions" ./effectful-exceptions { };
-          packages.effectful-fs =
-            mkPkg "effectful-fs" ./effectful-fs {
-              effectful-exceptions = ./effectful-exceptions;
-              effectful-ioref = ./effectful-ioref;
+          packages.env-effectful = mkPkg "env-effectful" ./lib/env-effectful { };
+          packages.exceptions-effectful = mkPkg "exceptions-effectful" ./lib/exceptions-effectful { };
+          packages.fs-effectful =
+            mkPkg "fs-effectful" ./lib/fs-effectful {
+              exceptions-effectful = ./lib/exceptions-effectful;
+              ioref-effectful = ./lib/ioref-effectful;
             };
-          packages.effectful-ioref = mkPkgsExceptions "effectful-ioref" ./effectful-ioref;
-          packages.effectful-logger = mkPkgsExceptions "effectful-logger" ./effectful-logger;
-          packages.effectful-logger-ns =
-            mkPkg "effectful-logger-ns" ./effectful-logger-ns {
-              effectful-exceptions = ./effectful-exceptions;
-              effectful-logger = ./effectful-logger;
-              effectful-time = ./effectful-time;
+          packages.ioref-effectful = mkPkgsExceptions "ioref-effectful" ./lib/ioref-effectful;
+          packages.logger-effectful = mkPkgsExceptions "logger-effectful" ./lib/logger-effectful;
+          packages.logger-ns-effectful =
+            mkPkg "logger-ns-effectful" ./lib/logger-ns-effectful {
+              exceptions-effectful = ./lib/exceptions-effectful;
+              logger-effectful = ./lib/logger-effectful;
+              time-effectful = ./lib/time-effectful;
             };
-          packages.effectful-optparse = mkPkg "effectful-optparse" ./effectful-optparse { };
-          packages.effectful-stm = mkPkgsExceptions "effectful-stm" ./effectful-stm;
-          packages.effectful-terminal = mkPkgsExceptions "effectful-terminal" ./effectful-terminal;
-          packages.effectful-concurrent = mkPkgsExceptions "effectful-concurrent" ./effectful-concurrent;
-          packages.effectful-time = mkPkgsExceptions "effectful-time" ./effectful-time;
-          packages.effectful-typed-process =
-            mkPkg "effectful-typed-process" ./effectful-typed-process {
-              effectful-exceptions = ./effectful-exceptions;
-              effectful-stm = ./effectful-stm;
+          packages.optparse-effectful = mkPkg "optparse-effectful" ./lib/optparse-effectful { };
+          packages.stm-effectful = mkPkgsExceptions "stm-effectful" ./lib/stm-effectful;
+          packages.terminal-effectful = mkPkgsExceptions "terminal-effectful" ./lib/terminal-effectful;
+          packages.concurrent-effectful = mkPkgsExceptions "concurrent-effectful" ./lib/concurrent-effectful;
+          packages.time-effectful = mkPkgsExceptions "time-effectful" ./lib/time-effectful;
+          packages.typed-process-effectful =
+            mkPkg "typed-process-effectful" ./lib/typed-process-effectful {
+              exceptions-effectful = ./lib/exceptions-effectful;
+              stm-effectful = ./lib/stm-effectful;
             };
-          packages.effectful-unix-compat =
-            mkPkgsExceptions "effectful-unix-compat" ./effectful-unix-compat;
+          packages.unix-compat-effectful =
+            mkPkgsExceptions "unix-compat-effectful" ./lib/unix-compat-effectful;
 
           devShells.default = hsOverlay.shellFor {
             inherit packages;

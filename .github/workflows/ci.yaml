@@ -40,14 +40,14 @@ jobs:
       - name: Compile
         run: cabal build all
 
-      - name: Test effectful-fs
-        run: cabal test effectful-fs
+      - name: Test fs-effectful
+        run: cabal test fs-effectful
 
-      - name: Test effectful-logger-ns
-        run: cabal test effectful-logger-ns
+      - name: Test logger-ns-effectful
+        run: cabal test logger-ns-effectful
 
-      - name: Test effectful-time
-        run: cabal test effectful-time --test-options '--hedgehog-tests 100000'
+      - name: Test time-effectful
+        run: cabal test time-effectful --test-options '--hedgehog-tests 100000'
   nix:
     strategy:
       fail-fast: false
@@ -69,19 +69,19 @@ jobs:
       - name: Build & Test
         run: |
           nix build \
-            .#effectful-concurrent \
-            .#effectful-env \
-            .#effectful-exceptions \
-            .#effectful-fs \
-            .#effectful-ioref \
-            .#effectful-logger \
-            .#effectful-logger-ns \
-            .#effectful-optparse \
-            .#effectful-stm \
-            .#effectful-terminal \
-            .#effectful-time \
-            .#effectful-typed-process \
-            .#effectful-unix-compat
+            .#concurrent-effectful \
+            .#env-effectful \
+            .#exceptions-effectful \
+            .#fs-effectful \
+            .#ioref-effectful \
+            .#logger-effectful \
+            .#logger-ns-effectful \
+            .#optparse-effectful \
+            .#stm-effectful \
+            .#terminal-effectful \
+            .#time-effectful \
+            .#typed-process-effectful \
+            .#unix-compat-effectful
 
   lint:
     runs-on: "ubuntu-latest"

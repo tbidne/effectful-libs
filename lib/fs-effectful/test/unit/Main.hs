@@ -33,7 +33,7 @@ main =
 setup :: IO OsPath
 setup = do
   tmpDir <-
-    (\s -> s </> U.strToPath "effectful-fs" </> U.strToPath "unit")
+    (\s -> s </> U.strToPath "fs-effectful" </> U.strToPath "unit")
       <$> runPathDynamicIO getTemporaryDirectory
 
   runPathDynamicIO $ do

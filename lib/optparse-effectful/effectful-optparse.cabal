@@ -1,5 +1,5 @@
 cabal-version:      2.4
-name:               effectful-unix-compat
+name:               optparse-effectful
 version:            0.1
 license:            MIT
 license-file:       LICENSE
@@ -9,16 +9,16 @@ tested-with:
 copyright:          2022-2023 Thomas Bidne
 author:             Thomas Bidne
 maintainer:         tbidne@protonmail.com
-homepage:           https://github.com/tbidne/effectful-effects/
-bug-reports:        https://github.com/tbidne/effectful-effects/issues
-synopsis:           Unix-compat effects
-description:        Unix-compat effects
+homepage:           https://github.com/tbidne/effectful-effectsl/
+bug-reports:        https://github.com/tbidne/effectful-effectsl/issues
+synopsis:           Optparse-applicative effects
+description:        Optparse-applicative effects
 category:           Effects
 extra-source-files: CHANGELOG.md
 
 source-repository head
   type:     git
-  location: https://github.com/tbidne/effectful-effects
+  location: https://github.com/tbidne/effectful-effectsl
 
 common common-lang
   default-extensions:
@@ -49,13 +49,13 @@ common common-lang
 library
   import:           common-lang
   exposed-modules:
-    Effectful.PosixCompat.Dynamic
-    Effectful.PosixCompat.Static
+    Effectful.Optparse.Dynamic
+    Effectful.Optparse.Static
 
   build-depends:
-    , base            >=4.14.0.0 && <4.19
-    , effectful-core  ^>=2.2.1.0
-    , unix-compat     >=0.6      && <0.8
+    , base                  >=4.14.0.0 && <4.19
+    , effectful-core        ^>=2.2.1.0
+    , optparse-applicative  >=0.16.1.0 && <0.19
 
   hs-source-dirs:   src
   default-language: Haskell2010

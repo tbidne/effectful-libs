@@ -1,17 +1,17 @@
 packages:
-  ./effectful-concurrent
-  ./effectful-env
-  ./effectful-exceptions
-  ./effectful-fs
-  ./effectful-ioref
-  ./effectful-logger
-  ./effectful-logger-ns
-  ./effectful-optparse
-  ./effectful-stm
-  ./effectful-terminal
-  ./effectful-time
-  ./effectful-typed-process
-  ./effectful-unix-compat
+  ./lib/concurrent-effectful
+  ./lib/env-effectful
+  ./lib/exceptions-effectful
+  ./lib/fs-effectful
+  ./lib/ioref-effectful
+  ./lib/logger-effectful
+  ./lib/logger-ns-effectful
+  ./lib/optparse-effectful
+  ./lib/stm-effectful
+  ./lib/terminal-effectful
+  ./lib/time-effectful
+  ./lib/typed-process-effectful
+  ./lib/unix-compat-effectful
 
 program-options
   ghc-options:

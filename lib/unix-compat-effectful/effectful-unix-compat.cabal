@@ -1,24 +1,26 @@
 cabal-version:      2.4
-name:               effectful-ioref
+name:               unix-compat-effectful
 version:            0.1
 license:            MIT
 license-file:       LICENSE
-tested-with:        GHC ==8.10.7 || ==9.0.2 || ==9.2.4 || ==9.4.2
-copyright:          2022 Thomas Bidne
+tested-with:
+  GHC ==8.10.7 || ==9.0.2 || ==9.2.7 || ==9.4.4 || ==9.6.1
+
+copyright:          2022-2023 Thomas Bidne
 author:             Thomas Bidne
 maintainer:         tbidne@protonmail.com
-homepage:           https://github.com/tbidne/effectful-effects/
-bug-reports:        https://github.com/tbidne/effectful-effects/issues
-synopsis:           IORef effects
-description:        IORef effects
+homepage:           https://github.com/tbidne/effectful-effectsl/
+bug-reports:        https://github.com/tbidne/effectful-effectsl/issues
+synopsis:           Unix-compat effects
+description:        Unix-compat effects
 category:           Effects
 extra-source-files: CHANGELOG.md
 
 source-repository head
   type:     git
-  location: https://github.com/tbidne/effectful-effects
+  location: https://github.com/tbidne/effectful-effectsl
 
-common common
+common common-lang
   default-extensions:
     DataKinds
     DeriveAnyClass
@@ -29,26 +31,31 @@ common common
     FlexibleContexts
     FlexibleInstances
     GADTs
+    GeneralizedNewtypeDeriving
     ImportQualifiedPost
     LambdaCase
     MultiParamTypeClasses
     NumericUnderscores
     OverloadedLabels
     OverloadedStrings
+    RankNTypes
     ScopedTypeVariables
+    StandaloneDeriving
+    TupleSections
     TypeApplications
     TypeFamilies
     TypeOperators
 
 library
-  import:           common
+  import:           common-lang
   exposed-modules:
-    Effectful.IORef.Dynamic
-    Effectful.IORef.Static
+    Effectful.PosixCompat.Dynamic
+    Effectful.PosixCompat.Static
 
   build-depends:
-    , base            >=4.14.0.0 && <4.18
+    , base            >=4.14.0.0 && <4.19
     , effectful-core  ^>=2.2.1.0
+    , unix-compat     >=0.6      && <0.8
 
   hs-source-dirs:   src
   default-language: Haskell2010

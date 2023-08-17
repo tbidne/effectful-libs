@@ -1,5 +1,5 @@
 cabal-version:      2.4
-name:               effectful-terminal
+name:               stm-effectful
 version:            0.1
 license:            MIT
 license-file:       LICENSE
@@ -7,16 +7,16 @@ tested-with:        GHC ==8.10.7 || ==9.0.2 || ==9.2.4 || ==9.4.2
 copyright:          2022 Thomas Bidne
 author:             Thomas Bidne
 maintainer:         tbidne@protonmail.com
-homepage:           https://github.com/tbidne/effectful-effects/
-bug-reports:        https://github.com/tbidne/effectful-effects/issues
-synopsis:           Terminal effects
-description:        Terminal effects
+homepage:           https://github.com/tbidne/effectful-effectsl/
+bug-reports:        https://github.com/tbidne/effectful-effectsl/issues
+synopsis:           STM effects
+description:        STM effects
 category:           Effects
 extra-source-files: CHANGELOG.md
 
 source-repository head
   type:     git
-  location: https://github.com/tbidne/effectful-effects
+  location: https://github.com/tbidne/effectful-effectsl
 
 common common
   default-extensions:
@@ -42,13 +42,15 @@ common common
 
 library
   import:           common
-  exposed-modules:  Effectful.Terminal.Dynamic
+  exposed-modules:
+    Effectful.Concurrent.STM.Dynamic
+    Effectful.Concurrent.STM.TBQueue.Dynamic
+    Effectful.Concurrent.STM.TVar.Dynamic
+
   build-depends:
-    , base                  >=4.14.0.0 && <4.18
-    , effectful-core        ^>=2.2.1.0
-    , effectful-exceptions  ^>=0.1
-    , terminal-size         ^>=0.3.0
-    , text                  >=1.2.4.0  && <2.1
+    , base            >=4.14.0.0 && <4.18
+    , effectful-core  ^>=2.2.1.0
+    , stm             ^>=2.5.0.0
 
   hs-source-dirs:   src
   default-language: Haskell2010

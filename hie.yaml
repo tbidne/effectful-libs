@@ -1,49 +1,49 @@
 cradle:
   cabal:
-    - path: "./effectful-concurrent/src"
-      component: "lib:effectful-concurrent"
+    - path: "./lib/concurrent-effectful/src"
+      component: "lib:concurrent-effectful"
 
-    - path: "./effectful-env/src"
-      component: "lib:effectful-env"
+    - path: "./lib/env-effectful/src"
+      component: "lib:env-effectful"
 
-    - path: "./effectful-exceptions/src"
-      component: "lib:effectful-exceptions"
+    - path: "./lib/exceptions-effectful/src"
+      component: "lib:exceptions-effectful"
 
-    - path: "./effectful-fs/src"
-      component: "lib:effectful-fs"
+    - path: "./lib/fs-effectful/src"
+      component: "lib:fs-effectful"
 
-    - path: "./effectful-fs/test/unit"
-      component: "effectful-fs:test:unit"
+    - path: "./lib/fs-effectful/test/unit"
+      component: "fs-effectful:test:unit"
 
-    - path: "./effectful-ioref/src"
-      component: "lib:effectful-ioref"
+    - path: "./lib/ioref-effectful/src"
+      component: "lib:ioref-effectful"
 
-    - path: "./effectful-logger/src"
-      component: "lib:effectful-logger"
+    - path: "./lib/logger-effectful/src"
+      component: "lib:logger-effectful"
 
-    - path: "./effectful-logger-ns/src"
-      component: "lib:effectful-logger-ns"
+    - path: "./lib/logger-ns-effectful/src"
+      component: "lib:logger-ns-effectful"
 
-    - path: "./effectful-logger-ns/test/unit"
-      component: "effectful-logger-ns:test:unit"
+    - path: "./lib/logger-ns-effectful/test/unit"
+      component: "logger-ns-effectful:test:unit"
 
-    - path: "./effectful-optparse/src"
-      component: "lib:effectful-optparse"
+    - path: "./lib/optparse-effectful/src"
+      component: "lib:optparse-effectful"
 
-    - path: "./effectful-stm/src"
-      component: "lib:effectful-stm"
+    - path: "./lib/stm-effectful/src"
+      component: "lib:stm-effectful"
 
-    - path: "./effectful-terminal/src"
-      component: "lib:effectful-terminal"
+    - path: "./lib/terminal-effectful/src"
+      component: "lib:terminal-effectful"
 
-    - path: "./effectful-time/src"
-      component: "lib:effectful-time"
+    - path: "./lib/time-effectful/src"
+      component: "lib:time-effectful"
 
-    - path: "./effectful-time/test/unit"
-      component: "effectful-time:test:unit"
+    - path: "./lib/time-effectful/test/unit"
+      component: "time-effectful:test:unit"
 
-    - path: "./effectful-typed-process/src"
-      component: "lib:effectful-typed-process"
+    - path: "./lib/typed-process-effectful/src"
+      component: "lib:typed-process-effectful"
 
-    - path: "./effectful-unix-compat/src"
-      component: "lib:effectful-unix-compat"
+    - path: "./lib/unix-compat-effectful/src"
+      component: "lib:unix-compat-effectful"
