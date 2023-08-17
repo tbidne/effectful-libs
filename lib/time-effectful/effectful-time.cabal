@@ -42,7 +42,12 @@ common common
 
 library
   import:           common
-  exposed-modules:  Effectful.Time.Dynamic
+  exposed-modules:
+    Effectful.Time.Dynamic
+    Effectful.Time.Static
+    Effectful.Time.TimeSpec
+    Effectful.Time.Utils
+
   build-depends:
     , algebra-simple  ^>=0.1
     , base            >=4.14.0.0 && <4.19

@@ -1,15 +1,17 @@
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
+
 -- | Provides a dynamic effect for "Data.Time".
 --
 -- @since 0.1
-module Effectful.Time.Dynamic
+module Effectful.Time.Static
   ( -- * Effect
-    TimeDynamic (..),
+    TimeStatic,
     getSystemTime,
     getSystemZonedTime,
     getMonotonicTime,
 
     -- ** Handlers
-    runTimeDynamicIO,
+    runTimeStaticIO,
 
     -- * Timing
     withTiming,
@@ -48,70 +50,67 @@ module Effectful.Time.Dynamic
   )
 where
 
-import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Time.LocalTime
   ( LocalTime (LocalTime, localDay, localTimeOfDay),
     ZonedTime (ZonedTime, zonedTimeToLocalTime, zonedTimeZone),
   )
 import Data.Time.LocalTime qualified as Local
 import Effectful
-  ( Dispatch (Dynamic),
+  ( Dispatch (Static),
     DispatchOf,
     Eff,
     Effect,
     IOE,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (interpret, send)
+import Effectful.Dispatch.Static
+  ( SideEffects (WithSideEffects),
+    StaticRep,
+    evalStaticRep,
+    unsafeEff_,
+  )
 import Effectful.Time.TimeSpec (TimeSpec (..))
 import Effectful.Time.TimeSpec qualified as TimeSpec
 import Effectful.Time.Utils qualified as Utils
 import GHC.Clock qualified as C
 
--- | Dynamic effect for "Data.Time".
+-- | Static time effect.
 --
 -- @since 0.1
-data TimeDynamic :: Effect where
-  GetSystemTime :: TimeDynamic m LocalTime
-  GetSystemZonedTime :: TimeDynamic m ZonedTime
-  GetMonotonicTime :: TimeDynamic m Double
+data TimeStatic :: Effect
 
--- | @since 0.1
-type instance DispatchOf TimeDynamic = Dynamic
+type instance DispatchOf TimeStatic = Static WithSideEffects
 
--- | Runs 'TimeDynamic' in 'IO'.
+data instance StaticRep TimeStatic = MkTimeStatic
+
+-- | Runs a 'TimeStatic' effect in IO.
 --
 -- @since 0.1
-runTimeDynamicIO :: (IOE :> es) => Eff (TimeDynamic : es) a -> Eff es a
-runTimeDynamicIO = interpret $ \_ -> \case
-  GetSystemTime ->
-    liftIO $
-      Local.zonedTimeToLocalTime <$> Local.getZonedTime
-  GetSystemZonedTime -> liftIO Local.getZonedTime
-  GetMonotonicTime -> liftIO C.getMonotonicTime
+runTimeStaticIO :: (IOE :> es) => Eff (TimeStatic : es) a -> Eff es a
+runTimeStaticIO = evalStaticRep MkTimeStatic
 
 -- | Returns the local system time.
 --
 -- @since 0.1
-getSystemTime :: (TimeDynamic :> es) => Eff es LocalTime
-getSystemTime = send GetSystemTime
+getSystemTime :: (TimeStatic :> es) => Eff es LocalTime
+getSystemTime = unsafeEff_ $ Local.zonedTimeToLocalTime <$> Local.getZonedTime
 
 -- | Returns the zoned system time
 --
 -- @since 0.1
-getSystemZonedTime :: (TimeDynamic :> es) => Eff es ZonedTime
-getSystemZonedTime = send GetSystemZonedTime
+getSystemZonedTime :: (TimeStatic :> es) => Eff es ZonedTime
+getSystemZonedTime = unsafeEff_ Local.getZonedTime
 
 -- | Returns the zoned system time
 --
 -- @since 0.1
-getMonotonicTime :: (TimeDynamic :> es) => Eff es Double
-getMonotonicTime = send GetMonotonicTime
+getMonotonicTime :: (TimeStatic :> es) => Eff es Double
+getMonotonicTime = unsafeEff_ C.getMonotonicTime
 
 -- | Runs an action, returning the elapsed time.
 --
 -- @since 0.1
-withTiming :: (TimeDynamic :> es) => Eff es a -> Eff es (TimeSpec, a)
+withTiming :: (TimeStatic :> es) => Eff es a -> Eff es (TimeSpec, a)
 withTiming m = do
   start <- getMonotonicTime
   res <- m
@@ -121,17 +120,17 @@ withTiming m = do
 -- | 'withTiming' but ignores the result value.
 --
 -- @since 0.1
-withTiming_ :: (TimeDynamic :> es) => Eff es a -> Eff es TimeSpec
+withTiming_ :: (TimeStatic :> es) => Eff es a -> Eff es TimeSpec
 withTiming_ = fmap fst . withTiming
 
 -- | Retrieves the formatted 'LocalTime'.
 --
 -- @since 0.1
-getSystemTimeString :: (TimeDynamic :> es) => Eff es String
+getSystemTimeString :: (TimeStatic :> es) => Eff es String
 getSystemTimeString = fmap Utils.formatLocalTime getSystemTime
 
 -- | Retrieves the formatted 'ZonedTime'.
 --
 -- @since 0.1
-getSystemZonedTimeString :: (TimeDynamic :> es) => Eff es String
+getSystemZonedTimeString :: (TimeStatic :> es) => Eff es String
 getSystemZonedTimeString = fmap Utils.formatZonedTime getSystemZonedTime
