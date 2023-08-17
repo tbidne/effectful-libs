@@ -11,7 +11,7 @@ module Effectful.Concurrent.Dynamic
     threadCapability,
 
     -- ** Handlers
-    runThreadDynamicIO,
+    runConcurrentDynamicIO,
 
     -- * Functions
     microsleep,
@@ -54,12 +54,12 @@ type instance DispatchOf ConcurrentDynamic = Dynamic
 -- | Runs 'ConcurrentDynamic' in 'IO'.
 --
 -- @since 0.1
-runThreadDynamicIO ::
+runConcurrentDynamicIO ::
   ( IOE :> es
   ) =>
   Eff (ConcurrentDynamic : es) a ->
   Eff es a
-runThreadDynamicIO = interpret $ \_ -> \case
+runConcurrentDynamicIO = interpret $ \_ -> \case
   ThreadDelay n -> liftIO $ CC.threadDelay n
   ThrowTo tid e -> liftIO $ CC.throwTo tid e
   GetNumCapabilities -> liftIO CC.getNumCapabilities
