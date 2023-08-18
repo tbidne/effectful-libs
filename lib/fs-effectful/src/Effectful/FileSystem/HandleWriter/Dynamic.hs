@@ -4,8 +4,8 @@
 module Effectful.FileSystem.HandleWriter.Dynamic
   ( -- * Effect
     HandleWriterDynamic (..),
-    hOpenBinaryFile,
-    hWithBinaryFile,
+    openBinaryFile,
+    withBinaryFile,
     hClose,
     hFlush,
     hSetFileSize,
@@ -59,8 +59,8 @@ type instance DispatchOf HandleWriterDynamic = Dynamic
 --
 -- @since 0.1
 data HandleWriterDynamic :: Effect where
-  HOpenBinaryFile :: OsPath -> IOMode -> HandleWriterDynamic m Handle
-  HWithBinaryFile :: OsPath -> IOMode -> (Handle -> m a) -> HandleWriterDynamic m a
+  OpenBinaryFile :: OsPath -> IOMode -> HandleWriterDynamic m Handle
+  WithBinaryFile :: OsPath -> IOMode -> (Handle -> m a) -> HandleWriterDynamic m a
   HClose :: Handle -> HandleWriterDynamic m ()
   HFlush :: Handle -> HandleWriterDynamic m ()
   HSetFileSize :: Handle -> Integer -> HandleWriterDynamic m ()
@@ -80,8 +80,8 @@ runHandleWriterDynamicIO ::
   Eff (HandleWriterDynamic : es) a ->
   Eff es a
 runHandleWriterDynamicIO = interpret $ \env -> \case
-  HOpenBinaryFile p m -> liftIO $ openBinaryFileIO p m
-  HWithBinaryFile p m f -> localSeqUnliftIO env $ \runInIO ->
+  OpenBinaryFile p m -> liftIO $ openBinaryFileIO p m
+  WithBinaryFile p m f -> localSeqUnliftIO env $ \runInIO ->
     liftIO $ withBinaryFileIO p m (runInIO . f)
   HClose h -> liftIO $ IO.hClose h
   HFlush h -> liftIO $ IO.hFlush h
@@ -96,25 +96,25 @@ runHandleWriterDynamicIO = interpret $ \env -> \case
 -- | Lifted 'IO.openBinaryFile'.
 --
 -- @since 0.1
-hOpenBinaryFile ::
+openBinaryFile ::
   ( HandleWriterDynamic :> es
   ) =>
   OsPath ->
   IOMode ->
   Eff es Handle
-hOpenBinaryFile p = send . HOpenBinaryFile p
+openBinaryFile p = send . OpenBinaryFile p
 
 -- | Lifted 'IO.withBinaryFile'.
 --
 -- @since 0.1
-hWithBinaryFile ::
+withBinaryFile ::
   ( HandleWriterDynamic :> es
   ) =>
   OsPath ->
   IOMode ->
   (Handle -> Eff es a) ->
   Eff es a
-hWithBinaryFile p m = send . HWithBinaryFile p m
+withBinaryFile p m = send . WithBinaryFile p m
 
 -- | Lifted 'IO.hClose'.
 --

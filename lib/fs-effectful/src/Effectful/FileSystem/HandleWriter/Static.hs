@@ -6,8 +6,8 @@
 module Effectful.FileSystem.HandleWriter.Static
   ( -- * Effect
     HandleWriterStatic,
-    hOpenBinaryFile,
-    hWithBinaryFile,
+    openBinaryFile,
+    withBinaryFile,
     hClose,
     hFlush,
     hSetFileSize,
@@ -81,18 +81,18 @@ runHandleWriterStaticIO = evalStaticRep MkHandleWriterStatic
 -- | Lifted 'IO.openBinaryFile'.
 --
 -- @since 0.1
-hOpenBinaryFile ::
+openBinaryFile ::
   ( HandleWriterStatic :> es
   ) =>
   OsPath ->
   IOMode ->
   Eff es Handle
-hOpenBinaryFile p = unsafeEff_ . openBinaryFileIO p
+openBinaryFile p = unsafeEff_ . openBinaryFileIO p
 
 -- | Lifted 'IO.withBinaryFile'.
 --
 -- @since 0.1
-hWithBinaryFile ::
+withBinaryFile ::
   forall es a.
   ( HandleWriterStatic :> es
   ) =>
@@ -100,7 +100,7 @@ hWithBinaryFile ::
   IOMode ->
   (Handle -> Eff es a) ->
   Eff es a
-hWithBinaryFile p m onHandle =
+withBinaryFile p m onHandle =
   unsafeEff $ \env -> seqUnliftIO env $
     \runInIO -> withBinaryFileIO p m (runInIO . onHandle)
 
