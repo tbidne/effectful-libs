@@ -23,7 +23,6 @@ import Effectful.FileSystem.FileWriter.Dynamic
     runFileWriterDynamicIO,
     writeBinaryFile,
   )
-import Effectful.FileSystem.Path ((</>))
 import Effectful.FileSystem.PathReader.Dynamic
   ( PathReaderDynamic,
     doesDirectoryExist,
@@ -53,6 +52,7 @@ import Effectful.FileSystem.PathWriter.Dynamic
     runPathWriterDynamicIO,
   )
 import Effectful.FileSystem.PathWriter.Dynamic qualified as PathWriter
+import Effectful.FileSystem.Utils ((</>))
 import Effectful.IORef.Dynamic
   ( IORefDynamic,
     modifyIORef',

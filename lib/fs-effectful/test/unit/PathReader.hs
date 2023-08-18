@@ -1,5 +1,3 @@
-{-# LANGUAGE CPP #-}
-
 module PathReader (tests) where
 
 import Control.Monad (zipWithM_)
@@ -10,6 +8,7 @@ import Effectful.FileSystem.PathReader.Dynamic
     runPathReaderDynamicIO,
   )
 import Effectful.FileSystem.PathReader.Dynamic qualified as PathReader
+import System.FilePath ((</>))
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase, (@=?))
 import Utils qualified as U
@@ -30,37 +29,23 @@ testListDirectoryRecursive = testCase "Recursively lists sub-files/dirs" $ do
   zipWithM_ (@=?) expectedFiles (U.pathToStr <$> files')
   zipWithM_ (@=?) expectedDirs (U.pathToStr <$> dirs')
   where
-#if !WINDOWS
     expectedFiles =
-      [ "Effectful/FileSystem/FileReader/Dynamic.hs",
-        "Effectful/FileSystem/FileWriter/Dynamic.hs",
-        "Effectful/FileSystem/HandleReader/Dynamic.hs",
-        "Effectful/FileSystem/HandleWriter/Dynamic.hs",
-        "Effectful/FileSystem/Internal.hs",
-        "Effectful/FileSystem/Path.hs",
-        "Effectful/FileSystem/PathReader/Dynamic.hs",
-        "Effectful/FileSystem/PathWriter/Dynamic.hs"
+      [ "Effectful" </> "FileSystem" </> "FileReader" </> "Dynamic.hs",
+        "Effectful" </> "FileSystem" </> "FileReader" </> "Static.hs",
+        "Effectful" </> "FileSystem" </> "FileWriter" </> "Dynamic.hs",
+        "Effectful" </> "FileSystem" </> "FileWriter" </> "Static.hs",
+        "Effectful" </> "FileSystem" </> "HandleReader" </> "Dynamic.hs",
+        "Effectful" </> "FileSystem" </> "HandleReader" </> "Static.hs",
+        "Effectful" </> "FileSystem" </> "HandleWriter" </> "Dynamic.hs",
+        "Effectful" </> "FileSystem" </> "HandleWriter" </> "Static.hs",
+        "Effectful" </> "FileSystem" </> "PathReader" </> "Dynamic.hs",
+        "Effectful" </> "FileSystem" </> "PathWriter" </> "Dynamic.hs",
+        "Effectful" </> "FileSystem" </> "Utils.hs"
       ]
     expectedDirs =
       [ "Effectful",
-        "Effectful/FileSystem"
+        "Effectful" </> "FileSystem"
       ]
-#else
-    expectedFiles =
-      [ "Effectful\\FileSystem\\FileReader\\Dynamic.hs",
-        "Effectful\\FileSystem\\FileWriter\\Dynamic.hs",
-        "Effectful\\FileSystem\\HandleReader\\Dynamic.hs",
-        "Effectful\\FileSystem\\HandleWriter\\Dynamic.hs",
-        "Effectful\\FileSystem\\Internal.hs",
-        "Effectful\\FileSystem\\Path.hs",
-        "Effectful\\FileSystem\\PathReader\\Dynamic.hs",
-        "Effectful\\FileSystem\\PathWriter\\Dynamic.hs"
-      ]
-    expectedDirs =
-      [ "Effectful",
-        "Effectful\\FileSystem"
-      ]
-#endif
 
 runEffPathReader :: Eff '[PathReaderDynamic, IOE] a -> IO a
 runEffPathReader = runEff . runPathReaderDynamicIO

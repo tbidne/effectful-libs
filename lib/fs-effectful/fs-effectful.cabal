@@ -48,13 +48,16 @@ library
   import:           common
   exposed-modules:
     Effectful.FileSystem.FileReader.Dynamic
+    Effectful.FileSystem.FileReader.Static
     Effectful.FileSystem.FileWriter.Dynamic
+    Effectful.FileSystem.FileWriter.Static
     Effectful.FileSystem.HandleReader.Dynamic
+    Effectful.FileSystem.HandleReader.Static
     Effectful.FileSystem.HandleWriter.Dynamic
-    Effectful.FileSystem.Internal
-    Effectful.FileSystem.Path
+    Effectful.FileSystem.HandleWriter.Static
     Effectful.FileSystem.PathReader.Dynamic
     Effectful.FileSystem.PathWriter.Dynamic
+    Effectful.FileSystem.Utils
 
   build-depends:
     , base                  >=4.14.0.0  && <4.19

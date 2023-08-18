@@ -74,7 +74,7 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
-import Effectful.FileSystem.Path (OsPath, (</>))
+import Effectful.FileSystem.Utils (OsPath, (</>))
 import System.Directory
   ( Permissions (..),
     XdgDirectory (..),
@@ -159,10 +159,10 @@ runPathReaderDynamicIO = interpret $ \env -> \case
   FindExecutables p -> liftIO $ Dir.findExecutables p
   FindExecutablesInDirectories ps str ->
     liftIO $ Dir.findExecutablesInDirectories ps str
-  FindFileWith f ps str -> localSeqUnliftIO env $ \runInDynamicIO ->
-    liftIO $ Dir.findFileWith (runInDynamicIO . f) ps str
-  FindFilesWith f ps str -> localSeqUnliftIO env $ \runInDynamicIO ->
-    liftIO $ Dir.findFilesWith (runInDynamicIO . f) ps str
+  FindFileWith f ps str -> localSeqUnliftIO env $ \runInIO ->
+    liftIO $ Dir.findFileWith (runInIO . f) ps str
+  FindFilesWith f ps str -> localSeqUnliftIO env $ \runInIO ->
+    liftIO $ Dir.findFilesWith (runInIO . f) ps str
   PathIsSymbolicLink p -> liftIO $ Dir.pathIsSymbolicLink p
   GetSymbolicLinkTarget p -> liftIO $ Dir.getSymbolicLinkTarget p
   GetPermissions p -> liftIO $ Dir.getPermissions p

@@ -166,8 +166,8 @@ runTypedProcessDynamicIO ::
   Eff es a
 runTypedProcessDynamicIO = interpret $ \env -> \case
   ReadProcessInterleaved p -> liftIO $ P.readProcessInterleaved p
-  WithProcessTerm pc onProcess -> localSeqUnliftIO env $ \runInDynamicIO ->
-    liftIO $ P.withProcessTerm pc (runInDynamicIO . onProcess)
+  WithProcessTerm pc onProcess -> localSeqUnliftIO env $ \runInIO ->
+    liftIO $ P.withProcessTerm pc (runInIO . onProcess)
   StartProcess pc -> liftIO $ P.startProcess pc
   StopProcess p -> liftIO $ P.stopProcess p
   ReadProcessInterleaved_ pc -> liftIO $ P.readProcessInterleaved_ pc

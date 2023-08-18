@@ -47,8 +47,8 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
-import Effectful.FileSystem.FileWriter.Dynamic (encodeUtf8)
-import Effectful.FileSystem.Internal (OsPath, openBinaryFileIO, withBinaryFileIO)
+import Effectful.FileSystem.Utils (OsPath, openBinaryFileIO, withBinaryFileIO)
+import Effectful.FileSystem.Utils qualified as Utils
 import System.IO (BufferMode (..), Handle, IOMode (..), SeekMode (..))
 import System.IO qualified as IO
 
@@ -81,8 +81,8 @@ runHandleWriterDynamicIO ::
   Eff es a
 runHandleWriterDynamicIO = interpret $ \env -> \case
   HOpenBinaryFile p m -> liftIO $ openBinaryFileIO p m
-  HWithBinaryFile p m f -> localSeqUnliftIO env $ \runInDynamicIO ->
-    liftIO $ withBinaryFileIO p m (runInDynamicIO . f)
+  HWithBinaryFile p m f -> localSeqUnliftIO env $ \runInIO ->
+    liftIO $ withBinaryFileIO p m (runInIO . f)
   HClose h -> liftIO $ IO.hClose h
   HFlush h -> liftIO $ IO.hFlush h
   HSetFileSize h i -> liftIO $ IO.hSetFileSize h i
@@ -213,7 +213,7 @@ hPutNonBlocking ::
   Eff es ByteString
 hPutNonBlocking h = send . HPutNonBlocking h
 
--- | 'hPut' and 'encodeUtf8'.
+-- | 'hPut' and 'Utils.encodeUtf8'.
 --
 -- @since 0.1
 hPutUtf8 ::
@@ -222,9 +222,9 @@ hPutUtf8 ::
   Handle ->
   Text ->
   Eff es ()
-hPutUtf8 h = hPut h . encodeUtf8
+hPutUtf8 h = hPut h . Utils.encodeUtf8
 
--- | 'hPutNonBlocking' and 'encodeUtf8'.
+-- | 'hPutNonBlocking' and 'Utils.encodeUtf8'.
 --
 -- @since 0.1
 hPutNonBlockingUtf8 ::
@@ -233,4 +233,4 @@ hPutNonBlockingUtf8 ::
   Handle ->
   Text ->
   Eff es ByteString
-hPutNonBlockingUtf8 h = hPutNonBlocking h . encodeUtf8
+hPutNonBlockingUtf8 h = hPutNonBlocking h . Utils.encodeUtf8

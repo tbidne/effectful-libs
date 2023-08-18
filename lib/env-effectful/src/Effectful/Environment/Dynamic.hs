@@ -105,10 +105,10 @@ runEnvDynamicIO = interpret $ \env -> \case
   LookupEnv s -> liftIO $ Env.lookupEnv s
   SetEnv s t -> liftIO $ Env.setEnv s t
   UnsetEnv s -> liftIO $ Env.unsetEnv s
-  WithArgs args m -> localSeqUnliftIO env $ \runInDynamicIO ->
-    liftIO $ Env.withArgs args (runInDynamicIO m)
-  WithProgName name m -> localSeqUnliftIO env $ \runInDynamicIO ->
-    liftIO $ Env.withProgName name (runInDynamicIO m)
+  WithArgs args m -> localSeqUnliftIO env $ \runInIO ->
+    liftIO $ Env.withArgs args (runInIO m)
+  WithProgName name m -> localSeqUnliftIO env $ \runInIO ->
+    liftIO $ Env.withProgName name (runInIO m)
   GetEnvironment -> liftIO Env.getEnvironment
 
 {- ORMOLU_ENABLE -}

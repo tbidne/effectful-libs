@@ -13,7 +13,6 @@ module Effectful.FileSystem.FileWriter.Dynamic
     -- * UTF-8 Utils
     writeFileUtf8,
     appendFileUtf8,
-    encodeUtf8,
 
     -- * Re-exports
     ByteString,
@@ -25,7 +24,6 @@ where
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.ByteString (ByteString)
 import Data.Text (Text)
-import Data.Text.Encoding qualified as TEnc
 import Effectful
   ( Dispatch (Dynamic),
     DispatchOf,
@@ -35,11 +33,12 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
-import Effectful.FileSystem.Internal
+import Effectful.FileSystem.Utils
   ( OsPath,
     appendBinaryFileIO,
     writeBinaryFileIO,
   )
+import Effectful.FileSystem.Utils qualified as Utils
 
 -- | Dynamic effect for reading files.
 --
@@ -81,12 +80,6 @@ appendBinaryFile ::
   Eff es ()
 appendBinaryFile p = send . AppendBinaryFile p
 
--- | Encodes a 'Text' to 'ByteString'.
---
--- @since 0.1
-encodeUtf8 :: Text -> ByteString
-encodeUtf8 = TEnc.encodeUtf8
-
 -- | Writes to a file.
 --
 -- @since 0.1
@@ -96,7 +89,7 @@ writeFileUtf8 ::
   OsPath ->
   Text ->
   Eff es ()
-writeFileUtf8 f = writeBinaryFile f . encodeUtf8
+writeFileUtf8 f = writeBinaryFile f . Utils.encodeUtf8
 
 -- | Appends to a file.
 --
@@ -107,4 +100,4 @@ appendFileUtf8 ::
   OsPath ->
   Text ->
   Eff es ()
-appendFileUtf8 f = appendBinaryFile f . encodeUtf8
+appendFileUtf8 f = appendBinaryFile f . Utils.encodeUtf8

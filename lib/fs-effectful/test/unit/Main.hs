@@ -1,7 +1,6 @@
 module Main (main) where
 
 import Effectful (Eff, IOE, runEff)
-import Effectful.FileSystem.Path (OsPath, (</>))
 import Effectful.FileSystem.PathReader.Dynamic
   ( PathReaderDynamic,
     getTemporaryDirectory,
@@ -14,6 +13,7 @@ import Effectful.FileSystem.PathWriter.Dynamic
     removePathForcibly,
     runPathWriterDynamicIO,
   )
+import Effectful.FileSystem.Utils (OsPath, (</>))
 import PathReader qualified
 import PathWriter qualified
 import System.Environment.Guard (ExpectEnv (ExpectEnvSet), guardOrElse')

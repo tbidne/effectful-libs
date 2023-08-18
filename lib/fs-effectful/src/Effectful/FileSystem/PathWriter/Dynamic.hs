@@ -89,7 +89,6 @@ import Effectful.Exception
     onException,
     throwM,
   )
-import Effectful.FileSystem.Path (OsPath, (</>))
 import Effectful.FileSystem.PathReader.Dynamic
   ( PathReaderDynamic,
     doesDirectoryExist,
@@ -97,6 +96,7 @@ import Effectful.FileSystem.PathReader.Dynamic
     doesPathExist,
     listDirectoryRecursive,
   )
+import Effectful.FileSystem.Utils (OsPath, (</>))
 import Effectful.IORef.Dynamic (IORefDynamic, modifyIORef', newIORef, readIORef)
 import GHC.Generics (Generic)
 import Optics.Core
@@ -155,8 +155,8 @@ runPathWriterDynamicIO = interpret $ \env -> \case
   RemovePathForcibly p -> liftIO $ Dir.removePathForcibly p
   RenameDirectory p p' -> liftIO $ Dir.renameDirectory p p'
   SetCurrentDirectory p -> liftIO $ Dir.setCurrentDirectory p
-  WithCurrentDirectory p m -> localSeqUnliftIO env $ \runInDynamicIO ->
-    liftIO $ Dir.withCurrentDirectory p (runInDynamicIO m)
+  WithCurrentDirectory p m -> localSeqUnliftIO env $ \runInIO ->
+    liftIO $ Dir.withCurrentDirectory p (runInIO m)
   RemoveFile p -> liftIO $ Dir.removeFile p
   RenameFile p p' -> liftIO $ Dir.renameFile p p'
   RenamePath p p' -> liftIO $ Dir.renamePath p p'

@@ -1,12 +1,10 @@
-{-# LANGUAGE CPP #-}
-
 module Utils
   ( strToPath,
     pathToStr,
   )
 where
 
-import Effectful.FileSystem.Path (OsPath)
+import Effectful.FileSystem.Utils (OsPath)
 import System.OsPath qualified as FP
 
 strToPath :: String -> OsPath
