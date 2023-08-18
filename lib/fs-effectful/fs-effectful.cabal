@@ -32,9 +32,11 @@ common common
     ImportQualifiedPost
     LambdaCase
     MultiParamTypeClasses
+    NamedFieldPuns
     NumericUnderscores
     OverloadedLabels
     OverloadedStrings
+    RankNTypes
     ScopedTypeVariables
     TupleSections
     TypeApplications
@@ -56,7 +58,10 @@ library
     Effectful.FileSystem.HandleWriter.Dynamic
     Effectful.FileSystem.HandleWriter.Static
     Effectful.FileSystem.PathReader.Dynamic
+    Effectful.FileSystem.PathReader.Static
     Effectful.FileSystem.PathWriter.Dynamic
+    Effectful.FileSystem.PathWriter.Static
+    Effectful.FileSystem.PathWriter.Utils
     Effectful.FileSystem.Utils
 
   build-depends:

@@ -39,7 +39,10 @@ testListDirectoryRecursive = testCase "Recursively lists sub-files/dirs" $ do
         "Effectful" </> "FileSystem" </> "HandleWriter" </> "Dynamic.hs",
         "Effectful" </> "FileSystem" </> "HandleWriter" </> "Static.hs",
         "Effectful" </> "FileSystem" </> "PathReader" </> "Dynamic.hs",
+        "Effectful" </> "FileSystem" </> "PathReader" </> "Static.hs",
         "Effectful" </> "FileSystem" </> "PathWriter" </> "Dynamic.hs",
+        "Effectful" </> "FileSystem" </> "PathWriter" </> "Static.hs",
+        "Effectful" </> "FileSystem" </> "PathWriter" </> "Utils.hs",
         "Effectful" </> "FileSystem" </> "Utils.hs"
       ]
     expectedDirs =
