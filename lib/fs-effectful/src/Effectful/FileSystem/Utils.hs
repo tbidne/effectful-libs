@@ -19,7 +19,7 @@ module Effectful.FileSystem.Utils
     decodeUtf8ThrowM,
 
     -- * Encoding UTF-8
-    encodeUtf8,
+    TEnc.encodeUtf8,
 
     -- * Misc
     (>.>),
@@ -91,12 +91,6 @@ decodeUtf8ThrowM =
   TEnc.decodeUtf8' >.> \case
     Right txt -> pure txt
     Left ex -> throwM ex
-
--- | Encodes a 'Text' to 'ByteString'.
---
--- @since 0.1
-encodeUtf8 :: Text -> ByteString
-encodeUtf8 = TEnc.encodeUtf8
 
 -- | Flipped '(.)'.
 --
