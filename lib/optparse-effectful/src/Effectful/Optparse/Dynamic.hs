@@ -10,6 +10,9 @@ module Effectful.Optparse.Dynamic
 
     -- ** Handler
     runOptparseDynamicIO,
+
+    -- * Misc
+    Utils.osPath,
   )
 where
 
@@ -23,6 +26,7 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
+import Effectful.Optparse.Utils qualified as Utils
 import Options.Applicative (ParserInfo, ParserPrefs, ParserResult)
 import Options.Applicative qualified as OA
 

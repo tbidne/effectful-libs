@@ -12,6 +12,10 @@ module Effectful.Optparse.Static
 
     -- ** Handler
     runOptparseStaticIO,
+
+    -- * Misc
+    Utils.OsPath,
+    Utils.osPath,
   )
 where
 
@@ -29,6 +33,7 @@ import Effectful.Dispatch.Static
     evalStaticRep,
     unsafeEff_,
   )
+import Effectful.Optparse.Utils qualified as Utils
 import Options.Applicative (ParserInfo, ParserPrefs, ParserResult)
 import Options.Applicative qualified as OA
 
