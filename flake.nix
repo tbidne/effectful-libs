@@ -16,6 +16,7 @@
   inputs.bounds = {
     url = "github:tbidne/bounds";
     inputs.flake-parts.follows = "flake-parts";
+    inputs.nixpkgs.follows = "nixpkgs";
     inputs.nix-hs-utils.follows = "nix-hs-utils";
   };
   outputs =
@@ -27,31 +28,19 @@
     flake-parts.lib.mkFlake { inherit inputs; } {
       perSystem = { pkgs, ... }:
         let
-          buildTools = c: with c; [
-            cabal-install
-            pkgs.gnumake
-            pkgs.zlib
-          ];
-          devTools = c: with c; [
-            ghcid
-            haskell-language-server
-          ];
-          ghc-version = "ghc945";
+          ghc-version = "ghc962";
           hlib = pkgs.haskell.lib;
           compiler = pkgs.haskell.packages."${ghc-version}".override {
             overrides = final: prev: {
-              apply-refact = prev.apply-refact_0_11_0_0;
-              # These tests seems to hang, see:
-              # https://github.com/ddssff/listlike/issues/23
-              ListLike = hlib.dontCheck prev.ListLike;
-              hedgehog = prev.hedgehog_1_2;
-              tasty-hedgehog = prev.tasty-hedgehog_1_4_0_1;
-              unix-compat = prev.unix-compat_0_7;
+              hedgehog = prev.hedgehog_1_3;
+              hlint = prev.hlint_3_6_1;
+              ormolu = prev.ormolu_0_7_1_0;
             } // nix-hs-utils.mkLibs inputs final [
               "algebra-simple"
               "bounds"
             ];
           };
+          pkgsCompiler = { inherit pkgs compiler; };
           hsOverlay =
             (compiler.extend (hlib.compose.packageSourceOverrides {
               env-effectful = ./lib/env-effectful;
@@ -89,7 +78,7 @@
             returnShellEnv = false;
           };
           mkPkgsExceptions = name: root: mkPkg name root {
-            exceptions-effectful = ./exceptions-effectful;
+            exceptions-effectful = ./lib/exceptions-effectful;
           };
 
           hsDirs = "lib/*-effectful";
@@ -127,8 +116,8 @@
             inherit packages;
             withHoogle = true;
             buildInputs =
-              (nix-hs-utils.mkBuildTools pkgs compiler)
-              ++ (nix-hs-utils.mkDevTools { inherit pkgs compiler; });
+              (nix-hs-utils.mkBuildTools pkgsCompiler)
+              ++ (nix-hs-utils.mkDevTools pkgsCompiler);
           };
 
           apps = {
