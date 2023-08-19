@@ -4,6 +4,10 @@
 module Effectful.FileSystem.Utils
   ( -- * File paths
     OsPath,
+    toOsPath,
+    toOsPathThrowM,
+    fromOsPath,
+    fromOsPathThrowM,
     (</>),
 
     -- * IO actions
@@ -36,7 +40,9 @@ import Data.Text.Encoding.Error qualified as TEncError
 import Effectful.Exception (MonadThrow, throwM)
 import System.IO (Handle, IOMode)
 import System.IO qualified as IO
-import System.OsPath (OsPath, decodeUtf, (</>))
+import System.OsPath (OsPath, (</>))
+import System.OsPath qualified as OsPath
+import System.OsPath.Encoding (EncodingException)
 
 -- NOTE: decodeUtf vs. decodeFs
 --
@@ -48,25 +54,59 @@ import System.OsPath (OsPath, decodeUtf, (</>))
 --
 -- https://hasufell.github.io/posts/2022-06-29-fixing-haskell-filepaths.html
 
+-- | Encodes a 'FilePath' to an 'OsPath'. This is a pure version of filepath's
+-- 'OsPath.encodeUtf'.
+--
+-- @since 0.1
+toOsPath :: FilePath -> Either EncodingException OsPath
+toOsPath = OsPath.encodeWith IO.utf8 IO.utf16le
+
+-- | 'toOsPath' that throws 'EncodingException'. Equivalent to
+-- 'OsPath.encodeUtf'.
+--
+-- @since 0.1
+toOsPathThrowM :: (MonadThrow m) => FilePath -> m OsPath
+toOsPathThrowM =
+  toOsPath >.> \case
+    Right txt -> pure txt
+    Left ex -> throwM ex
+
+-- | Decodes an 'OsPath' to a 'FilePath'. This is a pure version of filepath's
+-- 'OsPath.decodeUtf'.
+--
+-- @since 0.1
+fromOsPath :: OsPath -> Either EncodingException FilePath
+fromOsPath = OsPath.decodeWith IO.utf8 IO.utf16le
+
+-- | 'fromOsPath' that throws 'EncodingException'. Equivalent to
+-- 'OsPath.decodeUtf'.
+--
+-- @since 0.1
+fromOsPathThrowM :: (MonadThrow m) => OsPath -> m FilePath
+fromOsPathThrowM =
+  fromOsPath >.> \case
+    Right txt -> pure txt
+    Left ex -> throwM ex
+
 -- | @since 0.1
 readBinaryFileIO :: OsPath -> IO ByteString
-readBinaryFileIO = decodeUtf >=> BS.readFile
+readBinaryFileIO = fromOsPathThrowM >=> BS.readFile
 
 -- | @since 0.1
 writeBinaryFileIO :: OsPath -> ByteString -> IO ()
-writeBinaryFileIO p bs = decodeUtf p >>= \p' -> BS.writeFile p' bs
+writeBinaryFileIO p bs = fromOsPathThrowM p >>= \p' -> BS.writeFile p' bs
 
 -- | @since 0.1
 appendBinaryFileIO :: OsPath -> ByteString -> IO ()
-appendBinaryFileIO p bs = decodeUtf p >>= \p' -> BS.appendFile p' bs
+appendBinaryFileIO p bs = fromOsPathThrowM p >>= \p' -> BS.appendFile p' bs
 
 -- | @since 0.1
 openBinaryFileIO :: OsPath -> IOMode -> IO Handle
-openBinaryFileIO p m = decodeUtf p >>= \h -> IO.openBinaryFile h m
+openBinaryFileIO p m = fromOsPathThrowM p >>= \h -> IO.openBinaryFile h m
 
 -- | @since 0.1
 withBinaryFileIO :: OsPath -> IOMode -> (Handle -> IO a) -> IO a
-withBinaryFileIO p m f = decodeUtf p >>= \h -> IO.withBinaryFile h m f
+withBinaryFileIO p m f = fromOsPathThrowM p >>= \h -> IO.withBinaryFile h m f
 
 -- | Decodes a 'ByteString' to UTF-8.
 --

@@ -84,6 +84,7 @@
           hsDirs = "lib/*-effectful";
         in
         {
+          packages.concurrent-effectful = mkPkgsExceptions "concurrent-effectful" ./lib/concurrent-effectful;
           packages.env-effectful = mkPkg "env-effectful" ./lib/env-effectful { };
           packages.exceptions-effectful = mkPkg "exceptions-effectful" ./lib/exceptions-effectful { };
           packages.fs-effectful =
@@ -99,10 +100,14 @@
               logger-effectful = ./lib/logger-effectful;
               time-effectful = ./lib/time-effectful;
             };
-          packages.optparse-effectful = mkPkg "optparse-effectful" ./lib/optparse-effectful { };
+          packages.optparse-effectful =
+            mkPkg "optparse-effectful" ./lib/optparse-effectful {
+              exceptions-effectful = ./lib/exceptions-effectful;
+              fs-effectful = ./lib/fs-effectful;
+              ioref-effectful = ./lib/ioref-effectful;
+            };
           packages.stm-effectful = mkPkgsExceptions "stm-effectful" ./lib/stm-effectful;
           packages.terminal-effectful = mkPkgsExceptions "terminal-effectful" ./lib/terminal-effectful;
-          packages.concurrent-effectful = mkPkgsExceptions "concurrent-effectful" ./lib/concurrent-effectful;
           packages.time-effectful = mkPkgsExceptions "time-effectful" ./lib/time-effectful;
           packages.typed-process-effectful =
             mkPkg "typed-process-effectful" ./lib/typed-process-effectful {
