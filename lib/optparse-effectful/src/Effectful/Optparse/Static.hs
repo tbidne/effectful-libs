@@ -16,6 +16,7 @@ module Effectful.Optparse.Static
     -- * Misc
     Utils.OsPath,
     Utils.osPath,
+    Utils.validOsPath,
   )
 where
 

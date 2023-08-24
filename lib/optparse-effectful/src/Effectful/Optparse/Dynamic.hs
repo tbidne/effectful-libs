@@ -13,6 +13,7 @@ module Effectful.Optparse.Dynamic
 
     -- * Misc
     Utils.osPath,
+    Utils.validOsPath,
   )
 where
 
