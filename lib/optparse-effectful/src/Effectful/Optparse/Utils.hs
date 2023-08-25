@@ -9,7 +9,7 @@ module Effectful.Optparse.Utils
 where
 
 import Control.Exception (Exception (displayException))
-import Effectful.FileSystem.Utils (OsPath, toOsPath, toValidOsPath)
+import Effectful.FileSystem.Utils (OsPath, encodeFpToOs, encodeFpToValidOs)
 import Options.Applicative (ReadM)
 import Options.Applicative qualified as OA
 
@@ -19,7 +19,7 @@ import Options.Applicative qualified as OA
 osPath :: ReadM OsPath
 osPath = do
   pathStr <- OA.str
-  case toOsPath pathStr of
+  case encodeFpToOs pathStr of
     Right p -> pure p
     Left ex -> fail $ "Error encoding string path: " ++ displayException ex
 
@@ -30,6 +30,6 @@ osPath = do
 validOsPath :: ReadM OsPath
 validOsPath = do
   pathStr <- OA.str
-  case toValidOsPath pathStr of
+  case encodeFpToValidOs pathStr of
     Right p -> pure p
     Left ex -> fail $ "Error encoding string path: " ++ displayException ex
