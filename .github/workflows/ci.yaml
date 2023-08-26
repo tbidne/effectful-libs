@@ -42,7 +42,7 @@ jobs:
         run: cabal build all
 
       - name: Test fs-effectful
-        run: cabal test fs-effectful
+        run: cabal test fs-effectful --test-options '--hedgehog-tests 100000'
 
       - name: Test logger-ns-effectful
         run: cabal test logger-ns-effectful
