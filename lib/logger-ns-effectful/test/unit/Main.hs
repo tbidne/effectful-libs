@@ -149,7 +149,6 @@ runTimePure ::
   Eff (TimeDynamic : es) a ->
   Eff es a
 runTimePure = interpret $ \_ -> \case
-  GetSystemTime -> pure localTime
   GetSystemZonedTime -> pure zonedTime
   GetMonotonicTime -> pure 50
 
