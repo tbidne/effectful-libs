@@ -72,7 +72,6 @@ import GHC.Clock qualified as C
 --
 -- @since 0.1
 data TimeDynamic :: Effect where
-  GetSystemTime :: TimeDynamic m LocalTime
   GetSystemZonedTime :: TimeDynamic m ZonedTime
   GetMonotonicTime :: TimeDynamic m Double
 
@@ -84,9 +83,6 @@ type instance DispatchOf TimeDynamic = Dynamic
 -- @since 0.1
 runTimeDynamicIO :: (IOE :> es) => Eff (TimeDynamic : es) a -> Eff es a
 runTimeDynamicIO = interpret $ \_ -> \case
-  GetSystemTime ->
-    liftIO $
-      Local.zonedTimeToLocalTime <$> Local.getZonedTime
   GetSystemZonedTime -> liftIO Local.getZonedTime
   GetMonotonicTime -> liftIO C.getMonotonicTime
 
@@ -94,7 +90,7 @@ runTimeDynamicIO = interpret $ \_ -> \case
 --
 -- @since 0.1
 getSystemTime :: (TimeDynamic :> es) => Eff es LocalTime
-getSystemTime = send GetSystemTime
+getSystemTime = Local.zonedTimeToLocalTime <$> getSystemZonedTime
 
 -- | Returns the zoned system time
 --

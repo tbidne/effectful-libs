@@ -93,7 +93,7 @@ runTimeStaticIO = evalStaticRep MkTimeStatic
 --
 -- @since 0.1
 getSystemTime :: (TimeStatic :> es) => Eff es LocalTime
-getSystemTime = unsafeEff_ $ Local.zonedTimeToLocalTime <$> Local.getZonedTime
+getSystemTime = Local.zonedTimeToLocalTime <$> getSystemZonedTime
 
 -- | Returns the zoned system time
 --
