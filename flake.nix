@@ -113,7 +113,6 @@
           packages.typed-process-effectful =
             mkPkg "typed-process-effectful" ./lib/typed-process-effectful {
               exceptions-effectful = ./lib/exceptions-effectful;
-              stm-effectful = ./lib/stm-effectful;
             };
           packages.unix-compat-effectful =
             mkPkgsExceptions "unix-compat-effectful" ./lib/unix-compat-effectful;

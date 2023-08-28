@@ -120,7 +120,7 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Concurrent.STM.Dynamic (STMDynamic (..), atomically)
+import Effectful.Concurrent.STM (Concurrent, atomically)
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
 import Effectful.Exception (bracket, finally)
 import GHC.Conc (catchSTM, throwSTM)
@@ -223,7 +223,7 @@ readProcessInterleaved_ = send . ReadProcessInterleaved_
 --
 -- @since 0.1
 runProcess ::
-  (TypedProcessDynamic :> es, STMDynamic :> es) =>
+  (Concurrent :> es, TypedProcessDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdout stderr ->
   Eff es ExitCode
@@ -239,7 +239,7 @@ runProcess pc = withProcessTerm pc waitExitCode
 --
 -- @since 0.1
 readProcess ::
-  (TypedProcessDynamic :> es, STMDynamic :> es) =>
+  (Concurrent :> es, TypedProcessDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdoutIgnored stderrIgnored ->
   Eff es (ExitCode, BSL.ByteString, BSL.ByteString)
@@ -261,7 +261,7 @@ readProcess pc =
 --
 -- @since 0.1
 readProcessStdout ::
-  (TypedProcessDynamic :> es, STMDynamic :> es) =>
+  (Concurrent :> es, TypedProcessDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdoutIgnored stderr ->
   Eff es (ExitCode, BSL.ByteString)
@@ -280,7 +280,7 @@ readProcessStdout pc =
 --
 -- @since 0.1
 readProcessStderr ::
-  (TypedProcessDynamic :> es, STMDynamic :> es) =>
+  (Concurrent :> es, TypedProcessDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdout stderrIgnored ->
   Eff es (ExitCode, BSL.ByteString)
@@ -304,7 +304,7 @@ readProcessStderr pc =
 --
 -- @since 0.1
 withProcessWait ::
-  (TypedProcessDynamic :> es, STMDynamic :> es) =>
+  (Concurrent :> es, TypedProcessDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdout stderr ->
   (Process stdin stdout stderr -> Eff es a) ->
@@ -321,7 +321,7 @@ withProcessWait config f =
 --
 -- @since 0.1
 runProcess_ ::
-  (TypedProcessDynamic :> es, STMDynamic :> es) =>
+  (Concurrent :> es, TypedProcessDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdout stderr ->
   Eff es ()
@@ -335,7 +335,7 @@ runProcess_ pc = withProcessTerm pc checkExitCode
 --
 -- @since 0.1
 readProcess_ ::
-  (TypedProcessDynamic :> es, STMDynamic :> es) =>
+  (Concurrent :> es, TypedProcessDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdoutIgnored stderrIgnored ->
   Eff es (BSL.ByteString, BSL.ByteString)
@@ -363,7 +363,7 @@ readProcess_ pc =
 --
 -- @since 0.1
 readProcessStdout_ ::
-  (TypedProcessDynamic :> es, STMDynamic :> es) =>
+  (Concurrent :> es, TypedProcessDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdoutIgnored stderr ->
   Eff es BSL.ByteString
@@ -387,7 +387,7 @@ readProcessStdout_ pc =
 --
 -- @since 0.1
 readProcessStderr_ ::
-  (TypedProcessDynamic :> es, STMDynamic :> es) =>
+  (Concurrent :> es, TypedProcessDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdout stderrIgnored ->
   Eff es BSL.ByteString
@@ -408,7 +408,7 @@ readProcessStderr_ pc =
 --
 -- @since 0.1
 withProcessWait_ ::
-  (TypedProcessDynamic :> es, STMDynamic :> es) =>
+  (Concurrent :> es, TypedProcessDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdout stderr ->
   (Process stdin stdout stderr -> Eff es a) ->
@@ -427,7 +427,7 @@ withProcessWait_ config f =
 --
 -- @since 0.1
 withProcessTerm_ ::
-  (TypedProcessDynamic :> es, STMDynamic :> es) =>
+  (Concurrent :> es, TypedProcessDynamic :> es) =>
   -- | .
   ProcessConfig stdin stdout stderr ->
   (Process stdin stdout stderr -> Eff es a) ->
@@ -442,7 +442,7 @@ withProcessTerm_ config =
 --
 -- @since 0.1
 waitExitCode ::
-  (STMDynamic :> es) =>
+  (Concurrent :> es) =>
   Process stdin stdout stderr ->
   Eff es ExitCode
 waitExitCode = atomically . P.waitExitCodeSTM
@@ -452,7 +452,7 @@ waitExitCode = atomically . P.waitExitCodeSTM
 --
 -- @since 0.1
 getExitCode ::
-  (STMDynamic :> es) =>
+  (Concurrent :> es) =>
   Process stdin stdout stderr ->
   Eff es (Maybe ExitCode)
 getExitCode = atomically . P.getExitCodeSTM
@@ -468,7 +468,7 @@ getExitCode = atomically . P.getExitCodeSTM
 --
 -- @since 0.1
 checkExitCode ::
-  (STMDynamic :> es) =>
+  (Concurrent :> es) =>
   Process stdin stdout stderr ->
   Eff es ()
 checkExitCode = atomically . P.checkExitCodeSTM
