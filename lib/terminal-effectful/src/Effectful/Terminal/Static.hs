@@ -12,6 +12,7 @@ module Effectful.Terminal.Static
     TermSizeException (..),
     putStr,
     putStrLn,
+    putBinary,
     getChar,
     getLine,
 #if MIN_VERSION_base(4,15,0)
@@ -46,6 +47,8 @@ where
 {- ORMOLU_ENABLE -}
 
 import Control.Monad.IO.Class (MonadIO (liftIO))
+import Data.ByteString (ByteString)
+import Data.ByteString qualified as BS
 import Data.Text (Text)
 import Data.Text qualified as T
 import Effectful
@@ -94,6 +97,12 @@ putStr = unsafeEff_ . IO.putStr
 -- @since 0.1
 putStrLn :: (TerminalStatic :> es) => String -> Eff es ()
 putStrLn = unsafeEff_ . IO.putStrLn
+
+-- | Lifted 'BS.putStr'.
+--
+-- @since 0.1
+putBinary :: (TerminalStatic :> es) => ByteString -> Eff es ()
+putBinary = unsafeEff_ . BS.putStr
 
 -- | Lifted 'IO.getChar'.
 --
