@@ -197,7 +197,7 @@ instance Lift LogLevel where
 logTH :: LogLevel -> Q Exp
 logTH level =
   [|
-    monadLoggerLog $(qLocation >>= liftLoc) (pack "") $(lift level)
+    loggerLog $(qLocation >>= liftLoc) (pack "") $(lift level)
       . (id :: Text -> Text)
     |]
 
@@ -207,7 +207,7 @@ logTH level =
 logTHShow :: LogLevel -> Q Exp
 logTHShow level =
   [|
-    monadLoggerLog $(qLocation >>= liftLoc) (pack "") $(lift level)
+    loggerLog $(qLocation >>= liftLoc) (pack "") $(lift level)
       . ((pack . show) :: (Show a) => a -> Text)
     |]
 
@@ -305,28 +305,28 @@ liftLoc (Loc a b c (d1, d2) (e1, e2)) =
 -- @since 0.1
 logDebugS :: Q Exp
 logDebugS =
-  [|\a b -> monadLoggerLog $(qLocation >>= liftLoc) a LevelDebug (b :: Text)|]
+  [|\a b -> loggerLog $(qLocation >>= liftLoc) a LevelDebug (b :: Text)|]
 
 -- | See 'logDebugS'
 --
 -- @since 0.1
 logInfoS :: Q Exp
 logInfoS =
-  [|\a b -> monadLoggerLog $(qLocation >>= liftLoc) a LevelInfo (b :: Text)|]
+  [|\a b -> loggerLog $(qLocation >>= liftLoc) a LevelInfo (b :: Text)|]
 
 -- | See 'logDebugS'
 --
 -- @since 0.1
 logWarnS :: Q Exp
 logWarnS =
-  [|\a b -> monadLoggerLog $(qLocation >>= liftLoc) a LevelWarn (b :: Text)|]
+  [|\a b -> loggerLog $(qLocation >>= liftLoc) a LevelWarn (b :: Text)|]
 
 -- | See 'logDebugS'
 --
 -- @since 0.1
 logErrorS :: Q Exp
 logErrorS =
-  [|\a b -> monadLoggerLog $(qLocation >>= liftLoc) a LevelError (b :: Text)|]
+  [|\a b -> loggerLog $(qLocation >>= liftLoc) a LevelError (b :: Text)|]
 
 -- | Generates a function that takes a 'LogSource', a level name and a 'Text'
 -- and logs a 'LevelOther' message. Usage:
@@ -338,7 +338,7 @@ logOtherS :: Q Exp
 logOtherS =
   [|
     \src level msg ->
-      monadLoggerLog
+      loggerLog
         $(qLocation >>= liftLoc)
         src
         (LevelOther level)
@@ -348,7 +348,7 @@ logOtherS =
 -- | @since 0.1
 type LogLine = (Loc, LogSource, LogLevel, LogStr)
 
--- | A default implementation of 'monadLoggerLog' that accepts a file
+-- | A default implementation of 'loggerLog' that accepts a file
 -- handle as the first argument.
 --
 -- This is used in the definition of 'runStdoutLoggingT':
