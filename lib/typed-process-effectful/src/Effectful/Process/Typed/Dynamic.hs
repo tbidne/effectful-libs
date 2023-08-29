@@ -3,17 +3,12 @@
 {- ORMOLU_DISABLE -}
 
 -- | Dynamic effect for "System.Process.Typed". For static effects, see
--- https://github.com/haskell-effectful/typed-process-effectful.
+-- https://hackage.haskell.org/package/typed-process-effectful.
 --
 -- @since 0.1
 module Effectful.Process.Typed.Dynamic
   ( -- * Effect
     TypedProcessDynamic (..),
-    readProcessInterleaved,
-    withProcessTerm,
-    startProcess,
-    stopProcess,
-    readProcessInterleaved_,
 
     -- ** Handlers
     runTypedProcessDynamicIO,
@@ -70,13 +65,18 @@ module Effectful.Process.Typed.Dynamic
     readProcess,
     readProcessStdout,
     readProcessStderr,
+    readProcessInterleaved,
     withProcessWait,
+    withProcessTerm,
+    startProcess,
+    stopProcess,
 
     -- * Exception-throwing functions
     runProcess_,
     readProcess_,
     readProcessStdout_,
     readProcessStderr_,
+    readProcessInterleaved_,
     withProcessWait_,
     withProcessTerm_,
 
@@ -120,38 +120,95 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Concurrent.STM (Concurrent, atomically)
-import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
+import Effectful.Dispatch.Dynamic (interpret, send)
 import Effectful.Exception (bracket, finally)
-import GHC.Conc (catchSTM, throwSTM)
 import System.Exit (ExitCode)
 import System.Process.Typed
-  ( ExitCodeException (..),
-    Process,
+  ( Process,
     ProcessConfig,
     StreamSpec,
     StreamType,
   )
 import System.Process.Typed qualified as P
 
+-- NOTE: [Reimplementation vs. lifting]
+--
+-- In general, there is tension between reimplementing typed-process
+-- (henceforth TP) functions vs. lifting them directly. On the one hand,
+-- reimplementing means we can provide a shorter, simpler interface and
+-- potentially make writing custom handlers easier. On the other hand,
+-- reimplementing many (possibly complex) functions increases the possibility
+-- of novel bugs, the maintenance burden, and can (conversely) make mocking
+-- certain behavior harder.
+--
+-- Fortunately, typed-process's effectful API is not massive, and
+-- most are sufficiently complicated that we do not attempt reimplementation.
+-- The exceptions that we do reimplement are withProcessWait, withProcessWait_,
+-- withProcessTerm, withProcessTerm_.
+--
+-- We implement these for two reasons:
+--
+-- 1. The implementation is trivial; they merely wrap other functions in
+--    bracket.
+-- 2. Reimplementation makes mocking easier, Continuation functions are
+--    generally hard to mock, as we need to provide a natural transformation
+--    (f a -> g a). By implementing these here, mocking uses e.g. the
+--    startProcess/stopProcess functions, which are significantly easier to
+--    mock.
+--
+-- Note that the usage of bracket here __is__ consistent as both typed-process
+-- and Effectful.Exception use base's version, despite the former also
+-- depending on UnliftIO (hence safe-exceptions).
+
 -- | Dynamic effect for "System.Process.Typed".
 --
 -- @since 0.1
 data TypedProcessDynamic :: Effect where
+  RunProcess ::
+    ProcessConfig stdin stdout stderr ->
+    TypedProcessDynamic m ExitCode
+  ReadProcess ::
+    ProcessConfig stdin stdoutIgnored stderrIgnored ->
+    TypedProcessDynamic m (ExitCode, BSL.ByteString, BSL.ByteString)
+  ReadProcessStdout ::
+    ProcessConfig stdin stdoutIgnored stderr ->
+    TypedProcessDynamic m (ExitCode, BSL.ByteString)
+  ReadProcessStderr ::
+    ProcessConfig stdin stdout stderrIgnored ->
+    TypedProcessDynamic m (ExitCode, BSL.ByteString)
   ReadProcessInterleaved ::
     ProcessConfig stdin stdoutIgnored stderrIgnored ->
     TypedProcessDynamic m (ExitCode, BSL.ByteString)
-  WithProcessTerm ::
-    ProcessConfig stdin stdout stderr ->
-    (Process stdin stdout stderr -> m a) ->
-    TypedProcessDynamic m a
   StartProcess ::
     ProcessConfig stdin stdout stderr ->
     TypedProcessDynamic m (Process stdin stdout stderr)
-  StopProcess :: Process stdin stdout stderr -> TypedProcessDynamic m ()
+  StopProcess ::
+    Process stdin stdout stderr ->
+    TypedProcessDynamic m ()
+  RunProcess_ ::
+    ProcessConfig stdin stdout stderr ->
+    TypedProcessDynamic m ()
+  ReadProcess_ ::
+    ProcessConfig stdin stdoutIgnored stderrIgnored ->
+    TypedProcessDynamic m (BSL.ByteString, BSL.ByteString)
+  ReadProcessStdout_ ::
+    ProcessConfig stdin stdoutIgnored stderr ->
+    TypedProcessDynamic m BSL.ByteString
+  ReadProcessStderr_ ::
+    ProcessConfig stdin stdout stderrIgnored ->
+    TypedProcessDynamic m BSL.ByteString
   ReadProcessInterleaved_ ::
     ProcessConfig stdin stdoutIgnored stderrIgnored ->
     TypedProcessDynamic m BSL.ByteString
+  WaitExitCode ::
+    Process stdin stdout stderr ->
+    TypedProcessDynamic m ExitCode
+  GetExitCode ::
+    Process stdin stdout stderr ->
+    TypedProcessDynamic m (Maybe ExitCode)
+  CheckExitCode ::
+    Process stdin stdout stderr ->
+    TypedProcessDynamic m ()
 
 -- | @since 0.1
 type instance DispatchOf TypedProcessDynamic = Dynamic
@@ -164,13 +221,58 @@ runTypedProcessDynamicIO ::
   ) =>
   Eff (TypedProcessDynamic : es) a ->
   Eff es a
-runTypedProcessDynamicIO = interpret $ \env -> \case
+runTypedProcessDynamicIO = interpret $ \_ -> \case
+  RunProcess pc -> liftIO $ P.runProcess pc
+  ReadProcess pc -> liftIO $ P.readProcess pc
+  ReadProcessStdout pc -> liftIO $ P.readProcessStdout pc
+  ReadProcessStderr pc -> liftIO $ P.readProcessStderr pc
   ReadProcessInterleaved p -> liftIO $ P.readProcessInterleaved p
-  WithProcessTerm pc onProcess -> localSeqUnliftIO env $ \runInIO ->
-    liftIO $ P.withProcessTerm pc (runInIO . onProcess)
   StartProcess pc -> liftIO $ P.startProcess pc
   StopProcess p -> liftIO $ P.stopProcess p
+  RunProcess_ pc -> liftIO $ P.runProcess_ pc
+  ReadProcess_ pc -> liftIO $ P.readProcess_ pc
+  ReadProcessStdout_ pc -> liftIO $ P.readProcessStdout_ pc
+  ReadProcessStderr_ pc -> liftIO $ P.readProcessStderr_ pc
   ReadProcessInterleaved_ pc -> liftIO $ P.readProcessInterleaved_ pc
+  WaitExitCode p -> liftIO $ P.waitExitCode p
+  GetExitCode p -> liftIO $ P.getExitCode p
+  CheckExitCode p -> liftIO $ P.checkExitCode p
+
+-- | Lifted 'P.runProcess'.
+--
+-- @since 0.1
+runProcess ::
+  (TypedProcessDynamic :> es) =>
+  ProcessConfig stdin stdout stderr ->
+  Eff es ExitCode
+runProcess = send . RunProcess
+
+-- | Lifted 'P.readProcess'.
+--
+-- @since 0.1
+readProcess ::
+  (TypedProcessDynamic :> es) =>
+  ProcessConfig stdin stdoutIgnored stderrIgnored ->
+  Eff es (ExitCode, BSL.ByteString, BSL.ByteString)
+readProcess = send . ReadProcess
+
+-- | Lifted 'P.readProcessStdout'.
+--
+-- @since 0.1
+readProcessStdout ::
+  (TypedProcessDynamic :> es) =>
+  ProcessConfig stdin stdoutIgnored stderr ->
+  Eff es (ExitCode, BSL.ByteString)
+readProcessStdout = send . ReadProcessStdout
+
+-- | Lifted 'P.runProcess'.
+--
+-- @since 0.1
+readProcessStderr ::
+  (TypedProcessDynamic :> es) =>
+  ProcessConfig stdin stdout stderrIgnored ->
+  Eff es (ExitCode, BSL.ByteString)
+readProcessStderr = send . ReadProcessStderr
 
 -- | Lifted 'P.readProcessInterleaved'.
 --
@@ -181,6 +283,20 @@ readProcessInterleaved ::
   Eff es (ExitCode, BSL.ByteString)
 readProcessInterleaved = send . ReadProcessInterleaved
 
+-- | Lifted 'P.withProcessWait'.
+--
+-- @since 0.1
+withProcessWait ::
+  (TypedProcessDynamic :> es) =>
+  ProcessConfig stdin stdout stderr ->
+  (Process stdin stdout stderr -> Eff es a) ->
+  Eff es a
+withProcessWait pc onProcess =
+  bracket
+    (startProcess pc)
+    stopProcess
+    (\p -> onProcess p <* waitExitCode p)
+
 -- | Lifted 'P.withProcessTerm'.
 --
 -- @since 0.1
@@ -189,7 +305,7 @@ withProcessTerm ::
   ProcessConfig stdin stdout stderr ->
   (Process stdin stdout stderr -> Eff es a) ->
   Eff es a
-withProcessTerm pc = send . WithProcessTerm pc
+withProcessTerm pc = bracket (startProcess pc) stopProcess
 
 -- | Lifted 'P.startProcess'.
 --
@@ -209,6 +325,42 @@ stopProcess ::
   Eff es ()
 stopProcess = send . StopProcess
 
+-- | Lifted 'P.runProcess_'.
+--
+-- @since 0.1
+runProcess_ ::
+  (TypedProcessDynamic :> es) =>
+  ProcessConfig stdin stdout stderr ->
+  Eff es ()
+runProcess_ = send . RunProcess_
+
+-- | Lifted 'P.readProcess_'.
+--
+-- @since 0.1
+readProcess_ ::
+  (TypedProcessDynamic :> es) =>
+  ProcessConfig stdin stdoutIgnored stderrIgnored ->
+  Eff es (BSL.ByteString, BSL.ByteString)
+readProcess_ = send . ReadProcess_
+
+-- | Lifted 'P.readProcessStdout'.
+--
+-- @since 0.1
+readProcessStdout_ ::
+  (TypedProcessDynamic :> es) =>
+  ProcessConfig stdin stdoutIgnored stderr ->
+  Eff es BSL.ByteString
+readProcessStdout_ = send . ReadProcessStdout_
+
+-- | Lifted 'P.readProcess_'.
+--
+-- @since 0.1
+readProcessStderr_ ::
+  (TypedProcessDynamic :> es) =>
+  ProcessConfig stdin stdout stderrIgnored ->
+  Eff es BSL.ByteString
+readProcessStderr_ = send . ReadProcessStderr_
+
 -- | Lifted 'P.readProcessInterleaved'.
 --
 -- @since 0.1
@@ -218,258 +370,56 @@ readProcessInterleaved_ ::
   Eff es BSL.ByteString
 readProcessInterleaved_ = send . ReadProcessInterleaved_
 
--- | Run the given process, wait for it to exit, and returns its
--- 'ExitCode'.
---
--- @since 0.1
-runProcess ::
-  (Concurrent :> es, TypedProcessDynamic :> es) =>
-  -- | .
-  ProcessConfig stdin stdout stderr ->
-  Eff es ExitCode
-runProcess pc = withProcessTerm pc waitExitCode
-{-# INLINEABLE runProcess #-}
-
--- | Run a process, capture its standard output and error as a
--- 'BSL.ByteString', wait for it to complete, and then return its exit
--- code, output, and error.
---
--- Note that any previously used 'setStdout' or 'setStderr' will be
--- overridden.
---
--- @since 0.1
-readProcess ::
-  (Concurrent :> es, TypedProcessDynamic :> es) =>
-  -- | .
-  ProcessConfig stdin stdoutIgnored stderrIgnored ->
-  Eff es (ExitCode, BSL.ByteString, BSL.ByteString)
-readProcess pc =
-  withProcessTerm pc' $ \p ->
-    atomically $
-      (,,)
-        <$> P.waitExitCodeSTM p
-        <*> P.getStdout p
-        <*> P.getStderr p
-  where
-    pc' =
-      P.setStdout P.byteStringOutput $
-        P.setStderr P.byteStringOutput pc
-{-# INLINEABLE readProcess #-}
-
--- | Same as 'readProcess', but only read the stdout of the process.
--- Original settings for stderr remain.
---
--- @since 0.1
-readProcessStdout ::
-  (Concurrent :> es, TypedProcessDynamic :> es) =>
-  -- | .
-  ProcessConfig stdin stdoutIgnored stderr ->
-  Eff es (ExitCode, BSL.ByteString)
-readProcessStdout pc =
-  withProcessTerm pc' $ \p ->
-    atomically $
-      (,)
-        <$> P.waitExitCodeSTM p
-        <*> P.getStdout p
-  where
-    pc' = P.setStdout P.byteStringOutput pc
-{-# INLINEABLE readProcessStdout #-}
-
--- | Same as 'readProcess', but only read the stderr of the process.
--- Original settings for stdout remain.
---
--- @since 0.1
-readProcessStderr ::
-  (Concurrent :> es, TypedProcessDynamic :> es) =>
-  -- | .
-  ProcessConfig stdin stdout stderrIgnored ->
-  Eff es (ExitCode, BSL.ByteString)
-readProcessStderr pc =
-  withProcessTerm pc' $ \p ->
-    atomically $
-      (,)
-        <$> P.waitExitCodeSTM p
-        <*> P.getStderr p
-  where
-    pc' = P.setStderr P.byteStringOutput pc
-{-# INLINEABLE readProcessStderr #-}
-
--- | Uses the bracket pattern to call 'startProcess'. Unlike
--- 'withProcessTerm', this function will wait for the child process to
--- exit, and only kill it with 'stopProcess' in the event that the
--- inner function throws an exception.
---
--- To interact with a @Process@ use the functions from the section
--- [Interact with a process](#interactwithaprocess).
---
--- @since 0.1
-withProcessWait ::
-  (Concurrent :> es, TypedProcessDynamic :> es) =>
-  -- | .
-  ProcessConfig stdin stdout stderr ->
-  (Process stdin stdout stderr -> Eff es a) ->
-  Eff es a
-withProcessWait config f =
-  bracket
-    (startProcess config)
-    stopProcess
-    (\p -> f p <* waitExitCode p)
-{-# INLINEABLE withProcessWait #-}
-
--- | Same as 'runProcess', but instead of returning the 'ExitCode', checks it
--- with 'checkExitCode'.
---
--- @since 0.1
-runProcess_ ::
-  (Concurrent :> es, TypedProcessDynamic :> es) =>
-  -- | .
-  ProcessConfig stdin stdout stderr ->
-  Eff es ()
-runProcess_ pc = withProcessTerm pc checkExitCode
-{-# INLINEABLE runProcess_ #-}
-
--- | Same as 'readProcess', but instead of returning the 'ExitCode',
--- checks it with 'checkExitCode'.
---
--- Exceptions thrown by this function will include stdout and stderr.
---
--- @since 0.1
-readProcess_ ::
-  (Concurrent :> es, TypedProcessDynamic :> es) =>
-  -- | .
-  ProcessConfig stdin stdoutIgnored stderrIgnored ->
-  Eff es (BSL.ByteString, BSL.ByteString)
-readProcess_ pc =
-  withProcessTerm pc' $ \p -> atomically $ do
-    stdout <- P.getStdout p
-    stderr <- P.getStderr p
-    P.checkExitCodeSTM p `catchSTM` \ece ->
-      throwSTM
-        ece
-          { eceStdout = stdout,
-            eceStderr = stderr
-          }
-    return (stdout, stderr)
-  where
-    pc' =
-      P.setStdout P.byteStringOutput $
-        P.setStderr P.byteStringOutput pc
-{-# INLINEABLE readProcess_ #-}
-
--- | Same as 'readProcessStdout', but instead of returning the
--- 'ExitCode', checks it with 'checkExitCode'.
---
--- Exceptions thrown by this function will include stdout.
---
--- @since 0.1
-readProcessStdout_ ::
-  (Concurrent :> es, TypedProcessDynamic :> es) =>
-  -- | .
-  ProcessConfig stdin stdoutIgnored stderr ->
-  Eff es BSL.ByteString
-readProcessStdout_ pc =
-  withProcessTerm pc' $ \p -> atomically $ do
-    stdout <- P.getStdout p
-    P.checkExitCodeSTM p `catchSTM` \ece ->
-      throwSTM
-        ece
-          { eceStdout = stdout
-          }
-    return stdout
-  where
-    pc' = P.setStdout P.byteStringOutput pc
-{-# INLINEABLE readProcessStdout_ #-}
-
--- | Same as 'readProcessStderr', but instead of returning the
--- 'ExitCode', checks it with 'checkExitCode'.
---
--- Exceptions thrown by this function will include stderr.
---
--- @since 0.1
-readProcessStderr_ ::
-  (Concurrent :> es, TypedProcessDynamic :> es) =>
-  -- | .
-  ProcessConfig stdin stdout stderrIgnored ->
-  Eff es BSL.ByteString
-readProcessStderr_ pc =
-  withProcessTerm pc' $ \p -> atomically $ do
-    stderr <- P.getStderr p
-    P.checkExitCodeSTM p `catchSTM` \ece ->
-      throwSTM
-        ece
-          { eceStderr = stderr
-          }
-    return stderr
-  where
-    pc' = P.setStderr P.byteStringOutput pc
-{-# INLINEABLE readProcessStderr_ #-}
-
--- | Same as 'withProcessWait', but also calls 'checkExitCode'
+-- | Lifted 'P.withProcessWait_'.
 --
 -- @since 0.1
 withProcessWait_ ::
-  (Concurrent :> es, TypedProcessDynamic :> es) =>
-  -- | .
+  (TypedProcessDynamic :> es) =>
   ProcessConfig stdin stdout stderr ->
   (Process stdin stdout stderr -> Eff es a) ->
   Eff es a
-withProcessWait_ config f =
+withProcessWait_ pc onProcess =
   bracket
-    (startProcess config)
+    (startProcess pc)
     stopProcess
-    (\p -> f p <* checkExitCode p)
-{-# INLINEABLE withProcessWait_ #-}
+    (\p -> onProcess p <* checkExitCode p)
 
--- | Lifted Same as 'withProcessTerm', but also calls 'checkExitCode'.
---
--- To interact with a @Process@ use the functions from the section
--- [Interact with a process](#interactwithaprocess).
+-- | Lifted 'P.withProcessTerm_'.
 --
 -- @since 0.1
 withProcessTerm_ ::
-  (Concurrent :> es, TypedProcessDynamic :> es) =>
-  -- | .
+  (TypedProcessDynamic :> es) =>
   ProcessConfig stdin stdout stderr ->
   (Process stdin stdout stderr -> Eff es a) ->
   Eff es a
-withProcessTerm_ config =
+withProcessTerm_ pc =
   bracket
-    (startProcess config)
+    (startProcess pc)
     (\p -> stopProcess p `finally` checkExitCode p)
-{-# INLINEABLE withProcessTerm_ #-}
 
--- | Wait for the process to exit and then return its 'ExitCode'.
+-- | Lifted 'P.waitExitCode'.
 --
 -- @since 0.1
 waitExitCode ::
-  (Concurrent :> es) =>
+  (TypedProcessDynamic :> es) =>
   Process stdin stdout stderr ->
   Eff es ExitCode
-waitExitCode = atomically . P.waitExitCodeSTM
-{-# INLINEABLE waitExitCode #-}
+waitExitCode = send . WaitExitCode
 
--- | Check if a process has exited and, if so, return its 'ExitCode'.
+-- | Lifted 'P.getExitCode'.
 --
 -- @since 0.1
 getExitCode ::
-  (Concurrent :> es) =>
+  (TypedProcessDynamic :> es) =>
   Process stdin stdout stderr ->
-  Eff es (Maybe ExitCode)
-getExitCode = atomically . P.getExitCodeSTM
-{-# INLINEABLE getExitCode #-}
+  Eff es ExitCode
+getExitCode = send . WaitExitCode
 
--- | Wait for a process to exit, and ensure that it exited successfully.
--- If not, throws an 'ExitCodeException'.
---
--- Exceptions thrown by this function will not include stdout or stderr
--- (This prevents unbounded memory usage from reading them into memory).
--- However, some callers such as 'readProcess_' catch the exception, add the
--- stdout and stderr, and rethrow.
+-- | Lifted 'P.checkExitCode'.
 --
 -- @since 0.1
 checkExitCode ::
-  (Concurrent :> es) =>
+  (TypedProcessDynamic :> es) =>
   Process stdin stdout stderr ->
   Eff es ()
-checkExitCode = atomically . P.checkExitCodeSTM
-{-# INLINEABLE checkExitCode #-}
+checkExitCode = send . CheckExitCode
