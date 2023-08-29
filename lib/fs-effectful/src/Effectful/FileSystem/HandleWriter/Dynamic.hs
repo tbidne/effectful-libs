@@ -23,6 +23,9 @@ module Effectful.FileSystem.HandleWriter.Dynamic
     hPutUtf8,
     hPutNonBlockingUtf8,
 
+    -- * Misc
+    die,
+
     -- * Re-exports
     BufferMode (..),
     ByteString,
@@ -37,6 +40,7 @@ where
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
+import Data.ByteString.Char8 qualified as Char8
 import Data.Text (Text)
 import Effectful
   ( Dispatch (Dynamic),
@@ -47,6 +51,7 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
+import Effectful.Exception (exitFailure)
 import Effectful.FileSystem.Utils (OsPath, openBinaryFileIO, withBinaryFileIO)
 import Effectful.FileSystem.Utils qualified as Utils
 import System.IO (BufferMode (..), Handle, IOMode (..), SeekMode (..))
@@ -234,3 +239,11 @@ hPutNonBlockingUtf8 ::
   Text ->
   Eff es ByteString
 hPutNonBlockingUtf8 h = hPutNonBlocking h . Utils.encodeUtf8
+
+-- | Write given error message to `stderr` and terminate with `exitFailure`.
+--
+-- @since 0.1
+die :: (HandleWriterDynamic :> es) => String -> Eff es a
+die err = hPut IO.stderr err' *> exitFailure
+  where
+    err' = Char8.pack err
