@@ -8,6 +8,8 @@ module Effectful.LoggerNS.Dynamic
     LoggerNSDynamic (..),
     Namespace (..),
     addNamespace,
+    getNamespace,
+    localNamespace,
 
     -- * Formatting
     LogFormatter (..),
