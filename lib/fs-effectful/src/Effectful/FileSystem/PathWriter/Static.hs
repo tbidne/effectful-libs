@@ -72,6 +72,7 @@ module Effectful.FileSystem.PathWriter.Static
 where
 
 import Control.Monad (when)
+import Data.IORef (modifyIORef', newIORef, readIORef)
 import Data.Time (UTCTime (..))
 import Effectful
   ( Dispatch (Static),
@@ -106,7 +107,6 @@ import Effectful.FileSystem.PathWriter.Utils
   )
 import Effectful.FileSystem.PathWriter.Utils qualified as Utils
 import Effectful.FileSystem.Utils (OsPath)
-import Effectful.IORef.Static (IORefStatic, modifyIORef', newIORef, readIORef)
 import System.Directory (Permissions (..))
 import System.Directory.OsPath qualified as Dir
 
@@ -374,8 +374,7 @@ removeIfExists existsFn deleteFn f =
 --
 -- @since 0.1
 copyDirectoryRecursive ::
-  ( IORefStatic :> es,
-    PathReaderStatic :> es,
+  ( PathReaderStatic :> es,
     PathWriterStatic :> es
   ) =>
   -- | Source
@@ -421,8 +420,7 @@ copyDirectoryRecursive =
 -- @since 0.1
 copyDirectoryRecursiveConfig ::
   forall es.
-  ( IORefStatic :> es,
-    PathReaderStatic :> es,
+  ( PathReaderStatic :> es,
     PathWriterStatic :> es
   ) =>
   -- | Config
@@ -437,9 +435,9 @@ copyDirectoryRecursiveConfig = Utils.copyDirectoryRecursiveConfig handle
     handle :: Handle es
     handle =
       MkHandle
-        { Utils.newIORef = newIORef,
-          Utils.readIORef = readIORef,
-          Utils.modifyIORef' = modifyIORef',
+        { Utils.newIORef = unsafeEff_ . newIORef,
+          Utils.readIORef = unsafeEff_ . readIORef,
+          Utils.modifyIORef' = \r -> unsafeEff_ . modifyIORef' r,
           Utils.doesDirectoryExist = doesDirectoryExist,
           Utils.doesFileExist = doesFileExist,
           Utils.listDirectoryRecursive = listDirectoryRecursive,

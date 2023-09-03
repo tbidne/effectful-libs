@@ -71,6 +71,7 @@ where
 
 import Control.Monad (when)
 import Control.Monad.IO.Class (MonadIO (liftIO))
+import Data.IORef (modifyIORef', newIORef, readIORef)
 import Data.Time (UTCTime (..))
 import Effectful
   ( Dispatch (Dynamic),
@@ -81,6 +82,7 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
+import Effectful.Dispatch.Static (unsafeEff_)
 import Effectful.FileSystem.PathReader.Dynamic
   ( PathReaderDynamic,
     doesDirectoryExist,
@@ -98,7 +100,6 @@ import Effectful.FileSystem.PathWriter.Utils
   )
 import Effectful.FileSystem.PathWriter.Utils qualified as Utils
 import Effectful.FileSystem.Utils (OsPath)
-import Effectful.IORef.Dynamic (IORefDynamic, modifyIORef', newIORef, readIORef)
 import System.Directory (Permissions (..))
 import System.Directory.OsPath qualified as Dir
 
@@ -408,8 +409,7 @@ removeIfExists existsFn deleteFn f =
 --
 -- @since 0.1
 copyDirectoryRecursive ::
-  ( IORefDynamic :> es,
-    PathReaderDynamic :> es,
+  ( PathReaderDynamic :> es,
     PathWriterDynamic :> es
   ) =>
   -- | Source
@@ -455,8 +455,7 @@ copyDirectoryRecursive =
 -- @since 0.1
 copyDirectoryRecursiveConfig ::
   forall es.
-  ( IORefDynamic :> es,
-    PathReaderDynamic :> es,
+  ( PathReaderDynamic :> es,
     PathWriterDynamic :> es
   ) =>
   -- | Config
@@ -471,9 +470,9 @@ copyDirectoryRecursiveConfig = Utils.copyDirectoryRecursiveConfig handle
     handle :: Handle es
     handle =
       MkHandle
-        { Utils.newIORef = newIORef,
-          Utils.readIORef = readIORef,
-          Utils.modifyIORef' = modifyIORef',
+        { Utils.newIORef = unsafeEff_ . newIORef,
+          Utils.readIORef = unsafeEff_ . readIORef,
+          Utils.modifyIORef' = \r -> unsafeEff_ . modifyIORef' r,
           Utils.doesDirectoryExist = doesDirectoryExist,
           Utils.doesFileExist = doesFileExist,
           Utils.listDirectoryRecursive = listDirectoryRecursive,

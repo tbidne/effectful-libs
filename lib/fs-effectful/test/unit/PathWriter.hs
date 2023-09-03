@@ -6,7 +6,12 @@ import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Bifunctor (first)
 import Data.ByteString (ByteString)
 import Data.Foldable (traverse_)
-import Data.IORef (IORef)
+import Data.IORef
+  ( IORef,
+    modifyIORef',
+    newIORef,
+    readIORef,
+  )
 import Data.List qualified as L
 import Effectful (Eff, IOE, runEff, (:>))
 import Effectful.Dispatch.Dynamic (reinterpret)
@@ -53,13 +58,6 @@ import Effectful.FileSystem.PathWriter.Dynamic
   )
 import Effectful.FileSystem.PathWriter.Dynamic qualified as PathWriter
 import Effectful.FileSystem.Utils ((</>))
-import Effectful.IORef.Dynamic
-  ( IORefDynamic,
-    modifyIORef',
-    newIORef,
-    readIORef,
-    runIORefDynamicIO,
-  )
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (assertBool, assertFailure, testCase, (@=?))
 import Utils qualified as U
@@ -701,19 +699,17 @@ overwriteConfig ow = MkCopyDirConfig ow TargetNameSrc
 --                                  Mock                                     --
 -------------------------------------------------------------------------------
 
-runPartialDynamicIO :: Eff [PathWriterDynamic, PathReaderDynamic, IORefDynamic, IOE] a -> IO a
+runPartialDynamicIO :: Eff [PathWriterDynamic, PathReaderDynamic, IOE] a -> IO a
 runPartialDynamicIO effs = do
-  counterRef <- runEff $ runIORefDynamicIO $ newIORef 0
+  counterRef <- newIORef 0
 
   runEff
-    . runIORefDynamicIO
     . runPathReaderDynamicIO
     . runMockWriter counterRef
     $ effs
   where
     runMockWriter ::
-      ( IOE :> es,
-        IORefDynamic :> es
+      ( IOE :> es
       ) =>
       IORef Int ->
       Eff (PathWriterDynamic : es) a ->
@@ -725,10 +721,10 @@ runPartialDynamicIO effs = do
       RemoveDirectory p -> removeDirectory p
       RemoveFile p -> removeFile p
       CopyFileWithMetadata src dest -> do
-        counter <- readIORef counterRef
+        counter <- liftIO $ readIORef counterRef
         if counter > 3
           then throwString $ "Failed copying: " ++ show dest
-          else modifyIORef' counterRef (+ 1)
+          else liftIO $ modifyIORef' counterRef (+ 1)
         copyFileWithMetadata src dest
       _ -> throwString "unimplemented"
 
@@ -806,8 +802,7 @@ mkTestPath getPath s = do
 
 runEffPathWriter ::
   Eff
-    '[ IORefDynamic,
-       PathReaderDynamic,
+    '[ PathReaderDynamic,
        PathWriterDynamic,
        FileWriterDynamic,
        IOE
@@ -819,4 +814,3 @@ runEffPathWriter =
     . runFileWriterDynamicIO
     . runPathWriterDynamicIO
     . runPathReaderDynamicIO
-    . runIORefDynamicIO
