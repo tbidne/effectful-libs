@@ -1,6 +1,6 @@
 packages:
   ./lib/concurrent-effectful
-  ./lib/env-effectful
+  ./lib/environment-effectful
   ./lib/exceptions-effectful
   ./lib/fs-effectful
   ./lib/ioref-effectful

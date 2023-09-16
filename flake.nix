@@ -44,7 +44,7 @@
           pkgsCompiler = { inherit pkgs compiler; };
           hsOverlay =
             (compiler.extend (hlib.compose.packageSourceOverrides {
-              env-effectful = ./lib/env-effectful;
+              environment-effectful = ./lib/environment-effectful;
               exceptions-effectful = ./lib/exceptions-effectful;
               fs-effectful = ./lib/fs-effectful;
               ioref-effectful = ./lib/ioref-effectful;
@@ -59,7 +59,7 @@
               unix-compat-effectful = ./lib/unix-compat-effectful;
             }));
           packages = p: [
-            p.env-effectful
+            p.environment-effectful
             p.exceptions-effectful
             p.fs-effectful
             p.ioref-effectful
@@ -86,7 +86,7 @@
         in
         {
           packages.concurrent-effectful = mkPkgsExceptions "concurrent-effectful" ./lib/concurrent-effectful;
-          packages.env-effectful = mkPkg "env-effectful" ./lib/env-effectful { };
+          packages.environment-effectful = mkPkg "environment-effectful" ./lib/environment-effectful { };
           packages.exceptions-effectful = mkPkg "exceptions-effectful" ./lib/exceptions-effectful { };
           packages.fs-effectful =
             mkPkg "fs-effectful" ./lib/fs-effectful {

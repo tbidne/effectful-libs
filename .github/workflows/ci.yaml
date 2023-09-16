@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - dev
+      - env-static
 
   pull_request:
     branches:
@@ -71,7 +71,7 @@ jobs:
         run: |
           nix build \
             .#concurrent-effectful \
-            .#env-effectful \
+            .#environment-effectful \
             .#exceptions-effectful \
             .#fs-effectful \
             .#ioref-effectful \

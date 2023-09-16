@@ -1,5 +1,5 @@
 cabal-version:      2.4
-name:               env-effectful
+name:               environment-effectful
 version:            0.1
 license:            MIT
 license-file:       LICENSE

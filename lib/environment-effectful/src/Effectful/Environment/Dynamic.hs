@@ -8,7 +8,7 @@
 -- @since 0.1
 module Effectful.Environment.Dynamic
   ( -- * Effect
-    EnvDynamic (..),
+    EnvironmentDynamic (..),
     getArgs,
     getProgName,
 #if MIN_VERSION_base(4,17,0)
@@ -46,25 +46,25 @@ import Effectful.Dispatch.Dynamic (interpret, send, localSeqUnliftIO)
 -- | Dynamic effects for "System.Environment".
 --
 -- @since 0.1
-data EnvDynamic :: Effect where
-  GetArgs :: EnvDynamic m [String]
-  GetProgName :: EnvDynamic m String
+data EnvironmentDynamic :: Effect where
+  GetArgs :: EnvironmentDynamic m [String]
+  GetProgName :: EnvironmentDynamic m String
 #if MIN_VERSION_base(4,17,0)
-  ExecutablePath :: (EnvDynamic m QueryExePath)
+  ExecutablePath :: (EnvironmentDynamic m QueryExePath)
 #endif
-  GetExecutablePath :: EnvDynamic m FilePath
-  GetEnv :: String -> EnvDynamic m String
-  LookupEnv :: String -> EnvDynamic m (Maybe String)
-  SetEnv :: String -> String -> EnvDynamic m ()
-  UnsetEnv :: String -> EnvDynamic m ()
-  WithArgs :: [String] -> m a -> EnvDynamic m a
-  WithProgName :: String -> m () -> EnvDynamic m ()
-  GetEnvironment :: EnvDynamic m [(String, String)]
+  GetExecutablePath :: EnvironmentDynamic m FilePath
+  GetEnv :: String -> EnvironmentDynamic m String
+  LookupEnv :: String -> EnvironmentDynamic m (Maybe String)
+  SetEnv :: String -> String -> EnvironmentDynamic m ()
+  UnsetEnv :: String -> EnvironmentDynamic m ()
+  WithArgs :: [String] -> m a -> EnvironmentDynamic m a
+  WithProgName :: String -> m () -> EnvironmentDynamic m ()
+  GetEnvironment :: EnvironmentDynamic m [(String, String)]
 
 {- ORMOLU_ENABLE -}
 
 -- | @since 0.1
-type instance DispatchOf EnvDynamic = Dynamic
+type instance DispatchOf EnvironmentDynamic = Dynamic
 
 -- | Result of querying for the executable path.
 --
@@ -83,13 +83,13 @@ data QueryExePath
 
 {- ORMOLU_DISABLE -}
 
--- | Runs 'EnvDynamic' in 'IO'.
+-- | Runs 'EnvironmentDynamic' in 'IO'.
 --
 -- @since 0.1
 runEnvDynamicIO ::
   ( IOE :> es
   ) =>
-  Eff (EnvDynamic : es) a ->
+  Eff (EnvironmentDynamic : es) a ->
   Eff es a
 runEnvDynamicIO = interpret $ \env -> \case
   GetArgs -> liftIO Env.getArgs
@@ -116,13 +116,13 @@ runEnvDynamicIO = interpret $ \env -> \case
 -- | Lifted 'Env.getArgs'.
 --
 -- @since 0.1
-getArgs :: (EnvDynamic :> es) => Eff es [String]
+getArgs :: (EnvironmentDynamic :> es) => Eff es [String]
 getArgs = send GetArgs
 
 -- | Lifted 'Env.getProgName'.
 --
 -- @since 0.1
-getProgName :: (EnvDynamic :> es) => Eff es String
+getProgName :: (EnvironmentDynamic :> es) => Eff es String
 getProgName = send GetProgName
 
 #if MIN_VERSION_base(4,17,0)
@@ -130,7 +130,7 @@ getProgName = send GetProgName
 -- | Lifted 'Env.executablePath'.
 --
 -- @since 0.1
-executablePath :: (EnvDynamic :> es) => Eff es QueryExePath
+executablePath :: (EnvironmentDynamic :> es) => Eff es QueryExePath
 executablePath = send ExecutablePath
 
 #endif
@@ -138,47 +138,47 @@ executablePath = send ExecutablePath
 -- | Lifted 'Env.getExecutablePath'.
 --
 -- @since 0.1
-getExecutablePath :: (EnvDynamic :> es) => Eff es FilePath
+getExecutablePath :: (EnvironmentDynamic :> es) => Eff es FilePath
 getExecutablePath = send GetExecutablePath
 
 -- | Lifted 'Env.getEnv'.
 --
 -- @since 0.1
-getEnv :: (EnvDynamic :> es) => String -> Eff es String
+getEnv :: (EnvironmentDynamic :> es) => String -> Eff es String
 getEnv = send . GetEnv
 
 -- | Lifted 'Env.lookupEnv'.
 --
 -- @since 0.1
-lookupEnv :: (EnvDynamic :> es) => String -> Eff es (Maybe String)
+lookupEnv :: (EnvironmentDynamic :> es) => String -> Eff es (Maybe String)
 lookupEnv = send . LookupEnv
 
 -- | Lifted 'Env.setEnv'.
 --
 -- @since 0.1
-setEnv :: (EnvDynamic :> es) => String -> String -> Eff es ()
+setEnv :: (EnvironmentDynamic :> es) => String -> String -> Eff es ()
 setEnv s = send . SetEnv s
 
 -- | Lifted 'Env.unsetEnv'.
 --
 -- @since 0.1
-unsetEnv :: (EnvDynamic :> es) => String -> Eff es ()
+unsetEnv :: (EnvironmentDynamic :> es) => String -> Eff es ()
 unsetEnv = send . UnsetEnv
 
 -- | Lifted 'Env.withArgs'.
 --
 -- @since 0.1
-withArgs :: (EnvDynamic :> es) => [String] -> (Eff es) a -> Eff es a
+withArgs :: (EnvironmentDynamic :> es) => [String] -> (Eff es) a -> Eff es a
 withArgs args = send . WithArgs args
 
 -- | Lifted 'Env.withProgName'.
 --
 -- @since 0.1
-withProgName :: (EnvDynamic :> es) => String -> (Eff es) () -> Eff es ()
+withProgName :: (EnvironmentDynamic :> es) => String -> (Eff es) () -> Eff es ()
 withProgName name = send . WithProgName name
 
 -- | Lifted 'Env.getEnvironment'.
 --
 -- @since 0.1
-getEnvironment :: (EnvDynamic :> es) => Eff es [(String, String)]
+getEnvironment :: (EnvironmentDynamic :> es) => Eff es [(String, String)]
 getEnvironment = send GetEnvironment
