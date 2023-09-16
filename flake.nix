@@ -81,8 +81,7 @@
           mkPkgsExceptions = name: root: mkPkg name root {
             exceptions-effectful = ./lib/exceptions-effectful;
           };
-
-          hsDirs = "lib/*-effectful";
+          compilerPkgs = { inherit compiler pkgs; };
         in
         {
           packages.concurrent-effectful = mkPkgsExceptions "concurrent-effectful" ./lib/concurrent-effectful;
@@ -126,15 +125,9 @@
           };
 
           apps = {
-            format = nix-hs-utils.format {
-              inherit compiler hsDirs pkgs;
-            };
-            lint = nix-hs-utils.lint {
-              inherit compiler hsDirs pkgs;
-            };
-            lint-refactor = nix-hs-utils.lint-refactor {
-              inherit compiler hsDirs pkgs;
-            };
+            format = nix-hs-utils.format compilerPkgs;
+            lint = nix-hs-utils.lint compilerPkgs;
+            lintRefactor = nix-hs-utils.lintRefactor compilerPkgs;
           };
         };
       systems = [
