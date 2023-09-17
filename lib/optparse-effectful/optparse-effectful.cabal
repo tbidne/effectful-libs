@@ -55,7 +55,7 @@ library
 
   build-depends:
     , base                  >=4.14.0.0 && <4.19
-    , effectful-core        ^>=2.2.1.0
+    , effectful-core        >=2.2.1.0  && <2.4
     , fs-effectful
     , optparse-applicative  >=0.16.1.0 && <0.19
 

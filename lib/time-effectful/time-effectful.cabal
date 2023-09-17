@@ -55,7 +55,7 @@ library
     , base            >=4.14.0.0 && <4.19
     , bounds          ^>=0.1
     , deepseq         >=1.4.4.0  && <1.6
-    , effectful-core  ^>=2.2.1.0
+    , effectful-core  >=2.2.1.0  && <2.4
     , optics-core     ^>=0.4
     , time            >=1.9.3    && <1.14
 
@@ -71,7 +71,7 @@ test-suite unit
     , effectful-core
     , hedgehog        >=1.0.2   && <1.5
     , optics-core
-    , tasty           >=1.1.0.3 && <1.5
+    , tasty           >=1.1.0.3 && <1.6
     , tasty-hedgehog  >=1.2.0.0 && <1.5
     , tasty-hunit     >=0.9     && <0.11
     , time

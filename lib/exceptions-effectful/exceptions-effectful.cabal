@@ -45,7 +45,7 @@ library
   exposed-modules:  Effectful.Exception
   build-depends:
     , base             >=4.14.0.0 && <4.19
-    , effectful-core   ^>=2.2.1.0
+    , effectful-core   >=2.2.1.0  && <2.4
     , exceptions       ^>=0.10.4
     , safe-exceptions  ^>=0.1.7.0
 

@@ -52,10 +52,10 @@ library
   build-depends:
     , base                  >=4.14.0.0  && <4.19
     , bytestring            >=0.10.12.0 && <0.13
-    , effectful-core        ^>=2.2.1.0
+    , effectful-core        >=2.2.1.0   && <2.4
     , exceptions-effectful  ^>=0.1
     , terminal-size         ^>=0.3.0
-    , text                  >=1.2.4.0   && <2.1
+    , text                  >=1.2.4.0   && <2.2
 
   hs-source-dirs:   src
   default-language: Haskell2010
