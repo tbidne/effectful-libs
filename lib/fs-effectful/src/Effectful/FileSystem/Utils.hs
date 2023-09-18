@@ -216,7 +216,7 @@ unsafeDecodeOsToFp p = case decodeOsToFp p of
 decodeFailure :: String -> OsPath -> String -> String
 decodeFailure fnName p msg =
   mconcat
-    [ "[Effects.FileSystem.Utils.",
+    [ "[Effectful.FileSystem.Utils.",
       fnName,
       "]: Could not decode ospath '",
       decodeOsToFpShow p,
@@ -227,7 +227,7 @@ decodeFailure fnName p msg =
 encodeFailure :: String -> FilePath -> String -> String
 encodeFailure fnName fp msg =
   mconcat
-    [ "[Effects.FileSystem.Utils.",
+    [ "[Effectful.FileSystem.Utils.",
       fnName,
       "]: Could not encode filepath '",
       fp,
@@ -238,7 +238,7 @@ encodeFailure fnName fp msg =
 validErr :: String -> String -> OsPath -> String
 validErr fnName fp x =
   mconcat
-    [ "[Effects.FileSystem.Utils.",
+    [ "[Effectful.FileSystem.Utils.",
       fnName,
       "]: Original path '",
       fp,
