@@ -14,12 +14,12 @@ import Effectful.FileSystem.PathWriter.Dynamic
     runPathWriterDynamicIO,
   )
 import Effectful.FileSystem.Utils (OsPath, (</>))
-import Misc qualified
-import PathReader qualified
-import PathWriter qualified
 import System.Environment.Guard (ExpectEnv (ExpectEnvSet), guardOrElse')
 import Test.Tasty (defaultMain, testGroup, withResource)
-import Utils qualified as U
+import TestUtils qualified as U
+import Unit.Misc qualified
+import Unit.PathReader qualified
+import Unit.PathWriter qualified
 
 main :: IO ()
 main =
@@ -27,9 +27,9 @@ main =
     withResource setup teardown $ \args ->
       testGroup
         "Unit Tests"
-        [ Misc.tests args,
-          PathReader.tests,
-          PathWriter.tests args
+        [ Unit.Misc.tests args,
+          Unit.PathReader.tests,
+          Unit.PathWriter.tests args
         ]
 
 setup :: IO OsPath

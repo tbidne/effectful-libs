@@ -1,7 +1,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE QuasiQuotes #-}
 
-module Misc (tests) where
+module Unit.Misc (tests) where
 
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.ByteString (ByteString)

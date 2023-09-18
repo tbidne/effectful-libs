@@ -1,6 +1,6 @@
 {-# LANGUAGE CPP #-}
 
-module PathWriter (tests) where
+module Unit.PathWriter (tests) where
 
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Bifunctor (first)
@@ -60,7 +60,7 @@ import Effectful.FileSystem.PathWriter.Dynamic qualified as PathWriter
 import Effectful.FileSystem.Utils ((</>))
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (assertBool, assertFailure, testCase, (@=?))
-import Utils qualified as U
+import TestUtils qualified as U
 
 tests :: IO OsPath -> TestTree
 tests getTmpDir =

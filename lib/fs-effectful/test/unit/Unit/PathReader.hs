@@ -1,4 +1,4 @@
-module PathReader (tests) where
+module Unit.PathReader (tests) where
 
 import Control.Monad (zipWithM_)
 import Data.List qualified as L
@@ -11,7 +11,7 @@ import Effectful.FileSystem.PathReader.Dynamic qualified as PathReader
 import System.FilePath ((</>))
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase, (@=?))
-import Utils qualified as U
+import TestUtils qualified as U
 
 tests :: TestTree
 tests =

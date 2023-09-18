@@ -1,4 +1,4 @@
-module Utils
+module TestUtils
   ( strToPath,
     pathToStr,
   )

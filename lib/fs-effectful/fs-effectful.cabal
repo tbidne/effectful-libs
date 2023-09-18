@@ -90,10 +90,10 @@ test-suite unit
   type:             exitcode-stdio-1.0
   main-is:          Main.hs
   other-modules:
-    Misc
-    PathReader
-    PathWriter
-    Utils
+    TestUtils
+    Unit.Misc
+    Unit.PathReader
+    Unit.PathWriter
 
   build-depends:
     , base
