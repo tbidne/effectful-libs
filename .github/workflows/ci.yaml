@@ -81,7 +81,7 @@ jobs:
             .#stm-effectful \
             .#terminal-effectful \
             .#time-effectful \
-            .#typed-process-effectful \
+            .#typed-process-dynamic-effectful \
             .#unix-compat-effectful
 
   lint:

@@ -55,7 +55,7 @@
               terminal-effectful = ./lib/terminal-effectful;
               concurrent-effectful = ./lib/concurrent-effectful;
               time-effectful = ./lib/time-effectful;
-              typed-process-effectful = ./lib/typed-process-effectful;
+              typed-process-dynamic-effectful = ./lib/typed-process-dynamic-effectful;
               unix-compat-effectful = ./lib/unix-compat-effectful;
             }));
           packages = p: [
@@ -70,7 +70,7 @@
             p.terminal-effectful
             p.concurrent-effectful
             p.time-effectful
-            p.typed-process-effectful
+            p.typed-process-dynamic-effectful
             p.unix-compat-effectful
           ];
 
@@ -109,10 +109,8 @@
           packages.stm-effectful = mkPkgsExceptions "stm-effectful" ./lib/stm-effectful;
           packages.terminal-effectful = mkPkgsExceptions "terminal-effectful" ./lib/terminal-effectful;
           packages.time-effectful = mkPkgsExceptions "time-effectful" ./lib/time-effectful;
-          packages.typed-process-effectful =
-            mkPkg "typed-process-effectful" ./lib/typed-process-effectful {
-              exceptions-effectful = ./lib/exceptions-effectful;
-            };
+          packages.typed-process-dynamic-effectful =
+            mkPkg "typed-process-dynamic-effectful" ./lib/typed-process-dynamic-effectful { };
           packages.unix-compat-effectful =
             mkPkgsExceptions "unix-compat-effectful" ./lib/unix-compat-effectful;
 

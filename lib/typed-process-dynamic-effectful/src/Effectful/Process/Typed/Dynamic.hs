@@ -3,7 +3,7 @@
 {- ORMOLU_DISABLE -}
 
 -- | Dynamic effect for "System.Process.Typed". For static effects, see
--- https://hackage.haskell.org/package/typed-process-effectful.
+-- https://hackage.haskell.org/package/typed-process-effectful-dynamic.
 --
 -- @since 0.1
 module Effectful.Process.Typed.Dynamic
@@ -120,8 +120,7 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (interpret, send)
-import Effectful.Exception (bracket, finally)
+import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
 import System.Exit (ExitCode)
 import System.Process.Typed
   ( Process,
@@ -179,6 +178,14 @@ data TypedProcessDynamic :: Effect where
   ReadProcessInterleaved ::
     ProcessConfig stdin stdoutIgnored stderrIgnored ->
     TypedProcessDynamic m (ExitCode, BSL.ByteString)
+  WithProcessWait ::
+    ProcessConfig stdin stdout stderr ->
+    (Process stdin stdout stderr -> m a) ->
+    TypedProcessDynamic m a
+  WithProcessTerm ::
+    ProcessConfig stdin stdout stderr ->
+    (Process stdin stdout stderr -> m a) ->
+    TypedProcessDynamic m a
   StartProcess ::
     ProcessConfig stdin stdout stderr ->
     TypedProcessDynamic m (Process stdin stdout stderr)
@@ -200,6 +207,14 @@ data TypedProcessDynamic :: Effect where
   ReadProcessInterleaved_ ::
     ProcessConfig stdin stdoutIgnored stderrIgnored ->
     TypedProcessDynamic m BSL.ByteString
+  WithProcessWait_ ::
+    ProcessConfig stdin stdout stderr ->
+    (Process stdin stdout stderr -> m a) ->
+    TypedProcessDynamic m a
+  WithProcessTerm_ ::
+    ProcessConfig stdin stdout stderr ->
+    (Process stdin stdout stderr -> m a) ->
+    TypedProcessDynamic m a
   WaitExitCode ::
     Process stdin stdout stderr ->
     TypedProcessDynamic m ExitCode
@@ -221,12 +236,16 @@ runTypedProcessDynamicIO ::
   ) =>
   Eff (TypedProcessDynamic : es) a ->
   Eff es a
-runTypedProcessDynamicIO = interpret $ \_ -> \case
+runTypedProcessDynamicIO = interpret $ \env -> \case
   RunProcess pc -> liftIO $ P.runProcess pc
   ReadProcess pc -> liftIO $ P.readProcess pc
   ReadProcessStdout pc -> liftIO $ P.readProcessStdout pc
   ReadProcessStderr pc -> liftIO $ P.readProcessStderr pc
   ReadProcessInterleaved p -> liftIO $ P.readProcessInterleaved p
+  WithProcessTerm pc onProcess -> localSeqUnliftIO env $ \runInIO ->
+    liftIO $ P.withProcessTerm pc (runInIO . onProcess)
+  WithProcessWait pc onProcess -> localSeqUnliftIO env $ \runInIO ->
+    liftIO $ P.withProcessWait pc (runInIO . onProcess)
   StartProcess pc -> liftIO $ P.startProcess pc
   StopProcess p -> liftIO $ P.stopProcess p
   RunProcess_ pc -> liftIO $ P.runProcess_ pc
@@ -234,6 +253,10 @@ runTypedProcessDynamicIO = interpret $ \_ -> \case
   ReadProcessStdout_ pc -> liftIO $ P.readProcessStdout_ pc
   ReadProcessStderr_ pc -> liftIO $ P.readProcessStderr_ pc
   ReadProcessInterleaved_ pc -> liftIO $ P.readProcessInterleaved_ pc
+  WithProcessTerm_ pc onProcess -> localSeqUnliftIO env $ \runInIO ->
+    liftIO $ P.withProcessTerm_ pc (runInIO . onProcess)
+  WithProcessWait_ pc onProcess -> localSeqUnliftIO env $ \runInIO ->
+    liftIO $ P.withProcessWait_ pc (runInIO . onProcess)
   WaitExitCode p -> liftIO $ P.waitExitCode p
   GetExitCode p -> liftIO $ P.getExitCode p
   CheckExitCode p -> liftIO $ P.checkExitCode p
@@ -291,11 +314,7 @@ withProcessWait ::
   ProcessConfig stdin stdout stderr ->
   (Process stdin stdout stderr -> Eff es a) ->
   Eff es a
-withProcessWait pc onProcess =
-  bracket
-    (startProcess pc)
-    stopProcess
-    (\p -> onProcess p <* waitExitCode p)
+withProcessWait pc = send . WithProcessWait pc
 
 -- | Lifted 'P.withProcessTerm'.
 --
@@ -305,7 +324,7 @@ withProcessTerm ::
   ProcessConfig stdin stdout stderr ->
   (Process stdin stdout stderr -> Eff es a) ->
   Eff es a
-withProcessTerm pc = bracket (startProcess pc) stopProcess
+withProcessTerm pc = send . WithProcessTerm pc
 
 -- | Lifted 'P.startProcess'.
 --
@@ -378,11 +397,7 @@ withProcessWait_ ::
   ProcessConfig stdin stdout stderr ->
   (Process stdin stdout stderr -> Eff es a) ->
   Eff es a
-withProcessWait_ pc onProcess =
-  bracket
-    (startProcess pc)
-    stopProcess
-    (\p -> onProcess p <* checkExitCode p)
+withProcessWait_ pc = send . WithProcessWait_ pc
 
 -- | Lifted 'P.withProcessTerm_'.
 --
@@ -392,10 +407,7 @@ withProcessTerm_ ::
   ProcessConfig stdin stdout stderr ->
   (Process stdin stdout stderr -> Eff es a) ->
   Eff es a
-withProcessTerm_ pc =
-  bracket
-    (startProcess pc)
-    (\p -> stopProcess p `finally` checkExitCode p)
+withProcessTerm_ pc = send . WithProcessTerm_ pc
 
 -- | Lifted 'P.waitExitCode'.
 --
