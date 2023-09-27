@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Provides a dynamic effect for the writable portion of "System.Directory"'s

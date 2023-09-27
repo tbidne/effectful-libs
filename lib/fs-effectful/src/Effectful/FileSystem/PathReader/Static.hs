@@ -1,7 +1,4 @@
-{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
-
-{- ORMOLU_DISABLE -}
 
 -- | Provides a static effect for the readable portion of "System.Directory"'s
 -- interface. For the static interface of the entire "System.Directory"
@@ -50,9 +47,7 @@ module Effectful.FileSystem.PathReader.Static
     getXdgData,
     getXdgConfig,
     getXdgCache,
-#if MIN_VERSION_directory(1,3,7)
     getXdgState,
-#endif
 
     -- * Misc
     listDirectoryRecursive,
@@ -79,7 +74,9 @@ import Effectful.Dispatch.Static
   ( SideEffects (WithSideEffects),
     StaticRep,
     evalStaticRep,
-    unsafeEff_, unsafeEff, seqUnliftIO,
+    seqUnliftIO,
+    unsafeEff,
+    unsafeEff_,
   )
 import Effectful.FileSystem.Utils (OsPath, (</>))
 import System.Directory
@@ -87,10 +84,8 @@ import System.Directory
     XdgDirectory (..),
     XdgDirectoryList (..),
   )
-import System.OsString (OsString)
 import System.Directory.OsPath qualified as Dir
-
-{- ORMOLU_ENABLE -}
+import System.OsString (OsString)
 
 -- | Static effect for reading paths.
 --
@@ -423,8 +418,6 @@ getXdgCache ::
   Eff es OsPath
 getXdgCache = getXdgDirectory XdgCache
 
-#if MIN_VERSION_directory(1,3,7)
-
 -- | Retrieves the XDG state directory e.g. @~/.local\/state@.
 --
 -- @since 0.1
@@ -434,8 +427,6 @@ getXdgState ::
   OsPath ->
   Eff es OsPath
 getXdgState = getXdgDirectory XdgState
-
-#endif
 
 -- | Retrieves the recursive directory contents; splits the sub folders and
 -- directories apart.

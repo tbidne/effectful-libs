@@ -1,7 +1,3 @@
-{-# LANGUAGE CPP #-}
-
-{- ORMOLU_DISABLE -}
-
 -- | Provides a dynamic effect for the readable portion of "System.Directory"'s
 -- interface.
 --
@@ -47,9 +43,7 @@ module Effectful.FileSystem.PathReader.Dynamic
     getXdgData,
     getXdgConfig,
     getXdgCache,
-#if MIN_VERSION_directory(1,3,7)
     getXdgState,
-#endif
 
     -- * Misc
     listDirectoryRecursive,
@@ -80,10 +74,8 @@ import System.Directory
     XdgDirectory (..),
     XdgDirectoryList (..),
   )
-import System.OsString (OsString)
 import System.Directory.OsPath qualified as Dir
-
-{- ORMOLU_ENABLE -}
+import System.OsString (OsString)
 
 -- | Dynamic effect for reading paths.
 --
@@ -480,8 +472,6 @@ getXdgCache ::
   Eff es OsPath
 getXdgCache = getXdgDirectory XdgCache
 
-#if MIN_VERSION_directory(1,3,7)
-
 -- | Retrieves the XDG state directory e.g. @~/.local\/state@.
 --
 -- @since 0.1
@@ -491,8 +481,6 @@ getXdgState ::
   OsPath ->
   Eff es OsPath
 getXdgState = getXdgDirectory XdgState
-
-#endif
 
 -- | Retrieves the recursive directory contents; splits the sub folders and
 -- directories apart.

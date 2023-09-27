@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 -- | Provides a static effect for the writable portion of "System.Directory"'s
