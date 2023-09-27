@@ -1,11 +1,14 @@
+{-# LANGUAGE UndecidableInstances #-}
+
 -- | Provides a dynamic effect for writing files.
 --
 -- @since 0.1
 module Effectful.FileSystem.FileWriter.Dynamic
-  ( -- * Effect
+  ( -- * Class
+    MonadFileWriter (..),
+
+    -- * Effect
     FileWriterDynamic (..),
-    writeBinaryFile,
-    appendBinaryFile,
 
     -- ** Handlers
     runFileWriterDynamicIO,
@@ -40,6 +43,25 @@ import Effectful.FileSystem.Utils
   )
 import Effectful.FileSystem.Utils qualified as Utils
 
+-- | Represents file-system writer effects.
+--
+-- @since 0.1
+class (Monad m) => MonadFileWriter m where
+  -- | Writes to a file.
+  --
+  -- @since 0.1
+  writeBinaryFile :: OsPath -> ByteString -> m ()
+
+  -- | Appends to a file.
+  --
+  -- @since 0.1
+  appendBinaryFile :: OsPath -> ByteString -> m ()
+
+-- | @since 0.1
+instance MonadFileWriter IO where
+  writeBinaryFile = writeBinaryFileIO
+  appendBinaryFile = appendBinaryFileIO
+
 -- | Dynamic effect for reading files.
 --
 -- @since 0.1
@@ -63,41 +85,28 @@ runFileWriterDynamicIO = interpret $ \_ -> \case
   AppendBinaryFile p bs -> liftIO $ appendBinaryFileIO p bs
 
 -- | @since 0.1
-writeBinaryFile ::
-  ( FileWriterDynamic :> es
-  ) =>
-  OsPath ->
-  ByteString ->
-  Eff es ()
-writeBinaryFile p = send . WriteBinaryFile p
-
--- | @since 0.1
-appendBinaryFile ::
-  ( FileWriterDynamic :> es
-  ) =>
-  OsPath ->
-  ByteString ->
-  Eff es ()
-appendBinaryFile p = send . AppendBinaryFile p
+instance (FileWriterDynamic :> es) => MonadFileWriter (Eff es) where
+  writeBinaryFile p = send . WriteBinaryFile p
+  appendBinaryFile p = send . AppendBinaryFile p
 
 -- | Writes to a file.
 --
 -- @since 0.1
 writeFileUtf8 ::
-  ( FileWriterDynamic :> es
+  ( MonadFileWriter m
   ) =>
   OsPath ->
   Text ->
-  Eff es ()
+  m ()
 writeFileUtf8 f = writeBinaryFile f . Utils.encodeUtf8
 
 -- | Appends to a file.
 --
 -- @since 0.1
 appendFileUtf8 ::
-  ( FileWriterDynamic :> es
+  ( MonadFileWriter m
   ) =>
   OsPath ->
   Text ->
-  Eff es ()
+  m ()
 appendFileUtf8 f = appendBinaryFile f . Utils.encodeUtf8

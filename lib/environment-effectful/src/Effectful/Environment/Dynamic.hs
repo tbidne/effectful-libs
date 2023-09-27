@@ -1,27 +1,15 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE UndecidableInstances #-}
 
-{- ORMOLU_DISABLE -}
-
--- | Dynamic effects for "System.Environment". For static effects, see
--- https://hackage.haskell.org/package/effectful-2.2.2.0/docs/Effectful-Environment.html.
+-- | Dynamic effects for "System.Environment".
 --
 -- @since 0.1
 module Effectful.Environment.Dynamic
-  ( -- * Effect
+  ( -- * Class
+    MonadEnvironment (..),
+
+    -- * Effect
     EnvironmentDynamic (..),
-    getArgs,
-    getProgName,
-#if MIN_VERSION_base(4,17,0)
-    executablePath,
-#endif
-    getExecutablePath,
-    getEnv,
-    lookupEnv,
-    setEnv,
-    unsetEnv,
-    withArgs,
-    withProgName,
-    getEnvironment,
 
     -- ** Handlers
     runEnvironmentDynamicIO,
@@ -32,16 +20,91 @@ module Effectful.Environment.Dynamic
 where
 
 import Control.Monad.IO.Class (MonadIO (liftIO))
-import System.Environment qualified as Env
 import Effectful
   ( Dispatch (Dynamic),
     DispatchOf,
     Eff,
     Effect,
     IOE,
-    type (:>)
+    type (:>),
   )
-import Effectful.Dispatch.Dynamic (interpret, send, localSeqUnliftIO)
+import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
+import Effectful.Environment.Utils (QueryExePath (NoQuery, QueryResult))
+import System.Environment qualified as Env
+
+{- ORMOLU_DISABLE -}
+
+-- | Environment effects.
+--
+-- @since 0.1
+class Monad m => MonadEnvironment m where
+  -- | Lifted 'Env.getArgs'.
+  --
+  -- @since 0.1
+  getArgs :: m [String]
+
+  -- | Lifted 'Env.getProgName'.
+  --
+  -- @since 0.1
+  getProgName :: m String
+
+#if MIN_VERSION_base(4,17,0)
+  -- | Lifted 'Env.executablePath'.
+  --
+  -- @since 0.1
+  executablePath :: m QueryExePath
+#endif
+
+  -- | Lifted 'Env.getExecutablePath'.
+  --
+  -- @since 0.1
+  getExecutablePath :: m FilePath
+  -- | Lifted 'Env.getEnv'.
+  --
+  -- @since 0.1
+  getEnv :: String -> m String
+  -- | Lifted 'Env.lookupEnv'.
+  --
+  -- @since 0.1
+  lookupEnv :: String -> m (Maybe String)
+  -- | Lifted 'Env.setEnv'.
+  --
+  -- @since 0.1
+  setEnv :: String -> String -> m ()
+  -- | Lifted 'Env.unsetEnv'.
+  --
+  -- @since 0.1
+  unsetEnv :: String -> m ()
+  -- | Lifted 'Env.withArgs'.
+  --
+  -- @since 0.1
+  withArgs :: [String] -> m a -> m a
+  -- | Lifted 'Env.withProgName'.
+  --
+  -- @since 0.1
+  withProgName :: String -> m a -> m a
+  -- | Lifted 'Env.getEnvironment'.
+  --
+  -- @since 0.1
+  getEnvironment :: m [(String, String)]
+
+-- | @since 0.1
+instance MonadEnvironment IO where
+  getArgs = Env.getArgs
+  getProgName = Env.getProgName
+#if MIN_VERSION_base(4,17,0)
+  executablePath = case Env.executablePath of
+    Nothing -> pure NoQuery
+    Just io -> QueryResult <$> io
+#endif
+  getExecutablePath = Env.getExecutablePath
+  getEnv = Env.getEnv
+  lookupEnv = Env.lookupEnv
+  setEnv = Env.setEnv
+  unsetEnv = Env.unsetEnv
+  withArgs = Env.withArgs
+  withProgName = Env.withProgName
+  getEnvironment = Env.getEnvironment
 
 -- | Dynamic effects for "System.Environment".
 --
@@ -58,28 +121,13 @@ data EnvironmentDynamic :: Effect where
   SetEnv :: String -> String -> EnvironmentDynamic m ()
   UnsetEnv :: String -> EnvironmentDynamic m ()
   WithArgs :: [String] -> m a -> EnvironmentDynamic m a
-  WithProgName :: String -> m () -> EnvironmentDynamic m ()
+  WithProgName :: String -> m a -> EnvironmentDynamic m a
   GetEnvironment :: EnvironmentDynamic m [(String, String)]
 
 {- ORMOLU_ENABLE -}
 
 -- | @since 0.1
 type instance DispatchOf EnvironmentDynamic = Dynamic
-
--- | Result of querying for the executable path.
---
--- @since 0.1
-data QueryExePath
-  = -- | If the system does not provide a reliable way to determine the
-    -- current executable.
-    --
-    -- @since 0.1
-    NoQuery
-  | -- | The result of querying the executable name.
-    --
-    -- @since 0.1
-    QueryResult (Maybe FilePath)
-  deriving stock (Eq, Show)
 
 {- ORMOLU_DISABLE -}
 
@@ -111,74 +159,21 @@ runEnvironmentDynamicIO = interpret $ \env -> \case
     liftIO $ Env.withProgName name (runInIO m)
   GetEnvironment -> liftIO Env.getEnvironment
 
-{- ORMOLU_ENABLE -}
-
--- | Lifted 'Env.getArgs'.
---
--- @since 0.1
-getArgs :: (EnvironmentDynamic :> es) => Eff es [String]
-getArgs = send GetArgs
-
--- | Lifted 'Env.getProgName'.
---
--- @since 0.1
-getProgName :: (EnvironmentDynamic :> es) => Eff es String
-getProgName = send GetProgName
+instance (EnvironmentDynamic :> es) => MonadEnvironment (Eff es) where
+  getArgs = send GetArgs
+  getProgName = send GetProgName
 
 #if MIN_VERSION_base(4,17,0)
-
--- | Lifted 'Env.executablePath'.
---
--- @since 0.1
-executablePath :: (EnvironmentDynamic :> es) => Eff es QueryExePath
-executablePath = send ExecutablePath
-
+  executablePath = send ExecutablePath
 #endif
 
--- | Lifted 'Env.getExecutablePath'.
---
--- @since 0.1
-getExecutablePath :: (EnvironmentDynamic :> es) => Eff es FilePath
-getExecutablePath = send GetExecutablePath
+  getExecutablePath = send GetExecutablePath
+  getEnv = send . GetEnv
+  lookupEnv = send . LookupEnv
+  setEnv s = send . SetEnv s
+  unsetEnv = send . UnsetEnv
+  withArgs args = send . WithArgs args
+  withProgName name = send . WithProgName name
+  getEnvironment = send GetEnvironment
 
--- | Lifted 'Env.getEnv'.
---
--- @since 0.1
-getEnv :: (EnvironmentDynamic :> es) => String -> Eff es String
-getEnv = send . GetEnv
-
--- | Lifted 'Env.lookupEnv'.
---
--- @since 0.1
-lookupEnv :: (EnvironmentDynamic :> es) => String -> Eff es (Maybe String)
-lookupEnv = send . LookupEnv
-
--- | Lifted 'Env.setEnv'.
---
--- @since 0.1
-setEnv :: (EnvironmentDynamic :> es) => String -> String -> Eff es ()
-setEnv s = send . SetEnv s
-
--- | Lifted 'Env.unsetEnv'.
---
--- @since 0.1
-unsetEnv :: (EnvironmentDynamic :> es) => String -> Eff es ()
-unsetEnv = send . UnsetEnv
-
--- | Lifted 'Env.withArgs'.
---
--- @since 0.1
-withArgs :: (EnvironmentDynamic :> es) => [String] -> (Eff es) a -> Eff es a
-withArgs args = send . WithArgs args
-
--- | Lifted 'Env.withProgName'.
---
--- @since 0.1
-withProgName :: (EnvironmentDynamic :> es) => String -> (Eff es) () -> Eff es ()
-withProgName name = send . WithProgName name
-
--- | Lifted 'Env.getEnvironment'.
---
--- @since 0.1
-getEnvironment :: (EnvironmentDynamic :> es) => Eff es [(String, String)]
-getEnvironment = send GetEnvironment
+{- ORMOLU_ENABLE -}

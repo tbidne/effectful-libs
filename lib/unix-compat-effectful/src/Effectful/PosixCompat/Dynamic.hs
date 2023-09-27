@@ -1,3 +1,5 @@
+{-# LANGUAGE UndecidableInstances #-}
+
 -- | Provides a dynamic effect for "System.PosixCompat.Files".
 --
 -- @since 0.1
@@ -56,6 +58,111 @@ import System.PosixCompat.Types
     Limit,
     UserID,
   )
+
+-- | Class for unix-compat effects.
+--
+-- @since 0.1
+class (Monad m) => MonadPosixCompat m where
+  -- System.PosixCompat.Files
+
+  -- | @since 0.1
+  setFileMode :: FilePath -> FileMode -> m ()
+
+  -- | @since 0.1
+  setFdMode :: Fd -> FileMode -> m ()
+
+  -- | @since 0.1
+  setFileCreationMask :: FileMode -> m FileMode
+
+  -- | @since 0.1
+  fileAccess :: FilePath -> Bool -> Bool -> Bool -> m Bool
+
+  -- | @since 0.1
+  fileExist :: FilePath -> m Bool
+
+  -- | @since 0.1
+  getFileStatus :: FilePath -> m FileStatus
+
+  -- | @since 0.1
+  getFdStatus :: Fd -> m FileStatus
+
+  -- | @since 0.1
+  getSymbolicLinkStatus :: FilePath -> m FileStatus
+
+  -- | @since 0.1
+  createNamedPipe :: FilePath -> FileMode -> m ()
+
+  -- | @since 0.1
+  createDevice :: FilePath -> FileMode -> DeviceID -> m ()
+
+  -- | @since 0.1
+  createLink :: FilePath -> FilePath -> m ()
+
+  -- | @since 0.1
+  removeLink :: FilePath -> m ()
+
+  -- | @since 0.1
+  createSymbolicLink :: FilePath -> FilePath -> m ()
+
+  -- | @since 0.1
+  readSymbolicLink :: FilePath -> m FilePath
+
+  -- | @since 0.1
+  rename :: FilePath -> FilePath -> m ()
+
+  -- | @since 0.1
+  setOwnerAndGroup :: FilePath -> UserID -> GroupID -> m ()
+
+  -- | @since 0.1
+  setFdOwnerAndGroup :: Fd -> UserID -> GroupID -> m ()
+
+  -- | @since 0.1
+  setSymbolicLinkOwnerAndGroup :: FilePath -> UserID -> GroupID -> m ()
+
+  -- | @since 0.1
+  setFileTimes :: FilePath -> EpochTime -> EpochTime -> m ()
+
+  -- | @since 0.1
+  touchFile :: FilePath -> m ()
+
+  -- | @since 0.1
+  setFileSize :: FilePath -> FileOffset -> m ()
+
+  -- | @since 0.1
+  setFdSize :: Fd -> FileOffset -> m ()
+
+  -- | @since 0.1
+  getPathVar :: FilePath -> PathVar -> m Limit
+
+  -- | @since 0.1
+  getFdPathVar :: Fd -> PathVar -> m Limit
+
+-- | @since 0.1
+instance MonadPosixCompat IO where
+  setFileMode = PFiles.setFileMode
+  setFdMode = PFiles.setFdMode
+  setFileCreationMask = PFiles.setFileCreationMask
+  fileAccess = PFiles.fileAccess
+  fileExist = PFiles.fileExist
+  getFileStatus = PFiles.getFileStatus
+  getFdStatus = PFiles.getFdStatus
+  getSymbolicLinkStatus = PFiles.getSymbolicLinkStatus
+  createNamedPipe = PFiles.createNamedPipe
+  createDevice = PFiles.createDevice
+  createLink = PFiles.createLink
+  removeLink = PFiles.removeLink
+  createSymbolicLink = PFiles.createSymbolicLink
+  readSymbolicLink = PFiles.readSymbolicLink
+  rename = PFiles.rename
+  setOwnerAndGroup = PFiles.setOwnerAndGroup
+  setFdOwnerAndGroup = PFiles.setFdOwnerAndGroup
+  setSymbolicLinkOwnerAndGroup = PFiles.setSymbolicLinkOwnerAndGroup
+  setFileTimes = PFiles.setFileTimes
+  touchFile = PFiles.touchFile
+  setFileSize = PFiles.setFileSize
+  setFdSize = PFiles.setFdSize
+  getPathVar = PFiles.getPathVar
+  getFdPathVar = PFiles.getFdPathVar
 
 -- | Dynamic effect for "System.PosixCompat.Files".
 --
@@ -125,188 +232,29 @@ runPosixCompatDynamicIO = interpret $ \_ -> \case
   GetPathVar p m -> liftIO $ PFiles.getPathVar p m
   GetFdPathVar fd m -> liftIO $ PFiles.getFdPathVar fd m
 
--- | Lifted 'PFiles.setFileMode'.
---
--- @since 0.1
-setFileMode :: (PosixCompatDynamic :> es) => FilePath -> FileMode -> Eff es ()
-setFileMode p = send . SetFileMode p
-
--- | Lifted 'PFiles.setFdMode'.
---
--- @since 0.1
-setFdMode :: (PosixCompatDynamic :> es) => Fd -> FileMode -> Eff es ()
-setFdMode p = send . SetFdMode p
-
--- | Lifted 'PFiles.setFileCreationMask'.
---
--- @since 0.1
-setFileCreationMask :: (PosixCompatDynamic :> es) => FileMode -> Eff es FileMode
-setFileCreationMask = send . SetFileCreationMask
-
--- | Lifted 'PFiles.fileAccess'.
---
--- @since 0.1
-fileAccess ::
-  (PosixCompatDynamic :> es) =>
-  FilePath ->
-  Bool ->
-  Bool ->
-  Bool ->
-  Eff es Bool
-fileAccess p b c = send . FileAccess p b c
-
--- | Lifted 'PFiles.fileExist'.
---
--- @since 0.1
-fileExist :: (PosixCompatDynamic :> es) => FilePath -> Eff es Bool
-fileExist = send . FileExist
-
--- | Lifted 'PFiles.getFileStatus'.
---
--- @since 0.1
-getFileStatus :: (PosixCompatDynamic :> es) => FilePath -> Eff es FileStatus
-getFileStatus = send . GetFileStatus
-
--- | Lifted 'PFiles.getFdStatus'.
---
--- @since 0.1
-getFdStatus :: (PosixCompatDynamic :> es) => Fd -> Eff es FileStatus
-getFdStatus = send . GetFdStatus
-
--- | Lifted 'PFiles.getSymbolicLinkStatus'.
---
--- @since 0.1
-getSymbolicLinkStatus ::
-  (PosixCompatDynamic :> es) =>
-  FilePath ->
-  Eff es FileStatus
-getSymbolicLinkStatus = send . GetSymbolicLinkStatus
-
--- | Lifted 'PFiles.createNamedPipe'.
---
--- @since 0.1
-createNamedPipe ::
-  (PosixCompatDynamic :> es) =>
-  FilePath ->
-  FileMode ->
-  Eff es ()
-createNamedPipe p = send . CreateNamedPipe p
-
--- | Lifted 'PFiles.createDevice'.
---
--- @since 0.1
-createDevice ::
-  (PosixCompatDynamic :> es) =>
-  FilePath ->
-  FileMode ->
-  DeviceID ->
-  Eff es ()
-createDevice p m = send . CreateDevice p m
-
--- | Lifted 'PFiles.createLink'.
---
--- @since 0.1
-createLink :: (PosixCompatDynamic :> es) => FilePath -> FilePath -> Eff es ()
-createLink p = send . CreateLink p
-
--- | Lifted 'PFiles.removeLink'.
---
--- @since 0.1
-removeLink :: (PosixCompatDynamic :> es) => FilePath -> Eff es ()
-removeLink = send . RemoveLink
-
--- | Lifted 'PFiles.createSymbolicLink'.
---
--- @since 0.1
-createSymbolicLink ::
-  (PosixCompatDynamic :> es) =>
-  FilePath ->
-  FilePath ->
-  Eff es ()
-createSymbolicLink p = send . CreateSymbolicLink p
-
--- | Lifted 'PFiles.readSymbolicLink'.
---
--- @since 0.1
-readSymbolicLink :: (PosixCompatDynamic :> es) => FilePath -> Eff es FilePath
-readSymbolicLink = send . ReadSymbolicLink
-
--- | Lifted 'PFiles.rename'.
---
--- @since 0.1
-rename :: (PosixCompatDynamic :> es) => FilePath -> FilePath -> Eff es ()
-rename p = send . Rename p
-
--- | Lifted 'PFiles.setOwnerAndGroup'.
---
--- @since 0.1
-setOwnerAndGroup ::
-  (PosixCompatDynamic :> es) =>
-  FilePath ->
-  UserID ->
-  GroupID ->
-  Eff es ()
-setOwnerAndGroup p uid = send . SetOwnerAndGroup p uid
-
--- | Lifted 'PFiles.setFdOwnerAndGroup'.
---
--- @since 0.1
-setFdOwnerAndGroup ::
-  (PosixCompatDynamic :> es) =>
-  Fd ->
-  UserID ->
-  GroupID ->
-  Eff es ()
-setFdOwnerAndGroup fd uid = send . SetFdOwnerAndGroup fd uid
-
--- | Lifted 'PFiles.setSymbolicLinkOwnerAndGroup'.
---
--- @since 0.1
-setSymbolicLinkOwnerAndGroup ::
-  (PosixCompatDynamic :> es) =>
-  FilePath ->
-  UserID ->
-  GroupID ->
-  Eff es ()
-setSymbolicLinkOwnerAndGroup p uid = send . SetSymbolicLinkOwnerAndGroup p uid
-
--- | Lifted 'PFiles.setFileTimes'.
---
--- @since 0.1
-setFileTimes ::
-  (PosixCompatDynamic :> es) =>
-  FilePath ->
-  EpochTime ->
-  EpochTime ->
-  Eff es ()
-setFileTimes p t = send . SetFileTimes p t
-
--- | Lifted 'PFiles.touchFile'.
---
--- @since 0.1
-touchFile :: (PosixCompatDynamic :> es) => FilePath -> Eff es ()
-touchFile = send . TouchFile
-
--- | Lifted 'PFiles.setFileSize'.
---
--- @since 0.1
-setFileSize :: (PosixCompatDynamic :> es) => FilePath -> FileOffset -> Eff es ()
-setFileSize p = send . SetFileSize p
-
--- | Lifted 'PFiles.setFdSize'.
---
--- @since 0.1
-setFdSize :: (PosixCompatDynamic :> es) => Fd -> FileOffset -> Eff es ()
-setFdSize fd = send . SetFdSize fd
-
--- | Lifted 'PFiles.getPathVar'.
---
--- @since 0.1
-getPathVar :: (PosixCompatDynamic :> es) => FilePath -> PathVar -> Eff es Limit
-getPathVar p = send . GetPathVar p
-
--- | Lifted 'PFiles.getFdPathVar'.
---
--- @since 0.1
-getFdPathVar :: (PosixCompatDynamic :> es) => Fd -> PathVar -> Eff es Limit
-getFdPathVar fd = send . GetFdPathVar fd
+-- | @since 0.1
+instance (PosixCompatDynamic :> es) => MonadPosixCompat (Eff es) where
+  setFileMode p = send . SetFileMode p
+  setFdMode p = send . SetFdMode p
+  setFileCreationMask = send . SetFileCreationMask
+  fileAccess p b c = send . FileAccess p b c
+  fileExist = send . FileExist
+  getFileStatus = send . GetFileStatus
+  getFdStatus = send . GetFdStatus
+  getSymbolicLinkStatus = send . GetSymbolicLinkStatus
+  createNamedPipe p = send . CreateNamedPipe p
+  createDevice p m = send . CreateDevice p m
+  createLink p = send . CreateLink p
+  removeLink = send . RemoveLink
+  createSymbolicLink p = send . CreateSymbolicLink p
+  readSymbolicLink = send . ReadSymbolicLink
+  rename p = send . Rename p
+  setOwnerAndGroup p uid = send . SetOwnerAndGroup p uid
+  setFdOwnerAndGroup fd uid = send . SetFdOwnerAndGroup fd uid
+  setSymbolicLinkOwnerAndGroup p uid = send . SetSymbolicLinkOwnerAndGroup p uid
+  setFileTimes p t = send . SetFileTimes p t
+  touchFile = send . TouchFile
+  setFileSize p = send . SetFileSize p
+  setFdSize fd = send . SetFdSize fd
+  getPathVar p = send . GetPathVar p
+  getFdPathVar fd = send . GetFdPathVar fd

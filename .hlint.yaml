@@ -13,3 +13,8 @@
       - "Effectful.STM"
       - "Effectful.Time"
       - "Effectful.Thread"
+- ignore:
+    name: "Use putStrLn"
+    within:
+      - "Effectful.Terminal.Dynamic"
+      - "Effectful.Terminal.Static"

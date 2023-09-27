@@ -32,9 +32,9 @@ import Control.DeepSeq (NFData)
 import Control.Monad (unless, when)
 import Data.Foldable (for_, traverse_)
 import Data.IORef (IORef)
-import Effectful (Eff)
 import Effectful.Exception
   ( Exception (displayException),
+    MonadMask,
     mask_,
     onException,
     throwM,
@@ -260,34 +260,35 @@ defaultCopyDirConfig = MkCopyDirConfig OverwriteNone TargetNameSrc
 -- directory copying for both static and dynamic effects.
 --
 -- @since 0.1
-data Handle es = MkHandle
-  { newIORef :: forall a. a -> Eff es (IORef a),
-    readIORef :: forall a. IORef a -> (Eff es) a,
-    modifyIORef' :: forall a. IORef a -> (a -> a) -> Eff es (),
-    doesDirectoryExist :: OsPath -> Eff es Bool,
-    doesFileExist :: OsPath -> Eff es Bool,
-    listDirectoryRecursive :: OsPath -> Eff es ([OsPath], [OsPath]),
-    createDirectory :: OsPath -> Eff es (),
-    createDirectoryIfMissing :: Bool -> OsPath -> Eff es (),
-    copyFileWithMetadata :: OsPath -> OsPath -> Eff es (),
-    removeFile :: OsPath -> Eff es (),
-    removeDirectory :: OsPath -> Eff es (),
-    removeDirectoryRecursive :: OsPath -> Eff es ()
+data Handle m = MkHandle
+  { newIORef :: forall a. a -> m (IORef a),
+    readIORef :: forall a. IORef a -> m a,
+    modifyIORef' :: forall a. IORef a -> (a -> a) -> m (),
+    doesDirectoryExist :: OsPath -> m Bool,
+    doesFileExist :: OsPath -> m Bool,
+    listDirectoryRecursive :: OsPath -> m ([OsPath], [OsPath]),
+    createDirectory :: OsPath -> m (),
+    createDirectoryIfMissing :: Bool -> OsPath -> m (),
+    copyFileWithMetadata :: OsPath -> OsPath -> m (),
+    removeFile :: OsPath -> m (),
+    removeDirectory :: OsPath -> m (),
+    removeDirectoryRecursive :: OsPath -> m ()
   }
 
 -- | Internal copying function in terms of explicit handler.
 --
 -- @since 0.1
 copyDirectoryRecursiveConfig ::
+  (MonadMask m) =>
   -- | Handler
-  Handle es ->
+  Handle m ->
   -- | Config
   CopyDirConfig ->
   -- | Source
   OsPath ->
   -- | Destination
   OsPath ->
-  Eff es ()
+  m ()
 copyDirectoryRecursiveConfig
   handlers@MkHandle {doesDirectoryExist}
   config
@@ -317,14 +318,15 @@ copyDirectoryRecursiveConfig
 {-# INLINEABLE copyDirectoryRecursiveConfig #-}
 
 copyDirectoryOverwrite ::
-  Handle es ->
+  (MonadMask m) =>
+  Handle m ->
   -- | Overwrite files
   Bool ->
   -- | Source
   OsPath ->
   -- | Destination
   OsPath ->
-  Eff es ()
+  m ()
 copyDirectoryOverwrite
   MkHandle
     { newIORef,
@@ -413,12 +415,13 @@ copyDirectoryOverwrite
 {-# INLINEABLE copyDirectoryOverwrite #-}
 
 copyDirectoryNoOverwrite ::
-  Handle es ->
+  (MonadMask m) =>
+  Handle m ->
   -- | Source
   OsPath ->
   -- | Destination
   OsPath ->
-  Eff es ()
+  m ()
 copyDirectoryNoOverwrite
   MkHandle
     { doesDirectoryExist,

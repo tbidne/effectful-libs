@@ -48,10 +48,14 @@ common common-lang
 
 library
   import:           common-lang
-  exposed-modules:  Effectful.Environment.Dynamic
+  exposed-modules:
+    Effectful.Environment.Dynamic
+    Effectful.Environment.Static
+    Effectful.Environment.Utils
+
   build-depends:
-    , base            >=4.14.0.0 && <4.19
-    , effectful-core  >=2.2.1.0  && <2.4
+    , base       >=4.14.0.0 && <4.19
+    , effectful  >=2.2.1.0  && <2.4
 
   hs-source-dirs:   src
   default-language: Haskell2010
