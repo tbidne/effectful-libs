@@ -63,7 +63,7 @@ module Effectful.FileSystem.PathWriter.Dynamic
 
     -- * Re-exports
     OsPath,
-    Permissions (..),
+    Permissions,
     UTCTime (..),
   )
 where
@@ -71,7 +71,7 @@ where
 import Control.Monad (when)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.IORef (modifyIORef', newIORef, readIORef)
-import Data.Time (UTCTime (..))
+import Data.Time (UTCTime (UTCTime, utctDay, utctDayTime))
 import Effectful
   ( Dispatch (Dynamic),
     DispatchOf,
@@ -90,16 +90,16 @@ import Effectful.FileSystem.PathReader.Dynamic
     listDirectoryRecursive,
   )
 import Effectful.FileSystem.PathWriter.Utils
-  ( CopyDirConfig (..),
+  ( CopyDirConfig (MkCopyDirConfig, overwrite, targetName),
     Handle (MkHandle),
-    Overwrite (..),
-    PathDoesNotExistException (..),
-    PathExistsException (..),
-    TargetName (..),
+    Overwrite (OverwriteAll, OverwriteDirectories, OverwriteNone),
+    PathDoesNotExistException (MkPathDoesNotExistException),
+    PathExistsException (MkPathExistsException),
+    TargetName (TargetNameDest, TargetNameLiteral, TargetNameSrc),
   )
 import Effectful.FileSystem.PathWriter.Utils qualified as Utils
 import Effectful.FileSystem.Utils (OsPath)
-import System.Directory (Permissions (..))
+import System.Directory (Permissions)
 import System.Directory.OsPath qualified as Dir
 
 -- | Effect for writing paths.

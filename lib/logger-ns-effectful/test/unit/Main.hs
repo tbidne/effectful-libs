@@ -23,13 +23,13 @@ import Effectful.Dispatch.Dynamic
   )
 import Effectful.Logger.Dynamic
   ( Loc (Loc),
-    LogLevel (..),
+    LogLevel (LevelWarn),
   )
 import Effectful.LoggerNS.Dynamic
   ( LocStrategy (LocNone, LocPartial, LocStable),
-    LogFormatter (..),
+    LogFormatter (MkLogFormatter, locStrategy, newline, timezone),
     LogStr,
-    LoggerNSDynamic (..),
+    LoggerNSDynamic (GetNamespace, LocalNamespace),
     Namespace,
     addNamespace,
     formatLog,
@@ -37,7 +37,7 @@ import Effectful.LoggerNS.Dynamic
   )
 import Effectful.State.Static.Local (evalState, get, modify)
 import Effectful.Time.Dynamic
-  ( TimeDynamic (..),
+  ( TimeDynamic (GetMonotonicTime, GetSystemZonedTime),
   )
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Test.Tasty.HUnit (testCase, (@=?))

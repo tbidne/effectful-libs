@@ -63,7 +63,7 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
-import Effectful.Time.TimeSpec (TimeSpec (..))
+import Effectful.Time.TimeSpec (TimeSpec (nsec, sec))
 import Effectful.Time.TimeSpec qualified as TimeSpec
 import Effectful.Time.Utils qualified as Utils
 import GHC.Clock qualified as C

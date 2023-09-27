@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 {- ORMOLU_DISABLE -}
 
@@ -60,10 +61,23 @@ import Effectful
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
 import Effectful.Exception (throwM)
-import Effectful.Terminal.TermSizeException (TermSizeException (..))
-import System.Console.Terminal.Size (Window (..), size)
+import Effectful.Terminal.TermSizeException
+  ( TermSizeException (MkTermSizeException),
+  )
+import System.Console.Terminal.Size (Window (Window, height, width), size)
 import System.IO qualified as IO
-import Prelude hiding (getChar, getLine, print, putStr, putStrLn)
+import Prelude
+  ( Applicative (pure),
+    Char,
+    Integral,
+    Maybe (Just, Nothing),
+    Monad ((>>=)),
+    Show (show),
+    String,
+    ($),
+    (.),
+    (<$>),
+  )
 
 {- ORMOLU_DISABLE -}
 

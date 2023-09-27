@@ -50,7 +50,7 @@ module Effectful.FileSystem.PathReader.Dynamic
 
     -- * Re-exports
     OsPath,
-    Permissions (..),
+    Permissions,
     UTCTime (..),
     XdgDirectory (..),
     XdgDirectoryList (..),
@@ -58,7 +58,7 @@ module Effectful.FileSystem.PathReader.Dynamic
 where
 
 import Control.Monad.IO.Class (MonadIO (liftIO))
-import Data.Time (UTCTime (..))
+import Data.Time (UTCTime (UTCTime, utctDay, utctDayTime))
 import Effectful
   ( Dispatch (Dynamic),
     DispatchOf,
@@ -70,9 +70,9 @@ import Effectful
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
 import Effectful.FileSystem.Utils (OsPath, (</>))
 import System.Directory
-  ( Permissions (..),
-    XdgDirectory (..),
-    XdgDirectoryList (..),
+  ( Permissions,
+    XdgDirectory (XdgCache, XdgConfig, XdgData, XdgState),
+    XdgDirectoryList (XdgConfigDirs, XdgDataDirs),
   )
 import System.Directory.OsPath qualified as Dir
 import System.OsString (OsString)

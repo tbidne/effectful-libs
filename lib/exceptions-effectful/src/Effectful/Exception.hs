@@ -57,7 +57,7 @@ module Effectful.Exception
     CallStack,
     Exception (..),
     HasCallStack,
-    SomeException,
+    SomeException (..),
     IOException,
     SafeEx.StringException,
   )
@@ -65,20 +65,20 @@ where
 
 import Control.Exception.Safe qualified as SafeEx
 import Control.Monad.Catch
-  ( Exception (..),
-    Handler (..),
+  ( Exception (displayException, fromException, toException),
+    Handler (Handler),
     MonadCatch,
-    MonadMask (..),
+    MonadMask (generalBracket, mask, uninterruptibleMask),
     MonadThrow,
-    SomeException (..),
+    SomeException (SomeException),
   )
 import Control.Monad.Catch qualified as Ex
 import Effectful (Eff)
 import Effectful.Dispatch.Static (unEff, unsafeEff, unsafeEff_)
 import GHC.Conc.Sync qualified as Sync
-import GHC.IO.Exception (IOErrorType (InvalidArgument), IOException (..))
+import GHC.IO.Exception (IOErrorType (InvalidArgument), IOException (IOError))
 import GHC.Stack (CallStack, HasCallStack, withFrozenCallStack)
-import System.Exit (ExitCode (..))
+import System.Exit (ExitCode (ExitFailure, ExitSuccess))
 
 -------------------------------------------------------------------------------
 --                           MonadGlobalException                            --

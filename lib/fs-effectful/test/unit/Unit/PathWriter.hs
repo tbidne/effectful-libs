@@ -35,8 +35,8 @@ import Effectful.FileSystem.PathReader.Dynamic
     runPathReaderDynamicIO,
   )
 import Effectful.FileSystem.PathWriter.Dynamic
-  ( CopyDirConfig (..),
-    Overwrite (..),
+  ( CopyDirConfig (MkCopyDirConfig),
+    Overwrite (OverwriteAll, OverwriteDirectories, OverwriteNone),
     PathDoesNotExistException,
     PathExistsException,
     PathWriterDynamic
@@ -47,7 +47,7 @@ import Effectful.FileSystem.PathWriter.Dynamic
         RemoveDirectoryRecursive,
         RemoveFile
       ),
-    TargetName (..),
+    TargetName (TargetNameDest, TargetNameLiteral, TargetNameSrc),
     copyFileWithMetadata,
     createDirectory,
     createDirectoryIfMissing,

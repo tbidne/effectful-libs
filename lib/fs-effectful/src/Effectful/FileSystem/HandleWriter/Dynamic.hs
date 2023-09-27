@@ -54,7 +54,12 @@ import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
 import Effectful.Exception (exitFailure)
 import Effectful.FileSystem.Utils (OsPath, openBinaryFileIO, withBinaryFileIO)
 import Effectful.FileSystem.Utils qualified as Utils
-import System.IO (BufferMode (..), Handle, IOMode (..), SeekMode (..))
+import System.IO
+  ( BufferMode (BlockBuffering, LineBuffering, NoBuffering),
+    Handle,
+    IOMode (AppendMode, ReadMode, ReadWriteMode, WriteMode),
+    SeekMode (AbsoluteSeek, RelativeSeek, SeekFromEnd),
+  )
 import System.IO qualified as IO
 
 -- | @since 0.1

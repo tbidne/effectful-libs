@@ -115,7 +115,7 @@ import Language.Haskell.TH.Syntax
     qLocation,
   )
 import System.IO (Handle)
-import System.Log.FastLogger (LogStr, ToLogStr (..), fromLogStr)
+import System.Log.FastLogger (LogStr, ToLogStr (toLogStr), fromLogStr)
 
 -- | Dynamic logging effect for "Control.Monad.Logger".
 --

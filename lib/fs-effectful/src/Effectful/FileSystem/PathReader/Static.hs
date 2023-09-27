@@ -54,14 +54,14 @@ module Effectful.FileSystem.PathReader.Static
 
     -- * Re-exports
     OsPath,
-    Permissions (..),
+    Permissions,
     UTCTime (..),
     XdgDirectory (..),
     XdgDirectoryList (..),
   )
 where
 
-import Data.Time (UTCTime (..))
+import Data.Time (UTCTime (UTCTime, utctDay, utctDayTime))
 import Effectful
   ( Dispatch (Static),
     DispatchOf,
@@ -80,9 +80,9 @@ import Effectful.Dispatch.Static
   )
 import Effectful.FileSystem.Utils (OsPath, (</>))
 import System.Directory
-  ( Permissions (..),
-    XdgDirectory (..),
-    XdgDirectoryList (..),
+  ( Permissions,
+    XdgDirectory (XdgCache, XdgConfig, XdgData, XdgState),
+    XdgDirectoryList (XdgConfigDirs, XdgDataDirs),
   )
 import System.Directory.OsPath qualified as Dir
 import System.OsString (OsString)

@@ -62,7 +62,12 @@ import Effectful.Dispatch.Static
 import Effectful.Exception (exitFailure)
 import Effectful.FileSystem.Utils (OsPath, openBinaryFileIO, withBinaryFileIO)
 import Effectful.FileSystem.Utils qualified as Utils
-import System.IO (BufferMode (..), Handle, IOMode (..), SeekMode (..))
+import System.IO
+  ( BufferMode (BlockBuffering, LineBuffering, NoBuffering),
+    Handle,
+    IOMode (AppendMode, ReadMode, ReadWriteMode, WriteMode),
+    SeekMode (AbsoluteSeek, RelativeSeek, SeekFromEnd),
+  )
 import System.IO qualified as IO
 
 -- | Static effect for writing to a handle.

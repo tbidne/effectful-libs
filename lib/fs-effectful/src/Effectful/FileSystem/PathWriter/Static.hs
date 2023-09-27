@@ -65,14 +65,14 @@ module Effectful.FileSystem.PathWriter.Static
 
     -- * Re-exports
     OsPath,
-    Permissions (..),
+    Permissions,
     UTCTime (..),
   )
 where
 
 import Control.Monad (when)
 import Data.IORef (modifyIORef', newIORef, readIORef)
-import Data.Time (UTCTime (..))
+import Data.Time (UTCTime (UTCTime, utctDay, utctDayTime))
 import Effectful
   ( Dispatch (Static),
     DispatchOf,
@@ -97,16 +97,16 @@ import Effectful.FileSystem.PathReader.Static
     listDirectoryRecursive,
   )
 import Effectful.FileSystem.PathWriter.Utils
-  ( CopyDirConfig (..),
+  ( CopyDirConfig (MkCopyDirConfig, overwrite, targetName),
     Handle (MkHandle),
-    Overwrite (..),
-    PathDoesNotExistException (..),
-    PathExistsException (..),
-    TargetName (..),
+    Overwrite (OverwriteAll, OverwriteDirectories, OverwriteNone),
+    PathDoesNotExistException (MkPathDoesNotExistException),
+    PathExistsException (MkPathExistsException),
+    TargetName (TargetNameDest, TargetNameLiteral, TargetNameSrc),
   )
 import Effectful.FileSystem.PathWriter.Utils qualified as Utils
 import Effectful.FileSystem.Utils (OsPath)
-import System.Directory (Permissions (..))
+import System.Directory (Permissions)
 import System.Directory.OsPath qualified as Dir
 
 -- | Static effect for writing paths.
