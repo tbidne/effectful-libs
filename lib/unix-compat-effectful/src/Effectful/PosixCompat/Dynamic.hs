@@ -1,5 +1,3 @@
-{-# LANGUAGE CPP #-}
-
 -- | Provides a dynamic effect for "System.PosixCompat.Files".
 --
 -- @since 0.1
