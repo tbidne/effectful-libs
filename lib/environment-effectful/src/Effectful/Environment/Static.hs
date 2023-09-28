@@ -25,7 +25,9 @@ module Effectful.Environment.Static
 where
 
 import Effectful (Eff, type (:>))
+#if MIN_VERSION_base(4,17,0)
 import Effectful.Dispatch.Static (unsafeEff_)
+#endif
 import Effectful.Environment (Environment, runEnvironment)
 import Effectful.Environment qualified as EffEnv
 import Effectful.Environment.Utils (QueryExePath (NoQuery, QueryResult))
