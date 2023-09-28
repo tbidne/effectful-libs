@@ -45,10 +45,7 @@ common common
 library
   import:           common
   exposed-modules:
-    Effectful.Concurrent.STM.Dynamic
-    Effectful.Concurrent.STM.TBQueue.Dynamic
     Effectful.Concurrent.STM.TBQueue.Static
-    Effectful.Concurrent.STM.TVar.Dynamic
     Effectful.Concurrent.STM.TVar.Static
 
   build-depends:

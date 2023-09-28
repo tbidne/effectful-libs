@@ -44,10 +44,7 @@ common common
 
 library
   import:           common
-  exposed-modules:
-    Effectful.IORef.Dynamic
-    Effectful.IORef.Static
-
+  exposed-modules:  Effectful.IORef.Static
   build-depends:
     , base            >=4.14.0.0 && <4.19
     , effectful-core  >=2.2.1.0  && <2.4
