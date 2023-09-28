@@ -47,6 +47,8 @@ import Effectful.Dispatch.Static
   ( SideEffects (WithSideEffects),
     StaticRep,
     evalStaticRep,
+    seqUnliftIO,
+    unsafeEff,
   )
 import System.Environment.Guard
   ( ExpectEnv
@@ -74,6 +76,12 @@ data EnvGuardStatic :: Effect
 type instance DispatchOf EnvGuardStatic = Static WithSideEffects
 
 data instance StaticRep EnvGuardStatic = MkEnvGuardStatic
+
+-- | @since 0.1
+instance MonadEnvGuard (Eff es) where
+  guardPredicate envStr p action =
+    unsafeEff $ \env -> seqUnliftIO env $
+      \runInIO -> EnvGuard.guardPredicate envStr p (runInIO action)
 
 -- | Runs an EnvGuardStatic effect.
 --

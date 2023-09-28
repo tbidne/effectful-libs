@@ -9,18 +9,12 @@
 --
 -- @since 0.1
 module Effectful.Terminal.Static
-  ( -- * Effect
+  ( -- * Class
+    MonadTerminal (..),
+
+    -- * Effect
     TerminalStatic,
     TermSizeException (..),
-    putStr,
-    putStrLn,
-    putBinary,
-    getChar,
-    getLine,
-#if MIN_VERSION_base(4,15,0)
-    getContents',
-#endif
-    getTerminalSize,
 
     -- ** Handlers
     runTerminalStaticIO,

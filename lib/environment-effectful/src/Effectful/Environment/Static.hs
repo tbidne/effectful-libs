@@ -5,7 +5,7 @@
 -- https://hackage.haskell.org/package/effectful-2.2.2.0/docs/Effectful-Environment.html.
 --
 -- This module exists to provide a typeclass for functions that we may also
--- want to use in IO to allow for convenient importing e.g.
+-- want to use in IO to allow for convenient importing.
 --
 -- @since 0.1
 module Effectful.Environment.Static
