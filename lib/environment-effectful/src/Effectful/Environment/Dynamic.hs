@@ -24,7 +24,7 @@ module Effectful.Environment.Dynamic
     getEnvironment,
 
     -- ** Handlers
-    runEnvDynamicIO,
+    runEnvironmentDynamicIO,
 
     -- * Types
     QueryExePath (..),
@@ -86,12 +86,12 @@ data QueryExePath
 -- | Runs 'EnvironmentDynamic' in 'IO'.
 --
 -- @since 0.1
-runEnvDynamicIO ::
+runEnvironmentDynamicIO ::
   ( IOE :> es
   ) =>
   Eff (EnvironmentDynamic : es) a ->
   Eff es a
-runEnvDynamicIO = interpret $ \env -> \case
+runEnvironmentDynamicIO = interpret $ \env -> \case
   GetArgs -> liftIO Env.getArgs
   GetProgName -> liftIO Env.getProgName
 #if MIN_VERSION_base(4,17,0)
