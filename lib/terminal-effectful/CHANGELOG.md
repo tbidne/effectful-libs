@@ -1,4 +1,4 @@
-# Revision history for effectful-terminal
+# Revision history for terminal-effectful
 
 ## 0.1 -- YYYY-mm-dd
 

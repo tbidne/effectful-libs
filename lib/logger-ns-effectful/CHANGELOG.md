@@ -1,4 +1,4 @@
-# Revision history for effectful-logger-namespace
+# Revision history for logger-namespace-effectful
 
 ## 0.1 -- YYYY-mm-dd
 

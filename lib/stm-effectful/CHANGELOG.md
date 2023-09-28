@@ -1,4 +1,4 @@
-# Revision history for effectful-stm
+# Revision history for stm-effectful
 
 ## 0.1 -- YYYY-mm-dd
 

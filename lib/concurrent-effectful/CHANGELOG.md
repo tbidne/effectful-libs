@@ -1,4 +1,4 @@
-# Revision history for effectful-concurrent
+# Revision history for concurrent-effectful
 
 ## 0.1 -- YYYY-mm-dd
 

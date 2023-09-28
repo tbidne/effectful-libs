@@ -1,4 +1,4 @@
-# Revision history for effectful-optparse
+# Revision history for optparse-effectful
 
 ## 0.1 -- YYYY-mm-dd
 

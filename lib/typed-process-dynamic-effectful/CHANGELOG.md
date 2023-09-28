@@ -1,4 +1,4 @@
-# Revision history for effectful-typed-process
+# Revision history for typed-process-effectful
 
 ## 0.1 -- YYYY-mm-dd
 

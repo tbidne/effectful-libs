@@ -1,4 +1,4 @@
-# Revision history for effectful-ioref
+# Revision history for ioref-effectful
 
 ## 0.1 -- YYYY-mm-dd
 

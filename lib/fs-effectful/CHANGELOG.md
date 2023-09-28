@@ -1,4 +1,4 @@
-# Revision history for effectful-fs
+# Revision history for fs-effectful
 
 ## 0.1 -- YYYY-mm-dd
 

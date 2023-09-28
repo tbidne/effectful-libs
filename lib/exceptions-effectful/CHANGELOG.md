@@ -1,4 +1,4 @@
-# Revision history for effectful-exceptions
+# Revision history for exceptions-effectful
 
 ## 0.1 -- YYYY-mm-dd
 

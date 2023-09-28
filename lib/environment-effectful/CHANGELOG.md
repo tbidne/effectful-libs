@@ -1,4 +1,4 @@
-# Revision history for effectful-env
+# Revision history for environment-effectful
 
 ## 0.1 -- YYYY-mm-dd
 

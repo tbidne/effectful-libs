@@ -1,4 +1,4 @@
-# Revision history for effectful-unix-compat
+# Revision history for unix-compat-effectful
 
 ## 0.1 -- YYYY-mm-dd
 
