@@ -1,19 +1,4 @@
 - ignore:
-    name: "Redundant bracket"
-    within:
-      - "Effectful.Exception"
-      - "Effectful.LoggerNS"
-      - "Effectful.FileSystem.FileReader"
-      - "Effectful.FileSystem.FileWriter"
-      - "Effectful.FileSystem.HandleReader"
-      - "Effectful.FileSystem.HandleWriter"
-      - "Effectful.FileSystem.PathReader"
-      - "Effectful.FileSystem.PathWriter"
-      - "Effectful.IORef"
-      - "Effectful.STM"
-      - "Effectful.Time"
-      - "Effectful.Thread"
-- ignore:
     name: "Use putStrLn"
     within:
       - "Effectful.Terminal.Dynamic"
