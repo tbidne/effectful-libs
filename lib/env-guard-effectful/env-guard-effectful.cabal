@@ -1,0 +1,58 @@
+cabal-version:      2.4
+name:               env-guard-effectful
+version:            0.1
+license:            MIT
+license-file:       LICENSE
+tested-with:
+  GHC ==8.10.7 || ==9.0.2 || ==9.2.7 || ==9.4.4 || ==9.6.1
+
+copyright:          2022-2023 Thomas Bidne
+author:             Thomas Bidne
+maintainer:         tbidne@protonmail.com
+homepage:           https://github.com/tbidne/effectful-effects/
+bug-reports:        https://github.com/tbidne/effectful-effects/issues
+synopsis:           Environment effects
+description:        Environment effects
+category:           Effects
+extra-source-files: CHANGELOG.md
+
+source-repository head
+  type:     git
+  location: https://github.com/tbidne/effectful-effects
+
+common common-lang
+  default-extensions:
+    DataKinds
+    DeriveAnyClass
+    DeriveFunctor
+    DeriveGeneric
+    DerivingStrategies
+    DerivingVia
+    FlexibleContexts
+    FlexibleInstances
+    GADTs
+    GeneralizedNewtypeDeriving
+    ImportQualifiedPost
+    LambdaCase
+    MultiParamTypeClasses
+    NumericUnderscores
+    OverloadedLabels
+    OverloadedStrings
+    RankNTypes
+    ScopedTypeVariables
+    StandaloneDeriving
+    TupleSections
+    TypeApplications
+    TypeFamilies
+    TypeOperators
+
+library
+  import:           common-lang
+  exposed-modules:  Effectful.Environment.Guard.Static
+  build-depends:
+    , base            >=4.14.0.0 && <4.19
+    , effectful-core  >=2.2.1.0  && <2.4
+    , env-guard       ^>=0.2
+
+  hs-source-dirs:   src
+  default-language: Haskell2010

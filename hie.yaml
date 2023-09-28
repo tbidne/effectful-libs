@@ -3,6 +3,9 @@ cradle:
     - path: "./lib/concurrent-effectful/src"
       component: "lib:concurrent-effectful"
 
+    - path: "./lib/env-guard-effectful/src"
+      component: "lib:env-guard-effectful"
+
     - path: "./lib/environment-effectful/src"
       component: "lib:environment-effectful"
 

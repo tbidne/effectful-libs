@@ -1,5 +1,6 @@
 packages:
   ./lib/concurrent-effectful
+  ./lib/env-guard-effectful
   ./lib/environment-effectful
   ./lib/exceptions-effectful
   ./lib/fs-effectful

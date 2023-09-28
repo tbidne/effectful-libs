@@ -85,6 +85,7 @@
         in
         {
           packages.concurrent-effectful = mkPkgsExceptions "concurrent-effectful" ./lib/concurrent-effectful;
+          packages.env-guard-effectful = mkPkg "env-guard-effectful" ./lib/env-guard-effectful { };
           packages.environment-effectful = mkPkg "environment-effectful" ./lib/environment-effectful { };
           packages.exceptions-effectful = mkPkg "exceptions-effectful" ./lib/exceptions-effectful { };
           packages.fs-effectful =
