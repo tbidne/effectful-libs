@@ -28,14 +28,14 @@
     flake-parts.lib.mkFlake { inherit inputs; } {
       perSystem = { pkgs, ... }:
         let
-          ghc-version = "ghc962";
+          ghc-version = "ghc963";
           hlib = pkgs.haskell.lib;
           compiler = pkgs.haskell.packages."${ghc-version}".override {
             overrides = final: prev: {
-              file-io = final.callHackage "file-io" "0.1.0.1" { };
-              hedgehog = prev.hedgehog_1_3;
+              hedgehog = prev.hedgehog_1_4;
               hlint = prev.hlint_3_6_1;
-              ormolu = prev.ormolu_0_7_1_0;
+              ormolu = prev.ormolu_0_7_2_0;
+              tasty-hedgehog = prev.tasty-hedgehog_1_4_0_2;
             } // nix-hs-utils.mkLibs inputs final [
               "algebra-simple"
               "bounds"
@@ -124,9 +124,9 @@
           };
 
           apps = {
-            format = nix-hs-utils.format compilerPkgs;
-            lint = nix-hs-utils.lint compilerPkgs;
-            lintRefactor = nix-hs-utils.lintRefactor compilerPkgs;
+            format = nix-hs-utils.format pkgsCompiler;
+            lint = nix-hs-utils.lint pkgsCompiler;
+            lintRefactor = nix-hs-utils.lintRefactor pkgsCompiler;
           };
         };
       systems = [
