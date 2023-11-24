@@ -44,7 +44,10 @@ common common
 
 library
   import:           common
-  exposed-modules:  Effectful.Concurrent.STM.Static
+  exposed-modules:
+    Effectful.Concurrent.STM.TBQueue.Static
+    Effectful.Concurrent.STM.TVar.Static
+
   build-depends:
     , base            >=4.14.0.0 && <4.19
     , effectful       >=2.2.1.0  && <2.4

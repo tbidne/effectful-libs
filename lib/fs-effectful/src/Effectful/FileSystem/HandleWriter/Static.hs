@@ -1,4 +1,3 @@
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 -- | Provides a static effect for writing to a handle.
@@ -71,79 +70,6 @@ import System.IO
   )
 import System.IO qualified as IO
 
--- | Represents handle writer effects.
---
--- @since 0.1
-class (Monad m) => MonadHandleWriter m where
-  -- | Lifted 'openBinaryFile'.
-  --
-  -- @since 0.1
-  openBinaryFile :: OsPath -> IOMode -> m Handle
-
-  -- | Lifted 'withBinaryFile'.
-  --
-  -- @since 0.1
-  withBinaryFile :: OsPath -> IOMode -> (Handle -> m a) -> m a
-
-  -- | Lifted 'IO.hClose'.
-  --
-  -- @since 0.1
-  hClose :: Handle -> m ()
-
-  -- | Lifted 'IO.hFlush'.
-  --
-  -- @since 0.1
-  hFlush :: Handle -> m ()
-
-  -- | Lifted 'IO.hSetFileSize'.
-  --
-  -- @since 0.1
-  hSetFileSize :: Handle -> Integer -> m ()
-
-  -- | Lifted 'IO.hSetBuffering'.
-  --
-  -- @since 0.1
-  hSetBuffering :: Handle -> BufferMode -> m ()
-
-  -- | Lifted 'IO.hSeek'.
-  --
-  -- @since 0.1
-  hSeek :: Handle -> SeekMode -> Integer -> m ()
-
-  -- | Lifted 'IO.hTell'.
-  --
-  -- @since 0.1
-  hTell :: Handle -> m Integer
-
-  -- | Lifted 'IO.hSetEcho'.
-  --
-  -- @since 0.1
-  hSetEcho :: Handle -> Bool -> m ()
-
-  -- | Lifted 'BS.hPut'.
-  --
-  -- @since 0.1
-  hPut :: Handle -> ByteString -> m ()
-
-  -- | Lifted 'BS.hPutNonBlocking'.
-  --
-  -- @since 0.1
-  hPutNonBlocking :: Handle -> ByteString -> m ByteString
-
--- | @since 0.1
-instance MonadHandleWriter IO where
-  openBinaryFile = openBinaryFileIO
-  withBinaryFile = withBinaryFileIO
-  hClose = IO.hClose
-  hFlush = IO.hFlush
-  hSetFileSize = IO.hSetFileSize
-  hSetBuffering = IO.hSetBuffering
-  hSeek = IO.hSeek
-  hTell = IO.hTell
-  hSetEcho = IO.hSetEcho
-  hPut = BS.hPut
-  hPutNonBlocking = BS.hPutNonBlocking
-
 -- | Static effect for writing to a handle.
 --
 -- @since 0.1
@@ -162,42 +88,149 @@ runHandleWriterStaticIO ::
   Eff es a
 runHandleWriterStaticIO = evalStaticRep MkHandleWriterStatic
 
--- | @since 0.1
-instance (HandleWriterStatic :> es) => MonadHandleWriter (Eff es) where
-  openBinaryFile p = unsafeEff_ . openBinaryFileIO p
-  withBinaryFile p m onHandle =
-    unsafeEff $ \env -> seqUnliftIO env $
-      \runInIO -> withBinaryFileIO p m (runInIO . onHandle)
-  hClose = unsafeEff_ . IO.hClose
-  hFlush = unsafeEff_ . IO.hFlush
-  hSetFileSize h = unsafeEff_ . IO.hSetFileSize h
-  hSetBuffering h = unsafeEff_ . IO.hSetBuffering h
-  hSeek h m = unsafeEff_ . IO.hSeek h m
-  hTell = unsafeEff_ . IO.hTell
-  hSetEcho h = unsafeEff_ . IO.hSetEcho h
-  hPut h = unsafeEff_ . BS.hPut h
-  hPutNonBlocking h = unsafeEff_ . BS.hPutNonBlocking h
+-- | Lifted 'IO.openBinaryFile'.
+--
+-- @since 0.1
+openBinaryFile ::
+  ( HandleWriterStatic :> es
+  ) =>
+  OsPath ->
+  IOMode ->
+  Eff es Handle
+openBinaryFile p = unsafeEff_ . openBinaryFileIO p
+
+-- | Lifted 'IO.withBinaryFile'.
+--
+-- @since 0.1
+withBinaryFile ::
+  forall es a.
+  ( HandleWriterStatic :> es
+  ) =>
+  OsPath ->
+  IOMode ->
+  (Handle -> Eff es a) ->
+  Eff es a
+withBinaryFile p m onHandle =
+  unsafeEff $ \env -> seqUnliftIO env $
+    \runInIO -> withBinaryFileIO p m (runInIO . onHandle)
+
+-- | Lifted 'IO.hClose'.
+--
+-- @since 0.1
+hClose ::
+  ( HandleWriterStatic :> es
+  ) =>
+  Handle ->
+  Eff es ()
+hClose = unsafeEff_ . IO.hClose
+
+-- | Lifted 'IO.hFlush'.
+--
+-- @since 0.1
+hFlush ::
+  ( HandleWriterStatic :> es
+  ) =>
+  Handle ->
+  Eff es ()
+hFlush = unsafeEff_ . IO.hFlush
+
+-- | Lifted 'IO.hSetFileSize'.
+--
+-- @since 0.1
+hSetFileSize ::
+  ( HandleWriterStatic :> es
+  ) =>
+  Handle ->
+  Integer ->
+  Eff es ()
+hSetFileSize h = unsafeEff_ . IO.hSetFileSize h
+
+-- | Lifted 'IO.hSetBuffering'.
+--
+-- @since 0.1
+hSetBuffering ::
+  ( HandleWriterStatic :> es
+  ) =>
+  Handle ->
+  BufferMode ->
+  Eff es ()
+hSetBuffering h = unsafeEff_ . IO.hSetBuffering h
+
+-- | Lifted 'IO.hSeek'.
+--
+-- @since 0.1
+hSeek ::
+  ( HandleWriterStatic :> es
+  ) =>
+  Handle ->
+  SeekMode ->
+  Integer ->
+  Eff es ()
+hSeek h m = unsafeEff_ . IO.hSeek h m
+
+-- | Lifted 'IO.hTell'.
+--
+-- @since 0.1
+hTell ::
+  ( HandleWriterStatic :> es
+  ) =>
+  Handle ->
+  Eff es Integer
+hTell = unsafeEff_ . IO.hTell
+
+-- | Lifted 'IO.hSetEcho'.
+--
+-- @since 0.1
+hSetEcho ::
+  ( HandleWriterStatic :> es
+  ) =>
+  Handle ->
+  Bool ->
+  Eff es ()
+hSetEcho h = unsafeEff_ . IO.hSetEcho h
+
+-- | Lifted 'BS.hPut'.
+--
+-- @since 0.1
+hPut ::
+  ( HandleWriterStatic :> es
+  ) =>
+  Handle ->
+  ByteString ->
+  Eff es ()
+hPut h = unsafeEff_ . BS.hPut h
+
+-- | Lifted 'BS.hPutNonBlocking'.
+--
+-- @since 0.1
+hPutNonBlocking ::
+  ( HandleWriterStatic :> es
+  ) =>
+  Handle ->
+  ByteString ->
+  Eff es ByteString
+hPutNonBlocking h = unsafeEff_ . BS.hPutNonBlocking h
 
 -- | 'hPut' and 'Utils.encodeUtf8'.
 --
 -- @since 0.1
 hPutUtf8 ::
-  ( MonadHandleWriter m
+  ( HandleWriterStatic :> es
   ) =>
   Handle ->
   Text ->
-  m ()
+  Eff es ()
 hPutUtf8 h = hPut h . Utils.encodeUtf8
 
 -- | 'hPutNonBlocking' and 'Utils.encodeUtf8'.
 --
 -- @since 0.1
 hPutNonBlockingUtf8 ::
-  ( MonadHandleWriter m
+  ( HandleWriterStatic :> es
   ) =>
   Handle ->
   Text ->
-  m ByteString
+  Eff es ByteString
 hPutNonBlockingUtf8 h = hPutNonBlocking h . Utils.encodeUtf8
 
 -- | Write given error message to `stderr` and terminate with `exitFailure`.

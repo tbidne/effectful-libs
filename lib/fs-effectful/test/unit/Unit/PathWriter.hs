@@ -58,7 +58,6 @@ import Effectful.FileSystem.PathWriter.Dynamic
   )
 import Effectful.FileSystem.PathWriter.Dynamic qualified as PathWriter
 import Effectful.FileSystem.Utils ((</>))
-import Effectful.IORef.Static (IORefStatic, runIORefStaticIO)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (assertBool, assertFailure, testCase, (@=?))
 import TestUtils qualified as U
@@ -700,12 +699,11 @@ overwriteConfig ow = MkCopyDirConfig ow TargetNameSrc
 --                                  Mock                                     --
 -------------------------------------------------------------------------------
 
-runPartialDynamicIO :: Eff [PathWriterDynamic, PathReaderDynamic, IORefStatic, IOE] a -> IO a
+runPartialDynamicIO :: Eff [PathWriterDynamic, PathReaderDynamic, IOE] a -> IO a
 runPartialDynamicIO effs = do
   counterRef <- newIORef 0
 
   runEff
-    . runIORefStaticIO
     . runPathReaderDynamicIO
     . runMockWriter counterRef
     $ effs
@@ -807,14 +805,12 @@ runEffPathWriter ::
     '[ PathReaderDynamic,
        PathWriterDynamic,
        FileWriterDynamic,
-       IORefStatic,
        IOE
      ]
     a ->
   IO a
 runEffPathWriter =
   runEff
-    . runIORefStaticIO
     . runFileWriterDynamicIO
     . runPathWriterDynamicIO
     . runPathReaderDynamicIO

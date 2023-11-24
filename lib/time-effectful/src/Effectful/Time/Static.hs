@@ -1,16 +1,14 @@
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 -- | Provides a dynamic effect for "Data.Time".
 --
 -- @since 0.1
 module Effectful.Time.Static
-  ( -- * Class
-    MonadTime (..),
-
-    -- * Effect
+  ( -- * Effect
     TimeStatic,
     getSystemTime,
+    getSystemZonedTime,
+    getMonotonicTime,
 
     -- ** Handlers
     runTimeStaticIO,
@@ -76,26 +74,6 @@ import Effectful.Time.TimeSpec qualified as TimeSpec
 import Effectful.Time.Utils qualified as Utils
 import GHC.Clock qualified as C
 
--- | Time effect.
---
--- @since 0.1
-class (Monad m) => MonadTime m where
-  -- | Returns the zoned system time.
-  --
-  -- @since 0.1
-  getSystemZonedTime :: m ZonedTime
-
-  -- | Return monotonic time in seconds, since some unspecified starting
-  -- point.
-  --
-  -- @since 0.1
-  getMonotonicTime :: m Double
-
--- | @since 0.1
-instance MonadTime IO where
-  getSystemZonedTime = Local.getZonedTime
-  getMonotonicTime = C.getMonotonicTime
-
 -- | Static time effect.
 --
 -- @since 0.1
@@ -111,21 +89,28 @@ data instance StaticRep TimeStatic = MkTimeStatic
 runTimeStaticIO :: (IOE :> es) => Eff (TimeStatic : es) a -> Eff es a
 runTimeStaticIO = evalStaticRep MkTimeStatic
 
--- | @since 0.1
-instance (TimeStatic :> es) => MonadTime (Eff es) where
-  getSystemZonedTime = unsafeEff_ Local.getZonedTime
-  getMonotonicTime = unsafeEff_ C.getMonotonicTime
-
 -- | Returns the local system time.
 --
 -- @since 0.1
-getSystemTime :: (MonadTime m) => m LocalTime
+getSystemTime :: (TimeStatic :> es) => Eff es LocalTime
 getSystemTime = Local.zonedTimeToLocalTime <$> getSystemZonedTime
+
+-- | Returns the zoned system time
+--
+-- @since 0.1
+getSystemZonedTime :: (TimeStatic :> es) => Eff es ZonedTime
+getSystemZonedTime = unsafeEff_ Local.getZonedTime
+
+-- | Returns the zoned system time
+--
+-- @since 0.1
+getMonotonicTime :: (TimeStatic :> es) => Eff es Double
+getMonotonicTime = unsafeEff_ C.getMonotonicTime
 
 -- | Runs an action, returning the elapsed time.
 --
 -- @since 0.1
-withTiming :: (MonadTime m) => m a -> m (TimeSpec, a)
+withTiming :: (TimeStatic :> es) => Eff es a -> Eff es (TimeSpec, a)
 withTiming m = do
   start <- getMonotonicTime
   res <- m
@@ -135,17 +120,17 @@ withTiming m = do
 -- | 'withTiming' but ignores the result value.
 --
 -- @since 0.1
-withTiming_ :: (MonadTime m) => m a -> m TimeSpec
+withTiming_ :: (TimeStatic :> es) => Eff es a -> Eff es TimeSpec
 withTiming_ = fmap fst . withTiming
 
 -- | Retrieves the formatted 'LocalTime'.
 --
 -- @since 0.1
-getSystemTimeString :: (MonadTime m) => m String
+getSystemTimeString :: (TimeStatic :> es) => Eff es String
 getSystemTimeString = fmap Utils.formatLocalTime getSystemTime
 
 -- | Retrieves the formatted 'ZonedTime'.
 --
 -- @since 0.1
-getSystemZonedTimeString :: (MonadTime m) => m String
+getSystemZonedTimeString :: (TimeStatic :> es) => Eff es String
 getSystemZonedTimeString = fmap Utils.formatZonedTime getSystemZonedTime

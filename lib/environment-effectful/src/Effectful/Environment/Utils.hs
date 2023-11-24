@@ -1,3 +1,4 @@
+-- | @since 0.1
 module Effectful.Environment.Utils
   ( QueryExePath (..),
   )

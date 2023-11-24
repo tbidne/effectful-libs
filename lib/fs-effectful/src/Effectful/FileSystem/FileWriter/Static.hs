@@ -1,15 +1,13 @@
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 -- | Provides a static effect for writing files.
 --
 -- @since 0.1
 module Effectful.FileSystem.FileWriter.Static
-  ( -- * Class
-    MonadFileWriter (..),
-
-    -- * Effect
+  ( -- * Effect
     FileWriterStatic,
+    writeBinaryFile,
+    appendBinaryFile,
 
     -- ** Handlers
     runFileWriterStaticIO,
@@ -48,25 +46,6 @@ import Effectful.FileSystem.Utils
   )
 import Effectful.FileSystem.Utils qualified as Utils
 
--- | Represents file-system writer effects.
---
--- @since 0.1
-class (Monad m) => MonadFileWriter m where
-  -- | Writes to a file.
-  --
-  -- @since 0.1
-  writeBinaryFile :: OsPath -> ByteString -> m ()
-
-  -- | Appends to a file.
-  --
-  -- @since 0.1
-  appendBinaryFile :: OsPath -> ByteString -> m ()
-
--- | @since 0.1
-instance MonadFileWriter IO where
-  writeBinaryFile = writeBinaryFileIO
-  appendBinaryFile = appendBinaryFileIO
-
 -- | Static effect for reading files.
 --
 -- @since 0.1
@@ -85,29 +64,46 @@ runFileWriterStaticIO ::
   Eff es a
 runFileWriterStaticIO = evalStaticRep MkFileWriterStatic
 
--- | @since 0.1
-instance (FileWriterStatic :> es) => MonadFileWriter (Eff es) where
-  writeBinaryFile p = unsafeEff_ . writeBinaryFileIO p
-  appendBinaryFile p = unsafeEff_ . appendBinaryFileIO p
+-- | Writes a 'ByteString' to a file.
+--
+-- @since 0.1
+writeBinaryFile ::
+  ( FileWriterStatic :> es
+  ) =>
+  OsPath ->
+  ByteString ->
+  Eff es ()
+writeBinaryFile p = unsafeEff_ . writeBinaryFileIO p
+
+-- | Appends a 'ByteString' to a file.
+--
+-- @since 0.1
+appendBinaryFile ::
+  ( FileWriterStatic :> es
+  ) =>
+  OsPath ->
+  ByteString ->
+  Eff es ()
+appendBinaryFile p = unsafeEff_ . appendBinaryFileIO p
 
 -- | Writes the 'Text' to the file, encoding as UTF-8.
 --
 -- @since 0.1
 writeFileUtf8 ::
-  ( MonadFileWriter m
+  ( FileWriterStatic :> es
   ) =>
   OsPath ->
   Text ->
-  m ()
+  Eff es ()
 writeFileUtf8 f = writeBinaryFile f . Utils.encodeUtf8
 
 -- | Appends the 'Text' to the file, encoding as UTF-8.
 --
 -- @since 0.1
 appendFileUtf8 ::
-  ( MonadFileWriter m
+  ( FileWriterStatic :> es
   ) =>
   OsPath ->
   Text ->
-  m ()
+  Eff es ()
 appendFileUtf8 f = appendBinaryFile f . Utils.encodeUtf8

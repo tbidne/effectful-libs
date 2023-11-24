@@ -1,4 +1,3 @@
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 -- | Provides a static effect for the writable portion of "System.Directory"'s
@@ -8,11 +7,28 @@
 --
 -- @since 0.1
 module Effectful.FileSystem.PathWriter.Static
-  ( -- * Class
-    MonadPathWriter (..),
-
-    -- * Effect
+  ( -- * Effect
     PathWriterStatic,
+    createDirectory,
+    createDirectoryIfMissing,
+    removeDirectory,
+    removeDirectoryRecursive,
+    removePathForcibly,
+    renameDirectory,
+    setCurrentDirectory,
+    withCurrentDirectory,
+    removeFile,
+    renameFile,
+    renamePath,
+    copyFile,
+    copyFileWithMetadata,
+    createFileLink,
+    createDirectoryLink,
+    removeDirectoryLink,
+    setPermissions,
+    copyPermissions,
+    setAccessTime,
+    setModificationTime,
 
     -- ** Handlers
     runPathWriterStaticIO,
@@ -55,6 +71,7 @@ module Effectful.FileSystem.PathWriter.Static
 where
 
 import Control.Monad (when)
+import Data.IORef (modifyIORef', newIORef, readIORef)
 import Data.Time (UTCTime (UTCTime, utctDay, utctDayTime))
 import Effectful
   ( Dispatch (Static),
@@ -72,9 +89,8 @@ import Effectful.Dispatch.Static
     unsafeEff,
     unsafeEff_,
   )
-import Effectful.Exception (MonadMask)
 import Effectful.FileSystem.PathReader.Static
-  ( MonadPathReader,
+  ( PathReaderStatic,
     doesDirectoryExist,
     doesFileExist,
     doesPathExist,
@@ -90,166 +106,8 @@ import Effectful.FileSystem.PathWriter.Utils
   )
 import Effectful.FileSystem.PathWriter.Utils qualified as Utils
 import Effectful.FileSystem.Utils (OsPath)
-import Effectful.IORef.Static (MonadIORef (modifyIORef', newIORef, readIORef))
 import System.Directory (Permissions)
 import System.Directory.OsPath qualified as Dir
-
--- | Represents file-system writer effects.
---
--- @since 0.1
-class (Monad m) => MonadPathWriter m where
-  -- | Lifted 'Dir.createDirectory'.
-  --
-  -- @since 0.1
-  createDirectory :: OsPath -> m ()
-
-  -- | Lifted 'Dir.createDirectoryIfMissing'.
-  --
-  -- @since 0.1
-  createDirectoryIfMissing ::
-    -- | Create its parents too?
-    Bool ->
-    -- | The path to the directory you want to make
-    OsPath ->
-    m ()
-
-  -- | Lifted 'Dir.removeDirectory'.
-  --
-  -- @since 0.1
-  removeDirectory :: OsPath -> m ()
-
-  -- | Lifted 'Dir.removeDirectoryRecursive'.
-  --
-  -- @since 0.1
-  removeDirectoryRecursive :: OsPath -> m ()
-
-  -- | Lifted 'Dir.removePathForcibly'.
-  --
-  -- @since 0.1
-  removePathForcibly :: OsPath -> m ()
-
-  -- | Lifted 'Dir.renameDirectory'.
-  --
-  -- @since 0.1
-  renameDirectory :: OsPath -> OsPath -> m ()
-
-  -- | Lifted 'Dir.setCurrentDirectory'.
-  --
-  -- @since 0.1
-  setCurrentDirectory :: OsPath -> m ()
-
-  -- | Lifted 'Dir.withCurrentDirectory'.
-  --
-  -- @since 0.1
-  withCurrentDirectory :: OsPath -> m a -> m a
-
-  -- | Lifted 'Dir.removeFile'.
-  --
-  -- @since 0.1
-  removeFile :: OsPath -> m ()
-
-  -- | Lifted 'Dir.renameFile'.
-  --
-  -- @since 0.1
-  renameFile :: OsPath -> OsPath -> m ()
-
-  -- | Lifted 'Dir.renamePath'.
-  --
-  -- @since 0.1
-  renamePath ::
-    -- | Old path
-    OsPath ->
-    -- | New path
-    OsPath ->
-    m ()
-
-  -- | Lifted 'Dir.copyFile'.
-  --
-  -- @since 0.1
-  copyFile ::
-    -- | Source filename
-    OsPath ->
-    -- | Destination filename
-    OsPath ->
-    m ()
-
-  -- | Lifted 'Dir.copyFileWithMetadata'.
-  --
-  -- @since 0.1
-  copyFileWithMetadata ::
-    -- | Source file
-    OsPath ->
-    -- | Destination file
-    OsPath ->
-    m ()
-
-  -- | Lifted 'Dir.createFileLink'.
-  --
-  -- @since 0.1
-  createFileLink ::
-    -- | path to the target file
-    OsPath ->
-    -- | path of the link to be created
-    OsPath ->
-    m ()
-
-  -- | Lifted 'Dir.createDirectoryLink'.
-  --
-  -- @since 0.1
-  createDirectoryLink ::
-    -- | path to the target directory
-    OsPath ->
-    -- | path of the link to be created
-    OsPath ->
-    m ()
-
-  -- | Lifted 'Dir.removeDirectoryLink'.
-  --
-  -- @since 0.1
-  removeDirectoryLink :: OsPath -> m ()
-
-  -- | Lifted 'Dir.setPermissions'.
-  --
-  -- @since 0.1
-  setPermissions :: OsPath -> Permissions -> m ()
-
-  -- | Lifted 'Dir.copyPermissions'.
-  --
-  -- @since 0.1
-  copyPermissions :: OsPath -> OsPath -> m ()
-
-  -- | Lifted 'Dir.setAccessTime'.
-  --
-  -- @since 0.1
-  setAccessTime :: OsPath -> UTCTime -> m ()
-
-  -- | Lifted 'Dir.setModificationTime'.
-  --
-  -- @since 0.1
-  setModificationTime :: OsPath -> UTCTime -> m ()
-
--- | @since 0.1
-instance MonadPathWriter IO where
-  createDirectory = Dir.createDirectory
-  createDirectoryIfMissing = Dir.createDirectoryIfMissing
-  removeDirectory = Dir.removeDirectory
-  removeDirectoryRecursive = Dir.removeDirectoryRecursive
-  removePathForcibly = Dir.removePathForcibly
-  renameDirectory = Dir.renameDirectory
-  setCurrentDirectory = Dir.setCurrentDirectory
-  withCurrentDirectory = Dir.withCurrentDirectory
-  removeFile = Dir.removeFile
-  renameFile = Dir.renameFile
-  renamePath = Dir.renamePath
-  copyFile = Dir.copyFile
-  copyFileWithMetadata = Dir.copyFileWithMetadata
-  createFileLink = Dir.createFileLink
-  createDirectoryLink = Dir.createDirectoryLink
-  removeDirectoryLink = Dir.removeDirectoryLink
-  setPermissions = Dir.setPermissions
-  copyPermissions = Dir.copyPermissions
-  setAccessTime = Dir.setAccessTime
-  setModificationTime = Dir.setModificationTime
 
 -- | Static effect for writing paths.
 --
@@ -266,62 +124,232 @@ data instance StaticRep PathWriterStatic = MkPathWriterStatic
 runPathWriterStaticIO :: (IOE :> es) => Eff (PathWriterStatic : es) a -> Eff es a
 runPathWriterStaticIO = evalStaticRep MkPathWriterStatic
 
--- | @since 0.1
-instance (PathWriterStatic :> es) => MonadPathWriter (Eff es) where
-  createDirectory = unsafeEff_ . Dir.createDirectory
-  createDirectoryIfMissing b = unsafeEff_ . Dir.createDirectoryIfMissing b
-  removeDirectory = unsafeEff_ . Dir.removeDirectory
-  removeDirectoryRecursive = unsafeEff_ . Dir.removeDirectoryRecursive
-  removePathForcibly = unsafeEff_ . Dir.removePathForcibly
-  renameDirectory p = unsafeEff_ . Dir.renameDirectory p
-  setCurrentDirectory = unsafeEff_ . Dir.setCurrentDirectory
-  withCurrentDirectory p m =
-    unsafeEff $ \env -> seqUnliftIO env $
-      \runInIO -> Dir.withCurrentDirectory p (runInIO m)
-  removeFile = unsafeEff_ . Dir.removeFile
-  renameFile p = unsafeEff_ . Dir.renameFile p
-  renamePath p = unsafeEff_ . Dir.renamePath p
-  copyFile p = unsafeEff_ . Dir.copyFile p
-  copyFileWithMetadata p = unsafeEff_ . Dir.copyFileWithMetadata p
-  createFileLink p = unsafeEff_ . Dir.createFileLink p
-  createDirectoryLink p = unsafeEff_ . Dir.createDirectoryLink p
-  removeDirectoryLink = unsafeEff_ . Dir.removeDirectoryLink
-  setPermissions p = unsafeEff_ . Dir.setPermissions p
-  copyPermissions p = unsafeEff_ . Dir.copyPermissions p
-  setAccessTime p = unsafeEff_ . Dir.setAccessTime p
-  setModificationTime p = unsafeEff_ . Dir.setModificationTime p
+-- | Lifted 'Dir.createDirectory'.
+--
+-- @since 0.1
+createDirectory ::
+  (PathWriterStatic :> es) =>
+  OsPath ->
+  Eff es ()
+createDirectory = unsafeEff_ . Dir.createDirectory
+
+-- | Lifted 'Dir.createDirectoryIfMissing'.
+--
+-- @since 0.1
+createDirectoryIfMissing ::
+  (PathWriterStatic :> es) =>
+  Bool ->
+  OsPath ->
+  Eff es ()
+createDirectoryIfMissing b = unsafeEff_ . Dir.createDirectoryIfMissing b
+
+-- | Lifted 'Dir.removeDirectory'.
+--
+-- @since 0.1
+removeDirectory ::
+  (PathWriterStatic :> es) =>
+  OsPath ->
+  Eff es ()
+removeDirectory = unsafeEff_ . Dir.removeDirectory
+
+-- | Lifted 'Dir.removeDirectoryRecursive'.
+--
+-- @since 0.1
+removeDirectoryRecursive ::
+  (PathWriterStatic :> es) =>
+  OsPath ->
+  Eff es ()
+removeDirectoryRecursive = unsafeEff_ . Dir.removeDirectoryRecursive
+
+-- | Lifted 'Dir.removePathForcibly'.
+--
+-- @since 0.1
+removePathForcibly ::
+  (PathWriterStatic :> es) =>
+  OsPath ->
+  Eff es ()
+removePathForcibly = unsafeEff_ . Dir.removePathForcibly
+
+-- | Lifted 'Dir.renameDirectory'.
+--
+-- @since 0.1
+renameDirectory ::
+  (PathWriterStatic :> es) =>
+  OsPath ->
+  OsPath ->
+  Eff es ()
+renameDirectory p = unsafeEff_ . Dir.renameDirectory p
+
+-- | Lifted 'Dir.setCurrentDirectory'.
+--
+-- @since 0.1
+setCurrentDirectory ::
+  (PathWriterStatic :> es) =>
+  OsPath ->
+  Eff es ()
+setCurrentDirectory = unsafeEff_ . Dir.setCurrentDirectory
+
+-- | Lifted 'Dir.withCurrentDirectory'.
+--
+-- @since 0.1
+withCurrentDirectory ::
+  (PathWriterStatic :> es) =>
+  OsPath ->
+  Eff es a ->
+  Eff es a
+withCurrentDirectory p m =
+  unsafeEff $ \env -> seqUnliftIO env $
+    \runInIO -> Dir.withCurrentDirectory p (runInIO m)
+
+-- | Lifted 'Dir.removeFile'.
+--
+-- @since 0.1
+removeFile ::
+  (PathWriterStatic :> es) =>
+  OsPath ->
+  Eff es ()
+removeFile = unsafeEff_ . Dir.removeFile
+
+-- | Lifted 'Dir.renameFile'.
+--
+-- @since 0.1
+renameFile ::
+  (PathWriterStatic :> es) =>
+  OsPath ->
+  OsPath ->
+  Eff es ()
+renameFile p = unsafeEff_ . Dir.renameFile p
+
+-- | Lifted 'Dir.renamePath'.
+--
+-- @since 0.1
+renamePath ::
+  (PathWriterStatic :> es) =>
+  OsPath ->
+  OsPath ->
+  Eff es ()
+renamePath p = unsafeEff_ . Dir.renamePath p
+
+-- | Lifted 'Dir.copyFile'.
+--
+-- @since 0.1
+copyFile ::
+  (PathWriterStatic :> es) =>
+  OsPath ->
+  OsPath ->
+  Eff es ()
+copyFile p = unsafeEff_ . Dir.copyFile p
+
+-- | Lifted 'Dir.copyFileWithMetadata'.
+--
+-- @since 0.1
+copyFileWithMetadata ::
+  (PathWriterStatic :> es) =>
+  OsPath ->
+  OsPath ->
+  Eff es ()
+copyFileWithMetadata p = unsafeEff_ . Dir.copyFileWithMetadata p
+
+-- | Lifted 'Dir.createFileLink'.
+--
+-- @since 0.1
+createFileLink ::
+  (PathWriterStatic :> es) =>
+  OsPath ->
+  OsPath ->
+  Eff es ()
+createFileLink p = unsafeEff_ . Dir.createFileLink p
+
+-- | Lifted 'Dir.createDirectoryLink'.
+--
+-- @since 0.1
+createDirectoryLink ::
+  (PathWriterStatic :> es) =>
+  OsPath ->
+  OsPath ->
+  Eff es ()
+createDirectoryLink p = unsafeEff_ . Dir.createDirectoryLink p
+
+-- | Lifted 'Dir.removeDirectoryLink'.
+--
+-- @since 0.1
+removeDirectoryLink ::
+  (PathWriterStatic :> es) =>
+  OsPath ->
+  Eff es ()
+removeDirectoryLink = unsafeEff_ . Dir.removeDirectoryLink
+
+-- | Lifted 'Dir.setPermissions'.
+--
+-- @since 0.1
+setPermissions ::
+  (PathWriterStatic :> es) =>
+  OsPath ->
+  Permissions ->
+  Eff es ()
+setPermissions p = unsafeEff_ . Dir.setPermissions p
+
+-- | Lifted 'Dir.copyPermissions'.
+--
+-- @since 0.1
+copyPermissions ::
+  (PathWriterStatic :> es) =>
+  OsPath ->
+  OsPath ->
+  Eff es ()
+copyPermissions p = unsafeEff_ . Dir.copyPermissions p
+
+-- | Lifted 'Dir.setAccessTime'.
+--
+-- @since 0.1
+setAccessTime ::
+  (PathWriterStatic :> es) =>
+  OsPath ->
+  UTCTime ->
+  Eff es ()
+setAccessTime p = unsafeEff_ . Dir.setAccessTime p
+
+-- | Lifted 'Dir.setModificationTime'.
+--
+-- @since 0.1
+setModificationTime ::
+  (PathWriterStatic :> es) =>
+  OsPath ->
+  UTCTime ->
+  Eff es ()
+setModificationTime p = unsafeEff_ . Dir.setModificationTime p
 
 -- | Calls 'removeFile' if 'doesFileExist' is 'True'.
 --
 -- @since 0.1
 removeFileIfExists ::
-  ( MonadPathReader m,
-    MonadPathWriter m
+  ( PathReaderStatic :> es,
+    PathWriterStatic :> es
   ) =>
   OsPath ->
-  m ()
+  Eff es ()
 removeFileIfExists = removeIfExists doesFileExist removeFile
 
 -- | Calls 'removeDirectory' if 'doesDirectoryExist' is 'True'.
 --
 -- @since 0.1
 removeDirectoryIfExists ::
-  ( MonadPathReader m,
-    MonadPathWriter m
+  ( PathReaderStatic :> es,
+    PathWriterStatic :> es
   ) =>
   OsPath ->
-  m ()
+  Eff es ()
 removeDirectoryIfExists = removeIfExists doesDirectoryExist removeDirectory
 
 -- | Calls 'removeDirectoryRecursive' if 'doesDirectoryExist' is 'True'.
 --
 -- @since 0.1
 removeDirectoryRecursiveIfExists ::
-  ( MonadPathReader m,
-    MonadPathWriter m
+  ( PathReaderStatic :> es,
+    PathWriterStatic :> es
   ) =>
   OsPath ->
-  m ()
+  Eff es ()
 removeDirectoryRecursiveIfExists =
   removeIfExists doesDirectoryExist removeDirectoryRecursive
 
@@ -329,11 +357,11 @@ removeDirectoryRecursiveIfExists =
 --
 -- @since 0.1
 removePathForciblyIfExists ::
-  ( MonadPathReader m,
-    MonadPathWriter m
+  ( PathReaderStatic :> es,
+    PathWriterStatic :> es
   ) =>
   OsPath ->
-  m ()
+  Eff es ()
 removePathForciblyIfExists =
   removeIfExists doesPathExist removePathForcibly
 
@@ -345,17 +373,14 @@ removeIfExists existsFn deleteFn f =
 --
 -- @since 0.1
 copyDirectoryRecursive ::
-  forall m.
-  ( MonadIORef m,
-    MonadPathReader m,
-    MonadPathWriter m,
-    MonadMask m
+  ( PathReaderStatic :> es,
+    PathWriterStatic :> es
   ) =>
   -- | Source
   OsPath ->
   -- | Destination
   OsPath ->
-  m ()
+  Eff es ()
 copyDirectoryRecursive =
   copyDirectoryRecursiveConfig Utils.defaultCopyDirConfig
 
@@ -393,11 +418,9 @@ copyDirectoryRecursive =
 --
 -- @since 0.1
 copyDirectoryRecursiveConfig ::
-  forall m.
-  ( MonadIORef m,
-    MonadPathReader m,
-    MonadPathWriter m,
-    MonadMask m
+  forall es.
+  ( PathReaderStatic :> es,
+    PathWriterStatic :> es
   ) =>
   -- | Config
   CopyDirConfig ->
@@ -405,15 +428,15 @@ copyDirectoryRecursiveConfig ::
   OsPath ->
   -- | Destination
   OsPath ->
-  m ()
+  Eff es ()
 copyDirectoryRecursiveConfig = Utils.copyDirectoryRecursiveConfig handle
   where
-    handle :: Handle m
+    handle :: Handle es
     handle =
       MkHandle
-        { Utils.newIORef = newIORef,
-          Utils.readIORef = readIORef,
-          Utils.modifyIORef' = modifyIORef',
+        { Utils.newIORef = unsafeEff_ . newIORef,
+          Utils.readIORef = unsafeEff_ . readIORef,
+          Utils.modifyIORef' = \r -> unsafeEff_ . modifyIORef' r,
           Utils.doesDirectoryExist = doesDirectoryExist,
           Utils.doesFileExist = doesFileExist,
           Utils.listDirectoryRecursive = listDirectoryRecursive,

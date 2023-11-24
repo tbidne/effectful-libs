@@ -1,15 +1,36 @@
-{-# LANGUAGE UndecidableInstances #-}
-
 -- | Provides a dynamic effect for the readable portion of "System.Directory"'s
 -- interface.
 --
 -- @since 0.1
 module Effectful.FileSystem.PathReader.Dynamic
-  ( -- * Class
-    MonadPathReader (..),
-
-    -- * Effect
+  ( -- * Effect
     PathReaderDynamic (..),
+    listDirectory,
+    getDirectoryContents,
+    getCurrentDirectory,
+    getHomeDirectory,
+    getXdgDirectory,
+    getXdgDirectoryList,
+    getAppUserDataDirectory,
+    getUserDocumentsDirectory,
+    getTemporaryDirectory,
+    getFileSize,
+    canonicalizePath,
+    makeAbsolute,
+    makeRelativeToCurrentDirectory,
+    doesPathExist,
+    doesFileExist,
+    doesDirectoryExist,
+    findExecutable,
+    findExecutables,
+    findExecutablesInDirectories,
+    findFileWith,
+    findFilesWith,
+    pathIsSymbolicLink,
+    getSymbolicLinkTarget,
+    getPermissions,
+    getAccessTime,
+    getModificationTime,
 
     -- ** Handlers
     runPathReaderDynamicIO,
@@ -54,168 +75,7 @@ import System.Directory
     XdgDirectoryList (XdgConfigDirs, XdgDataDirs),
   )
 import System.Directory.OsPath qualified as Dir
-
--- | Represents file-system reader effects.
---
--- @since 0.1
-class (Monad m) => MonadPathReader m where
-  -- | Lifted 'Dir.listDirectory'.
-  --
-  -- @since 0.1
-  listDirectory :: OsPath -> m [OsPath]
-
-  -- | Lifted 'Dir.getDirectoryContents'.
-  --
-  -- @since 0.1
-  getDirectoryContents :: OsPath -> m [OsPath]
-
-  -- | Lifted 'Dir.getCurrentDirectory'.
-  --
-  -- @since 0.1
-  getCurrentDirectory :: m OsPath
-
-  -- | Lifted 'Dir.getHomeDirectory'.
-  --
-  -- @since 0.1
-  getHomeDirectory :: m OsPath
-
-  -- | Lifted 'Dir.getXdgDirectory'.
-  --
-  -- @since 0.1
-  getXdgDirectory :: XdgDirectory -> OsPath -> m OsPath
-
-  -- | Lifted 'Dir.getXdgDirectoryList'.
-  --
-  -- @since 0.1
-  getXdgDirectoryList :: XdgDirectoryList -> m [OsPath]
-
-  -- | Lifted 'Dir.getAppUserDataDirectory'.
-  --
-  -- @since 0.1
-  getAppUserDataDirectory :: OsPath -> m OsPath
-
-  -- | Lifted 'Dir.getUserDocumentsDirectory'.
-  --
-  -- @since 0.1
-  getUserDocumentsDirectory :: m OsPath
-
-  -- | Lifted 'Dir.getTemporaryDirectory'.
-  --
-  -- @since 0.1
-  getTemporaryDirectory :: m OsPath
-
-  -- | Lifted 'Dir.getFileSize'.
-  --
-  -- @since 0.1
-  getFileSize :: OsPath -> m Integer
-
-  -- | Lifted 'Dir.canonicalizePath'.
-  --
-  -- @since 0.1
-  canonicalizePath :: OsPath -> m OsPath
-
-  -- | Lifted 'Dir.makeAbsolute'.
-  --
-  -- @since 0.1
-  makeAbsolute :: OsPath -> m OsPath
-
-  -- | Lifted 'Dir.makeRelativeToCurrentDirectory'.
-  --
-  -- @since 0.1
-  makeRelativeToCurrentDirectory :: OsPath -> m OsPath
-
-  -- | Lifted 'Dir.doesPathExist'.
-  --
-  -- @since 0.1
-  doesPathExist :: OsPath -> m Bool
-
-  -- | Lifted 'Dir.doesFileExist'.
-  --
-  -- @since 0.1
-  doesFileExist :: OsPath -> m Bool
-
-  -- | Lifted 'Dir.doesDirectoryExist'.
-  --
-  -- @since 0.1
-  doesDirectoryExist :: OsPath -> m Bool
-
-  -- | Lifted 'Dir.findExecutable'.
-  --
-  -- @since 0.1
-  findExecutable :: OsPath -> m (Maybe OsPath)
-
-  -- | Lifted 'Dir.findExecutables'.
-  --
-  -- @since 0.1
-  findExecutables :: OsPath -> m [OsPath]
-
-  -- | Lifted 'Dir.findExecutablesInDirectories'.
-  --
-  -- @since 0.1
-  findExecutablesInDirectories :: [OsPath] -> OsPath -> m [OsPath]
-
-  -- | Lifted 'Dir.findFileWith'.
-  --
-  -- @since 0.1
-  findFileWith :: (OsPath -> m Bool) -> [OsPath] -> OsPath -> m (Maybe OsPath)
-
-  -- | Lifted 'Dir.findFilesWith'.
-  --
-  -- @since 0.1
-  findFilesWith :: (OsPath -> m Bool) -> [OsPath] -> OsPath -> m [OsPath]
-
-  -- | Lifted 'Dir.pathIsSymbolicLink'.
-  --
-  -- @since 0.1
-  pathIsSymbolicLink :: OsPath -> m Bool
-
-  -- | Lifted 'Dir.getSymbolicLinkTarget'.
-  --
-  -- @since 0.1
-  getSymbolicLinkTarget :: OsPath -> m OsPath
-
-  -- | Lifted 'Dir.getPermissions'.
-  --
-  -- @since 0.1
-  getPermissions :: OsPath -> m Permissions
-
-  -- | Lifted 'Dir.getAccessTime'.
-  --
-  -- @since 0.1
-  getAccessTime :: OsPath -> m UTCTime
-
-  -- | Lifted 'Dir.getModificationTime'.
-  --
-  -- @since 0.1
-  getModificationTime :: OsPath -> m UTCTime
-
-instance MonadPathReader IO where
-  listDirectory = Dir.listDirectory
-  getDirectoryContents = Dir.getDirectoryContents
-  getCurrentDirectory = Dir.getCurrentDirectory
-  getHomeDirectory = Dir.getHomeDirectory
-  getXdgDirectory = Dir.getXdgDirectory
-  getXdgDirectoryList = Dir.getXdgDirectoryList
-  getAppUserDataDirectory = Dir.getAppUserDataDirectory
-  getUserDocumentsDirectory = Dir.getUserDocumentsDirectory
-  getTemporaryDirectory = Dir.getTemporaryDirectory
-  getFileSize = Dir.getFileSize
-  canonicalizePath = Dir.canonicalizePath
-  makeAbsolute = Dir.makeAbsolute
-  makeRelativeToCurrentDirectory = Dir.makeRelativeToCurrentDirectory
-  doesPathExist = Dir.doesPathExist
-  doesFileExist = Dir.doesFileExist
-  doesDirectoryExist = Dir.doesDirectoryExist
-  findExecutable = Dir.findExecutable
-  findExecutables = Dir.findExecutables
-  findExecutablesInDirectories = Dir.findExecutablesInDirectories
-  findFileWith = Dir.findFileWith
-  findFilesWith = Dir.findFilesWith
-  pathIsSymbolicLink = Dir.pathIsSymbolicLink
-  getSymbolicLinkTarget = Dir.getSymbolicLinkTarget
-  getPermissions = Dir.getPermissions
-  getAccessTime = Dir.getAccessTime
-  getModificationTime = Dir.getModificationTime
+import System.OsString (OsString)
 
 -- | Dynamic effect for reading paths.
 --
@@ -237,21 +97,21 @@ data PathReaderDynamic :: Effect where
   DoesPathExist :: OsPath -> PathReaderDynamic m Bool
   DoesFileExist :: OsPath -> PathReaderDynamic m Bool
   DoesDirectoryExist :: OsPath -> PathReaderDynamic m Bool
-  FindExecutable :: OsPath -> PathReaderDynamic m (Maybe OsPath)
-  FindExecutables :: OsPath -> PathReaderDynamic m [OsPath]
+  FindExecutable :: OsString -> PathReaderDynamic m (Maybe OsPath)
+  FindExecutables :: OsString -> PathReaderDynamic m [OsPath]
   FindExecutablesInDirectories ::
     [OsPath] ->
-    OsPath ->
+    OsString ->
     PathReaderDynamic m [OsPath]
   FindFileWith ::
     (OsPath -> m Bool) ->
     [OsPath] ->
-    OsPath ->
+    OsString ->
     PathReaderDynamic m (Maybe OsPath)
   FindFilesWith ::
     (OsPath -> m Bool) ->
     [OsPath] ->
-    OsPath ->
+    OsString ->
     PathReaderDynamic m [OsPath]
   PathIsSymbolicLink :: OsPath -> PathReaderDynamic m Bool
   GetSymbolicLinkTarget :: OsPath -> PathReaderDynamic m OsPath
@@ -301,85 +161,325 @@ runPathReaderDynamicIO = interpret $ \env -> \case
   GetAccessTime p -> liftIO $ Dir.getAccessTime p
   GetModificationTime p -> liftIO $ Dir.getModificationTime p
 
--- | @since 0.1
-instance (PathReaderDynamic :> es) => MonadPathReader (Eff es) where
-  listDirectory = send . ListDirectory
-  getDirectoryContents = send . GetDirectoryContents
-  getCurrentDirectory = send GetCurrentDirectory
-  getHomeDirectory = send GetHomeDirectory
-  getXdgDirectory xdg = send . GetXdgDirectory xdg
-  getXdgDirectoryList = send . GetXdgDirectoryList
-  getAppUserDataDirectory = send . GetAppUserDataDirectory
-  getUserDocumentsDirectory = send GetUserDocumentsDirectory
-  getTemporaryDirectory = send GetTemporaryDirectory
-  getFileSize = send . GetFileSize
-  canonicalizePath = send . CanonicalizePath
-  makeAbsolute = send . MakeAbsolute
-  makeRelativeToCurrentDirectory = send . MakeRelativeToCurrentDirectory
-  doesPathExist = send . DoesPathExist
-  doesFileExist = send . DoesFileExist
-  doesDirectoryExist = send . DoesDirectoryExist
-  findExecutable = send . FindExecutable
-  findExecutables = send . FindExecutables
-  findExecutablesInDirectories ps = send . FindExecutablesInDirectories ps
-  findFileWith f ps = send . FindFileWith f ps
-  findFilesWith f ps = send . FindFilesWith f ps
-  pathIsSymbolicLink = send . PathIsSymbolicLink
-  getSymbolicLinkTarget = send . GetSymbolicLinkTarget
-  getPermissions = send . GetPermissions
-  getAccessTime = send . GetAccessTime
-  getModificationTime = send . GetModificationTime
-
--- | Lifted 'Dir.findFile'.
+-- | Search through the given list of directories for the given file.
+--
+-- The behavior is equivalent to 'findFileWith', returning only the first
+-- occurrence. Details can be found in the documentation of 'findFileWith'.
 --
 -- @since 0.1
-findFile :: (MonadPathReader m) => [OsPath] -> OsPath -> m (Maybe OsPath)
+findFile :: (PathReaderDynamic :> es) => [OsPath] -> OsPath -> Eff es (Maybe OsPath)
 findFile = findFileWith (\_ -> pure True)
 
--- | Lifted 'Dir.findFiles'.
+-- | Search through the given list of directories for the given file and
+-- returns all paths where the given file exists.
+--
+-- The behavior is equivalent to 'findFilesWith'. Details can be found in the
+-- documentation of 'findFilesWith'.
 --
 -- @since 0.1
-findFiles :: (MonadPathReader m) => [OsPath] -> OsPath -> m [OsPath]
+findFiles :: (PathReaderDynamic :> es) => [OsPath] -> OsPath -> Eff es [OsPath]
 findFiles = findFilesWith (\_ -> pure True)
+
+-- | Lifted 'Dir.listDirectory'.
+--
+-- @since 0.1
+listDirectory ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es [OsPath]
+listDirectory = send . ListDirectory
+
+-- | Lifted 'Dir.getDirectoryContents'.
+--
+-- @since 0.1
+getDirectoryContents ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es [OsPath]
+getDirectoryContents = send . GetDirectoryContents
+
+-- | Lifted 'Dir.getCurrentDirectory'.
+--
+-- @since 0.1
+getCurrentDirectory ::
+  ( PathReaderDynamic :> es
+  ) =>
+  Eff es OsPath
+getCurrentDirectory = send GetCurrentDirectory
+
+-- | Lifted 'Dir.getHomeDirectory'.
+--
+-- @since 0.1
+getHomeDirectory ::
+  ( PathReaderDynamic :> es
+  ) =>
+  Eff es OsPath
+getHomeDirectory = send GetHomeDirectory
+
+-- | Lifted 'Dir.getXdgDirectory'.
+--
+-- @since 0.1
+getXdgDirectory ::
+  ( PathReaderDynamic :> es
+  ) =>
+  XdgDirectory ->
+  OsPath ->
+  Eff es OsPath
+getXdgDirectory xdg = send . GetXdgDirectory xdg
+
+-- | Lifted 'Dir.getXdgDirectoryList'.
+--
+-- @since 0.1
+getXdgDirectoryList ::
+  ( PathReaderDynamic :> es
+  ) =>
+  XdgDirectoryList ->
+  Eff es [OsPath]
+getXdgDirectoryList = send . GetXdgDirectoryList
+
+-- | Lifted 'Dir.getAppUserDataDirectory'.
+--
+-- @since 0.1
+getAppUserDataDirectory ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es OsPath
+getAppUserDataDirectory = send . GetAppUserDataDirectory
+
+-- | Lifted 'Dir.getUserDocumentsDirectory'.
+--
+-- @since 0.1
+getUserDocumentsDirectory ::
+  ( PathReaderDynamic :> es
+  ) =>
+  Eff es OsPath
+getUserDocumentsDirectory = send GetUserDocumentsDirectory
+
+-- | Lifted 'Dir.getTemporaryDirectory'.
+--
+-- @since 0.1
+getTemporaryDirectory ::
+  ( PathReaderDynamic :> es
+  ) =>
+  Eff es OsPath
+getTemporaryDirectory = send GetTemporaryDirectory
+
+-- | Lifted 'Dir.getFileSize'.
+--
+-- @since 0.1
+getFileSize ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es Integer
+getFileSize = send . GetFileSize
+
+-- | Lifted 'Dir.canonicalizePath'.
+--
+-- @since 0.1
+canonicalizePath ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es OsPath
+canonicalizePath = send . CanonicalizePath
+
+-- | Lifted 'Dir.makeAbsolute'.
+--
+-- @since 0.1
+makeAbsolute ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es OsPath
+makeAbsolute = send . MakeAbsolute
+
+-- | Lifted 'Dir.makeRelativeToCurrentDirectory'.
+--
+-- @since 0.1
+makeRelativeToCurrentDirectory ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es OsPath
+makeRelativeToCurrentDirectory = send . MakeRelativeToCurrentDirectory
+
+-- | Lifted 'Dir.doesPathExist'.
+--
+-- @since 0.1
+doesPathExist ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es Bool
+doesPathExist = send . DoesPathExist
+
+-- | Lifted 'Dir.doesFileExist'.
+--
+-- @since 0.1
+doesFileExist ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es Bool
+doesFileExist = send . DoesFileExist
+
+-- | Lifted 'Dir.doesDirectoryExist'.
+--
+-- @since 0.1
+doesDirectoryExist ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es Bool
+doesDirectoryExist = send . DoesDirectoryExist
+
+-- | Lifted 'Dir.findExecutable'.
+--
+-- @since 0.1
+findExecutable ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsString ->
+  Eff es (Maybe OsPath)
+findExecutable = send . FindExecutable
+
+-- | Lifted 'Dir.findExecutables'.
+--
+-- @since 0.1
+findExecutables ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsString ->
+  Eff es [OsPath]
+findExecutables = send . FindExecutables
+
+-- | Lifted 'Dir.findExecutablesInDirectories'.
+--
+-- @since 0.1
+findExecutablesInDirectories ::
+  ( PathReaderDynamic :> es
+  ) =>
+  [OsPath] ->
+  OsString ->
+  Eff es [OsPath]
+findExecutablesInDirectories ps = send . FindExecutablesInDirectories ps
+
+-- | Lifted 'Dir.findFileWith'.
+--
+-- @since 0.1
+findFileWith ::
+  ( PathReaderDynamic :> es
+  ) =>
+  (OsPath -> Eff es Bool) ->
+  [OsPath] ->
+  OsString ->
+  Eff es (Maybe OsPath)
+findFileWith f ps = send . FindFileWith f ps
+
+-- | Lifted 'Dir.findFilesWith'.
+--
+-- @since 0.1
+findFilesWith ::
+  ( PathReaderDynamic :> es
+  ) =>
+  (OsPath -> Eff es Bool) ->
+  [OsPath] ->
+  OsString ->
+  Eff es [OsPath]
+findFilesWith f ps = send . FindFilesWith f ps
+
+-- | Lifted 'Dir.pathIsSymbolicLink'.
+--
+-- @since 0.1
+pathIsSymbolicLink ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es Bool
+pathIsSymbolicLink = send . PathIsSymbolicLink
+
+-- | Lifted 'Dir.getSymbolicLinkTarget'.
+--
+-- @since 0.1
+getSymbolicLinkTarget ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es OsPath
+getSymbolicLinkTarget = send . GetSymbolicLinkTarget
+
+-- | Lifted 'Dir.getPermissions'.
+--
+-- @since 0.1
+getPermissions ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es Permissions
+getPermissions = send . GetPermissions
+
+-- | Lifted 'Dir.getAccessTime'.
+--
+-- @since 0.1
+getAccessTime ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es UTCTime
+getAccessTime = send . GetAccessTime
+
+-- | Lifted 'Dir.getModificationTime'.
+--
+-- @since 0.1
+getModificationTime ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es UTCTime
+getModificationTime = send . GetModificationTime
 
 -- | Retrieves the XDG data directory e.g. @~/.local\/share@.
 --
 -- @since 0.1
 getXdgData ::
-  ( MonadPathReader m
+  ( PathReaderDynamic :> es
   ) =>
   OsPath ->
-  m OsPath
+  Eff es OsPath
 getXdgData = getXdgDirectory XdgData
 
 -- | Retrieves the XDG config directory e.g. @~/.config@.
 --
 -- @since 0.1
 getXdgConfig ::
-  ( MonadPathReader m
+  ( PathReaderDynamic :> es
   ) =>
   OsPath ->
-  m OsPath
+  Eff es OsPath
 getXdgConfig = getXdgDirectory XdgConfig
 
 -- | Retrieves the XDG cache directory e.g. @~/.cache@.
 --
 -- @since 0.1
 getXdgCache ::
-  ( MonadPathReader m
+  ( PathReaderDynamic :> es
   ) =>
   OsPath ->
-  m OsPath
+  Eff es OsPath
 getXdgCache = getXdgDirectory XdgCache
 
 -- | Retrieves the XDG state directory e.g. @~/.local\/state@.
 --
 -- @since 0.1
 getXdgState ::
-  ( MonadPathReader m
+  ( PathReaderDynamic :> es
   ) =>
   OsPath ->
-  m OsPath
+  Eff es OsPath
 getXdgState = getXdgDirectory XdgState
 
 -- | Retrieves the recursive directory contents; splits the sub folders and
@@ -387,16 +487,16 @@ getXdgState = getXdgDirectory XdgState
 --
 -- @since 0.1
 listDirectoryRecursive ::
-  forall m.
-  ( MonadPathReader m
+  forall es.
+  ( PathReaderDynamic :> es
   ) =>
   -- | Root path.
   OsPath ->
   -- | (files, directories)
-  m ([OsPath], [OsPath])
+  Eff es ([OsPath], [OsPath])
 listDirectoryRecursive root = recurseDirs [emptyPath]
   where
-    recurseDirs :: [OsPath] -> m ([OsPath], [OsPath])
+    recurseDirs :: [OsPath] -> Eff es ([OsPath], [OsPath])
     recurseDirs [] = pure ([], [])
     recurseDirs (d : ds) = do
       (files, dirs) <- splitPaths root d [] [] =<< listDirectory (root </> d)
@@ -405,18 +505,18 @@ listDirectoryRecursive root = recurseDirs [emptyPath]
     emptyPath = mempty
 
 splitPaths ::
-  forall m.
-  ( MonadPathReader m
+  forall es.
+  ( PathReaderDynamic :> es
   ) =>
   OsPath ->
   OsPath ->
   [OsPath] ->
   [OsPath] ->
   [OsPath] ->
-  m ([OsPath], [OsPath])
+  Eff es ([OsPath], [OsPath])
 splitPaths root d = go
   where
-    go :: [OsPath] -> [OsPath] -> [OsPath] -> m ([OsPath], [OsPath])
+    go :: [OsPath] -> [OsPath] -> [OsPath] -> Eff es ([OsPath], [OsPath])
     go files dirs [] = pure (reverse files, reverse dirs)
     go files dirs (p : ps) = do
       let dirEntry = d </> p

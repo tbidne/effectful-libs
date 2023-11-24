@@ -1,14 +1,20 @@
-{-# LANGUAGE UndecidableInstances #-}
-
 -- | Provides a dynamic effect for writing to a handle.
 --
 -- @since 0.1
 module Effectful.FileSystem.HandleWriter.Dynamic
-  ( -- * Class
-    MonadHandleWriter (..),
-
-    -- * Effect
+  ( -- * Effect
     HandleWriterDynamic (..),
+    openBinaryFile,
+    withBinaryFile,
+    hClose,
+    hFlush,
+    hSetFileSize,
+    hSetBuffering,
+    hSeek,
+    hTell,
+    hSetEcho,
+    hPut,
+    hPutNonBlocking,
 
     -- ** Handlers
     runHandleWriterDynamicIO,
@@ -56,79 +62,6 @@ import System.IO
   )
 import System.IO qualified as IO
 
--- | Represents handle writer effects.
---
--- @since 0.1
-class (Monad m) => MonadHandleWriter m where
-  -- | Lifted 'openBinaryFile'.
-  --
-  -- @since 0.1
-  openBinaryFile :: OsPath -> IOMode -> m Handle
-
-  -- | Lifted 'withBinaryFile'.
-  --
-  -- @since 0.1
-  withBinaryFile :: OsPath -> IOMode -> (Handle -> m a) -> m a
-
-  -- | Lifted 'IO.hClose'.
-  --
-  -- @since 0.1
-  hClose :: Handle -> m ()
-
-  -- | Lifted 'IO.hFlush'.
-  --
-  -- @since 0.1
-  hFlush :: Handle -> m ()
-
-  -- | Lifted 'IO.hSetFileSize'.
-  --
-  -- @since 0.1
-  hSetFileSize :: Handle -> Integer -> m ()
-
-  -- | Lifted 'IO.hSetBuffering'.
-  --
-  -- @since 0.1
-  hSetBuffering :: Handle -> BufferMode -> m ()
-
-  -- | Lifted 'IO.hSeek'.
-  --
-  -- @since 0.1
-  hSeek :: Handle -> SeekMode -> Integer -> m ()
-
-  -- | Lifted 'IO.hTell'.
-  --
-  -- @since 0.1
-  hTell :: Handle -> m Integer
-
-  -- | Lifted 'IO.hSetEcho'.
-  --
-  -- @since 0.1
-  hSetEcho :: Handle -> Bool -> m ()
-
-  -- | Lifted 'BS.hPut'.
-  --
-  -- @since 0.1
-  hPut :: Handle -> ByteString -> m ()
-
-  -- | Lifted 'BS.hPutNonBlocking'.
-  --
-  -- @since 0.1
-  hPutNonBlocking :: Handle -> ByteString -> m ByteString
-
--- | @since 0.1
-instance MonadHandleWriter IO where
-  openBinaryFile = openBinaryFileIO
-  withBinaryFile = withBinaryFileIO
-  hClose = IO.hClose
-  hFlush = IO.hFlush
-  hSetFileSize = IO.hSetFileSize
-  hSetBuffering = IO.hSetBuffering
-  hSeek = IO.hSeek
-  hTell = IO.hTell
-  hSetEcho = IO.hSetEcho
-  hPut = BS.hPut
-  hPutNonBlocking = BS.hPutNonBlocking
-
 -- | @since 0.1
 type instance DispatchOf HandleWriterDynamic = Dynamic
 
@@ -170,40 +103,146 @@ runHandleWriterDynamicIO = interpret $ \env -> \case
   HPut h bs -> liftIO $ BS.hPut h bs
   HPutNonBlocking h bs -> liftIO $ BS.hPutNonBlocking h bs
 
--- | @since 0.1
-instance (HandleWriterDynamic :> es) => MonadHandleWriter (Eff es) where
-  openBinaryFile p = send . OpenBinaryFile p
-  withBinaryFile p m = send . WithBinaryFile p m
-  hClose = send . HClose
-  hFlush = send . HFlush
-  hSetFileSize h = send . HSetFileSize h
-  hSetBuffering h = send . HSetBuffering h
-  hSeek h m = send . HSeek h m
-  hTell = send . HTell
-  hSetEcho h = send . HSetEcho h
-  hPut h = send . HPut h
-  hPutNonBlocking h = send . HPutNonBlocking h
+-- | Lifted 'IO.openBinaryFile'.
+--
+-- @since 0.1
+openBinaryFile ::
+  ( HandleWriterDynamic :> es
+  ) =>
+  OsPath ->
+  IOMode ->
+  Eff es Handle
+openBinaryFile p = send . OpenBinaryFile p
+
+-- | Lifted 'IO.withBinaryFile'.
+--
+-- @since 0.1
+withBinaryFile ::
+  ( HandleWriterDynamic :> es
+  ) =>
+  OsPath ->
+  IOMode ->
+  (Handle -> Eff es a) ->
+  Eff es a
+withBinaryFile p m = send . WithBinaryFile p m
+
+-- | Lifted 'IO.hClose'.
+--
+-- @since 0.1
+hClose ::
+  ( HandleWriterDynamic :> es
+  ) =>
+  Handle ->
+  Eff es ()
+hClose = send . HClose
+
+-- | Lifted 'IO.hFlush'.
+--
+-- @since 0.1
+hFlush ::
+  ( HandleWriterDynamic :> es
+  ) =>
+  Handle ->
+  Eff es ()
+hFlush = send . HFlush
+
+-- | Lifted 'IO.hSetFileSize'.
+--
+-- @since 0.1
+hSetFileSize ::
+  ( HandleWriterDynamic :> es
+  ) =>
+  Handle ->
+  Integer ->
+  Eff es ()
+hSetFileSize h = send . HSetFileSize h
+
+-- | Lifted 'IO.hSetBuffering'.
+--
+-- @since 0.1
+hSetBuffering ::
+  ( HandleWriterDynamic :> es
+  ) =>
+  Handle ->
+  BufferMode ->
+  Eff es ()
+hSetBuffering h = send . HSetBuffering h
+
+-- | Lifted 'IO.hSeek'.
+--
+-- @since 0.1
+hSeek ::
+  ( HandleWriterDynamic :> es
+  ) =>
+  Handle ->
+  SeekMode ->
+  Integer ->
+  Eff es ()
+hSeek h m = send . HSeek h m
+
+-- | Lifted 'IO.hTell'.
+--
+-- @since 0.1
+hTell ::
+  ( HandleWriterDynamic :> es
+  ) =>
+  Handle ->
+  Eff es Integer
+hTell = send . HTell
+
+-- | Lifted 'IO.hSetEcho'.
+--
+-- @since 0.1
+hSetEcho ::
+  ( HandleWriterDynamic :> es
+  ) =>
+  Handle ->
+  Bool ->
+  Eff es ()
+hSetEcho h = send . HSetEcho h
+
+-- | Lifted 'BS.hPut'.
+--
+-- @since 0.1
+hPut ::
+  ( HandleWriterDynamic :> es
+  ) =>
+  Handle ->
+  ByteString ->
+  Eff es ()
+hPut h = send . HPut h
+
+-- | Lifted 'BS.hPutNonBlocking'.
+--
+-- @since 0.1
+hPutNonBlocking ::
+  ( HandleWriterDynamic :> es
+  ) =>
+  Handle ->
+  ByteString ->
+  Eff es ByteString
+hPutNonBlocking h = send . HPutNonBlocking h
 
 -- | 'hPut' and 'Utils.encodeUtf8'.
 --
 -- @since 0.1
 hPutUtf8 ::
-  ( MonadHandleWriter m
+  ( HandleWriterDynamic :> es
   ) =>
   Handle ->
   Text ->
-  m ()
+  Eff es ()
 hPutUtf8 h = hPut h . Utils.encodeUtf8
 
 -- | 'hPutNonBlocking' and 'Utils.encodeUtf8'.
 --
 -- @since 0.1
 hPutNonBlockingUtf8 ::
-  ( MonadHandleWriter m
+  ( HandleWriterDynamic :> es
   ) =>
   Handle ->
   Text ->
-  m ByteString
+  Eff es ByteString
 hPutNonBlockingUtf8 h = hPutNonBlocking h . Utils.encodeUtf8
 
 -- | Write given error message to `stderr` and terminate with `exitFailure`.

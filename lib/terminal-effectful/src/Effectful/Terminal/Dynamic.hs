@@ -1,5 +1,4 @@
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 
 {- ORMOLU_DISABLE -}
@@ -8,12 +7,18 @@
 --
 -- @since 0.1
 module Effectful.Terminal.Dynamic
-  ( -- * Class
-    MonadTerminal (..),
-
-    -- * Effect
+  ( -- * Effect
     TerminalDynamic (..),
     TermSizeException (..),
+    putStr,
+    putStrLn,
+    putBinary,
+    getChar,
+    getLine,
+#if MIN_VERSION_base(4,15,0)
+    getContents',
+#endif
+    getTerminalSize,
 
     -- ** Handlers
     runTerminalDynamicIO,
@@ -64,82 +69,17 @@ import System.IO qualified as IO
 import Prelude
   ( Applicative (pure),
     Char,
-    IO,
     Integral,
     Maybe (Just, Nothing),
     Monad ((>>=)),
     Show (show),
     String,
     ($),
-    (++),
     (.),
     (<$>),
   )
 
 {- ORMOLU_DISABLE -}
-
--- | Represents a terminal.
---
--- @since 0.1
-class Monad m => MonadTerminal m where
-  -- | Lifted 'IO.putStr'.
---
--- @since 0.1
-  putStr :: String -> m ()
-
-  -- | Lifted 'IO.putStrLn'.
---
--- @since 0.1
-  putStrLn :: String -> m ()
-  putStrLn = putStr . (++ "\n")
-
-  -- | Lifted 'BS.putStr'.
---
--- @since 0.1
-  putBinary :: ByteString -> m ()
-
-  -- | Lifted 'IO.getChar'.
---
--- @since 0.1
-  getChar :: m Char
-
-  -- | Lifted 'IO.getLine'.
---
--- @since 0.1
-  getLine :: m String
-
-#if MIN_VERSION_base(4,15,0)
-  -- | Lifted 'IO.getContents'.
---
--- @since 0.1
-  getContents' :: m String
-#endif
-
-  -- | Lifted 'size'.
---
--- @since 0.1
-  getTerminalSize :: Integral a => m (Window a)
-
-#if MIN_VERSION_base(4,15,0)
-  {-# MINIMAL putStr, putBinary, getChar, getLine, getContents', getTerminalSize #-}
-#else
-  {-# MINIMAL putStr , putBinary, getChar, getLine, getTerminalSize #-}
-#endif
-
--- | @since 0.1
-instance MonadTerminal IO where
-  putStr = IO.putStr
-  putStrLn = IO.putStrLn
-  putBinary = BS.putStr
-  getChar = IO.getChar
-  getLine = IO.getLine
-#if MIN_VERSION_base(4,15,0)
-  getContents' = IO.getContents'
-#endif
-  getTerminalSize =
-    size >>= \case
-      Just h -> pure h
-      Nothing -> throwM MkTermSizeException
 
 -- | Dynamic terminal effect.
 --
@@ -176,46 +116,76 @@ runTerminalDynamicIO = interpret $ \_ -> \case
       Just h -> pure h
       Nothing -> throwM MkTermSizeException
 
--- | @since 0.1
-instance (TerminalDynamic :> es) => MonadTerminal (Eff es) where
-  putStr = send . PutStr
-  putStrLn = send . PutStrLn
-  putBinary = send . PutBinary
-  getChar = send GetChar
-  getLine = send GetLine
-
-#if MIN_VERSION_base(4,15,0)
-  getContents' = send GetContents'
-#endif
-
-  getTerminalSize = send GetTerminalSize
-
 {- ORMOLU_ENABLE -}
 
+-- | Lifted 'IO.putStr'.
+--
+-- @since 0.1
+putStr :: (TerminalDynamic :> es) => String -> Eff es ()
+putStr = send . PutStr
+
+-- | Lifted 'IO.putStrLn'.
+--
+-- @since 0.1
+putStrLn :: (TerminalDynamic :> es) => String -> Eff es ()
+putStrLn = send . PutStrLn
+
+-- | Lifted 'BS.putStr'.
+--
+-- @since 0.1
+putBinary :: (TerminalDynamic :> es) => ByteString -> Eff es ()
+putBinary = send . PutBinary
+
+-- | Lifted 'IO.getChar'.
+--
+-- @since 0.1
+getChar :: (TerminalDynamic :> es) => Eff es Char
+getChar = send GetChar
+
+-- | Lifted 'IO.getLine'.
+--
+-- @since 0.1
+getLine :: (TerminalDynamic :> es) => Eff es String
+getLine = send GetLine
+
+#if MIN_VERSION_base(4,15,0)
+
+-- | Lifted 'IO.getContents''.
+--
+-- @since 0.1
+getContents' :: ( TerminalDynamic :> es) => Eff es String
+getContents' = send GetContents'
+
+#endif
+
 -- | @since 0.1
-print :: (MonadTerminal m, Show a) => a -> m ()
+getTerminalSize :: (Integral a, TerminalDynamic :> es) => Eff es (Window a)
+getTerminalSize = send GetTerminalSize
+
+-- | @since 0.1
+print :: (Show a, TerminalDynamic :> es) => a -> Eff es ()
 print = putStrLn . show
 
 -- | 'Text' version of 'putStr'.
 --
 -- @since 0.1
-putText :: (MonadTerminal m) => Text -> m ()
+putText :: (TerminalDynamic :> es) => Text -> Eff es ()
 putText = putStr . T.unpack
 
 -- | 'Text' version of 'putStrLn'.
 --
 -- @since 0.1
-putTextLn :: (MonadTerminal m) => Text -> m ()
+putTextLn :: (TerminalDynamic :> es) => Text -> Eff es ()
 putTextLn = putStrLn . T.unpack
 
 -- | @since 0.1
-getTextLine :: (MonadTerminal m) => m Text
+getTextLine :: (TerminalDynamic :> es) => Eff es Text
 getTextLine = T.pack <$> getLine
 
 #if MIN_VERSION_base(4,15,0)
 
 -- | @since 0.1
-getTextContents' :: (MonadTerminal m) => m Text
+getTextContents' :: (TerminalDynamic :> es) => Eff es Text
 getTextContents' = T.pack <$> getContents'
 
 #endif
@@ -223,11 +193,11 @@ getTextContents' = T.pack <$> getContents'
 -- | Retrieves the terminal width.
 --
 -- @since 0.1
-getTerminalWidth :: (Integral a, MonadTerminal m) => m a
+getTerminalWidth :: (Integral a, TerminalDynamic :> es) => Eff es a
 getTerminalWidth = width <$> getTerminalSize
 
 -- | Retrieves the terminal height.
 --
 -- @since 0.1
-getTerminalHeight :: (Integral a, MonadTerminal m) => m a
+getTerminalHeight :: (Integral a, TerminalDynamic :> es) => Eff es a
 getTerminalHeight = height <$> getTerminalSize

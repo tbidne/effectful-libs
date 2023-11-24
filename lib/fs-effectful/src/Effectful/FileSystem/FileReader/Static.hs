@@ -1,15 +1,12 @@
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 -- | Provides a static effect for reading files.
 --
 -- @since 0.1
 module Effectful.FileSystem.FileReader.Static
-  ( -- * Class
-    MonadFileReader (..),
-
-    -- * Effect
+  ( -- * Effect
     FileReaderStatic,
+    readBinaryFile,
 
     -- ** Handlers
     runFileReaderStaticIO,
@@ -18,6 +15,7 @@ module Effectful.FileSystem.FileReader.Static
     readFileUtf8,
     readFileUtf8Lenient,
     readFileUtf8ThrowM,
+    decodeUtf8ThrowM,
 
     -- * Re-exports
     ByteString,
@@ -30,6 +28,7 @@ where
 import Control.Monad ((>=>))
 import Data.ByteString (ByteString)
 import Data.Text (Text)
+import Data.Text.Encoding qualified as TEnc
 import Data.Text.Encoding.Error (UnicodeException)
 import Effectful
   ( Dispatch (Static),
@@ -45,22 +44,9 @@ import Effectful.Dispatch.Static
     evalStaticRep,
     unsafeEff_,
   )
-import Effectful.Exception (MonadThrow)
-import Effectful.FileSystem.Utils (OsPath, readBinaryFileIO)
+import Effectful.Exception (throwM)
+import Effectful.FileSystem.Utils (OsPath, readBinaryFileIO, (>.>))
 import Effectful.FileSystem.Utils qualified as Utils
-
--- | Represents file-system reader effects.
---
--- @since 0.1
-class (Monad m) => MonadFileReader m where
-  -- | Reads a file.
-  --
-  -- @since 0.1
-  readBinaryFile :: OsPath -> m ByteString
-
--- | @since 0.1
-instance MonadFileReader IO where
-  readBinaryFile = readBinaryFileIO
 
 -- | Static effect for reading files.
 --
@@ -81,36 +67,50 @@ runFileReaderStaticIO ::
 runFileReaderStaticIO = evalStaticRep MkFileReaderStatic
 
 -- | @since 0.1
-instance (FileReaderStatic :> es) => MonadFileReader (Eff es) where
-  readBinaryFile = unsafeEff_ . readBinaryFileIO
+readBinaryFile ::
+  ( FileReaderStatic :> es
+  ) =>
+  OsPath ->
+  Eff es ByteString
+readBinaryFile = unsafeEff_ . readBinaryFileIO
+
+-- | Decodes a 'ByteString' to UTF-8. Can throw 'UnicodeException'.
+--
+-- @since 0.1
+decodeUtf8ThrowM ::
+  ByteString ->
+  Eff es Text
+decodeUtf8ThrowM =
+  TEnc.decodeUtf8' >.> \case
+    Right txt -> pure txt
+    Left ex -> throwM ex
 
 -- | Reads a file as UTF-8.
 --
 -- @since 0.1
 readFileUtf8 ::
-  ( MonadFileReader m
+  ( FileReaderStatic :> es
   ) =>
   OsPath ->
-  m (Either UnicodeException Text)
+  Eff es (Either UnicodeException Text)
 readFileUtf8 = fmap Utils.decodeUtf8 . readBinaryFile
 
 -- | Reads a file as UTF-8 in lenient mode.
 --
 -- @since 0.1
 readFileUtf8Lenient ::
-  ( MonadFileReader m
+  ( FileReaderStatic :> es
   ) =>
   OsPath ->
-  m Text
+  Eff es Text
 readFileUtf8Lenient = fmap Utils.decodeUtf8Lenient . readBinaryFile
 
 -- | Decodes a file as UTF-8. Throws 'UnicodeException' for decode errors.
 --
 -- @since 0.1
 readFileUtf8ThrowM ::
-  ( MonadFileReader m,
-    MonadThrow m
+  ( FileReaderStatic :> es
   ) =>
   OsPath ->
-  m Text
-readFileUtf8ThrowM = readBinaryFile >=> Utils.decodeUtf8ThrowM
+  Eff es Text
+readFileUtf8ThrowM = readBinaryFile >=> decodeUtf8ThrowM

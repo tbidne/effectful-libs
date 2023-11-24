@@ -1,14 +1,10 @@
-{-# LANGUAGE UndecidableInstances #-}
-
 -- | Provides a dynamic effect for reading files.
 --
 -- @since 0.1
 module Effectful.FileSystem.FileReader.Dynamic
-  ( -- * Class
-    MonadFileReader (..),
-
-    -- * Effect
+  ( -- * Effect
     FileReaderDynamic (..),
+    readBinaryFile,
 
     -- ** Handlers
     runFileReaderDynamicIO,
@@ -40,22 +36,8 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
-import Effectful.Exception (MonadThrow)
 import Effectful.FileSystem.Utils (OsPath, readBinaryFileIO)
 import Effectful.FileSystem.Utils qualified as Utils
-
--- | Represents file-system reader effects.
---
--- @since 0.1
-class (Monad m) => MonadFileReader m where
-  -- | Reads a file.
-  --
-  -- @since 0.1
-  readBinaryFile :: OsPath -> m ByteString
-
--- | @since 0.1
-instance MonadFileReader IO where
-  readBinaryFile = readBinaryFileIO
 
 -- | Dynamic effect for reading files.
 --
@@ -78,36 +60,39 @@ runFileReaderDynamicIO = interpret $ \_ -> \case
   ReadBinaryFile p -> liftIO $ readBinaryFileIO p
 
 -- | @since 0.1
-instance (FileReaderDynamic :> es) => MonadFileReader (Eff es) where
-  readBinaryFile = send . ReadBinaryFile
+readBinaryFile ::
+  ( FileReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es ByteString
+readBinaryFile = send . ReadBinaryFile
 
 -- | Reads a file as UTF-8.
 --
 -- @since 0.1
 readFileUtf8 ::
-  ( MonadFileReader m
+  ( FileReaderDynamic :> es
   ) =>
   OsPath ->
-  m (Either UnicodeException Text)
+  Eff es (Either UnicodeException Text)
 readFileUtf8 = fmap Utils.decodeUtf8 . readBinaryFile
 
 -- | Reads a file as UTF-8 in lenient mode.
 --
 -- @since 0.1
 readFileUtf8Lenient ::
-  ( MonadFileReader m
+  ( FileReaderDynamic :> es
   ) =>
   OsPath ->
-  m Text
+  Eff es Text
 readFileUtf8Lenient = fmap Utils.decodeUtf8Lenient . readBinaryFile
 
 -- | Decodes a file as UTF-8. Throws 'UnicodeException' for decode errors.
 --
 -- @since 0.1
 readFileUtf8ThrowM ::
-  ( MonadFileReader m,
-    MonadThrow m
+  ( FileReaderDynamic :> es
   ) =>
   OsPath ->
-  m Text
+  Eff es Text
 readFileUtf8ThrowM = readBinaryFile >=> Utils.decodeUtf8ThrowM
