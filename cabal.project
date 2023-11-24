@@ -11,7 +11,6 @@ packages:
   ./lib/stm-effectful
   ./lib/terminal-effectful
   ./lib/time-effectful
-  ./lib/typed-process-dynamic-effectful
   ./lib/unix-compat-effectful
 
 program-options
