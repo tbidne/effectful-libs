@@ -52,7 +52,7 @@ where
 
 import Control.Monad ((>=>))
 import Data.ByteString (ByteString)
-import Data.ByteString qualified as BS
+import Data.ByteString.Char8 qualified as C8
 import Data.Text (Text)
 import Data.Text.Encoding.Error (UnicodeException)
 import Effectful
@@ -139,27 +139,27 @@ class (Monad m) => MonadHandleReader m where
   -- @since 0.1
   hGetChar :: Handle -> m Char
 
-  -- | Lifted 'BS.hGetLine'.
+  -- | Lifted 'C8.hGetLine'.
   --
   -- @since 0.1
   hGetLine :: Handle -> m ByteString
 
-  -- | Lifted 'BS.hGetContents'.
+  -- | Lifted 'C8.hGetContents'.
   --
   -- @since 0.1
   hGetContents :: Handle -> m ByteString
 
-  -- | Lifted 'BS.hGet'.
+  -- | Lifted 'C8.hGet'.
   --
   -- @since 0.1
   hGet :: Handle -> Int -> m ByteString
 
-  -- | Lifted 'BS.hGetSome'.
+  -- | Lifted 'C8.hGetSome'.
   --
   -- @since 0.1
   hGetSome :: Handle -> Int -> m ByteString
 
-  -- | Lifted 'BS.hGetNonBlocking'.
+  -- | Lifted 'C8.hGetNonBlocking'.
   --
   -- @since 0.1
   hGetNonBlocking :: Handle -> Int -> m ByteString
@@ -178,11 +178,11 @@ instance MonadHandleReader IO where
   hWaitForInput = IO.hWaitForInput
   hReady = IO.hReady
   hGetChar = IO.hGetChar
-  hGetLine = BS.hGetLine
-  hGetContents = BS.hGetContents
-  hGet = BS.hGet
-  hGetSome = BS.hGetSome
-  hGetNonBlocking = BS.hGetNonBlocking
+  hGetLine = C8.hGetLine
+  hGetContents = C8.hGetContents
+  hGet = C8.hGet
+  hGetSome = C8.hGetSome
+  hGetNonBlocking = C8.hGetNonBlocking
 
 -- | Static effect for reading a handle.
 --
@@ -216,11 +216,11 @@ instance (HandleReaderStatic :> es) => MonadHandleReader (Eff es) where
   hWaitForInput h = unsafeEff_ . IO.hWaitForInput h
   hReady = unsafeEff_ . IO.hReady
   hGetChar = unsafeEff_ . IO.hGetChar
-  hGetLine = unsafeEff_ . BS.hGetLine
-  hGetContents = unsafeEff_ . BS.hGetContents
-  hGet h = unsafeEff_ . BS.hGet h
-  hGetSome h = unsafeEff_ . BS.hGetSome h
-  hGetNonBlocking h = unsafeEff_ . BS.hGetNonBlocking h
+  hGetLine = unsafeEff_ . C8.hGetLine
+  hGetContents = unsafeEff_ . C8.hGetContents
+  hGet h = unsafeEff_ . C8.hGet h
+  hGetSome h = unsafeEff_ . C8.hGetSome h
+  hGetNonBlocking h = unsafeEff_ . C8.hGetNonBlocking h
 
 -- | 'hGetLine' and 'Utils.decodeUtf8'.
 --
