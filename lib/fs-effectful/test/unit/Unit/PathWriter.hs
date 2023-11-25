@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE QuasiQuotes #-}
 
 module Unit.PathWriter (tests) where
 
@@ -16,7 +16,8 @@ import Data.List qualified as L
 import Effectful (Eff, IOE, runEff, (:>))
 import Effectful.Dispatch.Dynamic (reinterpret)
 import Effectful.Exception
-  ( StringException,
+  ( IOException,
+    StringException,
     displayException,
     throwString,
     try,
@@ -28,17 +29,17 @@ import Effectful.FileSystem.FileWriter.Dynamic
     runFileWriterDynamicIO,
     writeBinaryFile,
   )
+import Effectful.FileSystem.FileWriter.Dynamic qualified as FW
 import Effectful.FileSystem.PathReader.Dynamic
   ( PathReaderDynamic,
     doesDirectoryExist,
     doesFileExist,
     runPathReaderDynamicIO,
   )
+import Effectful.FileSystem.PathReader.Dynamic qualified as PR
 import Effectful.FileSystem.PathWriter.Dynamic
   ( CopyDirConfig (MkCopyDirConfig),
     Overwrite (OverwriteAll, OverwriteDirectories, OverwriteNone),
-    PathDoesNotExistException,
-    PathExistsException,
     PathWriterDynamic
       ( CopyFileWithMetadata,
         CreateDirectory,
@@ -56,8 +57,10 @@ import Effectful.FileSystem.PathWriter.Dynamic
     removeFile,
     runPathWriterDynamicIO,
   )
+import Effectful.FileSystem.PathWriter.Dynamic qualified as PW
 import Effectful.FileSystem.PathWriter.Dynamic qualified as PathWriter
-import Effectful.FileSystem.Utils ((</>))
+import Effectful.FileSystem.Utils (osp, (</>))
+import Effectful.FileSystem.Utils qualified as Utils
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (assertBool, assertFailure, testCase, (@=?))
 import TestUtils qualified as U
@@ -66,13 +69,24 @@ tests :: IO OsPath -> TestTree
 tests getTmpDir =
   testGroup
     "PathWriter"
-    [ copyDirectoryRecursiveTests getTmpDir
+    [ copyDirectoryRecursiveTests getTmpDir,
+      removeLinkTests getTmpDir,
+      copyLinkTests getTmpDir,
+      removeExistsTests getTmpDir
     ]
 
 copyDirectoryRecursiveTests :: IO OsPath -> TestTree
 copyDirectoryRecursiveTests getTmpDir =
   testGroup
     "copyDirectoryRecursive"
+    [ overwriteTests getTmpDir,
+      copyDirectoryRecursiveMiscTests getTmpDir
+    ]
+
+overwriteTests :: IO OsPath -> TestTree
+overwriteTests getTmpDir =
+  testGroup
+    "Overwrite"
     [ cdrOverwriteNoneTests getTmpDir,
       cdrOverwriteTargetTests getTmpDir,
       cdrOverwriteAllTests getTmpDir
@@ -91,9 +105,9 @@ cdrOverwriteNoneTests getTmpDir =
 
 cdrnFresh :: IO OsPath -> TestTree
 cdrnFresh getTmpDir = testCase desc $ do
-  tmpDir <- mkTestPath getTmpDir "cdrnFresh"
+  tmpDir <- mkTestPath getTmpDir [osp|cdrnFresh|]
   srcDir <- setupSrc tmpDir
-  let destDir = tmpDir </> U.strToPath "dest"
+  let destDir = tmpDir </> [osp|dest|]
 
   runEffPathWriter $ do
     PathWriter.createDirectoryIfMissing False destDir
@@ -110,10 +124,10 @@ cdrnFresh getTmpDir = testCase desc $ do
 
 cdrnCustomTarget :: IO OsPath -> TestTree
 cdrnCustomTarget getTmpDir = testCase desc $ do
-  tmpDir <- mkTestPath getTmpDir "cdrnCustomTarget"
+  tmpDir <- mkTestPath getTmpDir [osp|cdrnCustomTarget|]
   srcDir <- setupSrc tmpDir
-  let destDir = tmpDir </> U.strToPath "dest"
-      target = U.strToPath "target"
+  let destDir = tmpDir </> [osp|dest|]
+      target = [osp|target|]
 
   runEffPathWriter $ do
     createDirectoryIfMissing False destDir
@@ -125,27 +139,27 @@ cdrnCustomTarget getTmpDir = testCase desc $ do
 
   assertSrcExists tmpDir
   assertFilesExist $
-    (\s -> destDir </> U.strToPath s)
-      <$> [ "target/a/b/c/f1",
-            "target/a/f2",
-            "target/a/b/f3",
-            "target/a/f4",
-            "target/a/f5",
-            "target/a/b/f5"
+    (destDir </>)
+      <$> [ [osp|target/a/b/c/f1|],
+            [osp|target/a/f2|],
+            [osp|target/a/b/f3|],
+            [osp|target/a/f4|],
+            [osp|target/a/f5|],
+            [osp|target/a/b/f5|]
           ]
   assertDirsExist $
-    (\s -> destDir </> U.strToPath s)
-      <$> [ "target/a/b/c",
-            "target/empty/d"
+    (destDir </>)
+      <$> [ [osp|target/a/b/c|],
+            [osp|target/empty/d|]
           ]
   where
     desc = "Copy with custom directory succeeds"
 
 cdrnDestNonExtantFails :: IO OsPath -> TestTree
 cdrnDestNonExtantFails getTmpDir = testCase desc $ do
-  tmpDir <- mkTestPath getTmpDir "cdrnDestNonExtantFails"
+  tmpDir <- mkTestPath getTmpDir [osp|cdrnDestNonExtantFails|]
   srcDir <- setupSrc tmpDir
-  let destDir = tmpDir </> U.strToPath "dest"
+  let destDir = tmpDir </> [osp|dest|]
 
   -- NOTE: This commented line is why the test fails: no dest dir
   -- createDirectoryIfMissing False destDir
@@ -160,11 +174,10 @@ cdrnDestNonExtantFails getTmpDir = testCase desc $ do
           destDir
   resultEx <- case result of
     Right _ -> assertFailure "Expected exception, received none"
-    Left (ex :: PathDoesNotExistException) -> pure ex
+    Left (ex :: IOException) -> pure ex
 
   let exText = displayException resultEx
 
-  assertBool exText ("Path does not exist:" `L.isPrefixOf` exText)
   assertBool exText (suffix `L.isSuffixOf` exText)
 
   -- assert original files remain
@@ -174,24 +187,19 @@ cdrnDestNonExtantFails getTmpDir = testCase desc $ do
   assertDirsDoNotExist [destDir]
   where
     desc = "Copy to non-extant dest fails"
-
-#if !WINDOWS
-    suffix = "fs-effectful/unit/cdrnDestNonExtantFails/dest"
-#else
-    suffix = "fs-effectful\\unit\\cdrnDestNonExtantFails\\dest"
-#endif
+    suffix = "dest: getPathType: does not exist (path does not exist)"
 
 cdrnOverwriteFails :: IO OsPath -> TestTree
 cdrnOverwriteFails getTmpDir = testCase desc $ do
-  tmpDir <- mkTestPath getTmpDir "cdrnExtantFails"
+  tmpDir <- mkTestPath getTmpDir [osp|cdrnExtantFails|]
   srcDir <- setupSrc tmpDir
-  let destDir = tmpDir </> U.strToPath "dest"
+  let destDir = tmpDir </> [osp|dest|]
 
   runEffPathWriter $ do
     createDirectoryIfMissing False destDir
 
     -- NOTE: This causes the expected error
-    createDirectoryIfMissing False (destDir </> U.strToPath "src")
+    createDirectoryIfMissing False (destDir </> [osp|src|])
 
   -- copy files
   result <-
@@ -203,11 +211,10 @@ cdrnOverwriteFails getTmpDir = testCase desc $ do
           destDir
   resultEx <- case result of
     Right _ -> assertFailure "Expected exception, received none"
-    Left (ex :: PathExistsException) -> pure ex
+    Left (ex :: IOException) -> pure ex
 
   let exText = displayException resultEx
 
-  assertBool exText ("Path already exists:" `L.isPrefixOf` exText)
   assertBool exText (suffix `L.isSuffixOf` exText)
 
   -- assert original files remain
@@ -215,23 +222,19 @@ cdrnOverwriteFails getTmpDir = testCase desc $ do
 
   -- assert files were _not_ copied
   assertDirsDoNotExist $
-    (\s -> destDir </> U.strToPath s)
-      <$> [ "src/a/",
-            "src/empty"
+    (destDir </>)
+      <$> [ [osp|src/a/|],
+            [osp|src/empty|]
           ]
   where
     desc = "Copy to extant dest/<target> fails"
-#if !WINDOWS
-    suffix = "fs-effectful/unit/cdrnExtantFails/dest/src"
-#else
-    suffix = "fs-effectful\\unit\\cdrnExtantFails\\dest\\src"
-#endif
+    suffix = "src: copyDirectoryNoOverwrite: already exists (Attempted directory overwrite when CopyDirConfig.overwrite is OverwriteNone)"
 
 cdrnPartialFails :: IO OsPath -> TestTree
 cdrnPartialFails getTmpDir = testCase desc $ do
-  tmpDir <- mkTestPath getTmpDir "cdrnPartialFails"
+  tmpDir <- mkTestPath getTmpDir [osp|cdrnPartialFails|]
   srcDir <- setupSrc tmpDir
-  let destDir = tmpDir </> U.strToPath "dest"
+  let destDir = tmpDir </> [osp|dest|]
 
   runEffPathWriter $ createDirectoryIfMissing False destDir
 
@@ -255,7 +258,7 @@ cdrnPartialFails getTmpDir = testCase desc $ do
   assertSrcExists tmpDir
 
   -- assert no files left over after partial write
-  assertDirsDoNotExist [destDir </> U.strToPath "src"]
+  assertDirsDoNotExist [destDir </> [osp|src|]]
   where
     desc = "Partial failure rolls back changes"
 
@@ -275,9 +278,9 @@ cdrOverwriteTargetTests getTmpDir =
 
 cdrtFresh :: IO OsPath -> TestTree
 cdrtFresh getTmpDir = testCase desc $ do
-  tmpDir <- mkTestPath getTmpDir "cdrtFresh"
+  tmpDir <- mkTestPath getTmpDir [osp|cdrtFresh|]
   srcDir <- setupSrc tmpDir
-  let destDir = tmpDir </> U.strToPath "dest"
+  let destDir = tmpDir </> [osp|dest|]
 
   runEffPathWriter $ do
     createDirectoryIfMissing False destDir
@@ -294,9 +297,9 @@ cdrtFresh getTmpDir = testCase desc $ do
 
 cdrtDestNonExtantFails :: IO OsPath -> TestTree
 cdrtDestNonExtantFails getTmpDir = testCase desc $ do
-  tmpDir <- mkTestPath getTmpDir "cdrtDestNonExtantFails"
+  tmpDir <- mkTestPath getTmpDir [osp|cdrtDestNonExtantFails|]
   srcDir <- setupSrc tmpDir
-  let destDir = tmpDir </> U.strToPath "dest"
+  let destDir = tmpDir </> [osp|dest|]
 
   -- NOTE: This commented line is why the test fails: no dest dir
   -- createDirectoryIfMissing False destDir
@@ -308,11 +311,10 @@ cdrtDestNonExtantFails getTmpDir = testCase desc $ do
         PathWriter.copyDirectoryRecursiveConfig (overwriteConfig OverwriteDirectories) srcDir destDir
   resultEx <- case result of
     Right _ -> assertFailure "Expected exception, received none"
-    Left (ex :: PathDoesNotExistException) -> pure ex
+    Left (ex :: IOException) -> pure ex
 
   let exText = displayException resultEx
 
-  assertBool exText ("Path does not exist:" `L.isPrefixOf` exText)
   assertBool exText (suffix `L.isSuffixOf` exText)
 
   -- assert original files remain
@@ -322,25 +324,21 @@ cdrtDestNonExtantFails getTmpDir = testCase desc $ do
   assertDirsDoNotExist [destDir]
   where
     desc = "Copy to non-extant dest fails"
-#if !WINDOWS
-    suffix = "fs-effectful/unit/cdrtDestNonExtantFails/dest"
-#else
-    suffix = "fs-effectful\\unit\\cdrtDestNonExtantFails\\dest"
-#endif
+    suffix = "dest: getPathType: does not exist (path does not exist)"
 
 cdrtOverwriteTargetSucceeds :: IO OsPath -> TestTree
 cdrtOverwriteTargetSucceeds getTmpDir = testCase desc $ do
-  tmpDir <- mkTestPath getTmpDir "cdrtOverwriteTargetSucceeds"
+  tmpDir <- mkTestPath getTmpDir [osp|cdrtOverwriteTargetSucceeds|]
   srcDir <- setupSrc tmpDir
-  let destDir = tmpDir </> U.strToPath "dest"
+  let destDir = tmpDir </> [osp|dest|]
 
   runEffPathWriter $ do
     createDirectoryIfMissing False destDir
 
     -- NOTE: test that dir already exists and succeeds
-    createDirectoryIfMissing False (destDir </> U.strToPath "src")
-    createDirectoryIfMissing False (destDir </> U.strToPath "src/test")
-    writeFiles [(destDir </> U.strToPath "src/test/here", "cat")]
+    createDirectoryIfMissing False (destDir </> [osp|src|])
+    createDirectoryIfMissing False (destDir </> [osp|src/test|])
+    writeFiles [(destDir </> [osp|src/test/here|], "cat")]
 
     -- copy files
     PathWriter.copyDirectoryRecursiveConfig
@@ -349,30 +347,30 @@ cdrtOverwriteTargetSucceeds getTmpDir = testCase desc $ do
       destDir
 
   assertSrcExists tmpDir
-  assertFilesExist [destDir </> U.strToPath "src/test/here"]
+  assertFilesExist [destDir </> [osp|src/test/here|]]
   assertDestExists tmpDir
   where
     desc = "copy to extant dest/<target> succeeds"
 
 cdrtOverwriteTargetMergeSucceeds :: IO OsPath -> TestTree
 cdrtOverwriteTargetMergeSucceeds getTmpDir = testCase desc $ do
-  tmpDir <- mkTestPath getTmpDir "cdrtOverwriteTargetMergeSucceeds"
-  let srcDir = tmpDir </> U.strToPath "src"
-      destDir = tmpDir </> U.strToPath "dest"
+  tmpDir <- mkTestPath getTmpDir [osp|cdrtOverwriteTargetMergeSucceeds|]
+  let srcDir = tmpDir </> [osp|src|]
+      destDir = tmpDir </> [osp|dest|]
 
   runEffPathWriter $ createDirectoryIfMissing True destDir
   runEffPathWriter $ createDirectoryIfMissing True srcDir
 
   -- NOTE: test that dir already exists and succeeds
-  let d1 = destDir </> U.strToPath "one/"
-      d1Files = (\f -> d1 </> U.strToPath f) <$> ["f1", "f2"]
-      d2 = destDir </> U.strToPath "two/"
-      d2Files = (\f -> d2 </> U.strToPath f) <$> ["f1", "f2"]
+  let d1 = destDir </> [osp|one/|]
+      d1Files = (d1 </>) <$> [[osp|f1|], [osp|f2|]]
+      d2 = destDir </> [osp|two/|]
+      d2Files = (d2 </>) <$> [[osp|f1|], [osp|f2|]]
 
-      s1 = srcDir </> U.strToPath "one/"
-      s1Files = (\f -> s1 </> U.strToPath f) <$> ["f3", "f4"]
-      s2 = srcDir </> U.strToPath "two/"
-      s2Files = (\f -> s2 </> U.strToPath f) <$> ["f3", "f4"]
+      s1 = srcDir </> [osp|one/|]
+      s1Files = (s1 </>) <$> [[osp|f3|], [osp|f4|]]
+      s2 = srcDir </> [osp|two/|]
+      s2Files = (s2 </>) <$> [[osp|f3|], [osp|f4|]]
 
   runEffPathWriter $ do
     createDirectoryIfMissing False d1
@@ -393,31 +391,31 @@ cdrtOverwriteTargetMergeSucceeds getTmpDir = testCase desc $ do
 
   -- assert copy correctly merged directories
   assertFilesExist $
-    (\s -> destDir </> U.strToPath s)
-      <$> [ "one/f1",
-            "one/f2",
-            "one/f3",
-            "one/f4",
-            "two/f1",
-            "two/f2",
-            "two/f3",
-            "two/f4"
+    (destDir </>)
+      <$> [ [osp|one/f1|],
+            [osp|one/f2|],
+            [osp|one/f3|],
+            [osp|one/f4|],
+            [osp|two/f1|],
+            [osp|two/f2|],
+            [osp|two/f3|],
+            [osp|two/f4|]
           ]
 
   -- src still exists
   assertFilesExist $
-    (\s -> srcDir </> U.strToPath s)
-      <$> [ "one/f3",
-            "one/f4",
-            "two/f3",
-            "two/f4"
+    (srcDir </>)
+      <$> [ [osp|one/f3|],
+            [osp|one/f4|],
+            [osp|two/f3|],
+            [osp|two/f4|]
           ]
   assertFilesDoNotExist $
-    (\s -> srcDir </> U.strToPath s)
-      <$> [ "one/f1",
-            "one/f2",
-            "two/f1",
-            "two/f2"
+    (srcDir </>)
+      <$> [ [osp|one/f1|],
+            [osp|one/f2|],
+            [osp|two/f1|],
+            [osp|two/f2|]
           ]
   where
     desc = "copy to extant dest/<target> merges successfully"
@@ -425,25 +423,25 @@ cdrtOverwriteTargetMergeSucceeds getTmpDir = testCase desc $ do
 
 cdrtOverwriteTargetMergeFails :: IO OsPath -> TestTree
 cdrtOverwriteTargetMergeFails getTmpDir = testCase desc $ do
-  tmpDir <- mkTestPath getTmpDir "cdrtOverwriteTargetMergeFails"
-  let srcDir = tmpDir </> U.strToPath "src"
-      destDir = tmpDir </> U.strToPath "dest"
+  tmpDir <- mkTestPath getTmpDir [osp|cdrtOverwriteTargetMergeFails|]
+  let srcDir = tmpDir </> [osp|src|]
+      destDir = tmpDir </> [osp|dest|]
 
   runEffPathWriter $ do
     createDirectoryIfMissing True destDir
     createDirectoryIfMissing True srcDir
 
   -- NOTE: test that dir already exists and succeeds
-  let d1 = destDir </> U.strToPath "one/"
-      d1Files = (\f -> d1 </> U.strToPath f) <$> ["f1", "f2"]
-      d2 = destDir </> U.strToPath "two/"
+  let d1 = destDir </> [osp|one|]
+      d1Files = (d1 </>) <$> [[osp|f1|], [osp|f2|]]
+      d2 = destDir </> [osp|two|]
       -- f3 introduces the collision failure we want
-      d2Files = (\f -> d2 </> U.strToPath f) <$> ["f1", "f2", "f3"]
+      d2Files = (d2 </>) <$> [[osp|f1|], [osp|f2|], [osp|f3|]]
 
-      s1 = srcDir </> U.strToPath "one/"
-      s1Files = (\f -> s1 </> U.strToPath f) <$> ["f3", "f4"]
-      s2 = srcDir </> U.strToPath "two/"
-      s2Files = (\f -> s2 </> U.strToPath f) <$> ["f3", "f4"]
+      s1 = srcDir </> [osp|one|]
+      s1Files = (s1 </>) <$> [[osp|f3|], [osp|f4|]]
+      s2 = srcDir </> [osp|two|]
+      s2Files = (s2 </>) <$> [[osp|f3|], [osp|f4|]]
 
   runEffPathWriter $ do
     createDirectoryIfMissing False d1
@@ -466,66 +464,60 @@ cdrtOverwriteTargetMergeFails getTmpDir = testCase desc $ do
           destDir
   resultEx <- case result of
     Right _ -> assertFailure "Expected exception, received none"
-    Left (ex :: PathExistsException) -> pure ex
+    Left (ex :: IOException) -> pure ex
 
   let exText = displayException resultEx
 
-  assertBool exText ("Path already exists:" `L.isPrefixOf` exText)
   assertBool exText (suffix `L.isSuffixOf` exText)
 
   -- assert dest unchanged from bad copy
   assertFilesExist $
-    (\s -> destDir </> U.strToPath s)
-      <$> [ "one/f1",
-            "one/f2",
-            "two/f1",
-            "two/f2",
-            "two/f3"
+    (destDir </>)
+      <$> [ [osp|one/f1|],
+            [osp|one/f2|],
+            [osp|two/f1|],
+            [osp|two/f2|],
+            [osp|two/f3|]
           ]
 
   assertFilesDoNotExist $
-    (\s -> destDir </> U.strToPath s)
-      <$> [ "one/f3",
-            "one/f4",
-            "two/f4"
+    (destDir </>)
+      <$> [ [osp|one/f3|],
+            [osp|one/f4|],
+            [osp|two/f4|]
           ]
 
   -- src still exists
   assertFilesExist $
-    (\s -> srcDir </> U.strToPath s)
-      <$> [ "one/f3",
-            "one/f4",
-            "two/f3",
-            "two/f4"
+    (srcDir </>)
+      <$> [ [osp|one/f3|],
+            [osp|one/f4|],
+            [osp|two/f3|],
+            [osp|two/f4|]
           ]
   assertFilesDoNotExist $
-    (\s -> srcDir </> U.strToPath s)
-      <$> [ "one/f1",
-            "one/f2",
-            "two/f1",
-            "two/f2"
+    (srcDir </>)
+      <$> [ [osp|one/f1|],
+            [osp|one/f2|],
+            [osp|two/f1|],
+            [osp|two/f2|]
           ]
   where
     desc = "copy to extant dest/<target> merge fails"
     config = MkCopyDirConfig OverwriteDirectories TargetNameDest
-
-#if !WINDOWS
-    suffix = "fs-effectful/unit/cdrtOverwriteTargetMergeFails/dest/two/f3"
-#else
-    suffix = "fs-effectful\\unit\\cdrtOverwriteTargetMergeFails\\dest\\two\\f3"
-#endif
+    suffix = "f3: copyDirectoryOverwrite: already exists (Attempted file overwrite when CopyDirConfig.overwriteFiles is false)"
 
 cdrtOverwriteFileFails :: IO OsPath -> TestTree
 cdrtOverwriteFileFails getTmpDir = testCase desc $ do
-  tmpDir <- mkTestPath getTmpDir "cdrtOverwriteFileFails"
+  tmpDir <- mkTestPath getTmpDir [osp|cdrtOverwriteFileFails|]
   srcDir <- setupSrc tmpDir
-  let destDir = tmpDir </> U.strToPath "dest"
+  let destDir = tmpDir </> [osp|dest|]
 
   runEffPathWriter $ do
-    createDirectoryIfMissing True (destDir </> U.strToPath "src/a/b/c")
+    createDirectoryIfMissing True (destDir </> [osp|src/a/b/c|])
 
     -- NOTE: this line causes it to die
-    writeFiles [(destDir </> U.strToPath "src/a/b/c/f1", "cat")]
+    writeFiles [(destDir </> [osp|src/a/b/c/f1|], "cat")]
 
   -- copy files
   result <-
@@ -537,30 +529,24 @@ cdrtOverwriteFileFails getTmpDir = testCase desc $ do
           destDir
   resultEx <- case result of
     Right _ -> assertFailure "Expected exception, received none"
-    Left (ex :: PathExistsException) -> pure ex
+    Left (ex :: IOException) -> pure ex
 
   let exText = displayException resultEx
 
-  assertBool exText ("Path already exists:" `L.isPrefixOf` exText)
   assertBool exText (suffix `L.isSuffixOf` exText)
 
   -- assert original files remain
   assertSrcExists tmpDir
-  assertFilesExist [destDir </> U.strToPath "src/a/b/c/f1"]
+  assertFilesExist [destDir </> [osp|src/a/b/c/f1|]]
   where
     desc = "copy to extant dest/<target>/file fails"
-
-#if !WINDOWS
-    suffix = "fs-effectful/unit/cdrtOverwriteFileFails/dest/src/a/b/c/f1"
-#else
-    suffix = "fs-effectful\\unit\\cdrtOverwriteFileFails\\dest\\src\\a\\b\\c\\f1"
-#endif
+    suffix = "f1: copyDirectoryOverwrite: already exists (Attempted file overwrite when CopyDirConfig.overwriteFiles is false)"
 
 cdrtPartialFails :: IO OsPath -> TestTree
 cdrtPartialFails getTmpDir = testCase desc $ do
-  tmpDir <- mkTestPath getTmpDir "cdrtPartialFails"
+  tmpDir <- mkTestPath getTmpDir [osp|cdrtPartialFails|]
   srcDir <- setupSrc tmpDir
-  let destDir = tmpDir </> U.strToPath "dest"
+  let destDir = tmpDir </> [osp|dest|]
 
   runEffPathWriter $ createDirectoryIfMissing False destDir
 
@@ -584,23 +570,23 @@ cdrtPartialFails getTmpDir = testCase desc $ do
   assertSrcExists tmpDir
 
   -- assert no files left over after partial write
-  assertDirsDoNotExist [destDir </> U.strToPath "src"]
+  assertDirsDoNotExist [destDir </> [osp|src|]]
   where
     desc = "Partial failure rolls back changes"
 
 cdrtOverwritePartialFails :: IO OsPath -> TestTree
 cdrtOverwritePartialFails getTmpDir = testCase desc $ do
-  tmpDir <- mkTestPath getTmpDir "cdrtOverwritePartialFails"
+  tmpDir <- mkTestPath getTmpDir [osp|cdrtOverwritePartialFails|]
   srcDir <- setupSrc tmpDir
-  let destDir = tmpDir </> U.strToPath "dest"
+  let destDir = tmpDir </> [osp|dest|]
 
   runEffPathWriter $ do
     createDirectoryIfMissing False destDir
 
     -- NOTE: test overwriting
-    createDirectoryIfMissing False (destDir </> U.strToPath "src")
-    createDirectoryIfMissing False (destDir </> U.strToPath "src/test")
-    writeFiles [(destDir </> U.strToPath "src/test/here", "cat")]
+    createDirectoryIfMissing False (destDir </> [osp|src|])
+    createDirectoryIfMissing False (destDir </> [osp|src/test|])
+    writeFiles [(destDir </> [osp|src/test/here|], "cat")]
 
   -- copy files
   result <-
@@ -623,13 +609,13 @@ cdrtOverwritePartialFails getTmpDir = testCase desc $ do
 
   -- assert files were not copied over
   assertDirsDoNotExist $
-    (\s -> destDir </> U.strToPath s)
-      <$> [ "src/a/",
-            "src/empty"
+    (destDir </>)
+      <$> [ [osp|src/a/|],
+            [osp|src/empty|]
           ]
 
   -- assert original file exists after copy failure
-  assertFilesExist [destDir </> U.strToPath "src/test/here"]
+  assertFilesExist [destDir </> [osp|src/test/here|]]
   where
     desc = "Partial failure with extant dest/<target> rolls back changes"
 
@@ -642,15 +628,15 @@ cdrOverwriteAllTests getTmpDir =
 
 cdraOverwriteFileSucceeds :: IO OsPath -> TestTree
 cdraOverwriteFileSucceeds getTmpDir = testCase desc $ do
-  tmpDir <- mkTestPath getTmpDir "cdraOverwriteFileSucceeds"
+  tmpDir <- mkTestPath getTmpDir [osp|cdraOverwriteFileSucceeds|]
   srcDir <- setupSrc tmpDir
-  let destDir = tmpDir </> U.strToPath "dest"
+  let destDir = tmpDir </> [osp|dest|]
 
-  runEffPathWriter $ createDirectoryIfMissing True (destDir </> U.strToPath "src/a/b/c")
+  runEffPathWriter $ createDirectoryIfMissing True (destDir </> [osp|src/a/b/c|])
 
   -- NOTE: this line is what is tested
-  runEffPathWriter $ writeFiles [(destDir </> U.strToPath "src/a/b/c/f1", "cat")]
-  assertFileContents [(destDir </> U.strToPath "src/a/b/c/f1", "cat")]
+  runEffPathWriter $ writeFiles [(destDir </> [osp|src/a/b/c/f1|], "cat")]
+  assertFileContents [(destDir </> [osp|src/a/b/c/f1|], "cat")]
 
   -- copy files
   runEffPathWriter $
@@ -661,10 +647,403 @@ cdraOverwriteFileSucceeds getTmpDir = testCase desc $ do
 
   assertSrcExists tmpDir
   -- check contents actually overwritten
-  assertFileContents [(destDir </> U.strToPath "src/a/b/c/f1", "1")]
+  assertFileContents [(destDir </> [osp|src/a/b/c/f1|], "1")]
   assertDestExists tmpDir
   where
     desc = "Copy to extant dest/<target>/file succeeds"
+
+copyDirectoryRecursiveMiscTests :: IO OsPath -> TestTree
+copyDirectoryRecursiveMiscTests getTmpDir =
+  testGroup
+    "Misc"
+    [ copyTestData getTmpDir,
+      copyDotDir getTmpDir,
+      copyHidden getTmpDir,
+      copyDirNoSrcException getTmpDir
+    ]
+
+copyTestData :: IO OsPath -> TestTree
+copyTestData getTmpDir = testCase desc $ do
+  tmpDir <- getTmpDir
+
+  let srcDir = dataDir
+      destDir = tmpDir </> [osp|copyTestData|]
+
+  runEffPathWriter $ createDirectoryIfMissing False destDir
+
+  runEffPathWriter $
+    PathWriter.copyDirectoryRecursiveConfig
+      (overwriteConfig OverwriteNone)
+      srcDir
+      destDir
+
+  assertFilesExist $
+    (\p -> destDir </> [osp|data|] </> p)
+      <$> [ [osp|.hidden|] </> [osp|f1|],
+            [osp|bar|],
+            [osp|baz|],
+            [osp|foo|],
+            [osp|dir1|] </> [osp|f|],
+            [osp|dir2|] </> [osp|f|],
+            [osp|dir3|] </> [osp|f|],
+            [osp|dir3|] </> [osp|dir3.1|] </> [osp|f|]
+          ]
+  assertDirsExist $
+    (\p -> destDir </> [osp|data|] </> p)
+      <$> [ [osp|.hidden|],
+            [osp|dir1|],
+            [osp|dir2|],
+            [osp|dir3|],
+            [osp|dir3|] </> [osp|dir3.1|]
+          ]
+  assertSymlinksExistTarget $
+    (\(l, t) -> (destDir </> [osp|data|] </> l, t))
+      <$> [ ([osp|l1|], [osp|foo|]),
+            ([osp|l2|], [osp|dir2|]),
+            ([osp|l3|], [osp|bad|])
+          ]
+  where
+    desc = "Copies test data directory with hidden dirs, symlinks"
+    dataDir = [osp|test|] </> [osp|data|]
+
+copyDotDir :: IO OsPath -> TestTree
+copyDotDir getTmpDir = testCase desc $ do
+  tmpDir <- mkTestPath getTmpDir [osp|copyDotDir|]
+
+  let srcDir = tmpDir </> [osp|src-0.2.2|]
+      destDir = tmpDir </> [osp|dest|]
+
+  runEffPathWriter $ do
+    createDirectoryIfMissing False tmpDir
+    createDirectoryIfMissing False destDir
+    createDirectoryIfMissing False srcDir
+    writeFiles [(srcDir </> [osp|f|], "")]
+
+  runEffPathWriter $
+    PathWriter.copyDirectoryRecursiveConfig
+      (overwriteConfig OverwriteNone)
+      srcDir
+      destDir
+
+  assertDirsExist [destDir </> [osp|src-0.2.2|]]
+  assertFilesExist [destDir </> [osp|src-0.2.2|] </> [osp|f|]]
+  where
+    desc = "Copies dir with dots in the name"
+
+copyHidden :: IO OsPath -> TestTree
+copyHidden getTmpDir = testCase desc $ do
+  tmpDir <- mkTestPath getTmpDir [osp|copyHidden|]
+
+  let srcDir = tmpDir </> [osp|.hidden|]
+      destDir = tmpDir </> [osp|dest|]
+
+  runEffPathWriter $ do
+    createDirectoryIfMissing False tmpDir
+    createDirectoryIfMissing False destDir
+    createDirectoryIfMissing False srcDir
+    writeFiles [(srcDir </> [osp|f|], "")]
+
+  runEffPathWriter $
+    PathWriter.copyDirectoryRecursiveConfig
+      (overwriteConfig OverwriteDirectories)
+      srcDir
+      destDir
+
+  assertDirsExist [destDir </> [osp|.hidden|]]
+  assertFilesExist [destDir </> [osp|.hidden|] </> [osp|f|]]
+  where
+    desc = "Copies top-level hidden dir"
+
+copyDirNoSrcException :: IO OsPath -> TestTree
+copyDirNoSrcException getTmpDir = testCase desc $ do
+  tmpDir <- mkTestPath getTmpDir [osp|copyDirNoSrcException|]
+
+  let badSrc = tmpDir </> [osp|badSrc|]
+      destDir = tmpDir </> [osp|dest|]
+
+  runEffPathWriter $ do
+    createDirectoryIfMissing False tmpDir
+    createDirectoryIfMissing False destDir
+
+  let copy =
+        PathWriter.copyDirectoryRecursiveConfig
+          (overwriteConfig OverwriteNone)
+          badSrc
+          destDir
+
+  try @_ @IOException (runEffPathWriter copy) >>= \case
+    Left _ -> pure ()
+    Right _ -> assertFailure "Expected PathNotFoundException"
+  where
+    desc = "Bad source throws exception"
+
+removeLinkTests :: IO OsPath -> TestTree
+removeLinkTests getTestDir =
+  testGroup
+    "removeSymbolicLink"
+    [ removeSymbolicLinkFileLink getTestDir,
+      removeSymbolicLinkFileException getTestDir,
+      removeSymbolicLinkBadException getTestDir
+    ]
+
+removeSymbolicLinkFileLink :: IO OsPath -> TestTree
+removeSymbolicLinkFileLink getTestDir = testCase desc $ do
+  testDir <- setupLinks getTestDir [osp|removeSymbolicLinkFileLink|]
+
+  assertSymlinksExist $ (testDir </>) <$> [[osp|file-link|], [osp|dir-link|]]
+
+  runEffPathWriter $ do
+    PW.removeSymbolicLink (testDir </> [osp|file-link|])
+    PW.removeSymbolicLink (testDir </> [osp|dir-link|])
+
+  assertSymlinksDoNotExist $ (testDir </>) <$> [[osp|file-link|], [osp|dir-link|]]
+  where
+    desc = "Removes symbolic links"
+
+removeSymbolicLinkFileException :: IO OsPath -> TestTree
+removeSymbolicLinkFileException getTestDir = testCase desc $ do
+  testDir <- setupLinks getTestDir [osp|removeSymbolicLinkFileLink|]
+  let filePath = testDir </> [osp|file|]
+
+  assertFilesExist [filePath]
+
+  try @_ @IOException (runEffPathWriter $ PW.removeSymbolicLink filePath) >>= \case
+    Left _ -> pure ()
+    Right _ -> assertFailure "Expected IOException"
+
+  assertFilesExist [filePath]
+  where
+    desc = "Exception for file"
+
+removeSymbolicLinkBadException :: IO OsPath -> TestTree
+removeSymbolicLinkBadException getTestDir = testCase desc $ do
+  testDir <- setupLinks getTestDir [osp|removeSymbolicLinkBadException|]
+  let filePath = testDir </> [osp|bad-path|]
+
+  try @_ @IOException (runEffPathWriter $ PW.removeSymbolicLink filePath) >>= \case
+    Left _ -> pure ()
+    Right _ -> assertFailure "Expected IOException"
+  where
+    desc = "Exception for bad path"
+
+copyLinkTests :: IO OsPath -> TestTree
+copyLinkTests getTestDir =
+  testGroup
+    "copySymbolicLink"
+    [ copySymbolicLinks getTestDir,
+      copySymbolicLinkFileException getTestDir,
+      copySymbolicLinkDirException getTestDir,
+      copySymbolicLinkBadException getTestDir
+    ]
+
+copySymbolicLinks :: IO OsPath -> TestTree
+copySymbolicLinks getTestDir = testCase desc $ do
+  testDir <- setupLinks getTestDir [osp|copyFileLink|]
+  let srcFile = testDir </> [osp|file-link|]
+      srcDir = testDir </> [osp|dir-link|]
+      destFile = testDir </> [osp|file-link2|]
+      destDir = testDir </> [osp|dir-link2|]
+
+  assertSymlinksExist [srcFile, srcDir]
+  assertSymlinksDoNotExist [destFile, destDir]
+
+  runEffPathWriter $ do
+    PW.copySymbolicLink srcFile destFile
+    PW.copySymbolicLink srcDir destDir
+
+  assertSymlinksExistTarget
+    [ (srcFile, testDir </> [osp|file|]),
+      (destFile, testDir </> [osp|file|]),
+      (srcDir, testDir </> [osp|dir|]),
+      (destDir, testDir </> [osp|dir|])
+    ]
+  where
+    desc = "Copies symbolic links"
+
+copySymbolicLinkFileException :: IO OsPath -> TestTree
+copySymbolicLinkFileException getTestDir = testCase desc $ do
+  testDir <- setupLinks getTestDir [osp|copySymbolicLinkFileException|]
+  let src = testDir </> [osp|file|]
+      dest = testDir </> [osp|dest|]
+  try @_ @IOException (runEffPathWriter $ PW.copySymbolicLink src dest) >>= \case
+    Left _ -> pure ()
+    Right _ -> assertFailure "Exception IOException"
+  where
+    desc = "Exception for file"
+
+copySymbolicLinkDirException :: IO OsPath -> TestTree
+copySymbolicLinkDirException getTestDir = testCase desc $ do
+  testDir <- setupLinks getTestDir [osp|copySymbolicLinkDirException|]
+  let src = testDir </> [osp|dir|]
+      dest = testDir </> [osp|dest|]
+  try @_ @IOException (runEffPathWriter $ PW.copySymbolicLink src dest) >>= \case
+    Left _ -> pure ()
+    Right _ -> assertFailure "Exception IOException"
+  where
+    desc = "Exception for directory"
+
+copySymbolicLinkBadException :: IO OsPath -> TestTree
+copySymbolicLinkBadException getTestDir = testCase desc $ do
+  testDir <- setupLinks getTestDir [osp|copySymbolicLinkBadException|]
+  let src = testDir </> [osp|bad-path|]
+      dest = testDir </> [osp|dest|]
+  try @_ @IOException (runEffPathWriter $ PW.copySymbolicLink src dest) >>= \case
+    Left _ -> pure ()
+    Right _ -> assertFailure "Exception IOException"
+  where
+    desc = "Exception for file"
+
+-- NOTE: For removeExistsTests, we do not test all permutations. In particular,
+-- we do not test symlinks as "bad paths" for e.g. removeFileIfExists or
+-- removeDirIfExists because those functions are based on
+-- does(file|directory)Exist, and those return True based on the _target_
+-- for the link.
+--
+-- In other words, for an extant directory link, doesDirectoryExist will return
+-- true, yet removeDirectory will throw an exception.
+--
+-- doesFileExist / removeFile will work on Posix because Posix treats symlinks
+-- as files...but it wil fail on windows.
+--
+-- But we want to keep these functions as simple as possible i.e. the obvious
+-- doesXExist -> removeX. So we don't maintain any illusion that these
+-- functions are total for all possible path type inputs. Really you should
+-- only use them when you know the type of your potential path.
+
+removeExistsTests :: IO OsPath -> TestTree
+removeExistsTests getTestDir =
+  testGroup
+    "removeXIfExists"
+    [ removeFileIfExistsTrue getTestDir,
+      removeFileIfExistsFalseBad getTestDir,
+      removeFileIfExistsFalseWrongType getTestDir,
+      removeDirIfExistsTrue getTestDir,
+      removeDirIfExistsFalseBad getTestDir,
+      removeDirIfExistsFalseWrongType getTestDir,
+      removeSymlinkIfExistsTrue getTestDir,
+      removeSymlinkIfExistsFalseBad getTestDir,
+      removeSymlinkIfExistsFalseWrongType getTestDir
+    ]
+
+removeFileIfExistsTrue :: IO OsPath -> TestTree
+removeFileIfExistsTrue getTestDir = testCase desc $ do
+  testDir <- setupLinks getTestDir [osp|removeFileIfExistsTrue|]
+  let file = testDir </> [osp|file|]
+  assertFilesExist [file]
+
+  runEffPathWriter $ PW.removeFileIfExists file
+
+  assertFilesDoNotExist [file]
+  where
+    desc = "removeFileIfExists removes file"
+
+removeFileIfExistsFalseBad :: IO OsPath -> TestTree
+removeFileIfExistsFalseBad getTestDir = testCase desc $ do
+  testDir <- setupLinks getTestDir [osp|removeFileIfExistsFalseBad|]
+  let file = testDir </> [osp|bad-path|]
+  assertFilesDoNotExist [file]
+
+  runEffPathWriter $ PW.removeFileIfExists file
+
+  assertFilesDoNotExist [file]
+  where
+    desc = "removeFileIfExists does nothing for bad path"
+
+removeFileIfExistsFalseWrongType :: IO OsPath -> TestTree
+removeFileIfExistsFalseWrongType getTestDir = testCase desc $ do
+  testDir <- setupLinks getTestDir [osp|removeFileIfExistsFalseWrongType|]
+  let dir = testDir </> [osp|dir|]
+
+  assertDirsExist [dir]
+
+  runEffPathWriter $ PW.removeFileIfExists dir
+
+  assertDirsExist [dir]
+  where
+    desc = "removeFileIfExists does nothing for wrong file types"
+
+removeDirIfExistsTrue :: IO OsPath -> TestTree
+removeDirIfExistsTrue getTestDir = testCase desc $ do
+  testDir <- setupLinks getTestDir [osp|removeDirIfExistsTrue|]
+  let dir = testDir </> [osp|dir|]
+  assertDirsExist [dir]
+
+  runEffPathWriter $ PW.removeDirectoryIfExists dir
+
+  assertDirsDoNotExist [dir]
+  where
+    desc = "removeDirectoryIfExists removes dir"
+
+removeDirIfExistsFalseBad :: IO OsPath -> TestTree
+removeDirIfExistsFalseBad getTestDir = testCase desc $ do
+  testDir <- setupLinks getTestDir [osp|removeDirIfExistsFalseBad|]
+  let dir = testDir </> [osp|bad-path|]
+  assertDirsDoNotExist [dir]
+
+  runEffPathWriter $ PW.removeDirectoryIfExists dir
+
+  assertDirsDoNotExist [dir]
+  where
+    desc = "removeDirectoryIfExists does nothing for bad path"
+
+removeDirIfExistsFalseWrongType :: IO OsPath -> TestTree
+removeDirIfExistsFalseWrongType getTestDir = testCase desc $ do
+  testDir <- setupLinks getTestDir [osp|removeDirIfExistsFalseWrongType|]
+  let file = testDir </> [osp|file|]
+
+  assertFilesExist [file]
+
+  runEffPathWriter $ PW.removeDirectoryIfExists file
+
+  assertFilesExist [file]
+  where
+    desc = "removeDirectoryIfExists does nothing for wrong file types"
+
+removeSymlinkIfExistsTrue :: IO OsPath -> TestTree
+removeSymlinkIfExistsTrue getTestDir = testCase desc $ do
+  testDir <- setupLinks getTestDir [osp|removeSymlinkIfExistsTrue|]
+  let fileLink = testDir </> [osp|file-link|]
+      dirLink = testDir </> [osp|dir-link|]
+
+  assertSymlinksExist [fileLink, dirLink]
+
+  runEffPathWriter $ do
+    PW.removeSymbolicLinkIfExists fileLink
+    PW.removeSymbolicLinkIfExists dirLink
+
+  assertSymlinksDoNotExist [fileLink, dirLink]
+  where
+    desc = "removeSymbolicLinkIfExists removes links"
+
+removeSymlinkIfExistsFalseBad :: IO OsPath -> TestTree
+removeSymlinkIfExistsFalseBad getTestDir = testCase desc $ do
+  testDir <- setupLinks getTestDir [osp|removeSymlinkIfExistsFalseBad|]
+  let link = testDir </> [osp|bad-path|]
+  assertSymlinksDoNotExist [link]
+
+  runEffPathWriter $ PW.removeSymbolicLinkIfExists link
+
+  assertSymlinksDoNotExist [link]
+  where
+    desc = "removeSymbolicLinkIfExists does nothing for bad path"
+
+removeSymlinkIfExistsFalseWrongType :: IO OsPath -> TestTree
+removeSymlinkIfExistsFalseWrongType getTestDir = testCase desc $ do
+  testDir <- setupLinks getTestDir [osp|removeSymlinkIfExistsFalseWrongType|]
+  let file = testDir </> [osp|file|]
+      dir = testDir </> [osp|dir|]
+
+  assertFilesExist [file]
+  assertDirsExist [dir]
+
+  runEffPathWriter $ do
+    PW.removeSymbolicLinkIfExists file
+    PW.removeSymbolicLinkIfExists dir
+
+  assertFilesExist [file]
+  assertDirsExist [dir]
+  where
+    desc = "removeSymbolicLinkIfExists does nothing for wrong file types"
 
 -------------------------------------------------------------------------------
 --                                  Setup                                    --
@@ -675,12 +1054,12 @@ setupSrc = runEff . runFileWriterDynamicIO . runPathWriterDynamicIO . setupSrcEf
 
 setupSrcEff :: (FileWriterDynamic :> es, IOE :> es, PathWriterDynamic :> es) => OsPath -> Eff es OsPath
 setupSrcEff baseDir = do
-  let files = U.strToPath <$> ["a/b/c/f1", "a/f2", "a/b/f3", "a/f4", "a/f5", "a/b/f5"]
-      srcDir = baseDir </> U.strToPath "src"
+  let files = [[osp|a/b/c/f1|], [osp|a/f2|], [osp|a/b/f3|], [osp|a/f4|], [osp|a/f5|], [osp|a/b/f5|]]
+      srcDir = baseDir </> [osp|src|]
 
   -- create directories and files
-  createDirectoryIfMissing True (srcDir </> U.strToPath "a/b/c")
-  createDirectoryIfMissing True (srcDir </> U.strToPath "empty/d")
+  createDirectoryIfMissing True (srcDir </> [osp|a/b/c|])
+  createDirectoryIfMissing True (srcDir </> [osp|empty/d|])
 
   let baseFiles = zip files ["1", "2", "3", "4", "5", "6"]
       srcFiles = fmap (first (srcDir </>)) baseFiles
@@ -694,6 +1073,22 @@ writeFiles = traverse_ (uncurry writeBinaryFile)
 
 overwriteConfig :: Overwrite -> CopyDirConfig
 overwriteConfig ow = MkCopyDirConfig ow TargetNameSrc
+
+setupLinks :: IO OsPath -> OsPath -> IO OsPath
+setupLinks getTestDir suffix = do
+  testDir <- (\t -> t </> [osp|path-writer|] </> suffix) <$> getTestDir
+  let fileLink = testDir </> [osp|file-link|]
+      dirLink = testDir </> [osp|dir-link|]
+      file = testDir </> [osp|file|]
+      dir = testDir </> [osp|dir|]
+
+  runEffPathWriter $ do
+    PW.createDirectoryIfMissing True dir
+    FW.writeBinaryFile file ""
+    PW.createFileLink file fileLink
+    PW.createDirectoryLink dir dirLink
+
+  pure testDir
 
 -------------------------------------------------------------------------------
 --                                  Mock                                     --
@@ -734,38 +1129,38 @@ runPartialDynamicIO effs = do
 
 assertSrcExists :: OsPath -> IO ()
 assertSrcExists baseDir = do
-  let srcDir = baseDir </> U.strToPath "src"
+  let srcDir = baseDir </> [osp|src|]
   assertFilesExist $
-    (\s -> srcDir </> U.strToPath s)
-      <$> [ "a/b/c/f1",
-            "a/f2",
-            "a/b/f3",
-            "a/f4",
-            "a/f5",
-            "a/b/f5"
+    (srcDir </>)
+      <$> [ [osp|a/b/c/f1|],
+            [osp|a/f2|],
+            [osp|a/b/f3|],
+            [osp|a/f4|],
+            [osp|a/f5|],
+            [osp|a/b/f5|]
           ]
   assertDirsExist $
-    (\s -> srcDir </> U.strToPath s)
-      <$> [ "a/b/c",
-            "empty/d"
+    (srcDir </>)
+      <$> [ [osp|a/b/c|],
+            [osp|empty/d|]
           ]
 
 assertDestExists :: OsPath -> IO ()
 assertDestExists baseDir = do
-  let destDir = baseDir </> U.strToPath "dest"
+  let destDir = baseDir </> [osp|dest|]
   assertFilesExist $
-    (\s -> destDir </> U.strToPath s)
-      <$> [ "src/a/b/c/f1",
-            "src/a/f2",
-            "src/a/b/f3",
-            "src/a/f4",
-            "src/a/f5",
-            "src/a/b/f5"
+    (destDir </>)
+      <$> [ [osp|src/a/b/c/f1|],
+            [osp|src/a/f2|],
+            [osp|src/a/b/f3|],
+            [osp|src/a/f4|],
+            [osp|src/a/f5|],
+            [osp|src/a/b/f5|]
           ]
   assertDirsExist $
-    (\s -> destDir </> U.strToPath s)
-      <$> [ "src/a/b/c",
-            "src/empty/d"
+    (destDir </>)
+      <$> [ [osp|src/a/b/c|],
+            [osp|src/empty/d|]
           ]
 
 assertFilesExist :: [OsPath] -> IO ()
@@ -795,10 +1190,32 @@ assertDirsDoNotExist = traverse_ $ \p -> do
   exists <- runEffPathWriter $ doesDirectoryExist p
   assertBool ("Expected directory not to exist: " <> U.pathToStr p) (not exists)
 
-mkTestPath :: IO OsPath -> String -> IO OsPath
+assertSymlinksExist :: [OsPath] -> IO ()
+assertSymlinksExist = assertSymlinksExist' . fmap (,Nothing)
+
+assertSymlinksExistTarget :: [(OsPath, OsPath)] -> IO ()
+assertSymlinksExistTarget = assertSymlinksExist' . (fmap . fmap) Just
+
+assertSymlinksExist' :: [(OsPath, Maybe OsPath)] -> IO ()
+assertSymlinksExist' = traverse_ $ \(l, t) -> do
+  exists <- runEffPathWriter $ PR.doesSymbolicLinkExist l
+  assertBool ("Expected symlink to exist: " <> Utils.decodeOsToFpShow l) exists
+
+  case t of
+    Nothing -> pure ()
+    Just expectedTarget -> do
+      target <- runEffPathWriter $ PR.getSymbolicLinkTarget l
+      expectedTarget @=? target
+
+assertSymlinksDoNotExist :: [OsPath] -> IO ()
+assertSymlinksDoNotExist = traverse_ $ \l -> do
+  exists <- runEffPathWriter $ PR.doesSymbolicLinkExist l
+  assertBool ("Expected symlink not to exist: " <> Utils.decodeOsToFpShow l) (not exists)
+
+mkTestPath :: IO OsPath -> OsPath -> IO OsPath
 mkTestPath getPath s = do
   p <- getPath
-  pure $ p </> U.strToPath s
+  pure $ p </> s
 
 runEffPathWriter ::
   Eff

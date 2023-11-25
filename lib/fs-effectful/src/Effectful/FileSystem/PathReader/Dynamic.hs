@@ -5,6 +5,8 @@
 module Effectful.FileSystem.PathReader.Dynamic
   ( -- * Effect
     PathReaderDynamic (..),
+
+    -- ** Functions
     listDirectory,
     getDirectoryContents,
     getCurrentDirectory,
@@ -45,8 +47,26 @@ module Effectful.FileSystem.PathReader.Dynamic
     getXdgCache,
     getXdgState,
 
+    -- * Path Types
+    PathType (..),
+
+    -- ** Functions
+    PR.Utils.displayPathType,
+    getPathType,
+    isPathType,
+    throwIfWrongPathType,
+
+    -- ** Optics
+    PR.Utils._PathTypeFile,
+    PR.Utils._PathTypeDirectory,
+    PR.Utils._PathTypeSymbolicLink,
+
     -- * Misc
     listDirectoryRecursive,
+    listDirectoryRecursiveSymbolicLink,
+    doesSymbolicLinkExist,
+    pathIsSymbolicDirectoryLink,
+    pathIsSymbolicFileLink,
 
     -- * Re-exports
     OsPath,
@@ -57,6 +77,8 @@ module Effectful.FileSystem.PathReader.Dynamic
   )
 where
 
+import Control.Exception (IOException)
+import Control.Monad (unless)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Time (UTCTime (UTCTime, utctDay, utctDayTime))
 import Effectful
@@ -68,13 +90,25 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
+import Effectful.Exception (catch)
+import Effectful.FileSystem.PathReader.Utils
+  ( PathType
+      ( PathTypeDirectory,
+        PathTypeFile,
+        PathTypeSymbolicLink
+      ),
+  )
+import Effectful.FileSystem.PathReader.Utils qualified as PR.Utils
 import Effectful.FileSystem.Utils (OsPath, (</>))
+import Effectful.FileSystem.Utils qualified as Utils
+import GHC.IO.Exception (IOErrorType (InappropriateType))
 import System.Directory
   ( Permissions,
     XdgDirectory (XdgCache, XdgConfig, XdgData, XdgState),
     XdgDirectoryList (XdgConfigDirs, XdgDataDirs),
   )
 import System.Directory.OsPath qualified as Dir
+import System.IO.Error qualified as IO.Error
 import System.OsString (OsString)
 
 -- | Dynamic effect for reading paths.
@@ -482,6 +516,25 @@ getXdgState ::
   Eff es OsPath
 getXdgState = getXdgDirectory XdgState
 
+-- | Returns true if the path is a symbolic link. Does not traverse the link.
+--
+-- @since 0.1
+doesSymbolicLinkExist ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es Bool
+doesSymbolicLinkExist p =
+  -- pathIsSymbolicLink throws an exception if the path does not exist,
+  -- so we need to handle this. Note that the obvious alternative, prefacing
+  -- the call with doesPathExist does not work, as that operates on the link
+  -- target. doesFileExist also behaves this way.
+  --
+  -- TODO: We should probably use catchIOError here. Alas, we currently wrap
+  -- exceptions in a ExceptionCS, so we need to account for that.
+  -- Once the ExceptionCS machinery is removed, replace this with catchIOError.
+  pathIsSymbolicLink p `catch` \(_ :: IOException) -> pure False
+
 -- | Retrieves the recursive directory contents; splits the sub folders and
 -- directories apart.
 --
@@ -504,6 +557,29 @@ listDirectoryRecursive root = recurseDirs [emptyPath]
       pure (files ++ files', dirs ++ dirs')
     emptyPath = mempty
 
+-- | Like 'listDirectoryRecursive' except symbolic links are not traversed
+-- i.e. they are returned separately.
+--
+-- @since 0.1
+listDirectoryRecursiveSymbolicLink ::
+  forall es.
+  ( PathReaderDynamic :> es
+  ) =>
+  -- | Root path.
+  OsPath ->
+  -- | (files, directories, symbolic links)
+  Eff es ([OsPath], [OsPath], [OsPath])
+listDirectoryRecursiveSymbolicLink root = recurseDirs [emptyPath]
+  where
+    recurseDirs :: [OsPath] -> Eff es ([OsPath], [OsPath], [OsPath])
+    recurseDirs [] = pure ([], [], [])
+    recurseDirs (d : ds) = do
+      (files, dirs, symlinks) <-
+        splitPathsSymboliclink root d [] [] [] =<< listDirectory (root </> d)
+      (files', dirs', symlinks') <- recurseDirs (dirs ++ ds)
+      pure (files ++ files', dirs ++ dirs', symlinks ++ symlinks')
+    emptyPath = mempty
+
 splitPaths ::
   forall es.
   ( PathReaderDynamic :> es
@@ -524,3 +600,180 @@ splitPaths root d = go
       if isDir
         then go files (dirEntry : dirs) ps
         else go (dirEntry : files) dirs ps
+
+splitPathsSymboliclink ::
+  forall es.
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  OsPath ->
+  [OsPath] ->
+  [OsPath] ->
+  [OsPath] ->
+  [OsPath] ->
+  Eff es ([OsPath], [OsPath], [OsPath])
+splitPathsSymboliclink root d = go
+  where
+    go :: [OsPath] -> [OsPath] -> [OsPath] -> [OsPath] -> Eff es ([OsPath], [OsPath], [OsPath])
+    go files dirs symlinks [] = pure (reverse files, reverse dirs, symlinks)
+    go files dirs symlinks (p : ps) = do
+      let dirEntry = d </> p
+          fullPath = root </> dirEntry
+
+      isSymlink <- doesSymbolicLinkExist fullPath
+      if isSymlink
+        then go files dirs (dirEntry : symlinks) ps
+        else do
+          isDir <- doesDirectoryExist fullPath
+          if isDir
+            then go files (dirEntry : dirs) symlinks ps
+            else go (dirEntry : files) dirs symlinks ps
+
+-- | Like 'pathIsSymbolicDirectoryLink' but for files.
+--
+-- @since 0.1
+pathIsSymbolicFileLink ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es Bool
+pathIsSymbolicFileLink = pathIsSymbolicLinkType doesFileExist
+
+-- | Returns true if @p@ is a symbolic link and it points to an extant
+-- directory.
+--
+-- This function and 'pathIsSymbolicFileLink' are intended to distinguish file
+-- and directory links on Windows. This matters for knowing when to use:
+--
+--     - @createFileLink@ vs. @createDirectoryLink@
+--     - @removeFile@ vs. @removeDirectoryLink@
+--
+-- Suppose we want to copy an arbitrary path @p@. We first determine that
+-- @p@ is a symlink via 'doesSymbolicLinkExist'. If
+-- 'pathIsSymbolicDirectoryLink' returns true then we know we should use
+-- "Effects.FileSystem.PathWriter"'s @createDirectoryLink@. Otherwise we can
+-- fall back to @createFileLink@.
+--
+-- Because this relies on the symlink's target, this is best effort, and it is
+-- possible 'pathIsSymbolicDirectoryLink' and 'pathIsSymbolicFileLink' both
+-- return false.
+--
+-- Note that Posix makes no distinction between file and directory symbolic
+-- links. Thus if your system only has to work on Posix, you probably don't
+-- need this function.
+--
+-- @since 0.1
+pathIsSymbolicDirectoryLink ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es Bool
+pathIsSymbolicDirectoryLink = pathIsSymbolicLinkType doesDirectoryExist
+
+pathIsSymbolicLinkType ::
+  ( PathReaderDynamic :> es
+  ) =>
+  (OsPath -> Eff es Bool) ->
+  OsPath ->
+  Eff es Bool
+pathIsSymbolicLinkType predicate p = do
+  isSymLink <- doesSymbolicLinkExist p
+  if not isSymLink
+    then pure False
+    else do
+      mtarget <-
+        (Just <$> getSymbolicLinkTarget p)
+          -- TODO: Switch to catchIOError once ExceptionCS is gone.
+          `catch` \(_ :: IOException) -> pure Nothing
+
+      case mtarget of
+        Nothing -> pure False
+        Just target -> predicate target
+
+-- | Throws 'IOException' if the path does not exist or the expected path type
+-- does not match actual.
+--
+-- @since 0.1
+throwIfWrongPathType ::
+  ( PathReaderDynamic :> es
+  ) =>
+  -- | The location for the thrown exception (e.g. function name)
+  String ->
+  -- | Expected path type
+  PathType ->
+  -- | Path
+  OsPath ->
+  Eff es ()
+throwIfWrongPathType location expected path = do
+  actual <- getPathType path
+
+  let err =
+        mconcat
+          [ "Expected path '",
+            Utils.decodeOsToFpShow path,
+            "' to have type ",
+            PR.Utils.displayPathType expected,
+            ", but detected ",
+            PR.Utils.displayPathType actual
+          ]
+
+  unless (expected == actual) $
+    Utils.throwIOError
+      path
+      location
+      InappropriateType
+      err
+
+-- | Checks that the path type matches the expectation. Throws
+-- 'IOException' if the path does not exist or the type cannot be detected.
+--
+-- @since 0.1
+isPathType ::
+  ( PathReaderDynamic :> es
+  ) =>
+  -- | Expected path type.
+  PathType ->
+  -- Path.
+  OsPath ->
+  Eff es Bool
+isPathType expected = fmap (== expected) . getPathType
+
+-- | Returns the type for a given path without following symlinks.
+-- Throws 'IOException' if the path does not exist or the type cannot be
+-- detected.
+--
+-- @since 0.1
+getPathType ::
+  ( PathReaderDynamic :> es
+  ) =>
+  OsPath ->
+  Eff es PathType
+getPathType path = do
+  -- This needs to be first as does(Directory|File|Path)Exist acts on the target.
+  symlinkExists <- doesSymbolicLinkExist path
+  if symlinkExists
+    then pure PathTypeSymbolicLink
+    else do
+      dirExists <- doesDirectoryExist path
+      if dirExists
+        then pure PathTypeDirectory
+        else do
+          fileExists <- doesFileExist path
+          if fileExists
+            then pure PathTypeFile
+            else do
+              let loc = "getPathType"
+              pathExists <- doesPathExist path
+              if pathExists
+                then
+                  Utils.throwIOError
+                    path
+                    loc
+                    InappropriateType
+                    "path exists but has unknown type"
+                else
+                  Utils.throwIOError
+                    path
+                    loc
+                    IO.Error.doesNotExistErrorType
+                    "path does not exist"

@@ -64,6 +64,7 @@ library
     Effectful.FileSystem.HandleWriter.Static
     Effectful.FileSystem.PathReader.Dynamic
     Effectful.FileSystem.PathReader.Static
+    Effectful.FileSystem.PathReader.Utils
     Effectful.FileSystem.PathWriter.Dynamic
     Effectful.FileSystem.PathWriter.Static
     Effectful.FileSystem.PathWriter.Utils

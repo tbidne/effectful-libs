@@ -1,6 +1,7 @@
+{-# LANGUAGE QuasiQuotes #-}
+
 module Unit.PathReader (tests) where
 
-import Control.Monad (zipWithM_)
 import Data.List qualified as L
 import Effectful (Eff, IOE, runEff)
 import Effectful.FileSystem.PathReader.Dynamic
@@ -8,46 +9,121 @@ import Effectful.FileSystem.PathReader.Dynamic
     runPathReaderDynamicIO,
   )
 import Effectful.FileSystem.PathReader.Dynamic qualified as PathReader
-import System.FilePath ((</>))
+import Effectful.FileSystem.Utils (osp, (</>))
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase, (@=?))
-import TestUtils qualified as U
 
 tests :: TestTree
 tests =
   testGroup
     "PathReader"
-    [ testListDirectoryRecursive
+    [ testListDirectoryRecursive,
+      testListDirectoryRecursiveSymlinkTargets,
+      testListDirectoryRecursiveSymbolicLink
     ]
 
 testListDirectoryRecursive :: TestTree
 testListDirectoryRecursive = testCase "Recursively lists sub-files/dirs" $ do
   (files, dirs) <-
-    runEffPathReader $
-      PathReader.listDirectoryRecursive (U.strToPath "./src")
+    runEffPathReader $ PathReader.listDirectoryRecursive [osp|src|]
   let (files', dirs') = (L.sort files, L.sort dirs)
-  zipWithM_ (@=?) expectedFiles (U.pathToStr <$> files')
-  zipWithM_ (@=?) expectedDirs (U.pathToStr <$> dirs')
+  expectedFiles @=? files'
+  expectedDirs @=? dirs'
   where
     expectedFiles =
-      [ "Effectful" </> "FileSystem" </> "FileReader" </> "Dynamic.hs",
-        "Effectful" </> "FileSystem" </> "FileReader" </> "Static.hs",
-        "Effectful" </> "FileSystem" </> "FileWriter" </> "Dynamic.hs",
-        "Effectful" </> "FileSystem" </> "FileWriter" </> "Static.hs",
-        "Effectful" </> "FileSystem" </> "HandleReader" </> "Dynamic.hs",
-        "Effectful" </> "FileSystem" </> "HandleReader" </> "Static.hs",
-        "Effectful" </> "FileSystem" </> "HandleWriter" </> "Dynamic.hs",
-        "Effectful" </> "FileSystem" </> "HandleWriter" </> "Static.hs",
-        "Effectful" </> "FileSystem" </> "PathReader" </> "Dynamic.hs",
-        "Effectful" </> "FileSystem" </> "PathReader" </> "Static.hs",
-        "Effectful" </> "FileSystem" </> "PathWriter" </> "Dynamic.hs",
-        "Effectful" </> "FileSystem" </> "PathWriter" </> "Static.hs",
-        "Effectful" </> "FileSystem" </> "PathWriter" </> "Utils.hs",
-        "Effectful" </> "FileSystem" </> "Utils.hs"
+      [ [osp|Effectful|] </> [osp|FileSystem|] </> [osp|FileReader|] </> [osp|Dynamic.hs|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|FileReader|] </> [osp|Static.hs|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|FileWriter|] </> [osp|Dynamic.hs|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|FileWriter|] </> [osp|Static.hs|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleReader|] </> [osp|Dynamic.hs|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleReader|] </> [osp|Static.hs|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleWriter|] </> [osp|Dynamic.hs|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleWriter|] </> [osp|Static.hs|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathReader|] </> [osp|Dynamic.hs|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathReader|] </> [osp|Static.hs|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathReader|] </> [osp|Utils.hs|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathWriter|] </> [osp|Dynamic.hs|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathWriter|] </> [osp|Static.hs|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathWriter|] </> [osp|Utils.hs|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|Utils.hs|]
       ]
     expectedDirs =
-      [ "Effectful",
-        "Effectful" </> "FileSystem"
+      [ [osp|Effectful|],
+        [osp|Effectful|] </> [osp|FileSystem|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|FileReader|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|FileWriter|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleReader|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleWriter|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathReader|],
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathWriter|]
+      ]
+
+testListDirectoryRecursiveSymlinkTargets :: TestTree
+testListDirectoryRecursiveSymlinkTargets = testCase desc $ do
+  (files, dirs) <-
+    runEffPathReader $ PathReader.listDirectoryRecursive dataDir
+  let (files', dirs') = (L.sort files, L.sort dirs)
+
+  expectedFiles @=? files'
+  expectedDirs @=? dirs'
+  where
+    desc = "Symlinks are categorized via targets"
+    dataDir = [osp|test|] </> [osp|data|]
+    expectedFiles =
+      [ [osp|.hidden|] </> [osp|f1|],
+        [osp|bar|],
+        [osp|baz|],
+        [osp|dir1|] </> [osp|f|],
+        [osp|dir2|] </> [osp|f|],
+        [osp|dir3|] </> [osp|dir3.1|] </> [osp|f|],
+        [osp|dir3|] </> [osp|f|],
+        [osp|foo|],
+        [osp|l1|],
+        [osp|l2|] </> [osp|f|],
+        [osp|l3|]
+      ]
+    expectedDirs =
+      [ [osp|.hidden|],
+        [osp|dir1|],
+        [osp|dir2|],
+        [osp|dir3|],
+        [osp|dir3|] </> [osp|dir3.1|],
+        [osp|l2|]
+      ]
+
+testListDirectoryRecursiveSymbolicLink :: TestTree
+testListDirectoryRecursiveSymbolicLink = testCase desc $ do
+  (files, dirs, symlinks) <-
+    runEffPathReader $ PathReader.listDirectoryRecursiveSymbolicLink dataDir
+  let (files', dirs', symlinks') = (L.sort files, L.sort dirs, L.sort symlinks)
+
+  expectedFiles @=? files'
+  expectedDirs @=? dirs'
+  expectedSymlinks @=? symlinks'
+  where
+    desc = "Recursively lists sub-files/dirs/symlinks"
+    dataDir = [osp|test|] </> [osp|data|]
+    expectedFiles =
+      [ [osp|.hidden|] </> [osp|f1|],
+        [osp|bar|],
+        [osp|baz|],
+        [osp|dir1|] </> [osp|f|],
+        [osp|dir2|] </> [osp|f|],
+        [osp|dir3|] </> [osp|dir3.1|] </> [osp|f|],
+        [osp|dir3|] </> [osp|f|],
+        [osp|foo|]
+      ]
+    expectedDirs =
+      [ [osp|.hidden|],
+        [osp|dir1|],
+        [osp|dir2|],
+        [osp|dir3|],
+        [osp|dir3|] </> [osp|dir3.1|]
+      ]
+    expectedSymlinks =
+      [ [osp|l1|],
+        [osp|l2|],
+        [osp|l3|]
       ]
 
 runEffPathReader :: Eff '[PathReaderDynamic, IOE] a -> IO a

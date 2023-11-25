@@ -1,3 +1,5 @@
+{-# LANGUAGE QuasiQuotes #-}
+
 module Main (main) where
 
 import Effectful (Eff, IOE, runEff)
@@ -13,7 +15,7 @@ import Effectful.FileSystem.PathWriter.Dynamic
     removePathForcibly,
     runPathWriterDynamicIO,
   )
-import Effectful.FileSystem.Utils (OsPath, (</>))
+import Effectful.FileSystem.Utils (OsPath, osp, (</>))
 import System.Environment.Guard (ExpectEnv (ExpectEnvSet), guardOrElse')
 import Test.Tasty (defaultMain, testGroup, withResource)
 import TestUtils qualified as U
@@ -33,14 +35,12 @@ main =
         ]
 
 setup :: IO OsPath
-setup = do
+setup = runPathDynamicIO $ do
   tmpDir <-
-    (\s -> s </> U.strToPath "fs-effectful" </> U.strToPath "unit")
-      <$> runPathDynamicIO getTemporaryDirectory
-
-  runPathDynamicIO $ do
-    removeDirectoryRecursiveIfExists tmpDir
-    createDirectoryIfMissing True tmpDir
+    (\s -> s </> [osp|fs-effectful|] </> [osp|unit|])
+      <$> getTemporaryDirectory
+  removeDirectoryRecursiveIfExists tmpDir
+  createDirectoryIfMissing True tmpDir
   pure tmpDir
 
 teardown :: OsPath -> IO ()
