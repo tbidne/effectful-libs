@@ -9,7 +9,6 @@
 module Effectful.Terminal.Dynamic
   ( -- * Effect
     TerminalDynamic (..),
-    TermSizeException (..),
     putStr,
     putStrLn,
     putBinary,
@@ -61,8 +60,17 @@ import Effectful
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
 import Effectful.Exception (throwM)
-import Effectful.Terminal.TermSizeException
-  ( TermSizeException (MkTermSizeException),
+import GHC.IO.Exception
+  ( IOErrorType (SystemError),
+    IOException
+      ( IOError,
+        ioe_description,
+        ioe_errno,
+        ioe_filename,
+        ioe_handle,
+        ioe_location,
+        ioe_type
+      ),
   )
 import System.Console.Terminal.Size (Window (Window, height, width), size)
 import System.IO qualified as IO
@@ -114,7 +122,16 @@ runTerminalDynamicIO = interpret $ \_ -> \case
   GetTerminalSize ->
     liftIO size >>= \case
       Just h -> pure h
-      Nothing -> throwM MkTermSizeException
+      Nothing ->
+        throwM
+          $ IOError
+            { ioe_handle = Nothing,
+              ioe_type = SystemError,
+              ioe_location = "getTerminalSize",
+              ioe_description = "Failed to detect the terminal size",
+              ioe_errno = Nothing,
+              ioe_filename = Nothing
+            }
 
 {- ORMOLU_ENABLE -}
 

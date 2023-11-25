@@ -1,6 +1,8 @@
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
+{- ORMOLU_DISABLE -}
+
 -- | Static effects for "System.Environment". The primary interface exists at:
 -- https://hackage.haskell.org/package/effectful-2.2.2.0/docs/Effectful-Environment.html.
 --
@@ -36,6 +38,8 @@ module Effectful.Environment.Static
     QueryExePath (..),
   )
 where
+
+{- ORMOLU_ENABLE -}
 
 #if MIN_VERSION_base(4,17,0)
 import Effectful (Eff, type (:>))
