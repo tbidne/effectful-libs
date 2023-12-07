@@ -119,7 +119,6 @@ import System.Directory
   )
 import System.Directory.OsPath qualified as Dir
 import System.IO.Error qualified as IO.Error
-import System.OsString (OsString)
 
 -- | Static effect for reading paths.
 --
@@ -318,7 +317,7 @@ doesDirectoryExist = unsafeEff_ . Dir.doesDirectoryExist
 findExecutable ::
   ( PathReaderStatic :> es
   ) =>
-  OsString ->
+  OsPath ->
   Eff es (Maybe OsPath)
 findExecutable = unsafeEff_ . Dir.findExecutable
 
@@ -328,7 +327,7 @@ findExecutable = unsafeEff_ . Dir.findExecutable
 findExecutables ::
   ( PathReaderStatic :> es
   ) =>
-  OsString ->
+  OsPath ->
   Eff es [OsPath]
 findExecutables = unsafeEff_ . Dir.findExecutables
 
@@ -339,7 +338,7 @@ findExecutablesInDirectories ::
   ( PathReaderStatic :> es
   ) =>
   [OsPath] ->
-  OsString ->
+  OsPath ->
   Eff es [OsPath]
 findExecutablesInDirectories ps =
   unsafeEff_ . Dir.findExecutablesInDirectories ps
@@ -352,7 +351,7 @@ findFileWith ::
   ) =>
   (OsPath -> Eff es Bool) ->
   [OsPath] ->
-  OsString ->
+  OsPath ->
   Eff es (Maybe OsPath)
 findFileWith f ps s =
   unsafeEff $ \env -> seqUnliftIO env $
@@ -366,7 +365,7 @@ findFilesWith ::
   ) =>
   (OsPath -> Eff es Bool) ->
   [OsPath] ->
-  OsString ->
+  OsPath ->
   Eff es [OsPath]
 findFilesWith f ps s =
   unsafeEff $ \env -> seqUnliftIO env $

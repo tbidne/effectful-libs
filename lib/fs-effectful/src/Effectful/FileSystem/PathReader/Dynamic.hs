@@ -109,7 +109,6 @@ import System.Directory
   )
 import System.Directory.OsPath qualified as Dir
 import System.IO.Error qualified as IO.Error
-import System.OsString (OsString)
 
 -- | Dynamic effect for reading paths.
 --
@@ -131,21 +130,21 @@ data PathReaderDynamic :: Effect where
   DoesPathExist :: OsPath -> PathReaderDynamic m Bool
   DoesFileExist :: OsPath -> PathReaderDynamic m Bool
   DoesDirectoryExist :: OsPath -> PathReaderDynamic m Bool
-  FindExecutable :: OsString -> PathReaderDynamic m (Maybe OsPath)
-  FindExecutables :: OsString -> PathReaderDynamic m [OsPath]
+  FindExecutable :: OsPath -> PathReaderDynamic m (Maybe OsPath)
+  FindExecutables :: OsPath -> PathReaderDynamic m [OsPath]
   FindExecutablesInDirectories ::
     [OsPath] ->
-    OsString ->
+    OsPath ->
     PathReaderDynamic m [OsPath]
   FindFileWith ::
     (OsPath -> m Bool) ->
     [OsPath] ->
-    OsString ->
+    OsPath ->
     PathReaderDynamic m (Maybe OsPath)
   FindFilesWith ::
     (OsPath -> m Bool) ->
     [OsPath] ->
-    OsString ->
+    OsPath ->
     PathReaderDynamic m [OsPath]
   PathIsSymbolicLink :: OsPath -> PathReaderDynamic m Bool
   GetSymbolicLinkTarget :: OsPath -> PathReaderDynamic m OsPath
@@ -377,7 +376,7 @@ doesDirectoryExist = send . DoesDirectoryExist
 findExecutable ::
   ( PathReaderDynamic :> es
   ) =>
-  OsString ->
+  OsPath ->
   Eff es (Maybe OsPath)
 findExecutable = send . FindExecutable
 
@@ -387,7 +386,7 @@ findExecutable = send . FindExecutable
 findExecutables ::
   ( PathReaderDynamic :> es
   ) =>
-  OsString ->
+  OsPath ->
   Eff es [OsPath]
 findExecutables = send . FindExecutables
 
@@ -398,7 +397,7 @@ findExecutablesInDirectories ::
   ( PathReaderDynamic :> es
   ) =>
   [OsPath] ->
-  OsString ->
+  OsPath ->
   Eff es [OsPath]
 findExecutablesInDirectories ps = send . FindExecutablesInDirectories ps
 
@@ -410,7 +409,7 @@ findFileWith ::
   ) =>
   (OsPath -> Eff es Bool) ->
   [OsPath] ->
-  OsString ->
+  OsPath ->
   Eff es (Maybe OsPath)
 findFileWith f ps = send . FindFileWith f ps
 
@@ -422,7 +421,7 @@ findFilesWith ::
   ) =>
   (OsPath -> Eff es Bool) ->
   [OsPath] ->
-  OsString ->
+  OsPath ->
   Eff es [OsPath]
 findFilesWith f ps = send . FindFilesWith f ps
 
