@@ -18,6 +18,7 @@ module Effectful.Terminal.Dynamic
     getContents',
 #endif
     getTerminalSize,
+    supportsPretty,
 
     -- ** Handlers
     runTerminalDynamicIO,
@@ -72,10 +73,12 @@ import GHC.IO.Exception
         ioe_type
       ),
   )
+import System.Console.Pretty qualified as CPretty
 import System.Console.Terminal.Size (Window (Window, height, width), size)
 import System.IO qualified as IO
 import Prelude
   ( Applicative (pure),
+    Bool,
     Char,
     Integral,
     Maybe (Just, Nothing),
@@ -102,6 +105,7 @@ data TerminalDynamic :: Effect where
   GetContents' :: TerminalDynamic m String
 #endif
   GetTerminalSize :: Integral a => TerminalDynamic m (Window a)
+  SupportsPretty :: TerminalDynamic m Bool
 
 -- | @since 0.1
 type instance DispatchOf TerminalDynamic = Dynamic
@@ -132,6 +136,7 @@ runTerminalDynamicIO = interpret $ \_ -> \case
               ioe_errno = Nothing,
               ioe_filename = Nothing
             }
+  SupportsPretty -> liftIO CPretty.supportsPretty
 
 {- ORMOLU_ENABLE -}
 
@@ -175,9 +180,17 @@ getContents' = send GetContents'
 
 #endif
 
--- | @since 0.1
+-- | Retrieves the terminal size.
+--
+-- @since 0.1
 getTerminalSize :: (Integral a, TerminalDynamic :> es) => Eff es (Window a)
 getTerminalSize = send GetTerminalSize
+
+-- | Determines if we support ANSI styling.
+--
+-- @since 0.1
+supportsPretty :: (TerminalDynamic :> es) => Eff es Bool
+supportsPretty = send SupportsPretty
 
 -- | @since 0.1
 print :: (Show a, TerminalDynamic :> es) => a -> Eff es ()

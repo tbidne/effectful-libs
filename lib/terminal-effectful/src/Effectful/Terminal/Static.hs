@@ -19,6 +19,7 @@ module Effectful.Terminal.Static
     getContents',
 #endif
     getTerminalSize,
+    supportsPretty,
 
     -- ** Handlers
     runTerminalStaticIO,
@@ -46,7 +47,6 @@ where
 
 {- ORMOLU_ENABLE -}
 
-import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Text (Text)
@@ -78,10 +78,12 @@ import GHC.IO.Exception
         ioe_type
       ),
   )
+import System.Console.Pretty qualified as CPretty
 import System.Console.Terminal.Size (Window (Window, height, width), size)
 import System.IO qualified as IO
 import Prelude
   ( Applicative (pure),
+    Bool,
     Char,
     Integral,
     Maybe (Just, Nothing),
@@ -154,7 +156,7 @@ getContents' = unsafeEff_ IO.getContents'
 getTerminalSize :: (Integral a, TerminalStatic :> es) => Eff es (Window a)
 getTerminalSize =
   unsafeEff_ $
-    liftIO size >>= \case
+    size >>= \case
       Just h -> pure h
       Nothing ->
         throwM $
@@ -166,6 +168,12 @@ getTerminalSize =
               ioe_errno = Nothing,
               ioe_filename = Nothing
             }
+
+-- | Determines if we support ANSI styling.
+--
+-- @since 0.1
+supportsPretty :: (TerminalStatic :> es) => Eff es Bool
+supportsPretty = unsafeEff_ CPretty.supportsPretty
 
 -- | @since 0.1
 print :: (Show a, TerminalStatic :> es) => a -> Eff es ()
