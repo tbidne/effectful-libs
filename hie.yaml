@@ -27,6 +27,9 @@ cradle:
     - path: "./lib/logger-effectful/src"
       component: "lib:logger-effectful"
 
+    - path: "./lib/logger-effectful/test/unit"
+      component: "logger-effectful:test:unit"
+
     - path: "./lib/logger-ns-effectful/src"
       component: "lib:logger-ns-effectful"
 

@@ -44,6 +44,9 @@ jobs:
       - name: Test fs-effectful
         run: cabal test fs-effectful --test-options '--hedgehog-tests 100000'
 
+      - name: Test logger-effectful
+        run: cabal test logger-effectful --test-options '--hedgehog-tests 100000'
+
       - name: Test logger-ns-effectful
         run: cabal test logger-ns-effectful
 

@@ -20,49 +20,61 @@ module Effectful.Logger.Dynamic
     fromLogStr,
 
     -- * TH logging
+    logTrace,
     logDebug,
     logInfo,
     logWarn,
     logError,
+    logFatal,
     logOther,
 
     -- * TH logging of showable values
+    logTraceSH,
     logDebugSH,
     logInfoSH,
     logWarnSH,
     logErrorSH,
+    logFatalSH,
     logOtherSH,
 
     -- * TH logging with source
+    logTraceS,
     logDebugS,
     logInfoS,
     logWarnS,
     logErrorS,
+    logFatalS,
     logOtherS,
 
     -- * TH util
     liftLoc,
 
     -- * Non-TH logging
+    logTraceN,
     logDebugN,
     logInfoN,
     logWarnN,
     logErrorN,
+    logFatalN,
     logOtherN,
 
     -- * Non-TH logging with source
     logWithoutLoc,
+    logTraceNS,
     logDebugNS,
     logInfoNS,
     logWarnNS,
     logErrorNS,
+    logFatalNS,
     logOtherNS,
 
     -- * Callstack logging
+    logTraceCS,
     logDebugCS,
     logInfoCS,
     logWarnCS,
     logErrorCS,
+    logFatalCS,
     logOtherCS,
 
     -- * utilities for defining your own loggers
@@ -70,10 +82,24 @@ module Effectful.Logger.Dynamic
     Loc (..),
     defaultLoc,
     defaultOutput,
+
+    -- * Level checks
+    guardLevel,
+    shouldLog,
+
+    -- * Optics
+    _LevelTrace,
+    _LevelInfo,
+    _LevelDebug,
+    _LevelWarn,
+    _LevelError,
+    _LevelOther,
+    _LevelFatal,
   )
 where
 
 import Control.DeepSeq (NFData)
+import Control.Monad (when)
 import Data.ByteString (ByteString)
 import Data.ByteString.Char8 qualified as S8
 import Data.Text (Text, pack, unpack)
@@ -114,6 +140,8 @@ import Language.Haskell.TH.Syntax
     Q,
     qLocation,
   )
+import Optics.Core (Prism')
+import Optics.Prism (prism)
 import System.IO (Handle)
 import System.Log.FastLogger (LogStr, ToLogStr (toLogStr), fromLogStr)
 
@@ -150,6 +178,8 @@ loggerLog loc src lvl = send . LoggerLog loc src lvl
 -- | @since 0.1
 data LogLevel
   = -- | @since 0.1
+    LevelTrace
+  | -- | @since 0.1
     LevelDebug
   | -- | @since 0.1
     LevelInfo
@@ -157,6 +187,8 @@ data LogLevel
     LevelWarn
   | -- | @since 0.1
     LevelError
+  | -- | @since 0.1
+    LevelFatal
   | -- | @since 0.1
     LevelOther Text
   deriving stock
@@ -181,16 +213,20 @@ type LogSource = Text
 
 -- | @since 0.1
 instance Lift LogLevel where
+  lift LevelTrace = [|LevelTrace|]
   lift LevelDebug = [|LevelDebug|]
   lift LevelInfo = [|LevelInfo|]
   lift LevelWarn = [|LevelWarn|]
   lift LevelError = [|LevelError|]
+  lift LevelFatal = [|LevelFatal|]
   lift (LevelOther x) = [|LevelOther $ pack $(lift $ unpack x)|]
 
+  liftTyped LevelTrace = [||LevelTrace||]
   liftTyped LevelDebug = [||LevelDebug||]
   liftTyped LevelInfo = [||LevelInfo||]
   liftTyped LevelWarn = [||LevelWarn||]
   liftTyped LevelError = [||LevelError||]
+  liftTyped LevelFatal = [||LevelFatal||]
   liftTyped (LevelOther x) = [||LevelOther $ pack $$(liftTyped $ unpack x)||]
 
 -- | @since 0.1
@@ -210,6 +246,12 @@ logTHShow level =
     loggerLog $(qLocation >>= liftLoc) (pack "") $(lift level)
       . ((pack . show) :: (Show a) => a -> Text)
     |]
+
+-- | See 'logDebug'
+--
+-- @since 0.1
+logTrace :: Q Exp
+logTrace = logTH LevelTrace
 
 -- | Generates a function that takes a 'Text' and logs a 'LevelDebug' message.
 -- Usage:
@@ -238,6 +280,12 @@ logWarn = logTH LevelWarn
 logError :: Q Exp
 logError = logTH LevelError
 
+-- | See 'logDebug'
+--
+-- @since 0.1
+logFatal :: Q Exp
+logFatal = logTH LevelFatal
+
 -- | Generates a function that takes a 'Text' and logs a 'LevelOther' message.
 -- Usage:
 --
@@ -246,6 +294,12 @@ logError = logTH LevelError
 -- @since 0.1
 logOther :: Text -> Q Exp
 logOther = logTH . LevelOther
+
+-- | See 'logDebugSH'
+--
+-- @since 0.1
+logTraceSH :: Q Exp
+logTraceSH = logTHShow LevelTrace
 
 -- | Generates a function that takes a 'Show a => a' and logs a 'LevelDebug'
 -- message. Usage:
@@ -274,6 +328,12 @@ logWarnSH = logTHShow LevelWarn
 logErrorSH :: Q Exp
 logErrorSH = logTHShow LevelError
 
+-- | See 'logDebugSH'
+--
+-- @since 0.1
+logFatalSH :: Q Exp
+logFatalSH = logTHShow LevelFatal
+
 -- | Generates a function that takes a 'Show a => a' and logs a 'LevelOther'
 -- message. Usage:
 --
@@ -296,6 +356,13 @@ liftLoc (Loc a b c (d1, d2) (e1, e2)) =
       ($(lift d1), $(lift d2))
       ($(lift e1), $(lift e2))
     |]
+
+-- | See 'logDebugS'
+--
+-- @since 0.1
+logTraceS :: Q Exp
+logTraceS =
+  [|\a b -> loggerLog $(qLocation >>= liftLoc) a LevelTrace (b :: Text)|]
 
 -- | Generates a function that takes a 'LogSource' and 'Text' and logs a
 -- 'LevelDebug' message. Usage:
@@ -327,6 +394,13 @@ logWarnS =
 logErrorS :: Q Exp
 logErrorS =
   [|\a b -> loggerLog $(qLocation >>= liftLoc) a LevelError (b :: Text)|]
+
+-- | See 'logDebugS'
+--
+-- @since 0.1
+logFatalS :: Q Exp
+logFatalS =
+  [|\a b -> loggerLog $(qLocation >>= liftLoc) a LevelFatal (b :: Text)|]
 
 -- | Generates a function that takes a 'LogSource', a level name and a 'Text'
 -- and logs a 'LevelOther' message. Usage:
@@ -451,6 +525,10 @@ logWithoutLoc ::
 logWithoutLoc = loggerLog defaultLoc
 
 -- | @since 0.1
+logTraceN :: (LoggerDynamic :> es) => Text -> Eff es ()
+logTraceN = logWithoutLoc "" LevelTrace
+
+-- | @since 0.1
 logDebugN :: (LoggerDynamic :> es) => Text -> Eff es ()
 logDebugN = logWithoutLoc "" LevelDebug
 
@@ -467,8 +545,16 @@ logErrorN :: (LoggerDynamic :> es) => Text -> Eff es ()
 logErrorN = logWithoutLoc "" LevelError
 
 -- | @since 0.1
+logFatalN :: (LoggerDynamic :> es) => Text -> Eff es ()
+logFatalN = logWithoutLoc "" LevelFatal
+
+-- | @since 0.1
 logOtherN :: (LoggerDynamic :> es) => LogLevel -> Text -> Eff es ()
 logOtherN = logWithoutLoc ""
+
+-- | @since 0.1
+logTraceNS :: (LoggerDynamic :> es) => LogSource -> Text -> Eff es ()
+logTraceNS src = logWithoutLoc src LevelTrace
 
 -- | @since 0.1
 logDebugNS :: (LoggerDynamic :> es) => LogSource -> Text -> Eff es ()
@@ -485,6 +571,10 @@ logWarnNS src = logWithoutLoc src LevelWarn
 -- | @since 0.1
 logErrorNS :: (LoggerDynamic :> es) => LogSource -> Text -> Eff es ()
 logErrorNS src = logWithoutLoc src LevelError
+
+-- | @since 0.1
+logFatalNS :: (LoggerDynamic :> es) => LogSource -> Text -> Eff es ()
+logFatalNS src = logWithoutLoc src LevelFatal
 
 -- | @since 0.1
 logOtherNS ::
@@ -528,6 +618,12 @@ logCS ::
   Eff es ()
 logCS cs = loggerLog (locFromCS cs)
 
+-- | See 'logDebugCS'
+--
+-- @since 0.1
+logTraceCS :: (LoggerDynamic :> es) => CallStack -> Text -> Eff es ()
+logTraceCS cs = logCS cs "" LevelTrace
+
 -- | Logs a message with location given by 'CallStack'.
 -- See 'Control.Monad.Logger.CallStack' for more convenient
 -- functions for 'CallStack' based logging.
@@ -557,6 +653,12 @@ logErrorCS cs = logCS cs "" LevelError
 -- | See 'logDebugCS'
 --
 -- @since 0.1
+logFatalCS :: (LoggerDynamic :> es) => CallStack -> Text -> Eff es ()
+logFatalCS cs = logCS cs "" LevelFatal
+
+-- | See 'logDebugCS'
+--
+-- @since 0.1
 logOtherCS ::
   (LoggerDynamic :> es) =>
   CallStack ->
@@ -564,3 +666,121 @@ logOtherCS ::
   Text ->
   Eff es ()
 logOtherCS cs = logCS cs ""
+
+-- | @guardLevel configLvl lvl m@ runs @m@ iff @'shouldLog' configLvl lvl@.
+--
+-- @since 0.1
+guardLevel ::
+  (Applicative f) =>
+  -- | The configured log level to check against.
+  LogLevel ->
+  -- | The log level for this action.
+  LogLevel ->
+  -- | The logging action to run if the level passes.
+  f () ->
+  f ()
+guardLevel configLvl lvl = when (shouldLog configLvl lvl)
+
+-- | @shouldLog configLvl lvl@ returns true iff @configLvl <= lvl@. Uses
+-- LogLevel's built-in ordering. The ordering is thus:
+--
+-- @
+--   LevelTrace
+--     < LevelDebug
+--     < LevelInfo
+--     < LevelWarn
+--     < LevelError
+--     < LevelFatal
+--     < LevelOther \"\<any\>\"
+-- @
+--
+-- In other words, 'LogLevel''s usual 'Ord' is respected. Note that
+-- @LevelOther "custom"@ sits at the the highest level and compares via
+-- Text's 'Ord', just like 'LogLevel''s usual 'Ord'.
+--
+-- @since 0.1
+shouldLog ::
+  -- | The configured log level to check against.
+  LogLevel ->
+  -- | Level for this log
+  LogLevel ->
+  -- | Whether we should log
+  Bool
+shouldLog = (<=)
+
+-- | @since 0.1
+_LevelTrace :: Prism' LogLevel ()
+_LevelTrace =
+  prism
+    (const LevelTrace)
+    ( \case
+        LevelTrace -> Right ()
+        other -> Left other
+    )
+{-# INLINE _LevelTrace #-}
+
+-- | @since 0.1
+_LevelDebug :: Prism' LogLevel ()
+_LevelDebug =
+  prism
+    (const LevelDebug)
+    ( \case
+        LevelDebug -> Right ()
+        other -> Left other
+    )
+{-# INLINE _LevelDebug #-}
+
+-- | @since 0.1
+_LevelInfo :: Prism' LogLevel ()
+_LevelInfo =
+  prism
+    (const LevelInfo)
+    ( \case
+        LevelInfo -> Right ()
+        other -> Left other
+    )
+{-# INLINE _LevelInfo #-}
+
+-- | @since 0.1
+_LevelWarn :: Prism' LogLevel ()
+_LevelWarn =
+  prism
+    (const LevelWarn)
+    ( \case
+        LevelWarn -> Right ()
+        other -> Left other
+    )
+{-# INLINE _LevelWarn #-}
+
+-- | @since 0.1
+_LevelError :: Prism' LogLevel ()
+_LevelError =
+  prism
+    (const LevelError)
+    ( \case
+        LevelError -> Right ()
+        other -> Left other
+    )
+{-# INLINE _LevelError #-}
+
+-- | @since 0.1
+_LevelOther :: Prism' LogLevel Text
+_LevelOther =
+  prism
+    LevelOther
+    ( \case
+        LevelOther l -> Right l
+        other -> Left other
+    )
+{-# INLINE _LevelOther #-}
+
+-- | @since 0.1
+_LevelFatal :: Prism' LogLevel ()
+_LevelFatal =
+  prism
+    (const LevelFatal)
+    ( \case
+        LevelFatal -> Right ()
+        other -> Left other
+    )
+{-# INLINE _LevelFatal #-}

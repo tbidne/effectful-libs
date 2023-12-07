@@ -52,7 +52,15 @@ import Effectful
   )
 import Effectful.Dispatch.Dynamic (send)
 import Effectful.Logger.Dynamic
-  ( LogLevel (LevelDebug, LevelError, LevelInfo, LevelOther, LevelWarn),
+  ( LogLevel
+      ( LevelDebug,
+        LevelError,
+        LevelFatal,
+        LevelInfo,
+        LevelOther,
+        LevelTrace,
+        LevelWarn
+      ),
     LogStr,
     ToLogStr (toLogStr),
   )
@@ -360,11 +368,13 @@ stableLoc :: Loc -> Builder
 stableLoc loc = fromString $ view #loc_filename loc
 
 showLevel :: LogLevel -> Text
+showLevel LevelTrace = "Trace"
 showLevel LevelDebug = "Debug"
 showLevel LevelInfo = "Info"
 showLevel LevelWarn = "Warn"
 showLevel LevelError = "Error"
-showLevel (LevelOther txt) = "Other " <> txt
+showLevel LevelFatal = "Fatal"
+showLevel (LevelOther txt) = txt
 
 -- LogStr uses ByteString's Builder internally, so we might as well use it
 -- for constants.
