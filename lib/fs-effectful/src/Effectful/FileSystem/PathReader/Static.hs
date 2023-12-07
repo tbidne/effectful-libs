@@ -81,7 +81,6 @@ module Effectful.FileSystem.PathReader.Static
   )
 where
 
-import Control.Exception (IOException)
 import Control.Monad (unless)
 import Data.Time (UTCTime (UTCTime, utctDay, utctDayTime))
 import Effectful
@@ -100,7 +99,7 @@ import Effectful.Dispatch.Static
     unsafeEff,
     unsafeEff_,
   )
-import Effectful.Exception (catch)
+import Effectful.Exception (catchIOError)
 import Effectful.FileSystem.PathReader.Utils
   ( PathType
       ( PathTypeDirectory,
@@ -474,11 +473,7 @@ doesSymbolicLinkExist p =
   -- so we need to handle this. Note that the obvious alternative, prefacing
   -- the call with doesPathExist does not work, as that operates on the link
   -- target. doesFileExist also behaves this way.
-  --
-  -- TODO: We should probably use catchIOError here. Alas, we currently wrap
-  -- exceptions in a ExceptionCS, so we need to account for that.
-  -- Once the ExceptionCS machinery is removed, replace this with catchIOError.
-  pathIsSymbolicLink p `catch` \(_ :: IOException) -> pure False
+  pathIsSymbolicLink p `catchIOError` \_ -> pure False
 
 -- | Retrieves the recursive directory contents; splits the sub folders and
 -- directories apart.
@@ -628,8 +623,7 @@ pathIsSymbolicLinkType predicate p = do
     else do
       mtarget <-
         (Just <$> getSymbolicLinkTarget p)
-          -- TODO: Switch to catchIOError once ExceptionCS is gone.
-          `catch` \(_ :: IOException) -> pure Nothing
+          `catchIOError` \_ -> pure Nothing
 
       case mtarget of
         Nothing -> pure False

@@ -24,6 +24,7 @@ module Effectful.Exception
     Handler (..),
     SafeEx.catches,
     onException,
+    SafeEx.catchIOError,
 
     -- ** Masking
     -- $masking
@@ -58,7 +59,7 @@ module Effectful.Exception
     Exception (..),
     HasCallStack,
     SomeException (..),
-    IOException,
+    IOException (..),
     SafeEx.StringException,
   )
 where
