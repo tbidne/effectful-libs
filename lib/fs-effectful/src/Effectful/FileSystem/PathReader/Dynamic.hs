@@ -718,7 +718,7 @@ throwIfWrongPathType location expected path = do
           ]
 
   unless (expected == actual) $
-    Utils.throwIOError
+    Utils.throwPathIOError
       path
       location
       InappropriateType
@@ -766,13 +766,13 @@ getPathType path = do
               pathExists <- doesPathExist path
               if pathExists
                 then
-                  Utils.throwIOError
+                  Utils.throwPathIOError
                     path
                     loc
                     InappropriateType
                     "path exists but has unknown type"
                 else
-                  Utils.throwIOError
+                  Utils.throwPathIOError
                     path
                     loc
                     IO.Error.doesNotExistErrorType

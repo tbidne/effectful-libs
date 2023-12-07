@@ -33,9 +33,27 @@ module Effectful.PosixCompat.Static
 
     -- ** Handler
     runPosixCompatStaticIO,
+
+    -- * PathType
+    PathType (..),
+    Utils.displayPathType,
+
+    -- ** Functions
+    throwIfWrongPathType,
+    isPathType,
+    getPathType,
+
+    -- ** Optics
+    Utils._PathTypeFile,
+    Utils._PathTypeDirectory,
+    Utils._PathTypeSymbolicLink,
+
+    -- * Utils
+    Utils.throwPathIOError,
   )
 where
 
+import Control.Monad (unless)
 import Effectful
   ( Dispatch (Static),
     DispatchOf,
@@ -50,6 +68,15 @@ import Effectful.Dispatch.Static
     evalStaticRep,
     unsafeEff_,
   )
+import Effectful.PosixCompat.Utils
+  ( PathType
+      ( PathTypeDirectory,
+        PathTypeFile,
+        PathTypeSymbolicLink
+      ),
+  )
+import Effectful.PosixCompat.Utils qualified as Utils
+import GHC.IO.Exception (IOErrorType (InappropriateType))
 import System.PosixCompat.Files (FileStatus, PathVar)
 import System.PosixCompat.Files qualified as PFiles
 import System.PosixCompat.Types
@@ -266,3 +293,69 @@ getPathVar p = unsafeEff_ . PFiles.getPathVar p
 -- @since 0.1
 getFdPathVar :: (PosixCompatStatic :> es) => Fd -> PathVar -> Eff es Limit
 getFdPathVar fd = unsafeEff_ . PFiles.getFdPathVar fd
+
+-- | Throws 'IOException' if the path does not exist or the expected path type
+-- does not match actual.
+--
+-- @since 0.1
+throwIfWrongPathType ::
+  ( PosixCompatStatic :> es
+  ) =>
+  String ->
+  PathType ->
+  FilePath ->
+  Eff es ()
+throwIfWrongPathType location expected path = do
+  actual <- getPathType path
+
+  let err =
+        mconcat
+          [ "Expected path '",
+            path,
+            "' to have type ",
+            Utils.displayPathType expected,
+            ", but detected ",
+            Utils.displayPathType actual
+          ]
+
+  unless (expected == actual) $
+    Utils.throwPathIOError
+      path
+      location
+      InappropriateType
+      err
+
+-- | Checks that the path type matches the expectation. Throws
+-- 'IOException' if the path does not exist or the type cannot be detected.
+--
+-- @since 0.1
+isPathType ::
+  ( PosixCompatStatic :> es
+  ) =>
+  PathType ->
+  FilePath ->
+  Eff es Bool
+isPathType expected = fmap (== expected) . getPathType
+
+-- | Returns the type for a given path without following symlinks.
+-- Throws 'IOException' if the path does not exist or the type cannot be
+-- detected.
+--
+-- @since 0.1
+getPathType ::
+  ( PosixCompatStatic :> es
+  ) =>
+  FilePath ->
+  Eff es PathType
+getPathType path = do
+  status <- getSymbolicLinkStatus path
+  if
+    | PFiles.isSymbolicLink status -> pure PathTypeSymbolicLink
+    | PFiles.isDirectory status -> pure PathTypeDirectory
+    | PFiles.isRegularFile status -> pure PathTypeFile
+    | otherwise ->
+        Utils.throwPathIOError
+          path
+          "getPathType"
+          InappropriateType
+          "path exists but has unknown type"

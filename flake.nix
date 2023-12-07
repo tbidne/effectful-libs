@@ -90,6 +90,7 @@
             mkPkg "fs-effectful" ./lib/fs-effectful {
               exceptions-effectful = ./lib/exceptions-effectful;
               ioref-effectful = ./lib/ioref-effectful;
+              unix-compat-effectful = ./lib/unix-compat-effectful;
             };
           packages.ioref-effectful = mkPkgsExceptions "ioref-effectful" ./lib/ioref-effectful;
           packages.logger-effectful = mkPkgsExceptions "logger-effectful" ./lib/logger-effectful;
@@ -104,6 +105,7 @@
               exceptions-effectful = ./lib/exceptions-effectful;
               fs-effectful = ./lib/fs-effectful;
               ioref-effectful = ./lib/ioref-effectful;
+              unix-compat-effectful = ./lib/unix-compat-effectful;
             };
           packages.stm-effectful = mkPkgsExceptions "stm-effectful" ./lib/stm-effectful;
           packages.terminal-effectful = mkPkgsExceptions "terminal-effectful" ./lib/terminal-effectful;
