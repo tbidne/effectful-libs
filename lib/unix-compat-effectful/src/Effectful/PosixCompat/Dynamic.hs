@@ -45,6 +45,7 @@ module Effectful.PosixCompat.Dynamic
     Utils._PathTypeFile,
     Utils._PathTypeDirectory,
     Utils._PathTypeSymbolicLink,
+    Utils._PathTypeOther,
 
     -- * Utils
     Utils.throwPathIOError,
@@ -53,6 +54,7 @@ where
 
 import Control.Monad (unless)
 import Control.Monad.IO.Class (MonadIO (liftIO))
+import Data.Functor ((<&>))
 import Effectful
   ( Dispatch (Dynamic),
     DispatchOf,
@@ -66,6 +68,7 @@ import Effectful.PosixCompat.Utils
   ( PathType
       ( PathTypeDirectory,
         PathTypeFile,
+        PathTypeOther,
         PathTypeSymbolicLink
       ),
   )
@@ -391,15 +394,10 @@ getPathType ::
   ) =>
   FilePath ->
   Eff es PathType
-getPathType path = do
-  status <- getSymbolicLinkStatus path
-  if
-    | PFiles.isSymbolicLink status -> pure PathTypeSymbolicLink
-    | PFiles.isDirectory status -> pure PathTypeDirectory
-    | PFiles.isRegularFile status -> pure PathTypeFile
-    | otherwise ->
-        Utils.throwPathIOError
-          path
-          "getPathType"
-          InappropriateType
-          "path exists but has unknown type"
+getPathType path =
+  getSymbolicLinkStatus path <&> \status ->
+    if
+      | PFiles.isSymbolicLink status -> PathTypeSymbolicLink
+      | PFiles.isDirectory status -> PathTypeDirectory
+      | PFiles.isRegularFile status -> PathTypeFile
+      | otherwise -> PathTypeOther

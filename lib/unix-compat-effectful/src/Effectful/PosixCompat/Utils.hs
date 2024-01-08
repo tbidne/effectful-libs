@@ -9,6 +9,7 @@ module Effectful.PosixCompat.Utils
     _PathTypeFile,
     _PathTypeDirectory,
     _PathTypeSymbolicLink,
+    _PathTypeOther,
 
     -- * Utils
     throwPathIOError,
@@ -42,6 +43,8 @@ data PathType
     PathTypeDirectory
   | -- | @since 0.1
     PathTypeSymbolicLink
+  | -- | @since 0.1
+    PathTypeOther
   deriving stock
     ( -- | @since 0.1
       Bounded,
@@ -94,6 +97,17 @@ _PathTypeSymbolicLink =
     )
 {-# INLINE _PathTypeSymbolicLink #-}
 
+-- | @since 0.1
+_PathTypeOther :: Prism' PathType ()
+_PathTypeOther =
+  prism
+    (const PathTypeOther)
+    ( \case
+        PathTypeOther -> Right ()
+        x -> Left x
+    )
+{-# INLINE _PathTypeOther #-}
+
 -- | String representation of 'PathType'.
 --
 -- @since 0.1
@@ -101,6 +115,7 @@ displayPathType :: (IsString a) => PathType -> a
 displayPathType PathTypeFile = "file"
 displayPathType PathTypeDirectory = "directory"
 displayPathType PathTypeSymbolicLink = "symlink"
+displayPathType PathTypeOther = "other"
 
 -- | Helper for throwing 'IOException'.
 --

@@ -60,6 +60,7 @@ module Effectful.FileSystem.PathReader.Dynamic
     PR.Utils._PathTypeFile,
     PR.Utils._PathTypeDirectory,
     PR.Utils._PathTypeSymbolicLink,
+    PR.Utils._PathTypeOther,
 
     -- * Misc
     listDirectoryRecursive,
@@ -94,6 +95,7 @@ import Effectful.FileSystem.PathReader.Utils
   ( PathType
       ( PathTypeDirectory,
         PathTypeFile,
+        PathTypeOther,
         PathTypeSymbolicLink
       ),
   )
@@ -755,18 +757,12 @@ getPathType path = do
           if fileExists
             then pure PathTypeFile
             else do
-              let loc = "getPathType"
               pathExists <- doesPathExist path
               if pathExists
-                then
-                  Utils.throwPathIOError
-                    path
-                    loc
-                    InappropriateType
-                    "path exists but has unknown type"
+                then pure PathTypeOther
                 else
                   Utils.throwPathIOError
                     path
-                    loc
+                    "getPathType"
                     IO.Error.doesNotExistErrorType
                     "path does not exist"

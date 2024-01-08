@@ -8,6 +8,7 @@ module Effectful.FileSystem.PathReader.Utils
     PC.Utils._PathTypeFile,
     PC.Utils._PathTypeDirectory,
     PC.Utils._PathTypeSymbolicLink,
+    PC.Utils._PathTypeOther,
   )
 where
 
@@ -15,6 +16,7 @@ import Effectful.PosixCompat.Utils
   ( PathType
       ( PathTypeDirectory,
         PathTypeFile,
+        PathTypeOther,
         PathTypeSymbolicLink
       ),
   )
