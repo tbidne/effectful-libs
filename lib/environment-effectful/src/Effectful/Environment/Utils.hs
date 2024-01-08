@@ -4,6 +4,9 @@ module Effectful.Environment.Utils
   )
 where
 
+import Control.DeepSeq (NFData)
+import GHC.Generics (Generic)
+
 -- | Result of querying for the executable path.
 --
 -- @since 0.1
@@ -17,4 +20,17 @@ data QueryExePath
     --
     -- @since 0.1
     QueryResult (Maybe FilePath)
-  deriving stock (Eq, Show)
+  deriving stock
+    ( -- | @since 0.1
+      Eq,
+      -- | @since 0.1
+      Generic,
+      -- | @since 0.1
+      Ord,
+      -- | @since 0.1
+      Show
+    )
+  deriving anyclass
+    ( -- | @since 0.1
+      NFData
+    )
