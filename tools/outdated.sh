@@ -7,7 +7,14 @@ export dirs="lib/*-effectful"
 for d in $dirs; do
   echo "$d"
   cd "$d"
-  cabal outdated
+  out=$(cabal outdated)
+  echo $out
   echo ""
   cd ../../
+
+  if [[ $out != "All dependencies are up to date." ]]; then
+    any_outdated=1
+  fi
 done
+
+exit $any_outdated

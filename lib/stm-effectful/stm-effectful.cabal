@@ -4,7 +4,7 @@ version:            0.1
 license:            MIT
 license-file:       LICENSE
 tested-with:
-  GHC ==8.10.7 || ==9.0.2 || ==9.2.8 || ==9.4.7 || ==9.6.3
+  GHC ==8.10.7 || ==9.0.2 || ==9.2.8 || ==9.4.7 || ==9.6.3 || ==9.8.1
 
 copyright:          2022 Thomas Bidne
 author:             Thomas Bidne
@@ -49,7 +49,7 @@ library
     Effectful.Concurrent.STM.TVar.Static
 
   build-depends:
-    , base            >=4.14.0.0 && <4.19
+    , base            >=4.14.0.0 && <4.20
     , effectful       >=2.2.1.0  && <2.4
     , effectful-core  >=2.2.1.0  && <2.4
     , stm             ^>=2.5.0.0
