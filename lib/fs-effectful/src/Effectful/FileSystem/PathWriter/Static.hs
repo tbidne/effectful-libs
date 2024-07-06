@@ -636,7 +636,6 @@ removeSymbolicLink p = do
   PR.pathIsSymbolicDirectoryLink p >>= \case
     True -> removeDirectoryLink p
     False -> removeFile p
-{-# INLINEABLE removeSymbolicLink #-}
 
 -- | Copies the symbolic link /without/ traversing the link i.e. copy the
 -- link itself. Does not throw an exception if the target does exist.
@@ -670,7 +669,6 @@ copySymbolicLink src dest = do
   PR.pathIsSymbolicDirectoryLink src >>= \case
     True -> createDirectoryLink target dest
     False -> createFileLink target dest
-{-# INLINEABLE copySymbolicLink #-}
 
 -- $if-exists
 -- The @removeXIfExists@ functions should be understood as helper combinators
