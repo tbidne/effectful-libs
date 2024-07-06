@@ -26,7 +26,7 @@ source-repository head
   type:     git
   location: https://github.com/tbidne/effectful-effects
 
-common common
+common common-lang
   default-extensions:
     DataKinds
     DeriveAnyClass
@@ -48,9 +48,11 @@ common common
     TypeFamilies
     TypeOperators
 
+  default-language:   Haskell2010
+
 library
-  import:           common
-  exposed-modules:  Effectful.LoggerNS.Dynamic
+  import:          common-lang
+  exposed-modules: Effectful.LoggerNS.Dynamic
   build-depends:
     , base              >=4.14.0.0  && <4.21
     , bytestring        >=0.10.12.0 && <0.13
@@ -64,13 +66,12 @@ library
     , text              >=1.2.4.0   && <2.2
     , time-effectful    ^>=0.1
 
-  hs-source-dirs:   src
-  default-language: Haskell2010
+  hs-source-dirs:  src
 
 test-suite unit
-  import:           common
-  type:             exitcode-stdio-1.0
-  main-is:          Main.hs
+  import:         common-lang
+  type:           exitcode-stdio-1.0
+  main-is:        Main.hs
   build-depends:
     , base
     , bytestring
@@ -83,5 +84,4 @@ test-suite unit
     , time                 >=1.9.3   && <1.15
     , time-effectful
 
-  hs-source-dirs:   test/unit
-  default-language: Haskell2010
+  hs-source-dirs: test/unit
