@@ -1,10 +1,7 @@
-{-# OPTIONS_GHC -Wno-duplicate-exports #-}
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 module Effectful.Environment.Guard.Static
-  ( -- * Class
-    MonadEnvGuard (..),
-
-    -- * Effect
+  ( -- * Effect
     EnvGuardStatic,
 
     -- ** Handler
@@ -59,15 +56,6 @@ import System.Environment.Guard
   )
 import System.Environment.Guard qualified as EnvGuard
 
--- | @since 0.1
-class (Monad m) => MonadEnvGuard m where
-  -- | @since 0.1
-  guardPredicate :: String -> (String -> Bool) -> m a -> m (Maybe a)
-
--- | @since 0.1
-instance MonadEnvGuard IO where
-  guardPredicate = EnvGuard.guardPredicate
-
 -- | Static effect for 'EnvGuard'.
 --
 -- @since 0.1
@@ -78,10 +66,15 @@ type instance DispatchOf EnvGuardStatic = Static WithSideEffects
 data instance StaticRep EnvGuardStatic = MkEnvGuardStatic
 
 -- | @since 0.1
-instance MonadEnvGuard (Eff es) where
-  guardPredicate envStr p action =
-    unsafeEff $ \env -> seqUnliftIO env $
-      \runInIO -> EnvGuard.guardPredicate envStr p (runInIO action)
+guardPredicate ::
+  (EnvGuardStatic :> es) =>
+  String ->
+  (String -> Bool) ->
+  Eff es a ->
+  Eff es (Maybe a)
+guardPredicate envStr p action =
+  unsafeEff $ \env -> seqUnliftIO env $
+    \runInIO -> EnvGuard.guardPredicate envStr p (runInIO action)
 
 -- | Runs an EnvGuardStatic effect.
 --
@@ -90,7 +83,12 @@ runEnvGuardStaticIO :: (IOE :> es) => Eff (EnvGuardStatic : es) a -> Eff es a
 runEnvGuardStaticIO = evalStaticRep MkEnvGuardStatic
 
 -- | @since 0.1
-withGuard :: (MonadEnvGuard m) => String -> ExpectEnv -> m a -> m (Maybe a)
+withGuard ::
+  (EnvGuardStatic :> es) =>
+  String ->
+  ExpectEnv ->
+  Eff es a ->
+  Eff es (Maybe a)
 withGuard var expect m =
   case expect of
     ExpectEnvSet -> guardSet var m
@@ -98,22 +96,27 @@ withGuard var expect m =
     ExpectEnvPredicate p -> guardPredicate var p m
 
 -- | @since 0.1
-withGuard_ :: (MonadEnvGuard m) => String -> ExpectEnv -> m a -> m ()
+withGuard_ ::
+  (EnvGuardStatic :> es) =>
+  String ->
+  ExpectEnv ->
+  Eff es a ->
+  Eff es ()
 withGuard_ var expect = void . withGuard var expect
 
 -- | @since 0.1
 guardOrElse ::
-  (MonadEnvGuard m) =>
+  (EnvGuardStatic :> es) =>
   -- | The environment variable.
   String ->
   -- | The expectation.
   ExpectEnv ->
   -- | The action to run if the expectation succeeds.
-  m a ->
+  Eff es a ->
   -- | The action to run if the expectation fails.
-  m e ->
+  Eff es e ->
   -- | The result.
-  m (Either e a)
+  Eff es (Either e a)
 guardOrElse var expect m1 m2 =
   withGuard var expect m1
     >>= \case
@@ -122,37 +125,60 @@ guardOrElse var expect m1 m2 =
 
 -- | @since 0.1
 guardOrElse' ::
-  (MonadEnvGuard m) =>
+  (EnvGuardStatic :> es) =>
   -- | The environment variable.
   String ->
   -- | The expectation.
   ExpectEnv ->
   -- | The action to run if the expectation succeeds.
-  m a ->
+  Eff es a ->
   -- | The action to run if the expectation fails.
-  m a ->
+  Eff es a ->
   -- | The result.
-  m a
+  Eff es a
 guardOrElse' var expect m = fmap (either id id) . guardOrElse var expect m
 
 -- | @since 0.1
-guardSet :: (MonadEnvGuard m) => String -> m a -> m (Maybe a)
+guardSet ::
+  (EnvGuardStatic :> es) =>
+  String ->
+  Eff es a ->
+  Eff es (Maybe a)
 guardSet var = guardPredicate var (const True)
 
 -- | @since 0.1
-guardSet_ :: (MonadEnvGuard m) => String -> m a -> m ()
+guardSet_ ::
+  (EnvGuardStatic :> es) =>
+  String ->
+  Eff es a ->
+  Eff es ()
 guardSet_ var = void . guardSet var
 
 -- | @since 0.1
-guardEquals :: (MonadEnvGuard m) => String -> String -> m a -> m (Maybe a)
+guardEquals ::
+  (EnvGuardStatic :> es) =>
+  String ->
+  String ->
+  Eff es a ->
+  Eff es (Maybe a)
 guardEquals var expected = guardPredicate var (eqCaseInsensitive expected)
 
 -- | @since 0.1
-guardEquals_ :: (MonadEnvGuard m) => String -> String -> m a -> m ()
+guardEquals_ ::
+  (EnvGuardStatic :> es) =>
+  String ->
+  String ->
+  Eff es a ->
+  Eff es ()
 guardEquals_ var expected = void . guardEquals var expected
 
 -- | @since 0.1
-guardPredicate_ :: (MonadEnvGuard m) => String -> (String -> Bool) -> m a -> m ()
+guardPredicate_ ::
+  (EnvGuardStatic :> es) =>
+  String ->
+  (String -> Bool) ->
+  Eff es a ->
+  Eff es ()
 guardPredicate_ var p = void . guardPredicate var p
 
 eqCaseInsensitive :: String -> String -> Bool
