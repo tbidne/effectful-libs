@@ -4,9 +4,15 @@ version:            0.1
 license:            MIT
 license-file:       LICENSE
 tested-with:
-  GHC ==8.10.7 || ==9.0.2 || ==9.2.8 || ==9.4.7 || ==9.6.3 || ==9.8.1
+  GHC ==8.10.7
+   || ==9.0.2
+   || ==9.2.8
+   || ==9.4.8
+   || ==9.6.5
+   || ==9.8.2
+   || ==9.10.1
 
-copyright:          2022 Thomas Bidne
+copyright:          2022-2024 Thomas Bidne
 author:             Thomas Bidne
 maintainer:         tbidne@protonmail.com
 homepage:           https://github.com/tbidne/effectful-effects/
@@ -46,7 +52,7 @@ library
   import:           common
   exposed-modules:  Effectful.Concurrent.Static
   build-depends:
-    , base       >=4.14.0.0 && <4.20
+    , base       >=4.14.0.0 && <4.21
     , effectful  >=2.2.1.0  && <2.4
 
   hs-source-dirs:   src

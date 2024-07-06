@@ -4,9 +4,15 @@ version:            0.1
 license:            MIT
 license-file:       LICENSE
 tested-with:
-  GHC ==8.10.7 || ==9.0.2 || ==9.2.8 || ==9.4.7 || ==9.6.3 || ==9.8.1
+  GHC ==8.10.7
+   || ==9.0.2
+   || ==9.2.8
+   || ==9.4.8
+   || ==9.6.5
+   || ==9.8.2
+   || ==9.10.1
 
-copyright:          2022 Thomas Bidne
+copyright:          2022-2024 Thomas Bidne
 author:             Thomas Bidne
 maintainer:         tbidne@protonmail.com
 homepage:           https://github.com/tbidne/effectful-effects/
@@ -50,13 +56,13 @@ library
   import:           common
   exposed-modules:  Effectful.Logger.Dynamic
   build-depends:
-    , base              >=4.14.0.0  && <4.20
+    , base              >=4.14.0.0  && <4.21
     , bytestring        >=0.10.12.0 && <0.13
     , deepseq           >=1.4.4.0   && <1.6
     , effectful-core    >=2.2.1.0   && <2.4
     , fast-logger       >=2.1       && <3.3
     , optics-core       ^>=0.4
-    , template-haskell  >=2.16.0.0  && <2.22
+    , template-haskell  >=2.16.0.0  && <2.23
     , text              >=1.2.4.0   && <2.2
 
   hs-source-dirs:   src

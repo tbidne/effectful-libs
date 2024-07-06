@@ -4,7 +4,7 @@ version:            0.1
 license:            MIT
 license-file:       LICENSE
 tested-with:        GHC ==8.10.7 || ==9.0.2 || ==9.2.5 || ==9.4.3
-copyright:          2022 Thomas Bidne
+copyright:          2022-2024 Thomas Bidne
 author:             Thomas Bidne
 maintainer:         tbidne@protonmail.com
 homepage:           https://github.com/tbidne/effectful-effects/
@@ -44,7 +44,7 @@ library
   import:           common
   exposed-modules:  Effectful.Exception
   build-depends:
-    , base             >=4.14.0.0 && <4.20
+    , base             >=4.14.0.0 && <4.21
     , effectful-core   >=2.2.1.0  && <2.4
     , exceptions       ^>=0.10.4
     , safe-exceptions  ^>=0.1.7.0

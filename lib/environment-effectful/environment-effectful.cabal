@@ -6,7 +6,7 @@ license-file:       LICENSE
 tested-with:
   GHC ==8.10.7 || ==9.0.2 || ==9.2.7 || ==9.4.4 || ==9.6.1
 
-copyright:          2022-2023 Thomas Bidne
+copyright:          2022-2024 Thomas Bidne
 author:             Thomas Bidne
 maintainer:         tbidne@protonmail.com
 homepage:           https://github.com/tbidne/effectful-effects/
@@ -54,7 +54,7 @@ library
     Effectful.Environment.Utils
 
   build-depends:
-    , base       >=4.14.0.0 && <4.20
+    , base       >=4.14.0.0 && <4.21
     , deepseq    >=1.4.4.0  && <1.6
     , effectful  >=2.2.1.0  && <2.4
 
