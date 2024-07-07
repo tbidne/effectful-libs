@@ -6,19 +6,10 @@ import Data.Foldable (for_)
 import Effectful (Eff, IOE, runEff, (:>))
 import Effectful.FileSystem.FileWriter.Static (FileWriterStatic)
 import Effectful.FileSystem.FileWriter.Static qualified as FW
-import Effectful.FileSystem.PathReader.Dynamic
-  ( PathReaderDynamic,
-    getTemporaryDirectory,
-    runPathReaderDynamicIO,
-  )
-import Effectful.FileSystem.PathWriter.Dynamic
-  ( PathWriterDynamic,
-    createDirectoryIfMissing,
-    removeDirectoryRecursiveIfExists,
-    removePathForcibly,
-    runPathWriterDynamicIO,
-  )
-import Effectful.FileSystem.PathWriter.Dynamic qualified as PW
+import Effectful.FileSystem.PathReader.Static (PathReaderStatic)
+import Effectful.FileSystem.PathReader.Static qualified as PR
+import Effectful.FileSystem.PathWriter.Static (PathWriterStatic)
+import Effectful.FileSystem.PathWriter.Static qualified as PW
 import Effectful.FileSystem.Utils (OsPath, osp, (</>))
 import System.Environment.Guard (ExpectEnv (ExpectEnvSet), guardOrElse')
 import Test.Tasty (defaultMain, testGroup, withResource)
@@ -39,12 +30,12 @@ main =
         ]
 
 setup :: IO OsPath
-setup = runPathDynamicIO $ do
+setup = runEffectsIO $ do
   tmpDir <-
     (\s -> s </> [osp|fs-effectful|] </> [osp|unit|])
-      <$> getTemporaryDirectory
-  removeDirectoryRecursiveIfExists tmpDir
-  createDirectoryIfMissing True tmpDir
+      <$> PR.getTemporaryDirectory
+  PW.removeDirectoryRecursiveIfExists tmpDir
+  PW.createDirectoryIfMissing True tmpDir
 
   createDataDir tmpDir
 
@@ -53,7 +44,7 @@ setup = runPathDynamicIO $ do
 teardown :: OsPath -> IO ()
 teardown fp = guardOrElse' "NO_CLEANUP" ExpectEnvSet doNothing cleanup
   where
-    cleanup = runPathDynamicIO $ removePathForcibly fp
+    cleanup = runEffectsIO $ PW.removePathForcibly fp
     doNothing = putStrLn $ "*** Not cleaning up tmp dir: " <> U.pathToStr fp
 
 -- | This is what we want to create:
@@ -87,8 +78,8 @@ teardown fp = guardOrElse' "NO_CLEANUP" ExpectEnvSet doNothing cleanup
 -- needed directory during the test itself.
 createDataDir ::
   ( FileWriterStatic :> es,
-    PathReaderDynamic :> es,
-    PathWriterDynamic :> es
+    PathReaderStatic :> es,
+    PathWriterStatic :> es
   ) =>
   OsPath ->
   Eff es ()
@@ -135,9 +126,9 @@ createDataDir tmpDir = do
           then PW.createDirectoryLink (dataDir </> t) (dataDir </> n)
           else PW.createFileLink (dataDir </> t) (dataDir </> n)
 
-runPathDynamicIO :: Eff [PathWriterDynamic, PathReaderDynamic, FileWriterStatic, IOE] a -> IO a
-runPathDynamicIO =
+runEffectsIO :: Eff [PathWriterStatic, PathReaderStatic, FileWriterStatic, IOE] a -> IO a
+runEffectsIO =
   runEff
     . FW.runFileWriterStaticIO
-    . runPathReaderDynamicIO
-    . runPathWriterDynamicIO
+    . PR.runPathReaderStaticIO
+    . PW.runPathWriterStaticIO
