@@ -666,7 +666,8 @@ copyTestData :: IO OsPath -> TestTree
 copyTestData getTmpDir = testCase desc $ do
   tmpDir <- getTmpDir
 
-  let srcDir = dataDir
+  let dataDir = tmpDir </> [osp|data|]
+      srcDir = dataDir
       destDir = tmpDir </> [osp|copyTestData|]
 
   runEffPathWriter $ createDirectoryIfMissing False destDir
@@ -696,15 +697,16 @@ copyTestData getTmpDir = testCase desc $ do
             [osp|dir3|],
             [osp|dir3|] </> [osp|dir3.1|]
           ]
+  -- Notice that while the link names are copied to the new location, of course
+  -- the _targets_ still refer to the old location (dataDir).
   assertSymlinksExistTarget $
-    (\(l, t) -> (destDir </> [osp|data|] </> l, t))
+    (\(l, t) -> (destDir </> [osp|data|] </> l, dataDir </> t))
       <$> [ ([osp|l1|], [osp|foo|]),
             ([osp|l2|], [osp|dir2|]),
             ([osp|l3|], [osp|bad|])
           ]
   where
     desc = "Copies test data directory with hidden dirs, symlinks"
-    dataDir = [osp|test|] </> [osp|data|]
 
 copyDotDir :: IO OsPath -> TestTree
 copyDotDir getTmpDir = testCase desc $ do

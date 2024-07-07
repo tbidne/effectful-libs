@@ -9,17 +9,17 @@ import Effectful.FileSystem.PathReader.Dynamic
     runPathReaderDynamicIO,
   )
 import Effectful.FileSystem.PathReader.Dynamic qualified as PathReader
-import Effectful.FileSystem.Utils (osp, (</>))
+import Effectful.FileSystem.Utils (OsPath, osp, (</>))
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase, (@=?))
 
-tests :: TestTree
-tests =
+tests :: IO OsPath -> TestTree
+tests getTmpDir =
   testGroup
     "PathReader"
     [ testListDirectoryRecursive,
-      testListDirectoryRecursiveSymlinkTargets,
-      testListDirectoryRecursiveSymbolicLink
+      testListDirectoryRecursiveSymlinkTargets getTmpDir,
+      testListDirectoryRecursiveSymbolicLink getTmpDir
     ]
 
 testListDirectoryRecursive :: TestTree
@@ -58,8 +58,11 @@ testListDirectoryRecursive = testCase "Recursively lists sub-files/dirs" $ do
         [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathWriter|]
       ]
 
-testListDirectoryRecursiveSymlinkTargets :: TestTree
-testListDirectoryRecursiveSymlinkTargets = testCase desc $ do
+testListDirectoryRecursiveSymlinkTargets :: IO OsPath -> TestTree
+testListDirectoryRecursiveSymlinkTargets getTmpDir = testCase desc $ do
+  tmpDir <- getTmpDir
+  let dataDir = tmpDir </> [osp|data|]
+
   (files, dirs) <-
     runEffPathReader $ PathReader.listDirectoryRecursive dataDir
   let (files', dirs') = (L.sort files, L.sort dirs)
@@ -68,7 +71,6 @@ testListDirectoryRecursiveSymlinkTargets = testCase desc $ do
   expectedDirs @=? dirs'
   where
     desc = "Symlinks are categorized via targets"
-    dataDir = [osp|test|] </> [osp|data|]
     expectedFiles =
       [ [osp|.hidden|] </> [osp|f1|],
         [osp|bar|],
@@ -91,8 +93,11 @@ testListDirectoryRecursiveSymlinkTargets = testCase desc $ do
         [osp|l2|]
       ]
 
-testListDirectoryRecursiveSymbolicLink :: TestTree
-testListDirectoryRecursiveSymbolicLink = testCase desc $ do
+testListDirectoryRecursiveSymbolicLink :: IO OsPath -> TestTree
+testListDirectoryRecursiveSymbolicLink getTmpDir = testCase desc $ do
+  tmpDir <- getTmpDir
+  let dataDir = tmpDir </> [osp|data|]
+
   (files, dirs, symlinks) <-
     runEffPathReader $ PathReader.listDirectoryRecursiveSymbolicLink dataDir
   let (files', dirs', symlinks') = (L.sort files, L.sort dirs, L.sort symlinks)
@@ -102,7 +107,6 @@ testListDirectoryRecursiveSymbolicLink = testCase desc $ do
   expectedSymlinks @=? symlinks'
   where
     desc = "Recursively lists sub-files/dirs/symlinks"
-    dataDir = [osp|test|] </> [osp|data|]
     expectedFiles =
       [ [osp|.hidden|] </> [osp|f1|],
         [osp|bar|],
