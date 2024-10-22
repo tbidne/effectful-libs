@@ -102,6 +102,7 @@
           packages.ioref-effectful = mkPkgsExceptions "ioref-effectful" ./lib/ioref-effectful;
           packages.logger-effectful = mkPkgsExceptions "logger-effectful" ./lib/logger-effectful;
           packages.logger-ns-effectful = mkPkg "logger-ns-effectful" ./lib/logger-ns-effectful {
+            concurrent-effectful = ./lib/concurrent-effectful;
             exceptions-effectful = ./lib/exceptions-effectful;
             logger-effectful = ./lib/logger-effectful;
             time-effectful = ./lib/time-effectful;

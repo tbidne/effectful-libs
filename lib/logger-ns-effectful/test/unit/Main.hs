@@ -1,8 +1,12 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedLists #-}
 
 module Main (main) where
 
 import Data.ByteString.Char8 qualified as Char8
+#if MIN_VERSION_base(4, 18, 0)
+import Data.Functor ((<&>))
+#endif
 import Data.Text (Text)
 import Data.Time.Calendar.OrdinalDate (fromOrdinalDate)
 import Data.Time.LocalTime
@@ -13,9 +17,12 @@ import Data.Time.LocalTime
   )
 import Effectful
   ( Eff,
-    runPureEff,
+    IOE,
+    runEff,
     type (:>),
   )
+import Effectful.Concurrent qualified as CC
+import Effectful.Concurrent.Static (Concurrent)
 import Effectful.Dispatch.Dynamic
   ( interpret,
     localSeqUnlift,
@@ -27,7 +34,7 @@ import Effectful.Logger.Dynamic
   )
 import Effectful.LoggerNS.Dynamic
   ( LocStrategy (LocNone, LocPartial, LocStable),
-    LogFormatter (MkLogFormatter, locStrategy, newline, timezone),
+    LogFormatter (MkLogFormatter, locStrategy, newline, threadLabel, timezone),
     LogStr,
     LoggerNSDynamic (GetNamespace, LocalNamespace),
     Namespace,
@@ -39,6 +46,7 @@ import Effectful.State.Static.Local (evalState, get, modify)
 import Effectful.Time.Dynamic
   ( TimeDynamic (GetMonotonicTime, GetSystemZonedTime),
   )
+import GHC.Conc.Sync qualified as Sync
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Test.Tasty.HUnit (testCase, (@=?))
 
@@ -51,76 +59,108 @@ main =
         formatNewline,
         formatTimezone,
         formatLocStable,
-        formatLocPartial
+        formatLocPartial,
+        formatThreadLabel
       ]
 
 formatBasic :: TestTree
-formatBasic =
-  testCase "Formats a basic namespaced log" $
-    "[2022-02-08 10:20:05][one.two][Warn] msg" @=? fromLogStr logMsg
+formatBasic = testCase "Formats a basic namespaced log" $ do
+  logMsg <- runEffLoggerNamespace (formatNamespaced fmt)
+  "[2022-02-08 10:20:05][one.two][Warn] msg" @=? fromLogStr logMsg
   where
-    logMsg = runEffLoggerNamespace (formatNamespaced fmt)
     fmt =
       MkLogFormatter
-        { newline = False,
-          locStrategy = LocNone,
+        { locStrategy = LocNone,
+          newline = False,
+          threadLabel = False,
           timezone = False
         }
 
 formatNewline :: TestTree
-formatNewline =
-  testCase "Formats a log with a newline" $
-    "[2022-02-08 10:20:05][one.two][Warn] msg\n" @=? fromLogStr logMsg
+formatNewline = testCase "Formats a log with a newline" $ do
+  logMsg <- runEffLoggerNamespace (formatNamespaced fmt)
+  "[2022-02-08 10:20:05][one.two][Warn] msg\n" @=? fromLogStr logMsg
   where
-    logMsg = runEffLoggerNamespace (formatNamespaced fmt)
     fmt =
       MkLogFormatter
-        { newline = True,
-          locStrategy = LocNone,
+        { locStrategy = LocNone,
+          newline = True,
+          threadLabel = False,
           timezone = False
         }
 
 formatTimezone :: TestTree
-formatTimezone =
-  testCase "Formats a log with a timezone" $
-    "[2022-02-08 10:20:05 UTC][one.two][Warn] msg" @=? fromLogStr logMsg
+formatTimezone = testCase "Formats a log with a timezone" $ do
+  logMsg <- runEffLoggerNamespace (formatNamespaced fmt)
+  "[2022-02-08 10:20:05 UTC][one.two][Warn] msg" @=? fromLogStr logMsg
   where
-    logMsg = runEffLoggerNamespace (formatNamespaced fmt)
     fmt =
       MkLogFormatter
-        { newline = False,
-          locStrategy = LocNone,
+        { locStrategy = LocNone,
+          newline = False,
+          threadLabel = False,
           timezone = True
         }
 
 formatLocStable :: TestTree
-formatLocStable =
-  testCase "Formats a log with stable loc" $
-    "[2022-02-08 10:20:05][one.two][Warn][filename] msg" @=? fromLogStr logMsg
+formatLocStable = testCase "Formats a log with stable loc" $ do
+  logMsg <- runEffLoggerNamespace (formatNamespaced fmt)
+  "[2022-02-08 10:20:05][one.two][Warn][filename] msg" @=? fromLogStr logMsg
   where
-    logMsg = runEffLoggerNamespace (formatNamespaced fmt)
     fmt =
       MkLogFormatter
-        { newline = False,
-          locStrategy = LocStable loc,
+        { locStrategy = LocStable loc,
+          newline = False,
+          threadLabel = False,
           timezone = False
         }
 
 formatLocPartial :: TestTree
-formatLocPartial =
-  testCase "Formats a log with partial loc" $
-    "[2022-02-08 10:20:05][one.two][Warn][filename:1:2] msg" @=? fromLogStr logMsg
+formatLocPartial = testCase "Formats a log with partial loc" $ do
+  logMsg <- runEffLoggerNamespace (formatNamespaced fmt)
+  "[2022-02-08 10:20:05][one.two][Warn][filename:1:2] msg" @=? fromLogStr logMsg
   where
-    logMsg = runEffLoggerNamespace (formatNamespaced fmt)
     fmt =
       MkLogFormatter
-        { newline = False,
-          locStrategy = LocPartial loc,
+        { locStrategy = LocPartial loc,
+          newline = False,
+          threadLabel = False,
           timezone = False
         }
 
+{- ORMOLU_DISABLE -}
+
+formatThreadLabel :: TestTree
+formatThreadLabel = testCase "Formats a log with thread label" $ do
+  logMsg <- runEffLoggerNamespace (formatNamespaced fmt)
+
+  -- Tasty sets the thread label. We could set this here ourselves, but
+  -- in the interest of not interferring with the test setup, we simply
+  -- grab it here.
+  lbl <- myThreadLabel
+  let msg =
+        mconcat
+          [ "[2022-02-08 10:20:05][",
+            lbl,
+            "][one.two][Warn] msg"
+          ]
+
+  msg @=? fromLogStr logMsg
+
+  where
+    fmt =
+      MkLogFormatter
+        { locStrategy = LocNone,
+          newline = False,
+          threadLabel = True,
+          timezone = False
+        }
+
+{- ORMOLU_ENABLE -}
+
 formatNamespaced ::
-  ( LoggerNSDynamic :> es,
+  ( Concurrent :> es,
+    LoggerNSDynamic :> es,
     TimeDynamic :> es
   ) =>
   LogFormatter ->
@@ -159,8 +199,20 @@ runLoggerNamespacePure = reinterpret (evalState ([] :: Namespace)) $ \env -> \ca
   GetNamespace -> get
   LocalNamespace f m -> localSeqUnlift env $ \run -> modify f *> run m
 
-runEffLoggerNamespace :: Eff '[LoggerNSDynamic, TimeDynamic] a -> a
+runEffLoggerNamespace :: Eff '[Concurrent, LoggerNSDynamic, TimeDynamic, IOE] a -> IO a
 runEffLoggerNamespace =
-  runPureEff
+  runEff
     . runTimePure
     . runLoggerNamespacePure
+    . CC.runConcurrent
+
+myThreadLabel :: IO String
+myThreadLabel = do
+#if MIN_VERSION_base(4, 18, 0)
+  tid <- Sync.myThreadId
+  Sync.threadLabel tid <&> \case
+    Nothing -> show tid
+    Just l -> l
+#else
+  show <$> Sync.myThreadId
+#endif

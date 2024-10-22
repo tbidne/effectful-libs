@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - updates2
 
   pull_request:
     branches:
@@ -40,22 +41,61 @@ jobs:
           ghc-version: ${{ matrix.ghc }}
 
       - name: Configure
-        run: cabal configure --enable-tests --ghc-options -Werror
+        run: cabal configure --enable-tests --ghc-options='-Wno-deprecations -Werror'
 
       - name: Compile
         run: cabal build all
 
+      - name: Build concurrent-effectful
+        run: cabal build concurrent-effectful
+
+      - name: Build env-guard-effectful
+        run: cabal build env-guard-effectful
+
+      - name: Build environment-effectful
+        run: cabal build environment-effectful
+
+      - name: Build exceptions-effectful
+        run: cabal build exceptions-effectful
+
+      - name: Build fs-effectful
+        run: cabal build fs-effectful
+
       - name: Test fs-effectful
         run: cabal test fs-effectful --test-options '--hedgehog-tests 100000'
+
+      - name: Build ioref-effectful
+        run: cabal build ioref-effectful
+
+      - name: Build logger-effectful
+        run: cabal build logger-effectful
 
       - name: Test logger-effectful
         run: cabal test logger-effectful --test-options '--hedgehog-tests 100000'
 
+      - name: Build logger-ns-effectful
+        run: cabal build logger-ns-effectful
+
       - name: Test logger-ns-effectful
         run: cabal test logger-ns-effectful
 
+      - name: Build optparse-effectful
+        run: cabal build optparse-effectful
+
+      - name: Build stm-effectful
+        run: cabal build stm-effectful
+
+      - name: Build terminal-effectful
+        run: cabal build terminal-effectful
+
+      - name: Build time-effectful
+        run: cabal build time-effectful
+
       - name: Test time-effectful
         run: cabal test time-effectful --test-options '--hedgehog-tests 100000'
+
+      - name: Build unix-compat-effectful
+        run: cabal build unix-compat-effectful
 
       - name: Test unix-compat-effectful
         run: cabal test unix-compat-effectful
@@ -94,22 +134,44 @@ jobs:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
           nix_path: nixpkgs=channel:nixos-unstable
 
-      - name: Build & Test
-        run: |
-          nix build \
-            .#concurrent-effectful \
-            .#env-guard-effectful \
-            .#environment-effectful \
-            .#exceptions-effectful \
-            .#fs-effectful \
-            .#ioref-effectful \
-            .#logger-effectful \
-            .#logger-ns-effectful \
-            .#optparse-effectful \
-            .#stm-effectful \
-            .#terminal-effectful \
-            .#time-effectful \
-            .#unix-compat-effectful
+      - name: Build concurrent-effectful
+        run: nix build -Lv .#concurrent-effectful
+
+      - name: Build env-guard-effectful
+        run: nix build -Lv .#env-guard-effectful
+
+      - name: Build environment-effectful
+        run: nix build -Lv .#environment-effectful
+
+      - name: Build exceptions-effectful
+        run: nix build -Lv .#exceptions-effectful
+
+      - name: Build fs-effectful
+        run: nix build -Lv .#fs-effectful
+
+      - name: Build ioref-effectful
+        run: nix build -Lv .#ioref-effectful
+
+      - name: Build logger-effectful
+        run: nix build -Lv .#logger-effectful
+
+      - name: Build logger-ns-effectful
+        run: nix build -Lv .#logger-ns-effectful
+
+      - name: Build optparse-effectful
+        run: nix build -Lv .#optparse-effectful
+
+      - name: Build stm-effectful
+        run: nix build -Lv .#stm-effectful
+
+      - name: Build terminal-effectful
+        run: nix build -Lv .#terminal-effectful
+
+      - name: Build time-effectful
+        run: nix build -Lv .#time-effectful
+
+      - name: Build unix-compat-effectful
+        run: nix build -Lv .#unix-compat-effectful
 
   lint:
     runs-on: "ubuntu-latest"
