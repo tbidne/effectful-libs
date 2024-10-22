@@ -1,15 +1,20 @@
-{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE CPP #-}
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
+
+{- ORMOLU_DISABLE -}
 
 -- | Static effect utils for "Control.Concurrent". For the effect itself, see
 -- https://hackage.haskell.org/package/effectful-2.2.2.0/docs/Effectful-Concurrent.html.
 --
 -- @since 0.1
 module Effectful.Concurrent.Static
-  ( -- * Class
-    MonadThread (..),
-
-    -- * Effect
+  ( -- * Effect
     Concurrent,
+    labelThread,
+
+#if MIN_VERSION_base(4, 18, 0)
+    threadLabel,
+#endif
 
     -- * Functions
     microsleep,
@@ -20,72 +25,45 @@ module Effectful.Concurrent.Static
   )
 where
 
+{- ORMOLU_ENABLE -}
+
 import Control.Concurrent (ThreadId)
-import Control.Concurrent qualified as CC
-import Control.Exception (Exception)
 import Data.Foldable (for_)
 import Effectful (Eff, type (:>))
 import Effectful.Concurrent (Concurrent)
 import Effectful.Concurrent qualified as EffCC
+import Effectful.Dispatch.Static (unsafeEff_)
+import GHC.Conc.Sync qualified as Sync
 import GHC.Natural (Natural)
 
--- | Represents thread effects.
+-- | Lifted 'Sync.labelThread'.
 --
 -- @since 0.1
-class (Monad m) => MonadThread m where
-  -- | Lifted 'CC.threadDelay'.
-  --
-  -- @since 0.1
-  threadDelay :: Int -> m ()
+labelThread :: (Concurrent :> es) => ThreadId -> String -> Eff es ()
+labelThread tid = unsafeEff_ . Sync.labelThread tid
 
-  -- | Lifted 'CC.throwTo'.
-  --
-  -- @since 0.1
-  throwTo :: (Exception e) => ThreadId -> e -> m ()
+#if MIN_VERSION_base(4, 18, 0)
 
-  -- | Lifted 'CC.getNumCapabilities'.
-  --
-  -- @since 0.1
-  getNumCapabilities :: m Int
+-- | Lifted 'Sync.threadLabel'.
+--
+-- @since 0.1
+threadLabel :: (Concurrent :> es) => ThreadId -> Eff es (Maybe String)
+threadLabel = unsafeEff_ . Sync.threadLabel
 
-  -- | Lifted 'CC.setNumCapabilities'.
-  --
-  -- @since 0.1
-  setNumCapabilities :: Int -> m ()
-
-  -- | Lifted 'CC.threadCapability'.
-  --
-  -- @since 0.1
-  threadCapability :: ThreadId -> m (Int, Bool)
-
--- | @since 0.1
-instance MonadThread IO where
-  threadDelay = CC.threadDelay
-  throwTo = CC.throwTo
-  getNumCapabilities = CC.getNumCapabilities
-  setNumCapabilities = CC.setNumCapabilities
-  threadCapability = CC.threadCapability
-
--- | @since 0.1
-instance (Concurrent :> es) => MonadThread (Eff es) where
-  threadDelay = EffCC.threadDelay
-  throwTo = EffCC.throwTo
-  getNumCapabilities = EffCC.getNumCapabilities
-  setNumCapabilities = EffCC.setNumCapabilities
-  threadCapability = EffCC.threadCapability
+#endif
 
 -- | 'threadDelay' in terms of unbounded 'Natural' rather than 'Int' i.e.
 -- runs sleep in the current thread for the specified number of microseconds.
 --
 -- @since 0.1
-microsleep :: (MonadThread m) => Natural -> m ()
-microsleep n = for_ (natToInts n) threadDelay
+microsleep :: (Concurrent :> es) => Natural -> Eff es ()
+microsleep n = for_ (natToInts n) EffCC.threadDelay
 
 -- | Runs sleep in the current thread for the specified number of
 -- seconds.
 --
 -- @since 0.1
-sleep :: (MonadThread m) => Natural -> m ()
+sleep :: (Concurrent :> es) => Natural -> Eff es ()
 sleep = microsleep . (* 1_000_000)
 
 natToInts :: Natural -> [Int]
