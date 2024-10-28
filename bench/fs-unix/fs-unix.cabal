@@ -1,24 +1,32 @@
 cabal-version:      2.4
-name:               unix-compat-effectful
+name:               fs-unix
 version:            0.1
 license:            MIT
 license-file:       LICENSE
 tested-with:
-  GHC ==9.2.8 || ==9.4.8 || ==9.6.5 || ==9.8.2 || ==9.10.1
+  GHC ==9.2.8 || ==9.4.8 || ==9.6.5 || ==9.8.3 || ==9.10.1
 
 copyright:          2022-2024 Thomas Bidne
 author:             Thomas Bidne
 maintainer:         tbidne@protonmail.com
 homepage:           https://github.com/tbidne/effectful-effects/
 bug-reports:        https://github.com/tbidne/effectful-effects/issues
-synopsis:           Unix-compat effects
-description:        Unix-compat effects
+synopsis:           FileSystem effects
+description:        FileSystem effects
 category:           Effects
 extra-source-files: CHANGELOG.md
 
 source-repository head
   type:     git
   location: https://github.com/tbidne/effectful-effects
+
+-- Remove once we are on GHC 9.10+ for nix.
+--
+-- See TODO: [FilePath vs. OsString upgrade]
+flag os-string
+  description: Use the new os-string package
+  default:     False
+  manual:      False
 
 common common-lang
   default-extensions:
@@ -28,16 +36,15 @@ common common-lang
     DeriveGeneric
     DerivingStrategies
     DerivingVia
-    FlexibleContexts
     FlexibleInstances
     GADTs
     GeneralizedNewtypeDeriving
     ImportQualifiedPost
     LambdaCase
     MultiParamTypeClasses
-    MultiWayIf
     NumericUnderscores
     OverloadedLabels
+    OverloadedRecordDot
     OverloadedStrings
     RankNTypes
     ScopedTypeVariables
@@ -49,38 +56,25 @@ common common-lang
 
   default-language:   Haskell2010
 
-library
-  import:          common-lang
-  exposed-modules:
-    Effectful.PosixCompat.Dynamic
-    Effectful.PosixCompat.Static
-
-  build-depends:
-    , base            >=4.16.0.0 && <4.21
-    , effectful-core  >=2.2.1.0  && <2.4
-    , fs-utils        ^>=0.1
-    , unix-compat     >=0.6      && <0.8
-
-  hs-source-dirs:  src
-
-test-suite unit
+benchmark benchmarks
   import:         common-lang
   type:           exitcode-stdio-1.0
   main-is:        Main.hs
-  other-modules:
-    PosixCompat.Dynamic
-    PosixCompat.Static
-
   build-depends:
     , base
-    , bytestring             >=0.10.12.0 && <0.13
-    , directory              ^>=1.3.8.0
-    , effectful-core
-    , env-guard              ^>=0.2
-    , exceptions-effectful
-    , filepath               >=1.4.100.1 && <1.6
-    , tasty                  >=1.1.0.3   && <1.6
-    , tasty-hunit            >=0.9       && <0.11
-    , unix-compat-effectful
+    , effectful-core         >=2.2.1.0 && <2.4
+    , fs-effectful           ^>=0.1
+    , fs-utils               ^>=0.1
+    , tasty-bench            ^>=0.3
+    , unix-compat-effectful  ^>=0.1
+    , unix-effectful         ^>=0.1
 
-  hs-source-dirs: test/unit
+  if flag(os-string)
+    build-depends:
+      , filepath   >=1.5.0.0 && <1.6
+      , os-string  ^>=2.0.0
+
+  else
+    build-depends: filepath >=1.4.100.1 && <1.5
+
+  hs-source-dirs: bench

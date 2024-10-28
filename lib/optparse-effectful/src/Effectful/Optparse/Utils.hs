@@ -8,8 +8,8 @@ module Effectful.Optparse.Utils
   )
 where
 
-import Effectful.FileSystem.Utils (OsPath)
-import Effectful.FileSystem.Utils qualified as FsUtils
+import FileSystem.OsPath (OsPath)
+import FileSystem.OsPath qualified as OsPath
 import Options.Applicative (ReadM)
 import Options.Applicative qualified as OA
 
@@ -17,11 +17,11 @@ import Options.Applicative qualified as OA
 --
 -- @since 0.1
 osPath :: ReadM OsPath
-osPath = OA.str >>= FsUtils.encodeFpToOsFail
+osPath = OA.str >>= OsPath.encodeFail
 
 -- | 'OsPath' 'OA.Option' reader. This includes validation i.e. fails if the
 -- path is considered invalid on the given platform.
 --
 -- @since 0.1
 validOsPath :: ReadM OsPath
-validOsPath = OA.str >>= FsUtils.encodeFpToValidOsFail
+validOsPath = OA.str >>= OsPath.encodeValidFail

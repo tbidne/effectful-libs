@@ -15,7 +15,9 @@ module Effectful.FileSystem.FileReader.Static
     readFileUtf8,
     readFileUtf8Lenient,
     readFileUtf8ThrowM,
-    decodeUtf8ThrowM,
+    FS.UTF8.decodeUtf8,
+    FS.UTF8.decodeUtf8Lenient,
+    FS.UTF8.decodeUtf8ThrowM,
 
     -- * Re-exports
     ByteString,
@@ -28,7 +30,6 @@ where
 import Control.Monad ((>=>))
 import Data.ByteString (ByteString)
 import Data.Text (Text)
-import Data.Text.Encoding qualified as TEnc
 import Data.Text.Encoding.Error (UnicodeException)
 import Effectful
   ( Dispatch (Static),
@@ -44,9 +45,9 @@ import Effectful.Dispatch.Static
     evalStaticRep,
     unsafeEff_,
   )
-import Effectful.Exception (throwM)
-import Effectful.FileSystem.Utils (OsPath, readBinaryFileIO, (>.>))
-import Effectful.FileSystem.Utils qualified as Utils
+import FileSystem.IO (readBinaryFileIO)
+import FileSystem.OsPath (OsPath)
+import FileSystem.UTF8 qualified as FS.UTF8
 
 -- | Static effect for reading files.
 --
@@ -74,17 +75,6 @@ readBinaryFile ::
   Eff es ByteString
 readBinaryFile = unsafeEff_ . readBinaryFileIO
 
--- | Decodes a 'ByteString' to UTF-8. Can throw 'UnicodeException'.
---
--- @since 0.1
-decodeUtf8ThrowM ::
-  ByteString ->
-  Eff es Text
-decodeUtf8ThrowM =
-  TEnc.decodeUtf8' >.> \case
-    Right txt -> pure txt
-    Left ex -> throwM ex
-
 -- | Reads a file as UTF-8.
 --
 -- @since 0.1
@@ -93,7 +83,7 @@ readFileUtf8 ::
   ) =>
   OsPath ->
   Eff es (Either UnicodeException Text)
-readFileUtf8 = fmap Utils.decodeUtf8 . readBinaryFile
+readFileUtf8 = fmap FS.UTF8.decodeUtf8 . readBinaryFile
 
 -- | Reads a file as UTF-8 in lenient mode.
 --
@@ -103,7 +93,7 @@ readFileUtf8Lenient ::
   ) =>
   OsPath ->
   Eff es Text
-readFileUtf8Lenient = fmap Utils.decodeUtf8Lenient . readBinaryFile
+readFileUtf8Lenient = fmap FS.UTF8.decodeUtf8Lenient . readBinaryFile
 
 -- | Decodes a file as UTF-8. Throws 'UnicodeException' for decode errors.
 --
@@ -113,4 +103,4 @@ readFileUtf8ThrowM ::
   ) =>
   OsPath ->
   Eff es Text
-readFileUtf8ThrowM = readBinaryFile >=> decodeUtf8ThrowM
+readFileUtf8ThrowM = readBinaryFile >=> FS.UTF8.decodeUtf8ThrowM

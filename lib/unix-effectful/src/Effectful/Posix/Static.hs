@@ -1,11 +1,11 @@
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
--- | Provides a static effect for "System.PosixCompat.Files".
+-- | Provides a static effect for "System.Posix.Files".
 --
 -- @since 0.1
-module Effectful.PosixCompat.Static
+module Effectful.Posix.Static
   ( -- * Effect
-    PosixCompatStatic,
+    PosixStatic,
     setFileMode,
     setFdMode,
     setFileCreationMask,
@@ -32,7 +32,7 @@ module Effectful.PosixCompat.Static
     getFdPathVar,
 
     -- ** Handler
-    runPosixCompatStaticIO,
+    runPosixStaticIO,
 
     -- * PathType
     PathType (..),
@@ -72,9 +72,11 @@ import FileSystem.PathType
     displayPathType,
   )
 import GHC.IO.Exception (IOErrorType (InappropriateType))
-import System.PosixCompat.Files (FileStatus, PathVar)
-import System.PosixCompat.Files qualified as PFiles
-import System.PosixCompat.Types
+import System.OsString.Internal.Types (OsString (OsString))
+import System.Posix.Files.PosixString (FileStatus, PathVar)
+import System.Posix.Files.PosixString qualified as PFiles
+import System.Posix.PosixString (PosixPath)
+import System.Posix.Types
   ( DeviceID,
     EpochTime,
     Fd,
@@ -85,48 +87,48 @@ import System.PosixCompat.Types
     UserID,
   )
 
--- | Provides a static effect for "System.PosixCompat.Files".
+-- | Provides a static effect for "System.Posix.Files".
 --
 -- @since 0.1
-data PosixCompatStatic :: Effect
+data PosixStatic :: Effect
 
-type instance DispatchOf PosixCompatStatic = Static WithSideEffects
+type instance DispatchOf PosixStatic = Static WithSideEffects
 
-data instance StaticRep PosixCompatStatic = MkPosixCompatStatic
+data instance StaticRep PosixStatic = MkPosixStatic
 
 -- | Runs an OptparseStatic effect.
 --
 -- @since 0.1
-runPosixCompatStaticIO ::
+runPosixStaticIO ::
   (IOE :> es) =>
-  Eff (PosixCompatStatic : es) a ->
+  Eff (PosixStatic : es) a ->
   Eff es a
-runPosixCompatStaticIO = evalStaticRep MkPosixCompatStatic
+runPosixStaticIO = evalStaticRep MkPosixStatic
 
 -- | Lifted 'PFiles.setFileMode'.
 --
 -- @since 0.1
-setFileMode :: (PosixCompatStatic :> es) => FilePath -> FileMode -> Eff es ()
+setFileMode :: (PosixStatic :> es) => PosixPath -> FileMode -> Eff es ()
 setFileMode p = unsafeEff_ . PFiles.setFileMode p
 
 -- | Lifted 'PFiles.setFdMode'.
 --
 -- @since 0.1
-setFdMode :: (PosixCompatStatic :> es) => Fd -> FileMode -> Eff es ()
+setFdMode :: (PosixStatic :> es) => Fd -> FileMode -> Eff es ()
 setFdMode p = unsafeEff_ . PFiles.setFdMode p
 
 -- | Lifted 'PFiles.setFileCreationMask'.
 --
 -- @since 0.1
-setFileCreationMask :: (PosixCompatStatic :> es) => FileMode -> Eff es FileMode
+setFileCreationMask :: (PosixStatic :> es) => FileMode -> Eff es FileMode
 setFileCreationMask = unsafeEff_ . PFiles.setFileCreationMask
 
 -- | Lifted 'PFiles.fileAccess'.
 --
 -- @since 0.1
 fileAccess ::
-  (PosixCompatStatic :> es) =>
-  FilePath ->
+  (PosixStatic :> es) =>
+  PosixPath ->
   Bool ->
   Bool ->
   Bool ->
@@ -136,27 +138,27 @@ fileAccess p b c = unsafeEff_ . PFiles.fileAccess p b c
 -- | Lifted 'PFiles.fileExist'.
 --
 -- @since 0.1
-fileExist :: (PosixCompatStatic :> es) => FilePath -> Eff es Bool
+fileExist :: (PosixStatic :> es) => PosixPath -> Eff es Bool
 fileExist = unsafeEff_ . PFiles.fileExist
 
 -- | Lifted 'PFiles.getFileStatus'.
 --
 -- @since 0.1
-getFileStatus :: (PosixCompatStatic :> es) => FilePath -> Eff es FileStatus
+getFileStatus :: (PosixStatic :> es) => PosixPath -> Eff es FileStatus
 getFileStatus = unsafeEff_ . PFiles.getFileStatus
 
 -- | Lifted 'PFiles.getFdStatus'.
 --
 -- @since 0.1
-getFdStatus :: (PosixCompatStatic :> es) => Fd -> Eff es FileStatus
+getFdStatus :: (PosixStatic :> es) => Fd -> Eff es FileStatus
 getFdStatus = unsafeEff_ . PFiles.getFdStatus
 
 -- | Lifted 'PFiles.getSymbolicLinkStatus'.
 --
 -- @since 0.1
 getSymbolicLinkStatus ::
-  (PosixCompatStatic :> es) =>
-  FilePath ->
+  (PosixStatic :> es) =>
+  PosixPath ->
   Eff es FileStatus
 getSymbolicLinkStatus = unsafeEff_ . PFiles.getSymbolicLinkStatus
 
@@ -164,8 +166,8 @@ getSymbolicLinkStatus = unsafeEff_ . PFiles.getSymbolicLinkStatus
 --
 -- @since 0.1
 createNamedPipe ::
-  (PosixCompatStatic :> es) =>
-  FilePath ->
+  (PosixStatic :> es) =>
+  PosixPath ->
   FileMode ->
   Eff es ()
 createNamedPipe p = unsafeEff_ . PFiles.createNamedPipe p
@@ -174,8 +176,8 @@ createNamedPipe p = unsafeEff_ . PFiles.createNamedPipe p
 --
 -- @since 0.1
 createDevice ::
-  (PosixCompatStatic :> es) =>
-  FilePath ->
+  (PosixStatic :> es) =>
+  PosixPath ->
   FileMode ->
   DeviceID ->
   Eff es ()
@@ -184,43 +186,43 @@ createDevice p m = unsafeEff_ . PFiles.createDevice p m
 -- | Lifted 'PFiles.createLink'.
 --
 -- @since 0.1
-createLink :: (PosixCompatStatic :> es) => FilePath -> FilePath -> Eff es ()
+createLink :: (PosixStatic :> es) => PosixPath -> PosixPath -> Eff es ()
 createLink p = unsafeEff_ . PFiles.createLink p
 
 -- | Lifted 'PFiles.removeLink'.
 --
 -- @since 0.1
-removeLink :: (PosixCompatStatic :> es) => FilePath -> Eff es ()
+removeLink :: (PosixStatic :> es) => PosixPath -> Eff es ()
 removeLink = unsafeEff_ . PFiles.removeLink
 
 -- | Lifted 'PFiles.createSymbolicLink'.
 --
 -- @since 0.1
 createSymbolicLink ::
-  (PosixCompatStatic :> es) =>
-  FilePath ->
-  FilePath ->
+  (PosixStatic :> es) =>
+  PosixPath ->
+  PosixPath ->
   Eff es ()
 createSymbolicLink p = unsafeEff_ . PFiles.createSymbolicLink p
 
 -- | Lifted 'PFiles.readSymbolicLink'.
 --
 -- @since 0.1
-readSymbolicLink :: (PosixCompatStatic :> es) => FilePath -> Eff es FilePath
+readSymbolicLink :: (PosixStatic :> es) => PosixPath -> Eff es PosixPath
 readSymbolicLink = unsafeEff_ . PFiles.readSymbolicLink
 
 -- | Lifted 'PFiles.rename'.
 --
 -- @since 0.1
-rename :: (PosixCompatStatic :> es) => FilePath -> FilePath -> Eff es ()
+rename :: (PosixStatic :> es) => PosixPath -> PosixPath -> Eff es ()
 rename p = unsafeEff_ . PFiles.rename p
 
 -- | Lifted 'PFiles.setOwnerAndGroup'.
 --
 -- @since 0.1
 setOwnerAndGroup ::
-  (PosixCompatStatic :> es) =>
-  FilePath ->
+  (PosixStatic :> es) =>
+  PosixPath ->
   UserID ->
   GroupID ->
   Eff es ()
@@ -230,7 +232,7 @@ setOwnerAndGroup p uid = unsafeEff_ . PFiles.setOwnerAndGroup p uid
 --
 -- @since 0.1
 setFdOwnerAndGroup ::
-  (PosixCompatStatic :> es) =>
+  (PosixStatic :> es) =>
   Fd ->
   UserID ->
   GroupID ->
@@ -241,8 +243,8 @@ setFdOwnerAndGroup fd uid = unsafeEff_ . PFiles.setFdOwnerAndGroup fd uid
 --
 -- @since 0.1
 setSymbolicLinkOwnerAndGroup ::
-  (PosixCompatStatic :> es) =>
-  FilePath ->
+  (PosixStatic :> es) =>
+  PosixPath ->
   UserID ->
   GroupID ->
   Eff es ()
@@ -252,8 +254,8 @@ setSymbolicLinkOwnerAndGroup p uid = unsafeEff_ . PFiles.setSymbolicLinkOwnerAnd
 --
 -- @since 0.1
 setFileTimes ::
-  (PosixCompatStatic :> es) =>
-  FilePath ->
+  (PosixStatic :> es) =>
+  PosixPath ->
   EpochTime ->
   EpochTime ->
   Eff es ()
@@ -262,31 +264,31 @@ setFileTimes p t = unsafeEff_ . PFiles.setFileTimes p t
 -- | Lifted 'PFiles.touchFile'.
 --
 -- @since 0.1
-touchFile :: (PosixCompatStatic :> es) => FilePath -> Eff es ()
+touchFile :: (PosixStatic :> es) => PosixPath -> Eff es ()
 touchFile = unsafeEff_ . PFiles.touchFile
 
 -- | Lifted 'PFiles.setFileSize'.
 --
 -- @since 0.1
-setFileSize :: (PosixCompatStatic :> es) => FilePath -> FileOffset -> Eff es ()
+setFileSize :: (PosixStatic :> es) => PosixPath -> FileOffset -> Eff es ()
 setFileSize p = unsafeEff_ . PFiles.setFileSize p
 
 -- | Lifted 'PFiles.setFdSize'.
 --
 -- @since 0.1
-setFdSize :: (PosixCompatStatic :> es) => Fd -> FileOffset -> Eff es ()
+setFdSize :: (PosixStatic :> es) => Fd -> FileOffset -> Eff es ()
 setFdSize fd = unsafeEff_ . PFiles.setFdSize fd
 
 -- | Lifted 'PFiles.getPathVar'.
 --
 -- @since 0.1
-getPathVar :: (PosixCompatStatic :> es) => FilePath -> PathVar -> Eff es Limit
+getPathVar :: (PosixStatic :> es) => PosixPath -> PathVar -> Eff es Limit
 getPathVar p = unsafeEff_ . PFiles.getPathVar p
 
 -- | Lifted 'PFiles.getFdPathVar'.
 --
 -- @since 0.1
-getFdPathVar :: (PosixCompatStatic :> es) => Fd -> PathVar -> Eff es Limit
+getFdPathVar :: (PosixStatic :> es) => Fd -> PathVar -> Eff es Limit
 getFdPathVar fd = unsafeEff_ . PFiles.getFdPathVar fd
 
 -- | Throws 'IOException' if the path does not exist or the expected path type
@@ -294,11 +296,11 @@ getFdPathVar fd = unsafeEff_ . PFiles.getFdPathVar fd
 --
 -- @since 0.1
 throwIfWrongPathType ::
-  ( PosixCompatStatic :> es
+  ( PosixStatic :> es
   ) =>
   String ->
   PathType ->
-  FilePath ->
+  PosixPath ->
   Eff es ()
 throwIfWrongPathType location expected path = do
   actual <- getPathType path
@@ -312,8 +314,8 @@ throwIfWrongPathType location expected path = do
           ]
 
   unless (expected == actual) $
-    FS.IO.throwPathIOErrorFilePath
-      path
+    FS.IO.throwPathIOError
+      (OsString path)
       location
       InappropriateType
       err
@@ -323,10 +325,10 @@ throwIfWrongPathType location expected path = do
 --
 -- @since 0.1
 isPathType ::
-  ( PosixCompatStatic :> es
+  ( PosixStatic :> es
   ) =>
   PathType ->
-  FilePath ->
+  PosixPath ->
   Eff es Bool
 isPathType expected = fmap (== expected) . getPathType
 
@@ -336,9 +338,9 @@ isPathType expected = fmap (== expected) . getPathType
 --
 -- @since 0.1
 getPathType ::
-  ( PosixCompatStatic :> es
+  ( PosixStatic :> es
   ) =>
-  FilePath ->
+  PosixPath ->
   Eff es PathType
 getPathType path = do
   getSymbolicLinkStatus path <&> \status ->

@@ -67,11 +67,13 @@ module Effectful.FileSystem.PathWriter.Static
 
     -- * Re-exports
     OsPath,
+    IOException,
     Permissions,
     UTCTime (..),
   )
 where
 
+import Control.Exception (IOException)
 import Control.Monad (unless, when)
 import Data.Foldable (for_, traverse_)
 import Data.IORef (modifyIORef', newIORef, readIORef)
@@ -104,8 +106,8 @@ import Effectful.FileSystem.PathWriter.Utils
     TargetName (TargetNameDest, TargetNameLiteral, TargetNameSrc),
   )
 import Effectful.FileSystem.PathWriter.Utils qualified as Utils
-import Effectful.FileSystem.Utils (OsPath, (</>))
-import Effectful.FileSystem.Utils qualified as FS.Utils
+import FileSystem.IO qualified as FS.IO
+import FileSystem.OsPath (OsPath, (</>))
 import Optics.Core ((^.))
 import System.Directory (Permissions)
 import System.Directory.OsPath qualified as Dir
@@ -523,7 +525,7 @@ copyDirectoryOverwrite overwriteFiles src dest = do
           then \f -> do
             exists <- PR.doesFileExist f
             when exists $
-              FS.Utils.throwPathIOError
+              FS.IO.throwPathIOError
                 f
                 "copyDirectoryOverwrite"
                 Error.alreadyExistsErrorType
@@ -535,7 +537,7 @@ copyDirectoryOverwrite overwriteFiles src dest = do
           then \f -> do
             exists <- PR.doesSymbolicLinkExist f
             when exists $
-              FS.Utils.throwPathIOError
+              FS.IO.throwPathIOError
                 f
                 "copyDirectoryOverwrite"
                 Error.alreadyExistsErrorType
@@ -596,7 +598,7 @@ copyDirectoryNoOverwrite ::
 copyDirectoryNoOverwrite src dest = do
   destExists <- PR.doesDirectoryExist dest
   when destExists $
-    FS.Utils.throwPathIOError
+    FS.IO.throwPathIOError
       dest
       "copyDirectoryNoOverwrite"
       Error.alreadyExistsErrorType

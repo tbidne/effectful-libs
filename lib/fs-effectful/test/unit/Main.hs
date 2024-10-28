@@ -10,11 +10,10 @@ import Effectful.FileSystem.PathReader.Static (PathReaderStatic)
 import Effectful.FileSystem.PathReader.Static qualified as PR
 import Effectful.FileSystem.PathWriter.Static (PathWriterStatic)
 import Effectful.FileSystem.PathWriter.Static qualified as PW
-import Effectful.FileSystem.Utils (OsPath, osp, (</>))
+import FileSystem.OsPath (OsPath, osp, (</>))
+import FileSystem.OsPath qualified as FS.OsPath
 import System.Environment.Guard (ExpectEnv (ExpectEnvSet), guardOrElse')
 import Test.Tasty (defaultMain, testGroup, withResource)
-import TestUtils qualified as U
-import Unit.Misc qualified
 import Unit.PathReader qualified
 import Unit.PathWriter qualified
 
@@ -24,8 +23,7 @@ main =
     withResource setup teardown $ \args ->
       testGroup
         "Unit Tests"
-        [ Unit.Misc.tests args,
-          Unit.PathReader.tests args,
+        [ Unit.PathReader.tests args,
           Unit.PathWriter.tests args
         ]
 
@@ -45,7 +43,7 @@ teardown :: OsPath -> IO ()
 teardown fp = guardOrElse' "NO_CLEANUP" ExpectEnvSet doNothing cleanup
   where
     cleanup = runEffectsIO $ PW.removePathForcibly fp
-    doNothing = putStrLn $ "*** Not cleaning up tmp dir: " <> U.pathToStr fp
+    doNothing = putStrLn $ "*** Not cleaning up tmp dir: " <> FS.OsPath.unsafeDecode fp
 
 -- | This is what we want to create:
 --

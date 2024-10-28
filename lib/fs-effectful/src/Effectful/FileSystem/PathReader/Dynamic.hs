@@ -51,16 +51,10 @@ module Effectful.FileSystem.PathReader.Dynamic
     PathType (..),
 
     -- ** Functions
-    PR.Utils.displayPathType,
+    PathType.displayPathType,
     getPathType,
     isPathType,
     throwIfWrongPathType,
-
-    -- ** Optics
-    PR.Utils._PathTypeFile,
-    PR.Utils._PathTypeDirectory,
-    PR.Utils._PathTypeSymbolicLink,
-    PR.Utils._PathTypeOther,
 
     -- * Misc
     listDirectoryRecursive,
@@ -91,7 +85,9 @@ import Effectful
   )
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
 import Effectful.Exception (catchIOError)
-import Effectful.FileSystem.PathReader.Utils
+import FileSystem.IO qualified as IO
+import FileSystem.OsPath (OsPath, (</>))
+import FileSystem.PathType
   ( PathType
       ( PathTypeDirectory,
         PathTypeFile,
@@ -99,9 +95,7 @@ import Effectful.FileSystem.PathReader.Utils
         PathTypeSymbolicLink
       ),
   )
-import Effectful.FileSystem.PathReader.Utils qualified as PR.Utils
-import Effectful.FileSystem.Utils (OsPath, (</>))
-import Effectful.FileSystem.Utils qualified as Utils
+import FileSystem.PathType qualified as PathType
 import GHC.IO.Exception (IOErrorType (InappropriateType))
 import System.Directory
   ( Permissions,
@@ -704,16 +698,14 @@ throwIfWrongPathType location expected path = do
 
   let err =
         mconcat
-          [ "Expected path '",
-            Utils.decodeOsToFpShow path,
-            "' to have type ",
-            PR.Utils.displayPathType expected,
+          [ "Expected path to have type ",
+            PathType.displayPathType expected,
             ", but detected ",
-            PR.Utils.displayPathType actual
+            PathType.displayPathType actual
           ]
 
   unless (expected == actual) $
-    Utils.throwPathIOError
+    IO.throwPathIOError
       path
       location
       InappropriateType
@@ -761,7 +753,7 @@ getPathType path = do
               if pathExists
                 then pure PathTypeOther
                 else
-                  Utils.throwPathIOError
+                  IO.throwPathIOError
                     path
                     "getPathType"
                     IO.Error.doesNotExistErrorType

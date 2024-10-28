@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" height="667" width="960.0" font-size="16" font-family="sans-serif" stroke-width="2">
+<g transform="translate(10.0 0)">
+<g fill="hsl(0, 100%, 40%)">
+<text y="22">getPathType.get file.PathReader: get file</text>
+<text y="22" x="876.6709966047533" text-anchor="end">4.67 μs</text>
+</g>
+<g>
+<title>4.67 μs ± 337 ns</title>
+<rect y="28" rx="5" height="22" width="876.6709966047533" fill="hsl(0, 100%, 80%)" stroke="hsl(0, 100%, 55%)" />
+<g stroke="hsl(0, 100%, 40%)"><line x1="813.3419932095067" x2="940.0" y1="39" y2="39" />
+<line x1="813.3419932095067" x2="813.3419932095067" y1="33" y2="45" />
+<line x1="940.0" x2="940.0" y1="33" y2="45" />
+</g>
+</g>
+<text fill="hsl(30, 100%, 40%)" y="77">getPathType.get file.Posix: get file 1.82 μs</text>
+<g>
+<title>1.82 μs ± 152 ns</title>
+<rect y="83" rx="5" height="22" width="340.9520990613142" fill="hsl(30, 100%, 80%)" stroke="hsl(30, 100%, 55%)" />
+<g stroke="hsl(30, 100%, 40%)"><line x1="312.4400798881566" x2="369.46411823447175" y1="94" y2="94" />
+<line x1="312.4400798881566" x2="312.4400798881566" y1="88" y2="100" />
+<line x1="369.46411823447175" x2="369.46411823447175" y1="88" y2="100" />
+</g>
+</g>
+<text fill="hsl(60, 100%, 40%)" y="132">getPathType.get file.PosixCompat: get file 1.94 μs</text>
+<g>
+<title>1.94 μs ± 180 ns</title>
+<rect y="138" rx="5" height="22" width="364.8354583582984" fill="hsl(60, 100%, 80%)" stroke="hsl(60, 100%, 55%)" />
+<g stroke="hsl(60, 100%, 40%)"><line x1="330.95265428400245" x2="398.7182624325944" y1="149" y2="149" />
+<line x1="330.95265428400245" x2="330.95265428400245" y1="143" y2="155" />
+<line x1="398.7182624325944" x2="398.7182624325944" y1="143" y2="155" />
+</g>
+</g>
+<g fill="hsl(90, 100%, 40%)">
+<text y="187">getPathType.get dir.PathReader: get dir</text>
+<text y="187" x="720.4522708208508" text-anchor="end">3.84 μs</text>
+</g>
+<g>
+<title>3.84 μs ± 351 ns</title>
+<rect y="193" rx="5" height="22" width="720.4522708208508" fill="hsl(90, 100%, 80%)" stroke="hsl(90, 100%, 55%)" />
+<g stroke="hsl(90, 100%, 40%)"><line x1="654.5253604953066" x2="786.379181146395" y1="204" y2="204" />
+<line x1="654.5253604953066" x2="654.5253604953066" y1="198" y2="210" />
+<line x1="786.379181146395" x2="786.379181146395" y1="198" y2="210" />
+</g>
+</g>
+<g fill="hsl(120, 100%, 40%)">
+<text y="242">getPathType.get dir.Posix: get dir</text>
+<text y="242" x="372.3539564609547" text-anchor="end">1.98 μs</text>
+</g>
+<g>
+<title>1.98 μs ± 158 ns</title>
+<rect y="248" rx="5" height="22" width="372.3539564609547" fill="hsl(120, 100%, 80%)" stroke="hsl(120, 100%, 55%)" />
+<g stroke="hsl(120, 100%, 40%)"><line x1="342.67721589774317" x2="402.0306970241662" y1="259" y2="259" />
+<line x1="342.67721589774317" x2="342.67721589774317" y1="253" y2="265" />
+<line x1="402.0306970241662" x2="402.0306970241662" y1="253" y2="265" />
+</g>
+</g>
+<g fill="hsl(150, 100%, 40%)">
+<text y="297">getPathType.get dir.PosixCompat: get dir</text>
+<text y="297" x="464.8026842420611" text-anchor="end">2.48 μs</text>
+</g>
+<g>
+<title>2.48 μs ± 101 ns</title>
+<rect y="303" rx="5" height="22" width="464.8026842420611" fill="hsl(150, 100%, 80%)" stroke="hsl(150, 100%, 55%)" />
+<g stroke="hsl(150, 100%, 40%)"><line x1="445.7496145396445" x2="483.8557539444777" y1="314" y2="314" />
+<line x1="445.7496145396445" x2="445.7496145396445" y1="308" y2="320" />
+<line x1="483.8557539444777" x2="483.8557539444777" y1="308" y2="320" />
+</g>
+</g>
+<text fill="hsl(180, 100%, 40%)" y="352">getPathType.get file link.PathReader: get file link 2.10 μs</text>
+<g>
+<title>2.10 μs ± 169 ns</title>
+<rect y="358" rx="5" height="22" width="394.59987217894945" fill="hsl(180, 100%, 80%)" stroke="hsl(180, 100%, 55%)" />
+<g stroke="hsl(180, 100%, 40%)"><line x1="362.9019532654284" x2="426.2977910924705" y1="369" y2="369" />
+<line x1="362.9019532654284" x2="362.9019532654284" y1="363" y2="375" />
+<line x1="426.2977910924705" x2="426.2977910924705" y1="363" y2="375" />
+</g>
+</g>
+<text fill="hsl(210, 100%, 40%)" y="407">getPathType.get file link.Posix: get file link 1.93 μs</text>
+<g>
+<title>1.93 μs ± 192 ns</title>
+<rect y="413" rx="5" height="22" width="362.60570401437985" fill="hsl(210, 100%, 80%)" stroke="hsl(210, 100%, 55%)" />
+<g stroke="hsl(210, 100%, 40%)"><line x1="326.5060994607549" x2="398.7053085680048" y1="424" y2="424" />
+<line x1="326.5060994607549" x2="326.5060994607549" y1="418" y2="430" />
+<line x1="398.7053085680048" x2="398.7053085680048" y1="418" y2="430" />
+</g>
+</g>
+<text fill="hsl(240, 100%, 40%)" y="462">getPathType.get file link.PosixCompat: get file link 2.16 μs</text>
+<g>
+<title>2.16 μs ± 209 ns</title>
+<rect y="468" rx="5" height="22" width="404.9834272019173" fill="hsl(240, 100%, 80%)" stroke="hsl(240, 100%, 55%)" />
+<g stroke="hsl(240, 100%, 40%)"><line x1="365.7320910724985" x2="444.2347633313361" y1="479" y2="479" />
+<line x1="365.7320910724985" x2="365.7320910724985" y1="473" y2="485" />
+<line x1="444.2347633313361" x2="444.2347633313361" y1="473" y2="485" />
+</g>
+</g>
+<text fill="hsl(270, 100%, 40%)" y="517">getPathType.get dir link.PathReader: get dir link 1.97 μs</text>
+<g>
+<title>1.97 μs ±  62 ns</title>
+<rect y="523" rx="5" height="22" width="369.6837707209906" fill="hsl(270, 100%, 80%)" stroke="hsl(270, 100%, 55%)" />
+<g stroke="hsl(270, 100%, 40%)"><line x1="357.98211304174157" x2="381.3854284002396" y1="534" y2="534" />
+<line x1="357.98211304174157" x2="357.98211304174157" y1="528" y2="540" />
+<line x1="381.3854284002396" x2="381.3854284002396" y1="528" y2="540" />
+</g>
+</g>
+<text fill="hsl(300, 100%, 40%)" y="572">getPathType.get dir link.Posix: get dir link 2.00 μs</text>
+<g>
+<title>2.00 μs ± 146 ns</title>
+<rect y="578" rx="5" height="22" width="375.72740563211505" fill="hsl(300, 100%, 80%)" stroke="hsl(300, 100%, 55%)" />
+<g stroke="hsl(300, 100%, 40%)"><line x1="348.3996325144797" x2="403.0551787497504" y1="589" y2="589" />
+<line x1="348.3996325144797" x2="348.3996325144797" y1="583" y2="595" />
+<line x1="403.0551787497504" x2="403.0551787497504" y1="583" y2="595" />
+</g>
+</g>
+<g fill="hsl(330, 100%, 40%)">
+<text y="627">getPathType.get dir link.PosixCompat: get dir link</text>
+<text y="627" x="478.9610705012982" text-anchor="end">2.55 μs</text>
+</g>
+<g>
+<title>2.55 μs ±  50 ns</title>
+<rect y="633" rx="5" height="22" width="478.9610705012982" fill="hsl(330, 100%, 80%)" stroke="hsl(330, 100%, 55%)" />
+<g stroke="hsl(330, 100%, 40%)"><line x1="469.5896065508289" x2="488.3325344517675" y1="644" y2="644" />
+<line x1="469.5896065508289" x2="469.5896065508289" y1="638" y2="650" />
+<line x1="488.3325344517675" x2="488.3325344517675" y1="638" y2="650" />
+</g>
+</g>
+</g>
+</svg>

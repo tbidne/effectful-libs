@@ -13,6 +13,9 @@ module Effectful.FileSystem.FileReader.Dynamic
     readFileUtf8,
     readFileUtf8Lenient,
     readFileUtf8ThrowM,
+    FS.UTF8.decodeUtf8,
+    FS.UTF8.decodeUtf8Lenient,
+    FS.UTF8.decodeUtf8ThrowM,
 
     -- * Re-exports
     ByteString,
@@ -36,8 +39,9 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
-import Effectful.FileSystem.Utils (OsPath, readBinaryFileIO)
-import Effectful.FileSystem.Utils qualified as Utils
+import FileSystem.IO (readBinaryFileIO)
+import FileSystem.OsPath (OsPath)
+import FileSystem.UTF8 qualified as FS.UTF8
 
 -- | Dynamic effect for reading files.
 --
@@ -75,7 +79,7 @@ readFileUtf8 ::
   ) =>
   OsPath ->
   Eff es (Either UnicodeException Text)
-readFileUtf8 = fmap Utils.decodeUtf8 . readBinaryFile
+readFileUtf8 = fmap FS.UTF8.decodeUtf8 . readBinaryFile
 
 -- | Reads a file as UTF-8 in lenient mode.
 --
@@ -85,7 +89,7 @@ readFileUtf8Lenient ::
   ) =>
   OsPath ->
   Eff es Text
-readFileUtf8Lenient = fmap Utils.decodeUtf8Lenient . readBinaryFile
+readFileUtf8Lenient = fmap FS.UTF8.decodeUtf8Lenient . readBinaryFile
 
 -- | Decodes a file as UTF-8. Throws 'UnicodeException' for decode errors.
 --
@@ -95,4 +99,4 @@ readFileUtf8ThrowM ::
   ) =>
   OsPath ->
   Eff es Text
-readFileUtf8ThrowM = readBinaryFile >=> Utils.decodeUtf8ThrowM
+readFileUtf8ThrowM = readBinaryFile >=> FS.UTF8.decodeUtf8ThrowM

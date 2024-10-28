@@ -19,6 +19,12 @@
     inputs.nixpkgs.follows = "nixpkgs";
     inputs.nix-hs-utils.follows = "nix-hs-utils";
   };
+  inputs.fs-utils = {
+    url = "github:tbidne/fs-utils";
+    inputs.flake-parts.follows = "flake-parts";
+    inputs.nixpkgs.follows = "nixpkgs";
+    inputs.nix-hs-utils.follows = "nix-hs-utils";
+  };
   outputs =
     inputs@{
       flake-parts,
@@ -39,6 +45,7 @@
               // nix-hs-utils.mkLibs inputs final [
                 "algebra-simple"
                 "bounds"
+                "fs-utils"
               ];
           };
           pkgsCompiler = {
@@ -59,6 +66,7 @@
                 concurrent-effectful = ./lib/concurrent-effectful;
                 time-effectful = ./lib/time-effectful;
                 unix-compat-effectful = ./lib/unix-compat-effectful;
+                unix-effectful = ./lib/unix-effectful;
               }
             )
           );
@@ -75,6 +83,7 @@
             p.concurrent-effectful
             p.time-effectful
             p.unix-compat-effectful
+            p.unix-effectful
           ];
 
           mkPkg =
@@ -117,6 +126,7 @@
           packages.terminal-effectful = mkPkgsExceptions "terminal-effectful" ./lib/terminal-effectful;
           packages.time-effectful = mkPkgsExceptions "time-effectful" ./lib/time-effectful;
           packages.unix-compat-effectful = mkPkgsExceptions "unix-compat-effectful" ./lib/unix-compat-effectful;
+          packages.unix-effectful = mkPkgsExceptions "unix-effectful" ./lib/unix-effectful;
 
           devShells.default = hsOverlay.shellFor {
             inherit packages;

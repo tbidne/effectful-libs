@@ -33,12 +33,9 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
-import Effectful.FileSystem.Utils
-  ( OsPath,
-    appendBinaryFileIO,
-    writeBinaryFileIO,
-  )
-import Effectful.FileSystem.Utils qualified as Utils
+import FileSystem.IO (appendBinaryFileIO, writeBinaryFileIO)
+import FileSystem.OsPath (OsPath)
+import FileSystem.UTF8 qualified as FS.UTF8
 
 -- | Dynamic effect for reading files.
 --
@@ -89,7 +86,7 @@ writeFileUtf8 ::
   OsPath ->
   Text ->
   Eff es ()
-writeFileUtf8 f = writeBinaryFile f . Utils.encodeUtf8
+writeFileUtf8 f = writeBinaryFile f . FS.UTF8.encodeUtf8
 
 -- | Appends to a file.
 --
@@ -100,4 +97,4 @@ appendFileUtf8 ::
   OsPath ->
   Text ->
   Eff es ()
-appendFileUtf8 f = appendBinaryFile f . Utils.encodeUtf8
+appendFileUtf8 f = appendBinaryFile f . FS.UTF8.encodeUtf8

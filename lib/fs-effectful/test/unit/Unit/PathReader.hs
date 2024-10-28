@@ -9,7 +9,7 @@ import Effectful.FileSystem.PathReader.Dynamic
     runPathReaderDynamicIO,
   )
 import Effectful.FileSystem.PathReader.Dynamic qualified as PathReader
-import Effectful.FileSystem.Utils (OsPath, osp, (</>))
+import FileSystem.OsPath (OsPath, osp, (</>))
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase, (@=?))
 
@@ -41,11 +41,9 @@ testListDirectoryRecursive = testCase "Recursively lists sub-files/dirs" $ do
         [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleWriter|] </> [osp|Static.hs|],
         [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathReader|] </> [osp|Dynamic.hs|],
         [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathReader|] </> [osp|Static.hs|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathReader|] </> [osp|Utils.hs|],
         [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathWriter|] </> [osp|Dynamic.hs|],
         [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathWriter|] </> [osp|Static.hs|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathWriter|] </> [osp|Utils.hs|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|Utils.hs|]
+        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathWriter|] </> [osp|Utils.hs|]
       ]
     expectedDirs =
       [ [osp|Effectful|],

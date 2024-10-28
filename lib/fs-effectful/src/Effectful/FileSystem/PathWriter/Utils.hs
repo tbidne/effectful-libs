@@ -21,7 +21,7 @@ module Effectful.FileSystem.PathWriter.Utils
 where
 
 import Control.DeepSeq (NFData)
-import Effectful.FileSystem.Utils (OsPath)
+import FileSystem.OsPath (OsPath)
 import GHC.Generics (Generic)
 import Optics.Core
   ( A_Lens,

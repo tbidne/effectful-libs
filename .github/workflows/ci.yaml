@@ -41,9 +41,6 @@ jobs:
       - name: Configure
         run: cabal configure --enable-tests --ghc-options='-Wno-deprecations -Werror'
 
-      - name: Compile
-        run: cabal build all
-
       - name: Build concurrent-effectful
         run: cabal build concurrent-effectful
 
@@ -60,7 +57,7 @@ jobs:
         run: cabal build fs-effectful
 
       - name: Test fs-effectful
-        run: cabal test fs-effectful --test-options '--hedgehog-tests 100000'
+        run: cabal test fs-effectful
 
       - name: Build ioref-effectful
         run: cabal build ioref-effectful
@@ -98,11 +95,21 @@ jobs:
       - name: Test unix-compat-effectful
         run: cabal test unix-compat-effectful
 
-      - name: Benchmark fs-effectful/unix-compat-effectful
+      - name: Build unix-effectful
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: cabal build unix-effectful
+
+      - name: Test unix-effectful
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: cabal test unix-effectful
+
+      - name: Benchmark fs-unix
         if: ${{ matrix.os == 'ubuntu-latest' }}
         id: bench
         run: |
-          cabal bench fs-effectful:benchmark:benchmarks --benchmark-options '
+          cabal bench --enable-benchmarks fs-unix:benchmark:benchmarks --benchmark-options '
+            +RTS -T -RTS -t100
+            --baseline bench/baseline_${{ matrix.os }}_${{ matrix.ghc }}_ci.csv
             --csv bench/bench_${{ matrix.os }}_${{ matrix.ghc }}_ci.csv
             --svg bench/bench_${{ matrix.os }}_${{ matrix.ghc }}_ci.svg
             --fail-if-slower 30
@@ -113,8 +120,8 @@ jobs:
         with:
           name: build-artifacts
           path: |
-            lib/fs-effectful/bench/bench_${{ matrix.os }}_${{ matrix.ghc }}_ci.csv
-            lib/fs-effectful/bench/bench_${{ matrix.os }}_${{ matrix.ghc }}_ci.svg
+            bench/fs-unix/bench/bench_${{ matrix.os }}_${{ matrix.ghc }}_ci.csv
+            bench/fs-unix/bench/bench_${{ matrix.os }}_${{ matrix.ghc }}_ci.svg
   nix:
     strategy:
       fail-fast: false

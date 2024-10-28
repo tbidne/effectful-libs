@@ -82,8 +82,8 @@ import Effectful.Dispatch.Static
     evalStaticRep,
     unsafeEff_,
   )
-import Effectful.FileSystem.Utils (OsPath)
-import Effectful.FileSystem.Utils qualified as Utils
+import FileSystem.OsPath (OsPath)
+import FileSystem.UTF8 qualified as FS.UTF8
 import System.IO (BufferMode, Handle)
 import System.IO qualified as IO
 
@@ -275,7 +275,7 @@ hGetNonBlocking ::
   Eff es ByteString
 hGetNonBlocking h = unsafeEff_ . C8.hGetNonBlocking h
 
--- | 'hGetLine' and 'Utils.decodeUtf8'.
+-- | 'hGetLine' and 'FS.UTF8.decodeUtf8'.
 --
 -- @since 0.1
 hGetLineUtf8 ::
@@ -283,9 +283,9 @@ hGetLineUtf8 ::
   ) =>
   Handle ->
   Eff es (Either UnicodeException Text)
-hGetLineUtf8 = fmap Utils.decodeUtf8 . hGetLine
+hGetLineUtf8 = fmap FS.UTF8.decodeUtf8 . hGetLine
 
--- | 'hGetLine' and 'Utils.decodeUtf8Lenient'.
+-- | 'hGetLine' and 'FS.UTF8.decodeUtf8Lenient'.
 --
 -- @since 0.1
 hGetLineUtf8Lenient ::
@@ -293,9 +293,9 @@ hGetLineUtf8Lenient ::
   ) =>
   Handle ->
   Eff es Text
-hGetLineUtf8Lenient = fmap Utils.decodeUtf8Lenient . hGetLine
+hGetLineUtf8Lenient = fmap FS.UTF8.decodeUtf8Lenient . hGetLine
 
--- | 'hGetLine' and 'Utils.decodeUtf8ThrowM'.
+-- | 'hGetLine' and 'FS.UTF8.decodeUtf8ThrowM'.
 --
 -- @since 0.1
 hGetLineUtf8ThrowM ::
@@ -303,9 +303,9 @@ hGetLineUtf8ThrowM ::
   ) =>
   Handle ->
   Eff es Text
-hGetLineUtf8ThrowM = hGetLine >=> Utils.decodeUtf8ThrowM
+hGetLineUtf8ThrowM = hGetLine >=> FS.UTF8.decodeUtf8ThrowM
 
--- | 'hGetContents' and 'Utils.decodeUtf8'.
+-- | 'hGetContents' and 'FS.UTF8.decodeUtf8'.
 --
 -- @since 0.1
 hGetContentsUtf8 ::
@@ -313,9 +313,9 @@ hGetContentsUtf8 ::
   ) =>
   Handle ->
   Eff es (Either UnicodeException Text)
-hGetContentsUtf8 = fmap Utils.decodeUtf8 . hGetContents
+hGetContentsUtf8 = fmap FS.UTF8.decodeUtf8 . hGetContents
 
--- | 'hGetContents' and 'Utils.decodeUtf8Lenient'.
+-- | 'hGetContents' and 'FS.UTF8.decodeUtf8Lenient'.
 --
 -- @since 0.1
 hGetContentsUtf8Lenient ::
@@ -323,9 +323,9 @@ hGetContentsUtf8Lenient ::
   ) =>
   Handle ->
   Eff es Text
-hGetContentsUtf8Lenient = fmap Utils.decodeUtf8Lenient . hGetContents
+hGetContentsUtf8Lenient = fmap FS.UTF8.decodeUtf8Lenient . hGetContents
 
--- | 'hGetContents' and 'Utils.decodeUtf8ThrowM'.
+-- | 'hGetContents' and 'FS.UTF8.decodeUtf8ThrowM'.
 --
 -- @since 0.1
 hGetContentsUtf8ThrowM ::
@@ -333,9 +333,9 @@ hGetContentsUtf8ThrowM ::
   ) =>
   Handle ->
   Eff es Text
-hGetContentsUtf8ThrowM = hGetContents >=> Utils.decodeUtf8ThrowM
+hGetContentsUtf8ThrowM = hGetContents >=> FS.UTF8.decodeUtf8ThrowM
 
--- | 'hGet' and 'Utils.decodeUtf8'.
+-- | 'hGet' and 'FS.UTF8.decodeUtf8'.
 --
 -- @since 0.1
 hGetUtf8 ::
@@ -344,9 +344,9 @@ hGetUtf8 ::
   Handle ->
   Int ->
   Eff es (Either UnicodeException Text)
-hGetUtf8 h = fmap Utils.decodeUtf8 . hGet h
+hGetUtf8 h = fmap FS.UTF8.decodeUtf8 . hGet h
 
--- | 'hGet' and 'Utils.decodeUtf8Lenient'.
+-- | 'hGet' and 'FS.UTF8.decodeUtf8Lenient'.
 --
 -- @since 0.1
 hGetUtf8Lenient ::
@@ -355,9 +355,9 @@ hGetUtf8Lenient ::
   Handle ->
   Int ->
   Eff es Text
-hGetUtf8Lenient h = fmap Utils.decodeUtf8Lenient . hGet h
+hGetUtf8Lenient h = fmap FS.UTF8.decodeUtf8Lenient . hGet h
 
--- | 'hGet' and 'Utils.decodeUtf8ThrowM'.
+-- | 'hGet' and 'FS.UTF8.decodeUtf8ThrowM'.
 --
 -- @since 0.1
 hGetUtf8ThrowM ::
@@ -366,9 +366,9 @@ hGetUtf8ThrowM ::
   Handle ->
   Int ->
   Eff es Text
-hGetUtf8ThrowM h = hGet h >=> Utils.decodeUtf8ThrowM
+hGetUtf8ThrowM h = hGet h >=> FS.UTF8.decodeUtf8ThrowM
 
--- | 'hGetSome' and 'Utils.decodeUtf8'.
+-- | 'hGetSome' and 'FS.UTF8.decodeUtf8'.
 --
 -- @since 0.1
 hGetSomeUtf8 ::
@@ -377,9 +377,9 @@ hGetSomeUtf8 ::
   Handle ->
   Int ->
   Eff es (Either UnicodeException Text)
-hGetSomeUtf8 h = fmap Utils.decodeUtf8 . hGetSome h
+hGetSomeUtf8 h = fmap FS.UTF8.decodeUtf8 . hGetSome h
 
--- | 'hGetSome' and 'Utils.decodeUtf8Lenient'.
+-- | 'hGetSome' and 'FS.UTF8.decodeUtf8Lenient'.
 --
 -- @since 0.1
 hGetSomeUtf8Lenient ::
@@ -388,9 +388,9 @@ hGetSomeUtf8Lenient ::
   Handle ->
   Int ->
   Eff es Text
-hGetSomeUtf8Lenient h = fmap Utils.decodeUtf8Lenient . hGetSome h
+hGetSomeUtf8Lenient h = fmap FS.UTF8.decodeUtf8Lenient . hGetSome h
 
--- | 'hGetSome' and 'Utils.decodeUtf8ThrowM'.
+-- | 'hGetSome' and 'FS.UTF8.decodeUtf8ThrowM'.
 --
 -- @since 0.1
 hGetSomeUtf8ThrowM ::
@@ -399,9 +399,9 @@ hGetSomeUtf8ThrowM ::
   Handle ->
   Int ->
   Eff es Text
-hGetSomeUtf8ThrowM h = hGetSome h >=> Utils.decodeUtf8ThrowM
+hGetSomeUtf8ThrowM h = hGetSome h >=> FS.UTF8.decodeUtf8ThrowM
 
--- | 'hGetNonBlocking' and 'Utils.decodeUtf8'.
+-- | 'hGetNonBlocking' and 'FS.UTF8.decodeUtf8'.
 --
 -- @since 0.1
 hGetNonBlockingUtf8 ::
@@ -410,9 +410,9 @@ hGetNonBlockingUtf8 ::
   Handle ->
   Int ->
   Eff es (Either UnicodeException Text)
-hGetNonBlockingUtf8 h = fmap Utils.decodeUtf8 . hGetNonBlocking h
+hGetNonBlockingUtf8 h = fmap FS.UTF8.decodeUtf8 . hGetNonBlocking h
 
--- | 'hGetNonBlocking' and 'Utils.decodeUtf8Lenient'.
+-- | 'hGetNonBlocking' and 'FS.UTF8.decodeUtf8Lenient'.
 --
 -- @since 0.1
 hGetNonBlockingUtf8Lenient ::
@@ -421,9 +421,9 @@ hGetNonBlockingUtf8Lenient ::
   Handle ->
   Int ->
   Eff es Text
-hGetNonBlockingUtf8Lenient h = fmap Utils.decodeUtf8Lenient . hGetNonBlocking h
+hGetNonBlockingUtf8Lenient h = fmap FS.UTF8.decodeUtf8Lenient . hGetNonBlocking h
 
--- | 'hGetNonBlocking' and 'Utils.decodeUtf8ThrowM'.
+-- | 'hGetNonBlocking' and 'FS.UTF8.decodeUtf8ThrowM'.
 --
 -- @since 0.1
 hGetNonBlockingUtf8ThrowM ::
@@ -432,4 +432,4 @@ hGetNonBlockingUtf8ThrowM ::
   Handle ->
   Int ->
   Eff es Text
-hGetNonBlockingUtf8ThrowM h = hGetNonBlocking h >=> Utils.decodeUtf8ThrowM
+hGetNonBlockingUtf8ThrowM h = hGetNonBlocking h >=> FS.UTF8.decodeUtf8ThrowM

@@ -52,8 +52,9 @@ import Effectful
   )
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
 import Effectful.Exception (exitFailure)
-import Effectful.FileSystem.Utils (OsPath, openBinaryFileIO, withBinaryFileIO)
-import Effectful.FileSystem.Utils qualified as Utils
+import FileSystem.IO (openBinaryFileIO, withBinaryFileIO)
+import FileSystem.OsPath (OsPath)
+import FileSystem.UTF8 qualified as FS.UTF8
 import System.IO
   ( BufferMode (BlockBuffering, LineBuffering, NoBuffering),
     Handle,
@@ -223,7 +224,7 @@ hPutNonBlocking ::
   Eff es ByteString
 hPutNonBlocking h = send . HPutNonBlocking h
 
--- | 'hPut' and 'Utils.encodeUtf8'.
+-- | 'hPut' and 'FS.UTF8.encodeUtf8'.
 --
 -- @since 0.1
 hPutUtf8 ::
@@ -232,9 +233,9 @@ hPutUtf8 ::
   Handle ->
   Text ->
   Eff es ()
-hPutUtf8 h = hPut h . Utils.encodeUtf8
+hPutUtf8 h = hPut h . FS.UTF8.encodeUtf8
 
--- | 'hPutNonBlocking' and 'Utils.encodeUtf8'.
+-- | 'hPutNonBlocking' and 'FS.UTF8.encodeUtf8'.
 --
 -- @since 0.1
 hPutNonBlockingUtf8 ::
@@ -243,7 +244,7 @@ hPutNonBlockingUtf8 ::
   Handle ->
   Text ->
   Eff es ByteString
-hPutNonBlockingUtf8 h = hPutNonBlocking h . Utils.encodeUtf8
+hPutNonBlockingUtf8 h = hPutNonBlocking h . FS.UTF8.encodeUtf8
 
 -- | Write given error message to `stderr` and terminate with `exitFailure`.
 --

@@ -1,9 +1,9 @@
--- | Provides a dynamic effect for "System.PosixCompat.Files".
+-- | Provides a dynamic effect for "System.Posix.Files".
 --
 -- @since 0.1
-module Effectful.PosixCompat.Dynamic
+module Effectful.Posix.Dynamic
   ( -- * Effect
-    PosixCompatDynamic (..),
+    PosixDynamic (..),
     setFileMode,
     setFdMode,
     setFileCreationMask,
@@ -30,7 +30,7 @@ module Effectful.PosixCompat.Dynamic
     getFdPathVar,
 
     -- ** Handler
-    runPosixCompatDynamicIO,
+    runPosixDynamicIO,
 
     -- * PathType
     PathType (..),
@@ -66,9 +66,11 @@ import FileSystem.PathType
     displayPathType,
   )
 import GHC.IO.Exception (IOErrorType (InappropriateType))
-import System.PosixCompat.Files (FileStatus, PathVar)
-import System.PosixCompat.Files qualified as PFiles
-import System.PosixCompat.Types
+import System.OsString.Internal.Types (OsString (OsString))
+import System.Posix.Files.PosixString (FileStatus, PathVar)
+import System.Posix.Files.PosixString qualified as PFiles
+import System.Posix.PosixString (PosixPath)
+import System.Posix.Types
   ( DeviceID,
     EpochTime,
     Fd,
@@ -79,47 +81,47 @@ import System.PosixCompat.Types
     UserID,
   )
 
--- | Dynamic effect for "System.PosixCompat.Files".
+-- | Dynamic effect for "System.Posix.Files".
 --
 -- @since 0.1
-data PosixCompatDynamic :: Effect where
-  SetFileMode :: FilePath -> FileMode -> PosixCompatDynamic m ()
-  SetFdMode :: Fd -> FileMode -> PosixCompatDynamic m ()
-  SetFileCreationMask :: FileMode -> PosixCompatDynamic m FileMode
-  FileAccess :: FilePath -> Bool -> Bool -> Bool -> PosixCompatDynamic m Bool
-  FileExist :: FilePath -> PosixCompatDynamic m Bool
-  GetFileStatus :: FilePath -> PosixCompatDynamic m FileStatus
-  GetFdStatus :: Fd -> PosixCompatDynamic m FileStatus
-  GetSymbolicLinkStatus :: FilePath -> PosixCompatDynamic m FileStatus
-  CreateNamedPipe :: FilePath -> FileMode -> PosixCompatDynamic m ()
-  CreateDevice :: FilePath -> FileMode -> DeviceID -> PosixCompatDynamic m ()
-  CreateLink :: FilePath -> FilePath -> PosixCompatDynamic m ()
-  RemoveLink :: FilePath -> PosixCompatDynamic m ()
-  CreateSymbolicLink :: FilePath -> FilePath -> PosixCompatDynamic m ()
-  ReadSymbolicLink :: FilePath -> PosixCompatDynamic m FilePath
-  Rename :: FilePath -> FilePath -> PosixCompatDynamic m ()
-  SetOwnerAndGroup :: FilePath -> UserID -> GroupID -> PosixCompatDynamic m ()
-  SetFdOwnerAndGroup :: Fd -> UserID -> GroupID -> PosixCompatDynamic m ()
+data PosixDynamic :: Effect where
+  SetFileMode :: PosixPath -> FileMode -> PosixDynamic m ()
+  SetFdMode :: Fd -> FileMode -> PosixDynamic m ()
+  SetFileCreationMask :: FileMode -> PosixDynamic m FileMode
+  FileAccess :: PosixPath -> Bool -> Bool -> Bool -> PosixDynamic m Bool
+  FileExist :: PosixPath -> PosixDynamic m Bool
+  GetFileStatus :: PosixPath -> PosixDynamic m FileStatus
+  GetFdStatus :: Fd -> PosixDynamic m FileStatus
+  GetSymbolicLinkStatus :: PosixPath -> PosixDynamic m FileStatus
+  CreateNamedPipe :: PosixPath -> FileMode -> PosixDynamic m ()
+  CreateDevice :: PosixPath -> FileMode -> DeviceID -> PosixDynamic m ()
+  CreateLink :: PosixPath -> PosixPath -> PosixDynamic m ()
+  RemoveLink :: PosixPath -> PosixDynamic m ()
+  CreateSymbolicLink :: PosixPath -> PosixPath -> PosixDynamic m ()
+  ReadSymbolicLink :: PosixPath -> PosixDynamic m PosixPath
+  Rename :: PosixPath -> PosixPath -> PosixDynamic m ()
+  SetOwnerAndGroup :: PosixPath -> UserID -> GroupID -> PosixDynamic m ()
+  SetFdOwnerAndGroup :: Fd -> UserID -> GroupID -> PosixDynamic m ()
   SetSymbolicLinkOwnerAndGroup ::
-    FilePath -> UserID -> GroupID -> PosixCompatDynamic m ()
-  SetFileTimes :: FilePath -> EpochTime -> EpochTime -> PosixCompatDynamic m ()
-  TouchFile :: FilePath -> PosixCompatDynamic m ()
-  SetFileSize :: FilePath -> FileOffset -> PosixCompatDynamic m ()
-  SetFdSize :: Fd -> FileOffset -> PosixCompatDynamic m ()
-  GetPathVar :: FilePath -> PathVar -> PosixCompatDynamic m Limit
-  GetFdPathVar :: Fd -> PathVar -> PosixCompatDynamic m Limit
+    PosixPath -> UserID -> GroupID -> PosixDynamic m ()
+  SetFileTimes :: PosixPath -> EpochTime -> EpochTime -> PosixDynamic m ()
+  TouchFile :: PosixPath -> PosixDynamic m ()
+  SetFileSize :: PosixPath -> FileOffset -> PosixDynamic m ()
+  SetFdSize :: Fd -> FileOffset -> PosixDynamic m ()
+  GetPathVar :: PosixPath -> PathVar -> PosixDynamic m Limit
+  GetFdPathVar :: Fd -> PathVar -> PosixDynamic m Limit
 
 -- | @since 0.1
-type instance DispatchOf PosixCompatDynamic = Dynamic
+type instance DispatchOf PosixDynamic = Dynamic
 
--- | Runs 'PosixCompatDynamic' in 'IO'.
+-- | Runs 'PosixDynamic' in 'IO'.
 --
 -- @since 0.1
-runPosixCompatDynamicIO ::
+runPosixDynamicIO ::
   (IOE :> es) =>
-  Eff (PosixCompatDynamic : es) a ->
+  Eff (PosixDynamic : es) a ->
   Eff es a
-runPosixCompatDynamicIO = interpret $ \_ -> \case
+runPosixDynamicIO = interpret $ \_ -> \case
   SetFileMode p m -> liftIO $ PFiles.setFileMode p m
   SetFdMode fd m -> liftIO $ PFiles.setFdMode fd m
   SetFileCreationMask m -> liftIO $ PFiles.setFileCreationMask m
@@ -150,27 +152,27 @@ runPosixCompatDynamicIO = interpret $ \_ -> \case
 -- | Lifted 'PFiles.setFileMode'.
 --
 -- @since 0.1
-setFileMode :: (PosixCompatDynamic :> es) => FilePath -> FileMode -> Eff es ()
+setFileMode :: (PosixDynamic :> es) => PosixPath -> FileMode -> Eff es ()
 setFileMode p = send . SetFileMode p
 
 -- | Lifted 'PFiles.setFdMode'.
 --
 -- @since 0.1
-setFdMode :: (PosixCompatDynamic :> es) => Fd -> FileMode -> Eff es ()
+setFdMode :: (PosixDynamic :> es) => Fd -> FileMode -> Eff es ()
 setFdMode p = send . SetFdMode p
 
 -- | Lifted 'PFiles.setFileCreationMask'.
 --
 -- @since 0.1
-setFileCreationMask :: (PosixCompatDynamic :> es) => FileMode -> Eff es FileMode
+setFileCreationMask :: (PosixDynamic :> es) => FileMode -> Eff es FileMode
 setFileCreationMask = send . SetFileCreationMask
 
 -- | Lifted 'PFiles.fileAccess'.
 --
 -- @since 0.1
 fileAccess ::
-  (PosixCompatDynamic :> es) =>
-  FilePath ->
+  (PosixDynamic :> es) =>
+  PosixPath ->
   Bool ->
   Bool ->
   Bool ->
@@ -180,27 +182,27 @@ fileAccess p b c = send . FileAccess p b c
 -- | Lifted 'PFiles.fileExist'.
 --
 -- @since 0.1
-fileExist :: (PosixCompatDynamic :> es) => FilePath -> Eff es Bool
+fileExist :: (PosixDynamic :> es) => PosixPath -> Eff es Bool
 fileExist = send . FileExist
 
 -- | Lifted 'PFiles.getFileStatus'.
 --
 -- @since 0.1
-getFileStatus :: (PosixCompatDynamic :> es) => FilePath -> Eff es FileStatus
+getFileStatus :: (PosixDynamic :> es) => PosixPath -> Eff es FileStatus
 getFileStatus = send . GetFileStatus
 
 -- | Lifted 'PFiles.getFdStatus'.
 --
 -- @since 0.1
-getFdStatus :: (PosixCompatDynamic :> es) => Fd -> Eff es FileStatus
+getFdStatus :: (PosixDynamic :> es) => Fd -> Eff es FileStatus
 getFdStatus = send . GetFdStatus
 
 -- | Lifted 'PFiles.getSymbolicLinkStatus'.
 --
 -- @since 0.1
 getSymbolicLinkStatus ::
-  (PosixCompatDynamic :> es) =>
-  FilePath ->
+  (PosixDynamic :> es) =>
+  PosixPath ->
   Eff es FileStatus
 getSymbolicLinkStatus = send . GetSymbolicLinkStatus
 
@@ -208,8 +210,8 @@ getSymbolicLinkStatus = send . GetSymbolicLinkStatus
 --
 -- @since 0.1
 createNamedPipe ::
-  (PosixCompatDynamic :> es) =>
-  FilePath ->
+  (PosixDynamic :> es) =>
+  PosixPath ->
   FileMode ->
   Eff es ()
 createNamedPipe p = send . CreateNamedPipe p
@@ -218,8 +220,8 @@ createNamedPipe p = send . CreateNamedPipe p
 --
 -- @since 0.1
 createDevice ::
-  (PosixCompatDynamic :> es) =>
-  FilePath ->
+  (PosixDynamic :> es) =>
+  PosixPath ->
   FileMode ->
   DeviceID ->
   Eff es ()
@@ -228,43 +230,43 @@ createDevice p m = send . CreateDevice p m
 -- | Lifted 'PFiles.createLink'.
 --
 -- @since 0.1
-createLink :: (PosixCompatDynamic :> es) => FilePath -> FilePath -> Eff es ()
+createLink :: (PosixDynamic :> es) => PosixPath -> PosixPath -> Eff es ()
 createLink p = send . CreateLink p
 
 -- | Lifted 'PFiles.removeLink'.
 --
 -- @since 0.1
-removeLink :: (PosixCompatDynamic :> es) => FilePath -> Eff es ()
+removeLink :: (PosixDynamic :> es) => PosixPath -> Eff es ()
 removeLink = send . RemoveLink
 
 -- | Lifted 'PFiles.createSymbolicLink'.
 --
 -- @since 0.1
 createSymbolicLink ::
-  (PosixCompatDynamic :> es) =>
-  FilePath ->
-  FilePath ->
+  (PosixDynamic :> es) =>
+  PosixPath ->
+  PosixPath ->
   Eff es ()
 createSymbolicLink p = send . CreateSymbolicLink p
 
 -- | Lifted 'PFiles.readSymbolicLink'.
 --
 -- @since 0.1
-readSymbolicLink :: (PosixCompatDynamic :> es) => FilePath -> Eff es FilePath
+readSymbolicLink :: (PosixDynamic :> es) => PosixPath -> Eff es PosixPath
 readSymbolicLink = send . ReadSymbolicLink
 
 -- | Lifted 'PFiles.rename'.
 --
 -- @since 0.1
-rename :: (PosixCompatDynamic :> es) => FilePath -> FilePath -> Eff es ()
+rename :: (PosixDynamic :> es) => PosixPath -> PosixPath -> Eff es ()
 rename p = send . Rename p
 
 -- | Lifted 'PFiles.setOwnerAndGroup'.
 --
 -- @since 0.1
 setOwnerAndGroup ::
-  (PosixCompatDynamic :> es) =>
-  FilePath ->
+  (PosixDynamic :> es) =>
+  PosixPath ->
   UserID ->
   GroupID ->
   Eff es ()
@@ -274,7 +276,7 @@ setOwnerAndGroup p uid = send . SetOwnerAndGroup p uid
 --
 -- @since 0.1
 setFdOwnerAndGroup ::
-  (PosixCompatDynamic :> es) =>
+  (PosixDynamic :> es) =>
   Fd ->
   UserID ->
   GroupID ->
@@ -285,8 +287,8 @@ setFdOwnerAndGroup fd uid = send . SetFdOwnerAndGroup fd uid
 --
 -- @since 0.1
 setSymbolicLinkOwnerAndGroup ::
-  (PosixCompatDynamic :> es) =>
-  FilePath ->
+  (PosixDynamic :> es) =>
+  PosixPath ->
   UserID ->
   GroupID ->
   Eff es ()
@@ -296,8 +298,8 @@ setSymbolicLinkOwnerAndGroup p uid = send . SetSymbolicLinkOwnerAndGroup p uid
 --
 -- @since 0.1
 setFileTimes ::
-  (PosixCompatDynamic :> es) =>
-  FilePath ->
+  (PosixDynamic :> es) =>
+  PosixPath ->
   EpochTime ->
   EpochTime ->
   Eff es ()
@@ -306,31 +308,31 @@ setFileTimes p t = send . SetFileTimes p t
 -- | Lifted 'PFiles.touchFile'.
 --
 -- @since 0.1
-touchFile :: (PosixCompatDynamic :> es) => FilePath -> Eff es ()
+touchFile :: (PosixDynamic :> es) => PosixPath -> Eff es ()
 touchFile = send . TouchFile
 
 -- | Lifted 'PFiles.setFileSize'.
 --
 -- @since 0.1
-setFileSize :: (PosixCompatDynamic :> es) => FilePath -> FileOffset -> Eff es ()
+setFileSize :: (PosixDynamic :> es) => PosixPath -> FileOffset -> Eff es ()
 setFileSize p = send . SetFileSize p
 
 -- | Lifted 'PFiles.setFdSize'.
 --
 -- @since 0.1
-setFdSize :: (PosixCompatDynamic :> es) => Fd -> FileOffset -> Eff es ()
+setFdSize :: (PosixDynamic :> es) => Fd -> FileOffset -> Eff es ()
 setFdSize fd = send . SetFdSize fd
 
 -- | Lifted 'PFiles.getPathVar'.
 --
 -- @since 0.1
-getPathVar :: (PosixCompatDynamic :> es) => FilePath -> PathVar -> Eff es Limit
+getPathVar :: (PosixDynamic :> es) => PosixPath -> PathVar -> Eff es Limit
 getPathVar p = send . GetPathVar p
 
 -- | Lifted 'PFiles.getFdPathVar'.
 --
 -- @since 0.1
-getFdPathVar :: (PosixCompatDynamic :> es) => Fd -> PathVar -> Eff es Limit
+getFdPathVar :: (PosixDynamic :> es) => Fd -> PathVar -> Eff es Limit
 getFdPathVar fd = send . GetFdPathVar fd
 
 -- | Throws 'IOException' if the path does not exist or the expected path type
@@ -338,11 +340,11 @@ getFdPathVar fd = send . GetFdPathVar fd
 --
 -- @since 0.1
 throwIfWrongPathType ::
-  ( PosixCompatDynamic :> es
+  ( PosixDynamic :> es
   ) =>
   String ->
   PathType ->
-  FilePath ->
+  PosixPath ->
   Eff es ()
 throwIfWrongPathType location expected path = do
   actual <- getPathType path
@@ -356,8 +358,8 @@ throwIfWrongPathType location expected path = do
           ]
 
   unless (expected == actual) $
-    FS.IO.throwPathIOErrorFilePath
-      path
+    FS.IO.throwPathIOError
+      (OsString path)
       location
       InappropriateType
       err
@@ -367,10 +369,10 @@ throwIfWrongPathType location expected path = do
 --
 -- @since 0.1
 isPathType ::
-  ( PosixCompatDynamic :> es
+  ( PosixDynamic :> es
   ) =>
   PathType ->
-  FilePath ->
+  PosixPath ->
   Eff es Bool
 isPathType expected = fmap (== expected) . getPathType
 
@@ -380,9 +382,9 @@ isPathType expected = fmap (== expected) . getPathType
 --
 -- @since 0.1
 getPathType ::
-  ( PosixCompatDynamic :> es
+  ( PosixDynamic :> es
   ) =>
-  FilePath ->
+  PosixPath ->
   Eff es PathType
 getPathType path =
   getSymbolicLinkStatus path <&> \status ->

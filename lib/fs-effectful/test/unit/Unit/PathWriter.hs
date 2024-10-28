@@ -59,11 +59,10 @@ import Effectful.FileSystem.PathWriter.Dynamic
   )
 import Effectful.FileSystem.PathWriter.Dynamic qualified as PW
 import Effectful.FileSystem.PathWriter.Dynamic qualified as PathWriter
-import Effectful.FileSystem.Utils (osp, (</>))
-import Effectful.FileSystem.Utils qualified as Utils
+import FileSystem.OsPath (osp, (</>))
+import FileSystem.OsPath qualified as FS.OsPath
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (assertBool, assertFailure, testCase, (@=?))
-import TestUtils qualified as U
 
 tests :: IO OsPath -> TestTree
 tests getTmpDir =
@@ -1168,29 +1167,29 @@ assertDestExists baseDir = do
 assertFilesExist :: [OsPath] -> IO ()
 assertFilesExist = traverse_ $ \p -> do
   exists <- runEffPathWriter $ doesFileExist p
-  assertBool ("Expected file to exist: " <> U.pathToStr p) exists
+  assertBool ("Expected file to exist: " <> FS.OsPath.unsafeDecode p) exists
 
 assertFilesDoNotExist :: [OsPath] -> IO ()
 assertFilesDoNotExist = traverse_ $ \p -> do
   exists <- runEffPathWriter $ doesFileExist p
-  assertBool ("Expected file not to exist: " <> U.pathToStr p) (not exists)
+  assertBool ("Expected file not to exist: " <> FS.OsPath.unsafeDecode p) (not exists)
 
 assertFileContents :: [(OsPath, ByteString)] -> IO ()
 assertFileContents = traverse_ $ \(p, expected) -> do
   exists <- runEffPathWriter $ doesFileExist p
-  assertBool ("Expected file to exist: " <> U.pathToStr p) exists
+  assertBool ("Expected file to exist: " <> FS.OsPath.unsafeDecode p) exists
   actual <- runEff $ runFileReaderDynamicIO $ readBinaryFile p
   expected @=? actual
 
 assertDirsExist :: [OsPath] -> IO ()
 assertDirsExist = traverse_ $ \p -> do
   exists <- runEffPathWriter $ doesDirectoryExist p
-  assertBool ("Expected directory to exist: " <> U.pathToStr p) exists
+  assertBool ("Expected directory to exist: " <> FS.OsPath.unsafeDecode p) exists
 
 assertDirsDoNotExist :: [OsPath] -> IO ()
 assertDirsDoNotExist = traverse_ $ \p -> do
   exists <- runEffPathWriter $ doesDirectoryExist p
-  assertBool ("Expected directory not to exist: " <> U.pathToStr p) (not exists)
+  assertBool ("Expected directory not to exist: " <> FS.OsPath.unsafeDecode p) (not exists)
 
 assertSymlinksExist :: [OsPath] -> IO ()
 assertSymlinksExist = assertSymlinksExist' . fmap (,Nothing)
@@ -1201,7 +1200,7 @@ assertSymlinksExistTarget = assertSymlinksExist' . (fmap . fmap) Just
 assertSymlinksExist' :: [(OsPath, Maybe OsPath)] -> IO ()
 assertSymlinksExist' = traverse_ $ \(l, t) -> do
   exists <- runEffPathWriter $ PR.doesSymbolicLinkExist l
-  assertBool ("Expected symlink to exist: " <> Utils.decodeOsToFpShow l) exists
+  assertBool ("Expected symlink to exist: " <> FS.OsPath.unsafeDecode l) exists
 
   case t of
     Nothing -> pure ()
@@ -1212,7 +1211,7 @@ assertSymlinksExist' = traverse_ $ \(l, t) -> do
 assertSymlinksDoNotExist :: [OsPath] -> IO ()
 assertSymlinksDoNotExist = traverse_ $ \l -> do
   exists <- runEffPathWriter $ PR.doesSymbolicLinkExist l
-  assertBool ("Expected symlink not to exist: " <> Utils.decodeOsToFpShow l) (not exists)
+  assertBool ("Expected symlink not to exist: " <> FS.OsPath.unsafeDecode l) (not exists)
 
 mkTestPath :: IO OsPath -> OsPath -> IO OsPath
 mkTestPath getPath s = do
