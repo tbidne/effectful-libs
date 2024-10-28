@@ -56,7 +56,7 @@ library
     , base             >=4.16.0.0 && <4.21
     , containers       >=0.6.3.1  && <0.8
     , deepseq          >=1.4.4.0  && <1.6
-    , effectful-core   >=2.2.1.0  && <2.4
+    , effectful-core   >=2.2.1.0  && <2.6
     , exceptions       ^>=0.10.4
     , safe-exceptions  ^>=0.1.7.0
 

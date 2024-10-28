@@ -53,7 +53,7 @@ library
   exposed-modules: Effectful.Environment.Guard.Static
   build-depends:
     , base            >=4.16.0.0 && <4.21
-    , effectful-core  >=2.2.1.0  && <2.4
+    , effectful-core  >=2.2.1.0  && <2.6
     , env-guard       ^>=0.2
 
   hs-source-dirs:  src

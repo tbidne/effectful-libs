@@ -57,7 +57,7 @@ library
 
   build-depends:
     , base            >=4.16.0.0 && <4.21
-    , effectful-core  >=2.2.1.0  && <2.4
+    , effectful-core  >=2.2.1.0  && <2.6
     , fs-utils        ^>=0.1
     , unix-compat     >=0.6      && <0.8
 
