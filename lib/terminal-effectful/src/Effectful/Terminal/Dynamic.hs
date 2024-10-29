@@ -46,6 +46,7 @@ where
 
 {- ORMOLU_ENABLE -}
 
+import Control.Monad.Catch (MonadThrow (throwM))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
@@ -60,7 +61,6 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, send)
-import Effectful.Exception (throwM)
 import GHC.IO.Exception
   ( IOErrorType (SystemError),
     IOException

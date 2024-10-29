@@ -84,7 +84,7 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
-import Effectful.Exception (catchIOError)
+import Effectful.Exception (catchIO)
 import FileSystem.IO qualified as IO
 import FileSystem.OsPath (OsPath, (</>))
 import FileSystem.PathType
@@ -523,7 +523,7 @@ doesSymbolicLinkExist p =
   -- so we need to handle this. Note that the obvious alternative, prefacing
   -- the call with doesPathExist does not work, as that operates on the link
   -- target. doesFileExist also behaves this way.
-  pathIsSymbolicLink p `catchIOError` \_ -> pure False
+  pathIsSymbolicLink p `catchIO` \_ -> pure False
 
 -- | Retrieves the recursive directory contents; splits the sub folders and
 -- directories apart.
@@ -673,7 +673,7 @@ pathIsSymbolicLinkType predicate p = do
     else do
       mtarget <-
         (Just <$> getSymbolicLinkTarget p)
-          `catchIOError` \_ -> pure Nothing
+          `catchIO` \_ -> pure Nothing
 
       case mtarget of
         Nothing -> pure False

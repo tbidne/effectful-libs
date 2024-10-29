@@ -47,6 +47,7 @@ where
 
 {- ORMOLU_ENABLE -}
 
+import Control.Monad.Catch (MonadThrow (throwM))
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Text (Text)
@@ -65,7 +66,6 @@ import Effectful.Dispatch.Static
     evalStaticRep,
     unsafeEff_,
   )
-import Effectful.Exception (throwM)
 import GHC.IO.Exception
   ( IOErrorType (SystemError),
     IOException

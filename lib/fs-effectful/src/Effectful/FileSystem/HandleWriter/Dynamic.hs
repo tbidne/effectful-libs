@@ -37,6 +37,7 @@ module Effectful.FileSystem.HandleWriter.Dynamic
   )
 where
 
+import Control.Exception.Utils (exitFailure)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
@@ -51,7 +52,6 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
-import Effectful.Exception (exitFailure)
 import FileSystem.IO (openBinaryFileIO, withBinaryFileIO)
 import FileSystem.OsPath (OsPath)
 import FileSystem.UTF8 qualified as FS.UTF8

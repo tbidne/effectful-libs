@@ -12,9 +12,6 @@ cradle:
     - path: "./lib/environment-effectful/src"
       component: "lib:environment-effectful"
 
-    - path: "./lib/exceptions-effectful/src"
-      component: "lib:exceptions-effectful"
-
     - path: "./lib/fs-effectful/src"
       component: "lib:fs-effectful"
 

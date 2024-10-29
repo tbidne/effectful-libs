@@ -57,7 +57,7 @@ library
     , base            >=4.16.0.0 && <4.21
     , bounds          ^>=0.1
     , deepseq         >=1.4.4.0  && <1.6
-    , effectful-core  >=2.2.1.0  && <2.6
+    , effectful-core  >=2.5.0.0  && <2.6
     , optics-core     ^>=0.4
     , time            >=1.9.3    && <1.15
 

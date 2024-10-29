@@ -72,6 +72,7 @@ module Effectful.FileSystem.PathWriter.Dynamic
 where
 
 import Control.Exception (IOException)
+import Control.Exception.Utils (onSyncException)
 import Control.Monad (unless, when)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Foldable (for_, traverse_)
@@ -87,7 +88,7 @@ import Effectful
   )
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
 import Effectful.Dispatch.Static (unsafeEff_)
-import Effectful.Exception (mask_, onException)
+import Effectful.Exception (mask_)
 import Effectful.FileSystem.PathReader.Dynamic
   ( PathReaderDynamic,
     PathType (PathTypeDirectory, PathTypeSymbolicLink),
@@ -622,7 +623,7 @@ copyDirectoryOverwrite overwriteFiles src dest = do
             unsafeEff_ (readIORef copiedSymlinksRef) >>= traverse_ removeSymbolicLink
           else removeDirectoryRecursive dest
 
-  copyFiles `onException` mask_ cleanup
+  copyFiles `onSyncException` mask_ cleanup
 
 copyDirectoryNoOverwrite ::
   forall es.
@@ -659,7 +660,7 @@ copyDirectoryNoOverwrite src dest = do
       -- delete directory
       cleanup = removeDirectoryRecursive dest
 
-  copyFiles `onException` mask_ cleanup
+  copyFiles `onSyncException` mask_ cleanup
 
 -- | Removes a symbolic link. On Windows, attempts to distinguish
 -- file and directory links (Posix makes no distinction).

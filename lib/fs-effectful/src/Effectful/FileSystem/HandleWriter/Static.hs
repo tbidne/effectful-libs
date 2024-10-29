@@ -39,6 +39,7 @@ module Effectful.FileSystem.HandleWriter.Static
   )
 where
 
+import Control.Exception.Utils (exitFailure)
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.ByteString.Char8 qualified as Char8
@@ -59,7 +60,6 @@ import Effectful.Dispatch.Static
     unsafeEff,
     unsafeEff_,
   )
-import Effectful.Exception (exitFailure)
 import FileSystem.IO (openBinaryFileIO, withBinaryFileIO)
 import FileSystem.OsPath (OsPath)
 import FileSystem.UTF8 qualified as FS.UTF8

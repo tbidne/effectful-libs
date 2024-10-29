@@ -4,7 +4,6 @@ if os(windows)
     ./lib/concurrent-effectful
     ./lib/env-guard-effectful
     ./lib/environment-effectful
-    ./lib/exceptions-effectful
     ./lib/fs-effectful
     ./lib/ioref-effectful
     ./lib/logger-effectful
@@ -20,7 +19,6 @@ else
     ./lib/concurrent-effectful
     ./lib/env-guard-effectful
     ./lib/environment-effectful
-    ./lib/exceptions-effectful
     ./lib/fs-effectful
     ./lib/ioref-effectful
     ./lib/logger-effectful
