@@ -5,13 +5,13 @@
 -- @since 0.1
 module Effectful.Optparse.Static
   ( -- * Effect
-    OptparseStatic,
+    Optparse,
     execParser,
     customExecParser,
     handleParseResult,
 
     -- ** Handler
-    runOptparseStaticIO,
+    runOptparse,
 
     -- * Misc
     Utils.OsPath,
@@ -41,29 +41,29 @@ import Options.Applicative qualified as OA
 -- | Static effect for optparse-applicative.
 --
 -- @since 0.1
-data OptparseStatic :: Effect
+data Optparse :: Effect
 
-type instance DispatchOf OptparseStatic = Static WithSideEffects
+type instance DispatchOf Optparse = Static WithSideEffects
 
-data instance StaticRep OptparseStatic = MkOptparseStatic
+data instance StaticRep Optparse = MkOptparse
 
--- | Runs an OptparseStatic effect.
+-- | Runs an Optparse effect.
 --
 -- @since 0.1
-runOptparseStaticIO :: (IOE :> es) => Eff (OptparseStatic : es) a -> Eff es a
-runOptparseStaticIO = evalStaticRep MkOptparseStatic
+runOptparse :: (IOE :> es) => Eff (Optparse : es) a -> Eff es a
+runOptparse = evalStaticRep MkOptparse
 
 -- | Lifted 'OA.execParser'.
 --
 -- @since 0.1
-execParser :: (OptparseStatic :> es) => ParserInfo a -> Eff es a
+execParser :: (Optparse :> es) => ParserInfo a -> Eff es a
 execParser = unsafeEff_ . OA.execParser
 
 -- | Lifted 'OA.execParser'.
 --
 -- @since 0.1
 customExecParser ::
-  (OptparseStatic :> es) =>
+  (Optparse :> es) =>
   ParserPrefs ->
   ParserInfo a ->
   Eff es a
@@ -72,5 +72,5 @@ customExecParser prefs = unsafeEff_ . OA.customExecParser prefs
 -- | Lifted 'OA.execParser'.
 --
 -- @since 0.1
-handleParseResult :: (OptparseStatic :> es) => ParserResult a -> Eff es a
+handleParseResult :: (Optparse :> es) => ParserResult a -> Eff es a
 handleParseResult = unsafeEff_ . OA.handleParseResult

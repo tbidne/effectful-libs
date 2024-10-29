@@ -1,12 +1,12 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE UndecidableInstances #-}
 
--- | Provides namespaced logging functionality on top of 'LoggerDynamic'.
+-- | Provides namespaced logging functionality on top of 'Logger'.
 --
 -- @since 0.1
 module Effectful.LoggerNS.Dynamic
   ( -- * Effect
-    LoggerNSDynamic (..),
+    LoggerNS (..),
     Namespace (..),
     addNamespace,
     getNamespace,
@@ -73,8 +73,8 @@ import Effectful.Logger.Dynamic
     LogStr,
     ToLogStr (toLogStr),
   )
-import Effectful.Time.Dynamic (TimeDynamic)
-import Effectful.Time.Dynamic qualified as TimeDynamic
+import Effectful.Time.Dynamic (Time)
+import Effectful.Time.Dynamic qualified as Time
 import GHC.Exts (IsList (Item, fromList, toList))
 import GHC.Generics (Generic)
 import Language.Haskell.TH (Loc (loc_filename, loc_start))
@@ -149,27 +149,27 @@ displayNamespace =
 -- | Dynamic effect for a namespaced logger.
 --
 -- @since 0.1
-data LoggerNSDynamic :: Effect where
-  GetNamespace :: LoggerNSDynamic es Namespace
+data LoggerNS :: Effect where
+  GetNamespace :: LoggerNS es Namespace
   LocalNamespace ::
     (Namespace -> Namespace) ->
     m a ->
-    LoggerNSDynamic m a
+    LoggerNS m a
 
 -- | @since 0.1
-type instance DispatchOf LoggerNSDynamic = Dynamic
+type instance DispatchOf LoggerNS = Dynamic
 
 -- | Retrieves the namespace.
 --
 -- @since 0.1
-getNamespace :: (LoggerNSDynamic :> es) => Eff es Namespace
+getNamespace :: (LoggerNS :> es) => Eff es Namespace
 getNamespace = send GetNamespace
 
 -- | Locally modifies the namespace.
 --
 -- @since 0.1
 localNamespace ::
-  ( LoggerNSDynamic :> es
+  ( LoggerNS :> es
   ) =>
   (Namespace -> Namespace) ->
   Eff es a ->
@@ -180,7 +180,7 @@ localNamespace f = send . LocalNamespace f
 --
 -- @since 0.1
 addNamespace ::
-  ( LoggerNSDynamic :> es
+  ( LoggerNS :> es
   ) =>
   Text ->
   Eff es a ->
@@ -354,8 +354,8 @@ defaultLogFormatter loc =
 -- @since 0.1
 formatLog ::
   ( Concurrent :> es,
-    LoggerNSDynamic :> es,
-    TimeDynamic :> es,
+    LoggerNS :> es,
+    Time :> es,
     ToLogStr msg
   ) =>
   LogFormatter ->
@@ -394,9 +394,9 @@ formatLog formatter lvl msg = do
   where
     timeFn
       | formatter ^. #timezone =
-          toLogStr <$> TimeDynamic.getSystemZonedTimeString
+          toLogStr <$> Time.getSystemZonedTimeString
       | otherwise =
-          toLogStr <$> TimeDynamic.getSystemTimeString
+          toLogStr <$> Time.getSystemTimeString
 
 {- ORMOLU_DISABLE -}
 

@@ -3,13 +3,13 @@
 -- @since 0.1
 module Effectful.Time.Dynamic
   ( -- * Effect
-    TimeDynamic (..),
+    Time (..),
     getSystemTime,
     getSystemZonedTime,
     getMonotonicTime,
 
     -- ** Handlers
-    runTimeDynamicIO,
+    runTime,
 
     -- * Timing
     withTiming,
@@ -71,43 +71,43 @@ import GHC.Clock qualified as C
 -- | Dynamic effect for "Data.Time".
 --
 -- @since 0.1
-data TimeDynamic :: Effect where
-  GetSystemZonedTime :: TimeDynamic m ZonedTime
-  GetMonotonicTime :: TimeDynamic m Double
+data Time :: Effect where
+  GetSystemZonedTime :: Time m ZonedTime
+  GetMonotonicTime :: Time m Double
 
 -- | @since 0.1
-type instance DispatchOf TimeDynamic = Dynamic
+type instance DispatchOf Time = Dynamic
 
--- | Runs 'TimeDynamic' in 'IO'.
+-- | Runs 'Time' in 'IO'.
 --
 -- @since 0.1
-runTimeDynamicIO :: (IOE :> es) => Eff (TimeDynamic : es) a -> Eff es a
-runTimeDynamicIO = interpret $ \_ -> \case
+runTime :: (IOE :> es) => Eff (Time : es) a -> Eff es a
+runTime = interpret $ \_ -> \case
   GetSystemZonedTime -> liftIO Local.getZonedTime
   GetMonotonicTime -> liftIO C.getMonotonicTime
 
 -- | Returns the local system time.
 --
 -- @since 0.1
-getSystemTime :: (TimeDynamic :> es) => Eff es LocalTime
+getSystemTime :: (Time :> es) => Eff es LocalTime
 getSystemTime = Local.zonedTimeToLocalTime <$> getSystemZonedTime
 
 -- | Returns the zoned system time
 --
 -- @since 0.1
-getSystemZonedTime :: (TimeDynamic :> es) => Eff es ZonedTime
+getSystemZonedTime :: (Time :> es) => Eff es ZonedTime
 getSystemZonedTime = send GetSystemZonedTime
 
 -- | Returns the zoned system time
 --
 -- @since 0.1
-getMonotonicTime :: (TimeDynamic :> es) => Eff es Double
+getMonotonicTime :: (Time :> es) => Eff es Double
 getMonotonicTime = send GetMonotonicTime
 
 -- | Runs an action, returning the elapsed time.
 --
 -- @since 0.1
-withTiming :: (TimeDynamic :> es) => Eff es a -> Eff es (TimeSpec, a)
+withTiming :: (Time :> es) => Eff es a -> Eff es (TimeSpec, a)
 withTiming m = do
   start <- getMonotonicTime
   res <- m
@@ -117,17 +117,17 @@ withTiming m = do
 -- | 'withTiming' but ignores the result value.
 --
 -- @since 0.1
-withTiming_ :: (TimeDynamic :> es) => Eff es a -> Eff es TimeSpec
+withTiming_ :: (Time :> es) => Eff es a -> Eff es TimeSpec
 withTiming_ = fmap fst . withTiming
 
 -- | Retrieves the formatted 'LocalTime'.
 --
 -- @since 0.1
-getSystemTimeString :: (TimeDynamic :> es) => Eff es String
+getSystemTimeString :: (Time :> es) => Eff es String
 getSystemTimeString = fmap Utils.formatLocalTime getSystemTime
 
 -- | Retrieves the formatted 'ZonedTime'.
 --
 -- @since 0.1
-getSystemZonedTimeString :: (TimeDynamic :> es) => Eff es String
+getSystemZonedTimeString :: (Time :> es) => Eff es String
 getSystemZonedTimeString = fmap Utils.formatZonedTime getSystemZonedTime

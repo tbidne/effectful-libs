@@ -5,8 +5,8 @@ module Unit.PathReader (tests) where
 import Data.List qualified as L
 import Effectful (Eff, IOE, runEff)
 import Effectful.FileSystem.PathReader.Dynamic
-  ( PathReaderDynamic,
-    runPathReaderDynamicIO,
+  ( PathReader,
+    runPathReader,
   )
 import Effectful.FileSystem.PathReader.Dynamic qualified as PathReader
 import FileSystem.OsPath (OsPath, osp, (</>))
@@ -128,5 +128,5 @@ testListDirectoryRecursiveSymbolicLink getTmpDir = testCase desc $ do
         [osp|l3|]
       ]
 
-runEffPathReader :: Eff '[PathReaderDynamic, IOE] a -> IO a
-runEffPathReader = runEff . runPathReaderDynamicIO
+runEffPathReader :: Eff '[PathReader, IOE] a -> IO a
+runEffPathReader = runEff . runPathReader

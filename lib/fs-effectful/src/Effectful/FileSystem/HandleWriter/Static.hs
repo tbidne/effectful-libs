@@ -5,7 +5,7 @@
 -- @since 0.1
 module Effectful.FileSystem.HandleWriter.Static
   ( -- * Effect
-    HandleWriterStatic,
+    HandleWriter,
     openBinaryFile,
     withBinaryFile,
     hClose,
@@ -19,7 +19,7 @@ module Effectful.FileSystem.HandleWriter.Static
     hPutNonBlocking,
 
     -- ** Handlers
-    runHandleWriterStaticIO,
+    runHandleWriter,
 
     -- * UTF-8 Utils
     hPutUtf8,
@@ -74,26 +74,26 @@ import System.IO qualified as IO
 -- | Static effect for writing to a handle.
 --
 -- @since 0.1
-data HandleWriterStatic :: Effect
+data HandleWriter :: Effect
 
-type instance DispatchOf HandleWriterStatic = Static WithSideEffects
+type instance DispatchOf HandleWriter = Static WithSideEffects
 
-data instance StaticRep HandleWriterStatic = MkHandleWriterStatic
+data instance StaticRep HandleWriter = MkHandleWriter
 
--- | Runs 'HandleWriterStatic' in 'IO'.
+-- | Runs 'HandleWriter' in 'IO'.
 --
 -- @since 0.1
-runHandleWriterStaticIO ::
+runHandleWriter ::
   (IOE :> es) =>
-  Eff (HandleWriterStatic : es) a ->
+  Eff (HandleWriter : es) a ->
   Eff es a
-runHandleWriterStaticIO = evalStaticRep MkHandleWriterStatic
+runHandleWriter = evalStaticRep MkHandleWriter
 
 -- | Lifted 'IO.openBinaryFile'.
 --
 -- @since 0.1
 openBinaryFile ::
-  ( HandleWriterStatic :> es
+  ( HandleWriter :> es
   ) =>
   OsPath ->
   IOMode ->
@@ -105,7 +105,7 @@ openBinaryFile p = unsafeEff_ . openBinaryFileIO p
 -- @since 0.1
 withBinaryFile ::
   forall es a.
-  ( HandleWriterStatic :> es
+  ( HandleWriter :> es
   ) =>
   OsPath ->
   IOMode ->
@@ -119,7 +119,7 @@ withBinaryFile p m onHandle =
 --
 -- @since 0.1
 hClose ::
-  ( HandleWriterStatic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   Eff es ()
@@ -129,7 +129,7 @@ hClose = unsafeEff_ . IO.hClose
 --
 -- @since 0.1
 hFlush ::
-  ( HandleWriterStatic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   Eff es ()
@@ -139,7 +139,7 @@ hFlush = unsafeEff_ . IO.hFlush
 --
 -- @since 0.1
 hSetFileSize ::
-  ( HandleWriterStatic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   Integer ->
@@ -150,7 +150,7 @@ hSetFileSize h = unsafeEff_ . IO.hSetFileSize h
 --
 -- @since 0.1
 hSetBuffering ::
-  ( HandleWriterStatic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   BufferMode ->
@@ -161,7 +161,7 @@ hSetBuffering h = unsafeEff_ . IO.hSetBuffering h
 --
 -- @since 0.1
 hSeek ::
-  ( HandleWriterStatic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   SeekMode ->
@@ -173,7 +173,7 @@ hSeek h m = unsafeEff_ . IO.hSeek h m
 --
 -- @since 0.1
 hTell ::
-  ( HandleWriterStatic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   Eff es Integer
@@ -183,7 +183,7 @@ hTell = unsafeEff_ . IO.hTell
 --
 -- @since 0.1
 hSetEcho ::
-  ( HandleWriterStatic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   Bool ->
@@ -194,7 +194,7 @@ hSetEcho h = unsafeEff_ . IO.hSetEcho h
 --
 -- @since 0.1
 hPut ::
-  ( HandleWriterStatic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   ByteString ->
@@ -205,7 +205,7 @@ hPut h = unsafeEff_ . BS.hPut h
 --
 -- @since 0.1
 hPutNonBlocking ::
-  ( HandleWriterStatic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   ByteString ->
@@ -216,7 +216,7 @@ hPutNonBlocking h = unsafeEff_ . BS.hPutNonBlocking h
 --
 -- @since 0.1
 hPutUtf8 ::
-  ( HandleWriterStatic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   Text ->
@@ -227,7 +227,7 @@ hPutUtf8 h = hPut h . FS.UTF8.encodeUtf8
 --
 -- @since 0.1
 hPutNonBlockingUtf8 ::
-  ( HandleWriterStatic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   Text ->
@@ -237,7 +237,7 @@ hPutNonBlockingUtf8 h = hPutNonBlocking h . FS.UTF8.encodeUtf8
 -- | Write given error message to `stderr` and terminate with `exitFailure`.
 --
 -- @since 0.1
-die :: (HandleWriterStatic :> es) => String -> Eff es a
+die :: (HandleWriter :> es) => String -> Eff es a
 die err = hPut IO.stderr err' *> exitFailure
   where
     err' = Char8.pack err

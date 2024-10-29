@@ -5,12 +5,12 @@
 -- @since 0.1
 module Effectful.FileSystem.FileWriter.Static
   ( -- * Effect
-    FileWriterStatic,
+    FileWriter,
     writeBinaryFile,
     appendBinaryFile,
 
     -- ** Handlers
-    runFileWriterStaticIO,
+    runFileWriter,
 
     -- * UTF-8 Utils
     writeFileUtf8,
@@ -46,26 +46,26 @@ import FileSystem.UTF8 qualified as FS.UTF8
 -- | Static effect for reading files.
 --
 -- @since 0.1
-data FileWriterStatic :: Effect
+data FileWriter :: Effect
 
-type instance DispatchOf FileWriterStatic = Static WithSideEffects
+type instance DispatchOf FileWriter = Static WithSideEffects
 
-data instance StaticRep FileWriterStatic = MkFileWriterStatic
+data instance StaticRep FileWriter = MkFileWriter
 
--- | Runs 'FileWriterStatic' in 'IO'.
+-- | Runs 'FileWriter' in 'IO'.
 --
 -- @since 0.1
-runFileWriterStaticIO ::
+runFileWriter ::
   (IOE :> es) =>
-  Eff (FileWriterStatic : es) a ->
+  Eff (FileWriter : es) a ->
   Eff es a
-runFileWriterStaticIO = evalStaticRep MkFileWriterStatic
+runFileWriter = evalStaticRep MkFileWriter
 
 -- | Writes a 'ByteString' to a file.
 --
 -- @since 0.1
 writeBinaryFile ::
-  ( FileWriterStatic :> es
+  ( FileWriter :> es
   ) =>
   OsPath ->
   ByteString ->
@@ -76,7 +76,7 @@ writeBinaryFile p = unsafeEff_ . writeBinaryFileIO p
 --
 -- @since 0.1
 appendBinaryFile ::
-  ( FileWriterStatic :> es
+  ( FileWriter :> es
   ) =>
   OsPath ->
   ByteString ->
@@ -87,7 +87,7 @@ appendBinaryFile p = unsafeEff_ . appendBinaryFileIO p
 --
 -- @since 0.1
 writeFileUtf8 ::
-  ( FileWriterStatic :> es
+  ( FileWriter :> es
   ) =>
   OsPath ->
   Text ->
@@ -98,7 +98,7 @@ writeFileUtf8 f = writeBinaryFile f . FS.UTF8.encodeUtf8
 --
 -- @since 0.1
 appendFileUtf8 ::
-  ( FileWriterStatic :> es
+  ( FileWriter :> es
   ) =>
   OsPath ->
   Text ->

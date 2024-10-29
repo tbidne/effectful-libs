@@ -18,25 +18,25 @@ import Data.List qualified as L
 import Data.Text qualified as T
 import Effectful (Eff, IOE, runEff, (:>))
 import Effectful.Dispatch.Dynamic (reinterpret)
-import Effectful.FileSystem.FileReader.Dynamic (readBinaryFile, runFileReaderDynamicIO)
+import Effectful.FileSystem.FileReader.Dynamic (readBinaryFile, runFileReader)
 import Effectful.FileSystem.FileWriter.Dynamic
-  ( FileWriterDynamic,
+  ( FileWriter,
     OsPath,
-    runFileWriterDynamicIO,
+    runFileWriter,
     writeBinaryFile,
   )
 import Effectful.FileSystem.FileWriter.Dynamic qualified as FW
 import Effectful.FileSystem.PathReader.Dynamic
-  ( PathReaderDynamic,
+  ( PathReader,
     doesDirectoryExist,
     doesFileExist,
-    runPathReaderDynamicIO,
+    runPathReader,
   )
 import Effectful.FileSystem.PathReader.Dynamic qualified as PR
 import Effectful.FileSystem.PathWriter.Dynamic
   ( CopyDirConfig (MkCopyDirConfig),
     Overwrite (OverwriteAll, OverwriteDirectories, OverwriteNone),
-    PathWriterDynamic
+    PathWriter
       ( CopyFileWithMetadata,
         CreateDirectory,
         CreateDirectoryIfMissing,
@@ -51,7 +51,7 @@ import Effectful.FileSystem.PathWriter.Dynamic
     removeDirectory,
     removeDirectoryRecursive,
     removeFile,
-    runPathWriterDynamicIO,
+    runPathWriter,
   )
 import Effectful.FileSystem.PathWriter.Dynamic qualified as PW
 import Effectful.FileSystem.PathWriter.Dynamic qualified as PathWriter
@@ -236,7 +236,7 @@ cdrnPartialFails getTmpDir = testCase desc $ do
   -- copy files
   result <-
     try $
-      runPartialDynamicIO $
+      runPartial $
         PathWriter.copyDirectoryRecursiveConfig
           (overwriteConfig OverwriteNone)
           srcDir
@@ -548,7 +548,7 @@ cdrtPartialFails getTmpDir = testCase desc $ do
   -- copy files
   result <-
     try $
-      runPartialDynamicIO $
+      runPartial $
         PathWriter.copyDirectoryRecursiveConfig
           (overwriteConfig OverwriteDirectories)
           srcDir
@@ -586,7 +586,7 @@ cdrtOverwritePartialFails getTmpDir = testCase desc $ do
   -- copy files
   result <-
     try $
-      runPartialDynamicIO $
+      runPartial $
         PathWriter.copyDirectoryRecursiveConfig
           (overwriteConfig OverwriteDirectories)
           srcDir
@@ -1047,9 +1047,9 @@ removeSymlinkIfExistsFalseWrongType getTestDir = testCase desc $ do
 -------------------------------------------------------------------------------
 
 setupSrc :: OsPath -> IO OsPath
-setupSrc = runEff . runFileWriterDynamicIO . runPathWriterDynamicIO . setupSrcEff
+setupSrc = runEff . runFileWriter . runPathWriter . setupSrcEff
 
-setupSrcEff :: (FileWriterDynamic :> es, IOE :> es, PathWriterDynamic :> es) => OsPath -> Eff es OsPath
+setupSrcEff :: (FileWriter :> es, IOE :> es, PathWriter :> es) => OsPath -> Eff es OsPath
 setupSrcEff baseDir = do
   let files = [[osp|a/b/c/f1|], [osp|a/f2|], [osp|a/b/f3|], [osp|a/f4|], [osp|a/f5|], [osp|a/b/f5|]]
       srcDir = baseDir </> [osp|src|]
@@ -1065,7 +1065,7 @@ setupSrcEff baseDir = do
   liftIO $ assertSrcExists baseDir
   pure srcDir
 
-writeFiles :: (FileWriterDynamic :> es) => [(OsPath, ByteString)] -> Eff es ()
+writeFiles :: (FileWriter :> es) => [(OsPath, ByteString)] -> Eff es ()
 writeFiles = traverse_ (uncurry writeBinaryFile)
 
 overwriteConfig :: Overwrite -> CopyDirConfig
@@ -1091,12 +1091,12 @@ setupLinks getTestDir suffix = do
 --                                  Mock                                     --
 -------------------------------------------------------------------------------
 
-runPartialDynamicIO :: Eff [PathWriterDynamic, PathReaderDynamic, IOE] a -> IO a
-runPartialDynamicIO effs = do
+runPartial :: Eff [PathWriter, PathReader, IOE] a -> IO a
+runPartial effs = do
   counterRef <- newIORef 0
 
   runEff
-    . runPathReaderDynamicIO
+    . runPathReader
     . runMockWriter counterRef
     $ effs
   where
@@ -1104,9 +1104,9 @@ runPartialDynamicIO effs = do
       ( IOE :> es
       ) =>
       IORef Int ->
-      Eff (PathWriterDynamic : es) a ->
+      Eff (PathWriter : es) a ->
       Eff es a
-    runMockWriter counterRef = reinterpret runPathWriterDynamicIO $ \_ -> \case
+    runMockWriter counterRef = reinterpret runPathWriter $ \_ -> \case
       CreateDirectory p -> createDirectory p
       CreateDirectoryIfMissing b p -> createDirectoryIfMissing b p
       RemoveDirectoryRecursive p -> removeDirectoryRecursive p
@@ -1174,7 +1174,7 @@ assertFileContents :: [(OsPath, ByteString)] -> IO ()
 assertFileContents = traverse_ $ \(p, expected) -> do
   exists <- runEffPathWriter $ doesFileExist p
   assertBool ("Expected file to exist: " <> FS.OsPath.unsafeDecode p) exists
-  actual <- runEff $ runFileReaderDynamicIO $ readBinaryFile p
+  actual <- runEff $ runFileReader $ readBinaryFile p
   expected @=? actual
 
 assertDirsExist :: [OsPath] -> IO ()
@@ -1216,15 +1216,15 @@ mkTestPath getPath s = do
 
 runEffPathWriter ::
   Eff
-    '[ PathReaderDynamic,
-       PathWriterDynamic,
-       FileWriterDynamic,
+    '[ PathReader,
+       PathWriter,
+       FileWriter,
        IOE
      ]
     a ->
   IO a
 runEffPathWriter =
   runEff
-    . runFileWriterDynamicIO
-    . runPathWriterDynamicIO
-    . runPathReaderDynamicIO
+    . runFileWriter
+    . runPathWriter
+    . runPathReader

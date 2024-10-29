@@ -8,7 +8,7 @@
 -- @since 0.1
 module Effectful.Terminal.Dynamic
   ( -- * Effect
-    TerminalDynamic (..),
+    Terminal (..),
     putStr,
     putStrLn,
     putBinary,
@@ -21,7 +21,7 @@ module Effectful.Terminal.Dynamic
     supportsPretty,
 
     -- ** Handlers
-    runTerminalDynamicIO,
+    runTerminal,
 
     -- * Functions
     print,
@@ -95,26 +95,26 @@ import Prelude
 -- | Dynamic terminal effect.
 --
 -- @since 0.1
-data TerminalDynamic :: Effect where
-  PutStr :: String -> TerminalDynamic m ()
-  PutStrLn :: String -> TerminalDynamic m ()
-  PutBinary :: ByteString -> TerminalDynamic m ()
-  GetChar :: TerminalDynamic m Char
-  GetLine :: TerminalDynamic m String
+data Terminal :: Effect where
+  PutStr :: String -> Terminal m ()
+  PutStrLn :: String -> Terminal m ()
+  PutBinary :: ByteString -> Terminal m ()
+  GetChar :: Terminal m Char
+  GetLine :: Terminal m String
 #if MIN_VERSION_base(4,15,0)
-  GetContents' :: TerminalDynamic m String
+  GetContents' :: Terminal m String
 #endif
-  GetTerminalSize :: Integral a => TerminalDynamic m (Window a)
-  SupportsPretty :: TerminalDynamic m Bool
+  GetTerminalSize :: Integral a => Terminal m (Window a)
+  SupportsPretty :: Terminal m Bool
 
 -- | @since 0.1
-type instance DispatchOf TerminalDynamic = Dynamic
+type instance DispatchOf Terminal = Dynamic
 
--- | Runs 'TerminalDynamic' in 'IO'.
+-- | Runs 'Terminal' in 'IO'.
 --
 -- @since 0.1
-runTerminalDynamicIO :: (IOE :> es) => Eff (TerminalDynamic : es) a -> Eff es a
-runTerminalDynamicIO = interpret $ \_ -> \case
+runTerminal :: (IOE :> es) => Eff (Terminal : es) a -> Eff es a
+runTerminal = interpret $ \_ -> \case
   PutStr s -> liftIO $ IO.putStr s
   PutStrLn s -> liftIO $ IO.putStrLn s
   PutBinary s -> liftIO $ BS.putStr s
@@ -143,31 +143,31 @@ runTerminalDynamicIO = interpret $ \_ -> \case
 -- | Lifted 'IO.putStr'.
 --
 -- @since 0.1
-putStr :: (TerminalDynamic :> es) => String -> Eff es ()
+putStr :: (Terminal :> es) => String -> Eff es ()
 putStr = send . PutStr
 
 -- | Lifted 'IO.putStrLn'.
 --
 -- @since 0.1
-putStrLn :: (TerminalDynamic :> es) => String -> Eff es ()
+putStrLn :: (Terminal :> es) => String -> Eff es ()
 putStrLn = send . PutStrLn
 
 -- | Lifted 'BS.putStr'.
 --
 -- @since 0.1
-putBinary :: (TerminalDynamic :> es) => ByteString -> Eff es ()
+putBinary :: (Terminal :> es) => ByteString -> Eff es ()
 putBinary = send . PutBinary
 
 -- | Lifted 'IO.getChar'.
 --
 -- @since 0.1
-getChar :: (TerminalDynamic :> es) => Eff es Char
+getChar :: (Terminal :> es) => Eff es Char
 getChar = send GetChar
 
 -- | Lifted 'IO.getLine'.
 --
 -- @since 0.1
-getLine :: (TerminalDynamic :> es) => Eff es String
+getLine :: (Terminal :> es) => Eff es String
 getLine = send GetLine
 
 #if MIN_VERSION_base(4,15,0)
@@ -175,7 +175,7 @@ getLine = send GetLine
 -- | Lifted 'IO.getContents''.
 --
 -- @since 0.1
-getContents' :: ( TerminalDynamic :> es) => Eff es String
+getContents' :: ( Terminal :> es) => Eff es String
 getContents' = send GetContents'
 
 #endif
@@ -183,39 +183,39 @@ getContents' = send GetContents'
 -- | Retrieves the terminal size.
 --
 -- @since 0.1
-getTerminalSize :: (Integral a, TerminalDynamic :> es) => Eff es (Window a)
+getTerminalSize :: (Integral a, Terminal :> es) => Eff es (Window a)
 getTerminalSize = send GetTerminalSize
 
 -- | Determines if we support ANSI styling.
 --
 -- @since 0.1
-supportsPretty :: (TerminalDynamic :> es) => Eff es Bool
+supportsPretty :: (Terminal :> es) => Eff es Bool
 supportsPretty = send SupportsPretty
 
 -- | @since 0.1
-print :: (Show a, TerminalDynamic :> es) => a -> Eff es ()
+print :: (Show a, Terminal :> es) => a -> Eff es ()
 print = putStrLn . show
 
 -- | 'Text' version of 'putStr'.
 --
 -- @since 0.1
-putText :: (TerminalDynamic :> es) => Text -> Eff es ()
+putText :: (Terminal :> es) => Text -> Eff es ()
 putText = putStr . T.unpack
 
 -- | 'Text' version of 'putStrLn'.
 --
 -- @since 0.1
-putTextLn :: (TerminalDynamic :> es) => Text -> Eff es ()
+putTextLn :: (Terminal :> es) => Text -> Eff es ()
 putTextLn = putStrLn . T.unpack
 
 -- | @since 0.1
-getTextLine :: (TerminalDynamic :> es) => Eff es Text
+getTextLine :: (Terminal :> es) => Eff es Text
 getTextLine = T.pack <$> getLine
 
 #if MIN_VERSION_base(4,15,0)
 
 -- | @since 0.1
-getTextContents' :: (TerminalDynamic :> es) => Eff es Text
+getTextContents' :: (Terminal :> es) => Eff es Text
 getTextContents' = T.pack <$> getContents'
 
 #endif
@@ -223,11 +223,11 @@ getTextContents' = T.pack <$> getContents'
 -- | Retrieves the terminal width.
 --
 -- @since 0.1
-getTerminalWidth :: (Integral a, TerminalDynamic :> es) => Eff es a
+getTerminalWidth :: (Integral a, Terminal :> es) => Eff es a
 getTerminalWidth = width <$> getTerminalSize
 
 -- | Retrieves the terminal height.
 --
 -- @since 0.1
-getTerminalHeight :: (Integral a, TerminalDynamic :> es) => Eff es a
+getTerminalHeight :: (Integral a, Terminal :> es) => Eff es a
 getTerminalHeight = height <$> getTerminalSize

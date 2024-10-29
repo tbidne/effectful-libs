@@ -14,11 +14,11 @@ import Effectful
     runEff,
     type (:>),
   )
-import Effectful.FileSystem.PathReader.Static (PathReaderStatic)
+import Effectful.FileSystem.PathReader.Static (PathReader)
 import Effectful.FileSystem.PathReader.Static qualified as PR
-import Effectful.Posix.Static (PosixStatic)
+import Effectful.Posix.Static (Posix)
 import Effectful.Posix.Static qualified as P
-import Effectful.PosixCompat.Static (PosixCompatStatic)
+import Effectful.PosixCompat.Static (PosixCompat)
 import Effectful.PosixCompat.Static qualified as PC
 import FileSystem.OsPath (OsPath, combineFilePaths, osp, (</>))
 import System.FilePath qualified
@@ -116,11 +116,11 @@ dirLinkPosix = dirLinkOs.getOsString
 cfp :: FilePath -> FilePath -> FilePath
 cfp = combineFilePaths
 
-runEffPathReader :: Eff '[PathReaderStatic, IOE] a -> IO a
-runEffPathReader = runEff . PR.runPathReaderStaticIO
+runEffPathReader :: Eff '[PathReader, IOE] a -> IO a
+runEffPathReader = runEff . PR.runPathReader
 
-runEffPosix :: Eff '[PosixStatic, IOE] a -> IO a
-runEffPosix = runEff . P.runPosixStaticIO
+runEffPosix :: Eff '[Posix, IOE] a -> IO a
+runEffPosix = runEff . P.runPosix
 
-runEffPosixCompat :: Eff '[PosixCompatStatic, IOE] a -> IO a
-runEffPosixCompat = runEff . PC.runPosixCompatStaticIO
+runEffPosixCompat :: Eff '[PosixCompat, IOE] a -> IO a
+runEffPosixCompat = runEff . PC.runPosixCompat

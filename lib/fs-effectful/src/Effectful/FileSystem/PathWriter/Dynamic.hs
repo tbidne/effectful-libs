@@ -6,7 +6,7 @@
 -- @since 0.1
 module Effectful.FileSystem.PathWriter.Dynamic
   ( -- * Effect
-    PathWriterDynamic (..),
+    PathWriter (..),
     createDirectory,
     createDirectoryIfMissing,
     removeDirectory,
@@ -29,7 +29,7 @@ module Effectful.FileSystem.PathWriter.Dynamic
     setModificationTime,
 
     -- ** Handlers
-    runPathWriterDynamicIO,
+    runPathWriter,
 
     -- * Copying
 
@@ -90,7 +90,7 @@ import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
 import Effectful.Dispatch.Static (unsafeEff_)
 import Effectful.Exception (mask_)
 import Effectful.FileSystem.PathReader.Dynamic
-  ( PathReaderDynamic,
+  ( PathReader,
     PathType (PathTypeDirectory, PathTypeSymbolicLink),
   )
 import Effectful.FileSystem.PathReader.Dynamic qualified as PR
@@ -111,40 +111,40 @@ import System.OsPath qualified as FP
 -- | Effect for writing paths.
 --
 -- @since 0.1
-data PathWriterDynamic :: Effect where
-  CreateDirectory :: OsPath -> PathWriterDynamic m ()
-  CreateDirectoryIfMissing :: Bool -> OsPath -> PathWriterDynamic m ()
-  RemoveDirectory :: OsPath -> PathWriterDynamic m ()
-  RemoveDirectoryRecursive :: OsPath -> PathWriterDynamic m ()
-  RemovePathForcibly :: OsPath -> PathWriterDynamic m ()
-  RenameDirectory :: OsPath -> OsPath -> PathWriterDynamic m ()
-  SetCurrentDirectory :: OsPath -> PathWriterDynamic m ()
-  WithCurrentDirectory :: OsPath -> m a -> PathWriterDynamic m a
-  RemoveFile :: OsPath -> PathWriterDynamic m ()
-  RenameFile :: OsPath -> OsPath -> PathWriterDynamic m ()
-  RenamePath :: OsPath -> OsPath -> PathWriterDynamic m ()
-  CopyFile :: OsPath -> OsPath -> PathWriterDynamic m ()
-  CopyFileWithMetadata :: OsPath -> OsPath -> PathWriterDynamic m ()
-  CreateFileLink :: OsPath -> OsPath -> PathWriterDynamic m ()
-  CreateDirectoryLink :: OsPath -> OsPath -> PathWriterDynamic m ()
-  RemoveDirectoryLink :: OsPath -> PathWriterDynamic m ()
-  SetPermissions :: OsPath -> Permissions -> PathWriterDynamic m ()
-  CopyPermissions :: OsPath -> OsPath -> PathWriterDynamic m ()
-  SetAccessTime :: OsPath -> UTCTime -> PathWriterDynamic m ()
-  SetModificationTime :: OsPath -> UTCTime -> PathWriterDynamic m ()
+data PathWriter :: Effect where
+  CreateDirectory :: OsPath -> PathWriter m ()
+  CreateDirectoryIfMissing :: Bool -> OsPath -> PathWriter m ()
+  RemoveDirectory :: OsPath -> PathWriter m ()
+  RemoveDirectoryRecursive :: OsPath -> PathWriter m ()
+  RemovePathForcibly :: OsPath -> PathWriter m ()
+  RenameDirectory :: OsPath -> OsPath -> PathWriter m ()
+  SetCurrentDirectory :: OsPath -> PathWriter m ()
+  WithCurrentDirectory :: OsPath -> m a -> PathWriter m a
+  RemoveFile :: OsPath -> PathWriter m ()
+  RenameFile :: OsPath -> OsPath -> PathWriter m ()
+  RenamePath :: OsPath -> OsPath -> PathWriter m ()
+  CopyFile :: OsPath -> OsPath -> PathWriter m ()
+  CopyFileWithMetadata :: OsPath -> OsPath -> PathWriter m ()
+  CreateFileLink :: OsPath -> OsPath -> PathWriter m ()
+  CreateDirectoryLink :: OsPath -> OsPath -> PathWriter m ()
+  RemoveDirectoryLink :: OsPath -> PathWriter m ()
+  SetPermissions :: OsPath -> Permissions -> PathWriter m ()
+  CopyPermissions :: OsPath -> OsPath -> PathWriter m ()
+  SetAccessTime :: OsPath -> UTCTime -> PathWriter m ()
+  SetModificationTime :: OsPath -> UTCTime -> PathWriter m ()
 
 -- | @since 0.1
-type instance DispatchOf PathWriterDynamic = Dynamic
+type instance DispatchOf PathWriter = Dynamic
 
--- | Runs 'PathWriterDynamic' in 'IO'.
+-- | Runs 'PathWriter' in 'IO'.
 --
 -- @since 0.1
-runPathWriterDynamicIO ::
+runPathWriter ::
   ( IOE :> es
   ) =>
-  Eff (PathWriterDynamic : es) a ->
+  Eff (PathWriter : es) a ->
   Eff es a
-runPathWriterDynamicIO = interpret $ \env -> \case
+runPathWriter = interpret $ \env -> \case
   CreateDirectory p -> liftIO $ Dir.createDirectory p
   CreateDirectoryIfMissing b p -> liftIO $ Dir.createDirectoryIfMissing b p
   RemoveDirectory p -> liftIO $ Dir.removeDirectory p
@@ -171,7 +171,7 @@ runPathWriterDynamicIO = interpret $ \env -> \case
 --
 -- @since 0.1
 createDirectory ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   Eff es ()
 createDirectory = send . CreateDirectory
@@ -180,7 +180,7 @@ createDirectory = send . CreateDirectory
 --
 -- @since 0.1
 createDirectoryIfMissing ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   Bool ->
   OsPath ->
   Eff es ()
@@ -190,7 +190,7 @@ createDirectoryIfMissing b = send . CreateDirectoryIfMissing b
 --
 -- @since 0.1
 removeDirectory ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   Eff es ()
 removeDirectory = send . RemoveDirectory
@@ -199,7 +199,7 @@ removeDirectory = send . RemoveDirectory
 --
 -- @since 0.1
 removeDirectoryRecursive ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   Eff es ()
 removeDirectoryRecursive = send . RemoveDirectoryRecursive
@@ -208,7 +208,7 @@ removeDirectoryRecursive = send . RemoveDirectoryRecursive
 --
 -- @since 0.1
 removePathForcibly ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   Eff es ()
 removePathForcibly = send . RemovePathForcibly
@@ -217,7 +217,7 @@ removePathForcibly = send . RemovePathForcibly
 --
 -- @since 0.1
 renameDirectory ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -227,7 +227,7 @@ renameDirectory p = send . RenameDirectory p
 --
 -- @since 0.1
 setCurrentDirectory ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   Eff es ()
 setCurrentDirectory = send . SetCurrentDirectory
@@ -236,7 +236,7 @@ setCurrentDirectory = send . SetCurrentDirectory
 --
 -- @since 0.1
 withCurrentDirectory ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   Eff es a ->
   Eff es a
@@ -246,7 +246,7 @@ withCurrentDirectory p = send . WithCurrentDirectory p
 --
 -- @since 0.1
 removeFile ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   Eff es ()
 removeFile = send . RemoveFile
@@ -255,7 +255,7 @@ removeFile = send . RemoveFile
 --
 -- @since 0.1
 renameFile ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -265,7 +265,7 @@ renameFile p = send . RenameFile p
 --
 -- @since 0.1
 renamePath ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -275,7 +275,7 @@ renamePath p = send . RenamePath p
 --
 -- @since 0.1
 copyFile ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -285,7 +285,7 @@ copyFile p = send . CopyFile p
 --
 -- @since 0.1
 copyFileWithMetadata ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -295,7 +295,7 @@ copyFileWithMetadata p = send . CopyFileWithMetadata p
 --
 -- @since 0.1
 createFileLink ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -305,7 +305,7 @@ createFileLink p = send . CreateFileLink p
 --
 -- @since 0.1
 createDirectoryLink ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -315,7 +315,7 @@ createDirectoryLink p = send . CreateDirectoryLink p
 --
 -- @since 0.1
 removeDirectoryLink ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   Eff es ()
 removeDirectoryLink = send . RemoveDirectoryLink
@@ -324,7 +324,7 @@ removeDirectoryLink = send . RemoveDirectoryLink
 --
 -- @since 0.1
 setPermissions ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   Permissions ->
   Eff es ()
@@ -334,7 +334,7 @@ setPermissions p = send . SetPermissions p
 --
 -- @since 0.1
 copyPermissions ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -344,7 +344,7 @@ copyPermissions p = send . CopyPermissions p
 --
 -- @since 0.1
 setAccessTime ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   UTCTime ->
   Eff es ()
@@ -354,7 +354,7 @@ setAccessTime p = send . SetAccessTime p
 --
 -- @since 0.1
 setModificationTime ::
-  (PathWriterDynamic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   UTCTime ->
   Eff es ()
@@ -364,8 +364,8 @@ setModificationTime p = send . SetModificationTime p
 --
 -- @since 0.1
 removeFileIfExists ::
-  ( PathReaderDynamic :> es,
-    PathWriterDynamic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   OsPath ->
   Eff es ()
@@ -375,8 +375,8 @@ removeFileIfExists = removeIfExists PR.doesFileExist removeFile
 --
 -- @since 0.1
 removeDirectoryIfExists ::
-  ( PathReaderDynamic :> es,
-    PathWriterDynamic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   OsPath ->
   Eff es ()
@@ -386,8 +386,8 @@ removeDirectoryIfExists = removeIfExists PR.doesDirectoryExist removeDirectory
 --
 -- @since 0.1
 removeDirectoryRecursiveIfExists ::
-  ( PathReaderDynamic :> es,
-    PathWriterDynamic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   OsPath ->
   Eff es ()
@@ -398,8 +398,8 @@ removeDirectoryRecursiveIfExists =
 --
 -- @since 0.1
 removePathForciblyIfExists ::
-  ( PathReaderDynamic :> es,
-    PathWriterDynamic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   OsPath ->
   Eff es ()
@@ -410,8 +410,8 @@ removePathForciblyIfExists =
 --
 -- @since 0.1
 removeSymbolicLinkIfExists ::
-  ( PathReaderDynamic :> es,
-    PathWriterDynamic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   OsPath ->
   Eff es ()
@@ -431,8 +431,8 @@ removeIfExists existsFn deleteFn f =
 -- @since 0.1
 copyDirectoryRecursive ::
   forall es.
-  ( PathReaderDynamic :> es,
-    PathWriterDynamic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   -- | Source
   OsPath ->
@@ -476,8 +476,8 @@ copyDirectoryRecursive = copyDirectoryRecursiveConfig Utils.defaultCopyDirConfig
 -- @since 0.1
 copyDirectoryRecursiveConfig ::
   forall es.
-  ( PathReaderDynamic :> es,
-    PathWriterDynamic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   -- | Config
   CopyDirConfig ->
@@ -520,8 +520,8 @@ copyDirectoryRecursiveConfig config src destRoot = do
 
 copyDirectoryOverwrite ::
   forall es.
-  ( PathReaderDynamic :> es,
-    PathWriterDynamic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   -- | Overwrite files
   Bool ->
@@ -627,8 +627,8 @@ copyDirectoryOverwrite overwriteFiles src dest = do
 
 copyDirectoryNoOverwrite ::
   forall es.
-  ( PathReaderDynamic :> es,
-    PathWriterDynamic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   -- | Source
   OsPath ->
@@ -667,8 +667,8 @@ copyDirectoryNoOverwrite src dest = do
 --
 -- @since 0.1
 removeSymbolicLink ::
-  ( PathReaderDynamic :> es,
-    PathWriterDynamic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   OsPath ->
   Eff es ()
@@ -690,8 +690,8 @@ removeSymbolicLink p = do
 --
 -- @since 0.1
 copySymbolicLink ::
-  ( PathReaderDynamic :> es,
-    PathWriterDynamic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   -- | Source
   OsPath ->

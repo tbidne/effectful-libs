@@ -9,7 +9,7 @@
 -- @since 0.1
 module Effectful.Terminal.Static
   ( -- * Effect
-    TerminalStatic,
+    Terminal,
     putStr,
     putStrLn,
     putBinary,
@@ -22,7 +22,7 @@ module Effectful.Terminal.Static
     supportsPretty,
 
     -- ** Handlers
-    runTerminalStaticIO,
+    runTerminal,
 
     -- * Functions
     print,
@@ -98,46 +98,46 @@ import Prelude
 -- | Static terminal effect.
 --
 -- @since 0.1
-data TerminalStatic :: Effect
+data Terminal :: Effect
 
-type instance DispatchOf TerminalStatic = Static WithSideEffects
+type instance DispatchOf Terminal = Static WithSideEffects
 
-data instance StaticRep TerminalStatic = MkTerminalStatic
+data instance StaticRep Terminal = MkTerminal
 
--- | Runs an OptparseStatic effect.
+-- | Runs an Optparse effect.
 --
 -- @since 0.1
-runTerminalStaticIO :: (IOE :> es) => Eff (TerminalStatic : es) a -> Eff es a
-runTerminalStaticIO = evalStaticRep MkTerminalStatic
+runTerminal :: (IOE :> es) => Eff (Terminal : es) a -> Eff es a
+runTerminal = evalStaticRep MkTerminal
 
 -- | Lifted 'IO.putStr'.
 --
 -- @since 0.1
-putStr :: (TerminalStatic :> es) => String -> Eff es ()
+putStr :: (Terminal :> es) => String -> Eff es ()
 putStr = unsafeEff_ . IO.putStr
 
 -- | Lifted 'IO.putStrLn'.
 --
 -- @since 0.1
-putStrLn :: (TerminalStatic :> es) => String -> Eff es ()
+putStrLn :: (Terminal :> es) => String -> Eff es ()
 putStrLn = unsafeEff_ . IO.putStrLn
 
 -- | Lifted 'BS.putStr'.
 --
 -- @since 0.1
-putBinary :: (TerminalStatic :> es) => ByteString -> Eff es ()
+putBinary :: (Terminal :> es) => ByteString -> Eff es ()
 putBinary = unsafeEff_ . BS.putStr
 
 -- | Lifted 'IO.getChar'.
 --
 -- @since 0.1
-getChar :: (TerminalStatic :> es) => Eff es Char
+getChar :: (Terminal :> es) => Eff es Char
 getChar = unsafeEff_ IO.getChar
 
 -- | Lifted 'IO.getLine'.
 --
 -- @since 0.1
-getLine :: (TerminalStatic :> es) => Eff es String
+getLine :: (Terminal :> es) => Eff es String
 getLine = unsafeEff_ IO.getLine
 
 #if MIN_VERSION_base(4,15,0)
@@ -145,7 +145,7 @@ getLine = unsafeEff_ IO.getLine
 -- | Lifted 'IO.getContents''.
 --
 -- @since 0.1
-getContents' :: (TerminalStatic :> es) => Eff es String
+getContents' :: (Terminal :> es) => Eff es String
 getContents' = unsafeEff_ IO.getContents'
 
 #endif
@@ -153,7 +153,7 @@ getContents' = unsafeEff_ IO.getContents'
 -- | Retrieves the terminal size.
 --
 -- @since 0.1
-getTerminalSize :: (Integral a, TerminalStatic :> es) => Eff es (Window a)
+getTerminalSize :: (Integral a, Terminal :> es) => Eff es (Window a)
 getTerminalSize =
   unsafeEff_ size >>= \case
     Just h -> pure h
@@ -171,33 +171,33 @@ getTerminalSize =
 -- | Determines if we support ANSI styling.
 --
 -- @since 0.1
-supportsPretty :: (TerminalStatic :> es) => Eff es Bool
+supportsPretty :: (Terminal :> es) => Eff es Bool
 supportsPretty = unsafeEff_ CPretty.supportsPretty
 
 -- | @since 0.1
-print :: (Show a, TerminalStatic :> es) => a -> Eff es ()
+print :: (Show a, Terminal :> es) => a -> Eff es ()
 print = putStrLn . show
 
 -- | 'Text' version of 'putStr'.
 --
 -- @since 0.1
-putText :: (TerminalStatic :> es) => Text -> Eff es ()
+putText :: (Terminal :> es) => Text -> Eff es ()
 putText = putStr . T.unpack
 
 -- | 'Text' version of 'putStrLn'.
 --
 -- @since 0.1
-putTextLn :: (TerminalStatic :> es) => Text -> Eff es ()
+putTextLn :: (Terminal :> es) => Text -> Eff es ()
 putTextLn = putStrLn . T.unpack
 
 -- | @since 0.1
-getTextLine :: (TerminalStatic :> es) => Eff es Text
+getTextLine :: (Terminal :> es) => Eff es Text
 getTextLine = T.pack <$> getLine
 
 #if MIN_VERSION_base(4,15,0)
 
 -- | @since 0.1
-getTextContents' :: (TerminalStatic :> es) => Eff es Text
+getTextContents' :: (Terminal :> es) => Eff es Text
 getTextContents' = T.pack <$> getContents'
 
 #endif
@@ -205,11 +205,11 @@ getTextContents' = T.pack <$> getContents'
 -- | Retrieves the terminal width.
 --
 -- @since 0.1
-getTerminalWidth :: (Integral a, TerminalStatic :> es) => Eff es a
+getTerminalWidth :: (Integral a, Terminal :> es) => Eff es a
 getTerminalWidth = width <$> getTerminalSize
 
 -- | Retrieves the terminal height.
 --
 -- @since 0.1
-getTerminalHeight :: (Integral a, TerminalStatic :> es) => Eff es a
+getTerminalHeight :: (Integral a, Terminal :> es) => Eff es a
 getTerminalHeight = height <$> getTerminalSize

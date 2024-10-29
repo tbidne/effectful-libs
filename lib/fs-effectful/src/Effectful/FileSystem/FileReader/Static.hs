@@ -5,11 +5,11 @@
 -- @since 0.1
 module Effectful.FileSystem.FileReader.Static
   ( -- * Effect
-    FileReaderStatic,
+    FileReader,
     readBinaryFile,
 
     -- ** Handlers
-    runFileReaderStaticIO,
+    runFileReader,
 
     -- * UTF-8 Utils
     readFileUtf8,
@@ -52,24 +52,24 @@ import FileSystem.UTF8 qualified as FS.UTF8
 -- | Static effect for reading files.
 --
 -- @since 0.1
-data FileReaderStatic :: Effect
+data FileReader :: Effect
 
-type instance DispatchOf FileReaderStatic = Static WithSideEffects
+type instance DispatchOf FileReader = Static WithSideEffects
 
-data instance StaticRep FileReaderStatic = MkFileReaderStatic
+data instance StaticRep FileReader = MkFileReader
 
--- | Runs 'FileReaderStatic' in 'IO'.
+-- | Runs 'FileReader' in 'IO'.
 --
 -- @since 0.1
-runFileReaderStaticIO ::
+runFileReader ::
   (IOE :> es) =>
-  Eff (FileReaderStatic : es) a ->
+  Eff (FileReader : es) a ->
   Eff es a
-runFileReaderStaticIO = evalStaticRep MkFileReaderStatic
+runFileReader = evalStaticRep MkFileReader
 
 -- | @since 0.1
 readBinaryFile ::
-  ( FileReaderStatic :> es
+  ( FileReader :> es
   ) =>
   OsPath ->
   Eff es ByteString
@@ -79,7 +79,7 @@ readBinaryFile = unsafeEff_ . readBinaryFileIO
 --
 -- @since 0.1
 readFileUtf8 ::
-  ( FileReaderStatic :> es
+  ( FileReader :> es
   ) =>
   OsPath ->
   Eff es (Either UnicodeException Text)
@@ -89,7 +89,7 @@ readFileUtf8 = fmap FS.UTF8.decodeUtf8 . readBinaryFile
 --
 -- @since 0.1
 readFileUtf8Lenient ::
-  ( FileReaderStatic :> es
+  ( FileReader :> es
   ) =>
   OsPath ->
   Eff es Text
@@ -99,7 +99,7 @@ readFileUtf8Lenient = fmap FS.UTF8.decodeUtf8Lenient . readBinaryFile
 --
 -- @since 0.1
 readFileUtf8ThrowM ::
-  ( FileReaderStatic :> es
+  ( FileReader :> es
   ) =>
   OsPath ->
   Eff es Text

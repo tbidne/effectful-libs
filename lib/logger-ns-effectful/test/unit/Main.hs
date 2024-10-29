@@ -36,7 +36,7 @@ import Effectful.LoggerNS.Dynamic
   ( LocStrategy (LocNone, LocPartial, LocStable),
     LogFormatter (MkLogFormatter, locStrategy, newline, threadLabel, timezone),
     LogStr,
-    LoggerNSDynamic (GetNamespace, LocalNamespace),
+    LoggerNS (GetNamespace, LocalNamespace),
     Namespace,
     addNamespace,
     formatLog,
@@ -44,7 +44,7 @@ import Effectful.LoggerNS.Dynamic
   )
 import Effectful.State.Static.Local (evalState, get, modify)
 import Effectful.Time.Dynamic
-  ( TimeDynamic (GetMonotonicTime, GetSystemZonedTime),
+  ( Time (GetMonotonicTime, GetSystemZonedTime),
   )
 import GHC.Conc.Sync qualified as Sync
 import Test.Tasty (TestTree, defaultMain, testGroup)
@@ -160,8 +160,8 @@ formatThreadLabel = testCase "Formats a log with thread label" $ do
 
 formatNamespaced ::
   ( Concurrent :> es,
-    LoggerNSDynamic :> es,
-    TimeDynamic :> es
+    LoggerNS :> es,
+    Time :> es
   ) =>
   LogFormatter ->
   Eff es LogStr
@@ -186,20 +186,20 @@ zonedTime :: ZonedTime
 zonedTime = ZonedTime localTime utc
 
 runTimePure ::
-  Eff (TimeDynamic : es) a ->
+  Eff (Time : es) a ->
   Eff es a
 runTimePure = interpret $ \_ -> \case
   GetSystemZonedTime -> pure zonedTime
   GetMonotonicTime -> pure 50
 
 runLoggerNamespacePure ::
-  Eff (LoggerNSDynamic : es) a ->
+  Eff (LoggerNS : es) a ->
   Eff es a
 runLoggerNamespacePure = reinterpret (evalState ([] :: Namespace)) $ \env -> \case
   GetNamespace -> get
   LocalNamespace f m -> localSeqUnlift env $ \run -> modify f *> run m
 
-runEffLoggerNamespace :: Eff '[Concurrent, LoggerNSDynamic, TimeDynamic, IOE] a -> IO a
+runEffLoggerNamespace :: Eff '[Concurrent, LoggerNS, Time, IOE] a -> IO a
 runEffLoggerNamespace =
   runEff
     . runTimePure

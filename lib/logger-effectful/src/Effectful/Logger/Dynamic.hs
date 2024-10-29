@@ -6,7 +6,7 @@
 -- @since 0.1
 module Effectful.Logger.Dynamic
   ( -- * Effect
-    LoggerDynamic (..),
+    Logger (..),
     loggerLog,
 
     -- * Types
@@ -148,7 +148,7 @@ import System.Log.FastLogger (LogStr, ToLogStr (toLogStr), fromLogStr)
 -- | Dynamic logging effect for "Control.Monad.Logger".
 --
 -- @since 0.1
-data LoggerDynamic :: Effect where
+data Logger :: Effect where
   LoggerLog ::
     ( ToLogStr msg
     ) =>
@@ -156,16 +156,16 @@ data LoggerDynamic :: Effect where
     LogSource ->
     LogLevel ->
     msg ->
-    LoggerDynamic m ()
+    Logger m ()
 
 -- | @since 0.1
-type instance DispatchOf LoggerDynamic = Dynamic
+type instance DispatchOf Logger = Dynamic
 
 -- | Returns the local system time.
 --
 -- @since 0.1
 loggerLog ::
-  ( LoggerDynamic :> es,
+  ( Logger :> es,
     ToLogStr msg
   ) =>
   Loc ->
@@ -515,7 +515,7 @@ isDefaultLoc _ = False
 
 -- | @since 0.1
 logWithoutLoc ::
-  ( LoggerDynamic :> es,
+  ( Logger :> es,
     ToLogStr msg
   ) =>
   LogSource ->
@@ -525,60 +525,60 @@ logWithoutLoc ::
 logWithoutLoc = loggerLog defaultLoc
 
 -- | @since 0.1
-logTraceN :: (LoggerDynamic :> es) => Text -> Eff es ()
+logTraceN :: (Logger :> es) => Text -> Eff es ()
 logTraceN = logWithoutLoc "" LevelTrace
 
 -- | @since 0.1
-logDebugN :: (LoggerDynamic :> es) => Text -> Eff es ()
+logDebugN :: (Logger :> es) => Text -> Eff es ()
 logDebugN = logWithoutLoc "" LevelDebug
 
 -- | @since 0.1
-logInfoN :: (LoggerDynamic :> es) => Text -> Eff es ()
+logInfoN :: (Logger :> es) => Text -> Eff es ()
 logInfoN = logWithoutLoc "" LevelInfo
 
 -- | @since 0.1
-logWarnN :: (LoggerDynamic :> es) => Text -> Eff es ()
+logWarnN :: (Logger :> es) => Text -> Eff es ()
 logWarnN = logWithoutLoc "" LevelWarn
 
 -- | @since 0.1
-logErrorN :: (LoggerDynamic :> es) => Text -> Eff es ()
+logErrorN :: (Logger :> es) => Text -> Eff es ()
 logErrorN = logWithoutLoc "" LevelError
 
 -- | @since 0.1
-logFatalN :: (LoggerDynamic :> es) => Text -> Eff es ()
+logFatalN :: (Logger :> es) => Text -> Eff es ()
 logFatalN = logWithoutLoc "" LevelFatal
 
 -- | @since 0.1
-logOtherN :: (LoggerDynamic :> es) => LogLevel -> Text -> Eff es ()
+logOtherN :: (Logger :> es) => LogLevel -> Text -> Eff es ()
 logOtherN = logWithoutLoc ""
 
 -- | @since 0.1
-logTraceNS :: (LoggerDynamic :> es) => LogSource -> Text -> Eff es ()
+logTraceNS :: (Logger :> es) => LogSource -> Text -> Eff es ()
 logTraceNS src = logWithoutLoc src LevelTrace
 
 -- | @since 0.1
-logDebugNS :: (LoggerDynamic :> es) => LogSource -> Text -> Eff es ()
+logDebugNS :: (Logger :> es) => LogSource -> Text -> Eff es ()
 logDebugNS src = logWithoutLoc src LevelDebug
 
 -- | @since 0.1
-logInfoNS :: (LoggerDynamic :> es) => LogSource -> Text -> Eff es ()
+logInfoNS :: (Logger :> es) => LogSource -> Text -> Eff es ()
 logInfoNS src = logWithoutLoc src LevelInfo
 
 -- | @since 0.1
-logWarnNS :: (LoggerDynamic :> es) => LogSource -> Text -> Eff es ()
+logWarnNS :: (Logger :> es) => LogSource -> Text -> Eff es ()
 logWarnNS src = logWithoutLoc src LevelWarn
 
 -- | @since 0.1
-logErrorNS :: (LoggerDynamic :> es) => LogSource -> Text -> Eff es ()
+logErrorNS :: (Logger :> es) => LogSource -> Text -> Eff es ()
 logErrorNS src = logWithoutLoc src LevelError
 
 -- | @since 0.1
-logFatalNS :: (LoggerDynamic :> es) => LogSource -> Text -> Eff es ()
+logFatalNS :: (Logger :> es) => LogSource -> Text -> Eff es ()
 logFatalNS src = logWithoutLoc src LevelFatal
 
 -- | @since 0.1
 logOtherNS ::
-  (LoggerDynamic :> es) =>
+  (Logger :> es) =>
   LogSource ->
   LogLevel ->
   Text ->
@@ -610,7 +610,7 @@ locFromCS cs = case getCallStack cs of
 
 -- | @since 0.1
 logCS ::
-  (LoggerDynamic :> es, ToLogStr msg) =>
+  (Logger :> es, ToLogStr msg) =>
   CallStack ->
   LogSource ->
   LogLevel ->
@@ -621,7 +621,7 @@ logCS cs = loggerLog (locFromCS cs)
 -- | See 'logDebugCS'
 --
 -- @since 0.1
-logTraceCS :: (LoggerDynamic :> es) => CallStack -> Text -> Eff es ()
+logTraceCS :: (Logger :> es) => CallStack -> Text -> Eff es ()
 logTraceCS cs = logCS cs "" LevelTrace
 
 -- | Logs a message with location given by 'CallStack'.
@@ -629,38 +629,38 @@ logTraceCS cs = logCS cs "" LevelTrace
 -- functions for 'CallStack' based logging.
 --
 -- @since 0.1
-logDebugCS :: (LoggerDynamic :> es) => CallStack -> Text -> Eff es ()
+logDebugCS :: (Logger :> es) => CallStack -> Text -> Eff es ()
 logDebugCS cs = logCS cs "" LevelDebug
 
 -- | See 'logDebugCS'
 --
 -- @since 0.1
-logInfoCS :: (LoggerDynamic :> es) => CallStack -> Text -> Eff es ()
+logInfoCS :: (Logger :> es) => CallStack -> Text -> Eff es ()
 logInfoCS cs = logCS cs "" LevelInfo
 
 -- | See 'logDebugCS'
 --
 -- @since 0.1
-logWarnCS :: (LoggerDynamic :> es) => CallStack -> Text -> Eff es ()
+logWarnCS :: (Logger :> es) => CallStack -> Text -> Eff es ()
 logWarnCS cs = logCS cs "" LevelWarn
 
 -- | See 'logDebugCS'
 --
 -- @since 0.1
-logErrorCS :: (LoggerDynamic :> es) => CallStack -> Text -> Eff es ()
+logErrorCS :: (Logger :> es) => CallStack -> Text -> Eff es ()
 logErrorCS cs = logCS cs "" LevelError
 
 -- | See 'logDebugCS'
 --
 -- @since 0.1
-logFatalCS :: (LoggerDynamic :> es) => CallStack -> Text -> Eff es ()
+logFatalCS :: (Logger :> es) => CallStack -> Text -> Eff es ()
 logFatalCS cs = logCS cs "" LevelFatal
 
 -- | See 'logDebugCS'
 --
 -- @since 0.1
 logOtherCS ::
-  (LoggerDynamic :> es) =>
+  (Logger :> es) =>
   CallStack ->
   LogLevel ->
   Text ->

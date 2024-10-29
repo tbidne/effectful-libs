@@ -8,7 +8,7 @@
 -- @since 0.1
 module Effectful.FileSystem.PathWriter.Static
   ( -- * Effect
-    PathWriterStatic,
+    PathWriter,
     createDirectory,
     createDirectoryIfMissing,
     removeDirectory,
@@ -31,7 +31,7 @@ module Effectful.FileSystem.PathWriter.Static
     setModificationTime,
 
     -- ** Handlers
-    runPathWriterStaticIO,
+    runPathWriter,
 
     -- * Copying
 
@@ -97,7 +97,7 @@ import Effectful.Dispatch.Static
   )
 import Effectful.Exception (mask_)
 import Effectful.FileSystem.PathReader.Static
-  ( PathReaderStatic,
+  ( PathReader,
     PathType (PathTypeDirectory, PathTypeSymbolicLink),
   )
 import Effectful.FileSystem.PathReader.Static qualified as PR
@@ -118,23 +118,23 @@ import System.OsPath qualified as FP
 -- | Static effect for writing paths.
 --
 -- @since 0.1
-data PathWriterStatic :: Effect
+data PathWriter :: Effect
 
-type instance DispatchOf PathWriterStatic = Static WithSideEffects
+type instance DispatchOf PathWriter = Static WithSideEffects
 
-data instance StaticRep PathWriterStatic = MkPathWriterStatic
+data instance StaticRep PathWriter = MkPathWriter
 
--- | Runs an 'PathWriterStatic' effect in IO.
+-- | Runs an 'PathWriter' effect in IO.
 --
 -- @since 0.1
-runPathWriterStaticIO :: (IOE :> es) => Eff (PathWriterStatic : es) a -> Eff es a
-runPathWriterStaticIO = evalStaticRep MkPathWriterStatic
+runPathWriter :: (IOE :> es) => Eff (PathWriter : es) a -> Eff es a
+runPathWriter = evalStaticRep MkPathWriter
 
 -- | Lifted 'Dir.createDirectory'.
 --
 -- @since 0.1
 createDirectory ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   Eff es ()
 createDirectory = unsafeEff_ . Dir.createDirectory
@@ -143,7 +143,7 @@ createDirectory = unsafeEff_ . Dir.createDirectory
 --
 -- @since 0.1
 createDirectoryIfMissing ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   Bool ->
   OsPath ->
   Eff es ()
@@ -153,7 +153,7 @@ createDirectoryIfMissing b = unsafeEff_ . Dir.createDirectoryIfMissing b
 --
 -- @since 0.1
 removeDirectory ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   Eff es ()
 removeDirectory = unsafeEff_ . Dir.removeDirectory
@@ -162,7 +162,7 @@ removeDirectory = unsafeEff_ . Dir.removeDirectory
 --
 -- @since 0.1
 removeDirectoryRecursive ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   Eff es ()
 removeDirectoryRecursive = unsafeEff_ . Dir.removeDirectoryRecursive
@@ -171,7 +171,7 @@ removeDirectoryRecursive = unsafeEff_ . Dir.removeDirectoryRecursive
 --
 -- @since 0.1
 removePathForcibly ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   Eff es ()
 removePathForcibly = unsafeEff_ . Dir.removePathForcibly
@@ -180,7 +180,7 @@ removePathForcibly = unsafeEff_ . Dir.removePathForcibly
 --
 -- @since 0.1
 renameDirectory ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -190,7 +190,7 @@ renameDirectory p = unsafeEff_ . Dir.renameDirectory p
 --
 -- @since 0.1
 setCurrentDirectory ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   Eff es ()
 setCurrentDirectory = unsafeEff_ . Dir.setCurrentDirectory
@@ -199,7 +199,7 @@ setCurrentDirectory = unsafeEff_ . Dir.setCurrentDirectory
 --
 -- @since 0.1
 withCurrentDirectory ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   Eff es a ->
   Eff es a
@@ -211,7 +211,7 @@ withCurrentDirectory p m =
 --
 -- @since 0.1
 removeFile ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   Eff es ()
 removeFile = unsafeEff_ . Dir.removeFile
@@ -220,7 +220,7 @@ removeFile = unsafeEff_ . Dir.removeFile
 --
 -- @since 0.1
 renameFile ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -230,7 +230,7 @@ renameFile p = unsafeEff_ . Dir.renameFile p
 --
 -- @since 0.1
 renamePath ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -240,7 +240,7 @@ renamePath p = unsafeEff_ . Dir.renamePath p
 --
 -- @since 0.1
 copyFile ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -250,7 +250,7 @@ copyFile p = unsafeEff_ . Dir.copyFile p
 --
 -- @since 0.1
 copyFileWithMetadata ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -260,7 +260,7 @@ copyFileWithMetadata p = unsafeEff_ . Dir.copyFileWithMetadata p
 --
 -- @since 0.1
 createFileLink ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -270,7 +270,7 @@ createFileLink p = unsafeEff_ . Dir.createFileLink p
 --
 -- @since 0.1
 createDirectoryLink ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -280,7 +280,7 @@ createDirectoryLink p = unsafeEff_ . Dir.createDirectoryLink p
 --
 -- @since 0.1
 removeDirectoryLink ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   Eff es ()
 removeDirectoryLink = unsafeEff_ . Dir.removeDirectoryLink
@@ -289,7 +289,7 @@ removeDirectoryLink = unsafeEff_ . Dir.removeDirectoryLink
 --
 -- @since 0.1
 setPermissions ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   Permissions ->
   Eff es ()
@@ -299,7 +299,7 @@ setPermissions p = unsafeEff_ . Dir.setPermissions p
 --
 -- @since 0.1
 copyPermissions ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -309,7 +309,7 @@ copyPermissions p = unsafeEff_ . Dir.copyPermissions p
 --
 -- @since 0.1
 setAccessTime ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   UTCTime ->
   Eff es ()
@@ -319,7 +319,7 @@ setAccessTime p = unsafeEff_ . Dir.setAccessTime p
 --
 -- @since 0.1
 setModificationTime ::
-  (PathWriterStatic :> es) =>
+  (PathWriter :> es) =>
   OsPath ->
   UTCTime ->
   Eff es ()
@@ -329,8 +329,8 @@ setModificationTime p = unsafeEff_ . Dir.setModificationTime p
 --
 -- @since 0.1
 removeFileIfExists ::
-  ( PathReaderStatic :> es,
-    PathWriterStatic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   OsPath ->
   Eff es ()
@@ -340,8 +340,8 @@ removeFileIfExists = removeIfExists PR.doesFileExist removeFile
 --
 -- @since 0.1
 removeDirectoryIfExists ::
-  ( PathReaderStatic :> es,
-    PathWriterStatic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   OsPath ->
   Eff es ()
@@ -351,8 +351,8 @@ removeDirectoryIfExists = removeIfExists PR.doesDirectoryExist removeDirectory
 --
 -- @since 0.1
 removeDirectoryRecursiveIfExists ::
-  ( PathReaderStatic :> es,
-    PathWriterStatic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   OsPath ->
   Eff es ()
@@ -363,8 +363,8 @@ removeDirectoryRecursiveIfExists =
 --
 -- @since 0.1
 removePathForciblyIfExists ::
-  ( PathReaderStatic :> es,
-    PathWriterStatic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   OsPath ->
   Eff es ()
@@ -375,8 +375,8 @@ removePathForciblyIfExists =
 --
 -- @since 0.1
 removeSymbolicLinkIfExists ::
-  ( PathReaderStatic :> es,
-    PathWriterStatic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   OsPath ->
   Eff es ()
@@ -392,8 +392,8 @@ removeIfExists existsFn deleteFn f =
 -- @since 0.1
 copyDirectoryRecursive ::
   forall es.
-  ( PathReaderStatic :> es,
-    PathWriterStatic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   -- | Source
   OsPath ->
@@ -437,8 +437,8 @@ copyDirectoryRecursive = copyDirectoryRecursiveConfig Utils.defaultCopyDirConfig
 -- @since 0.1
 copyDirectoryRecursiveConfig ::
   forall es.
-  ( PathReaderStatic :> es,
-    PathWriterStatic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   -- | Config
   CopyDirConfig ->
@@ -481,8 +481,8 @@ copyDirectoryRecursiveConfig config src destRoot = do
 
 copyDirectoryOverwrite ::
   forall es.
-  ( PathReaderStatic :> es,
-    PathWriterStatic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   -- | Overwrite files
   Bool ->
@@ -588,8 +588,8 @@ copyDirectoryOverwrite overwriteFiles src dest = do
 
 copyDirectoryNoOverwrite ::
   forall es.
-  ( PathReaderStatic :> es,
-    PathWriterStatic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   -- | Source
   OsPath ->
@@ -628,8 +628,8 @@ copyDirectoryNoOverwrite src dest = do
 --
 -- @since 0.1
 removeSymbolicLink ::
-  ( PathReaderStatic :> es,
-    PathWriterStatic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   OsPath ->
   Eff es ()
@@ -651,8 +651,8 @@ removeSymbolicLink p = do
 --
 -- @since 0.1
 copySymbolicLink ::
-  ( PathReaderStatic :> es,
-    PathWriterStatic :> es
+  ( PathReader :> es,
+    PathWriter :> es
   ) =>
   -- | Source
   OsPath ->

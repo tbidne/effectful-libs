@@ -15,7 +15,7 @@ import Effectful.Logger.Dynamic
         LevelTrace,
         LevelWarn
       ),
-    LoggerDynamic (LoggerLog),
+    Logger (LoggerLog),
     logDebug,
     logError,
     logFatal,
@@ -393,8 +393,8 @@ formatLocPartial =
         }
 
 formatNamespaced ::
-  ( LoggerNSDynamic :> es,
-    TimeDynamic :> es
+  ( LoggerNS :> es,
+    Time :> es
   ) =>
   LogFormatter ->
   Eff es LogStr
@@ -419,20 +419,20 @@ zonedTime :: ZonedTime
 zonedTime = ZonedTime localTime utc
 
 runTimePure ::
-  Eff (TimeDynamic : es) a ->
+  Eff (Time : es) a ->
   Eff es a
 runTimePure = interpret $ \_ -> \case
   GetSystemZonedTime -> pure zonedTime
   GetMonotonicTime -> pure 50
 
 runLoggerNamespacePure ::
-  Eff (LoggerNSDynamic : es) a ->
+  Eff (LoggerNS : es) a ->
   Eff es a
 runLoggerNamespacePure = reinterpret (evalState ([] :: Namespace)) $ \env -> \case
   GetNamespace -> get
   LocalNamespace f m -> localSeqUnlift env $ \run -> modify f *> run m
 
-runEffLoggerNamespace :: Eff '[LoggerNSDynamic, TimeDynamic] a -> a
+runEffLoggerNamespace :: Eff '[LoggerNS, Time] a -> a
 runEffLoggerNamespace =
   runPureEff
     . runTimePure

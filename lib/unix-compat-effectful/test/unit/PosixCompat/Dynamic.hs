@@ -9,7 +9,7 @@ import Effectful.PosixCompat.Dynamic
         PathTypeFile,
         PathTypeSymbolicLink
       ),
-    PosixCompatDynamic,
+    PosixCompat,
   )
 import Effectful.PosixCompat.Dynamic qualified as PC
 import System.Directory qualified as Dir
@@ -168,5 +168,5 @@ throwIfNoEx m = do
     Left _ -> pure ()
     Right _ -> assertFailure "Expected exception, received none"
 
-runEffPosix :: Eff '[PosixCompatDynamic, IOE] a -> IO a
-runEffPosix = runEff . PC.runPosixCompatDynamicIO
+runEffPosix :: Eff '[PosixCompat, IOE] a -> IO a
+runEffPosix = runEff . PC.runPosixCompat

@@ -5,7 +5,7 @@
 -- @since 0.1
 module Effectful.IORef.Static
   ( -- * Effect
-    IORefStatic,
+    IORefE,
     newIORef,
     readIORef,
     writeIORef,
@@ -13,7 +13,7 @@ module Effectful.IORef.Static
     atomicModifyIORef',
 
     -- ** Handlers
-    runIORefStaticIO,
+    runIORef,
 
     -- * Utils
     atomicModifyIORef'_,
@@ -43,41 +43,41 @@ import Effectful.Dispatch.Static
 -- | Static effect for 'IORef'.
 --
 -- @since 0.1
-data IORefStatic :: Effect
+data IORefE :: Effect
 
-type instance DispatchOf IORefStatic = Static WithSideEffects
+type instance DispatchOf IORefE = Static WithSideEffects
 
-data instance StaticRep IORefStatic = MkIORefStatic
+data instance StaticRep IORefE = MkIORefEtatic
 
--- | Runs an IORefStatic effect.
+-- | Runs an IORefE effect.
 --
 -- @since 0.1
-runIORefStaticIO :: (IOE :> es) => Eff (IORefStatic : es) a -> Eff es a
-runIORefStaticIO = evalStaticRep MkIORefStatic
+runIORef :: (IOE :> es) => Eff (IORefE : es) a -> Eff es a
+runIORef = evalStaticRep MkIORefEtatic
 
 -- | Lifted 'IORef.newIORef'.
 --
 -- @since 0.1
-newIORef :: (IORefStatic :> es) => a -> Eff es (IORef a)
+newIORef :: (IORefE :> es) => a -> Eff es (IORef a)
 newIORef = unsafeEff_ . IORef.newIORef
 
 -- | Lifted 'IORef.readIORef'.
 --
 -- @since 0.1
-readIORef :: (IORefStatic :> es) => IORef a -> Eff es a
+readIORef :: (IORefE :> es) => IORef a -> Eff es a
 readIORef = unsafeEff_ . IORef.readIORef
 
 -- | Lifted 'IORef.writeIORef'.
 --
 -- @since 0.1
-writeIORef :: (IORefStatic :> es) => IORef a -> a -> Eff es ()
+writeIORef :: (IORefE :> es) => IORef a -> a -> Eff es ()
 writeIORef ref = unsafeEff_ . IORef.writeIORef ref
 
 -- | Lifted 'IORef.modifyIORef''.
 --
 -- @since 0.1
 modifyIORef' ::
-  ( IORefStatic :> es
+  ( IORefE :> es
   ) =>
   IORef a ->
   (a -> a) ->
@@ -88,7 +88,7 @@ modifyIORef' ref = unsafeEff_ . IORef.modifyIORef' ref
 --
 -- @since 0.1
 atomicModifyIORef' ::
-  ( IORefStatic :> es
+  ( IORefE :> es
   ) =>
   IORef a ->
   (a -> (a, b)) ->
@@ -99,7 +99,7 @@ atomicModifyIORef' ref = unsafeEff_ . IORef.atomicModifyIORef' ref
 --
 -- @since 0.1
 atomicModifyIORef'_ ::
-  ( IORefStatic :> es
+  ( IORefE :> es
   ) =>
   IORef a ->
   (a -> a) ->

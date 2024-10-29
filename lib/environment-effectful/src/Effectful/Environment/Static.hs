@@ -14,7 +14,6 @@
 module Effectful.Environment.Static
   ( -- * Effect
     Environment,
-    EnvironmentStatic,
 
     -- ** Functions
     Eff.Env.getArgs,
@@ -49,9 +48,6 @@ import System.Environment qualified as Env
 import Effectful.Environment (Environment, runEnvironment)
 import Effectful.Environment qualified as Eff.Env
 import Effectful.Environment.Utils (QueryExePath (NoQuery, QueryResult))
-
--- | Alias for 'Environment' effect.
-type EnvironmentStatic = Environment
 
 {- ORMOLU_DISABLE -}
 

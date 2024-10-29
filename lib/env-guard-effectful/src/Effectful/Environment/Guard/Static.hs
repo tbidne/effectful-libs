@@ -2,10 +2,10 @@
 
 module Effectful.Environment.Guard.Static
   ( -- * Effect
-    EnvGuardStatic,
+    EnvGuard,
 
     -- ** Handler
-    runEnvGuardStaticIO,
+    runEnvGuard,
 
     -- * High level combinators
     ExpectEnv (..),
@@ -59,15 +59,15 @@ import System.Environment.Guard qualified as EnvGuard
 -- | Static effect for 'EnvGuard'.
 --
 -- @since 0.1
-data EnvGuardStatic :: Effect
+data EnvGuard :: Effect
 
-type instance DispatchOf EnvGuardStatic = Static WithSideEffects
+type instance DispatchOf EnvGuard = Static WithSideEffects
 
-data instance StaticRep EnvGuardStatic = MkEnvGuardStatic
+data instance StaticRep EnvGuard = MkEnvGuard
 
 -- | @since 0.1
 guardPredicate ::
-  (EnvGuardStatic :> es) =>
+  (EnvGuard :> es) =>
   String ->
   (String -> Bool) ->
   Eff es a ->
@@ -76,15 +76,15 @@ guardPredicate envStr p action =
   unsafeEff $ \env -> seqUnliftIO env $
     \runInIO -> EnvGuard.guardPredicate envStr p (runInIO action)
 
--- | Runs an EnvGuardStatic effect.
+-- | Runs an EnvGuard effect.
 --
 -- @since 0.1
-runEnvGuardStaticIO :: (IOE :> es) => Eff (EnvGuardStatic : es) a -> Eff es a
-runEnvGuardStaticIO = evalStaticRep MkEnvGuardStatic
+runEnvGuard :: (IOE :> es) => Eff (EnvGuard : es) a -> Eff es a
+runEnvGuard = evalStaticRep MkEnvGuard
 
 -- | @since 0.1
 withGuard ::
-  (EnvGuardStatic :> es) =>
+  (EnvGuard :> es) =>
   String ->
   ExpectEnv ->
   Eff es a ->
@@ -97,7 +97,7 @@ withGuard var expect m =
 
 -- | @since 0.1
 withGuard_ ::
-  (EnvGuardStatic :> es) =>
+  (EnvGuard :> es) =>
   String ->
   ExpectEnv ->
   Eff es a ->
@@ -106,7 +106,7 @@ withGuard_ var expect = void . withGuard var expect
 
 -- | @since 0.1
 guardOrElse ::
-  (EnvGuardStatic :> es) =>
+  (EnvGuard :> es) =>
   -- | The environment variable.
   String ->
   -- | The expectation.
@@ -125,7 +125,7 @@ guardOrElse var expect m1 m2 =
 
 -- | @since 0.1
 guardOrElse' ::
-  (EnvGuardStatic :> es) =>
+  (EnvGuard :> es) =>
   -- | The environment variable.
   String ->
   -- | The expectation.
@@ -140,7 +140,7 @@ guardOrElse' var expect m = fmap (either id id) . guardOrElse var expect m
 
 -- | @since 0.1
 guardSet ::
-  (EnvGuardStatic :> es) =>
+  (EnvGuard :> es) =>
   String ->
   Eff es a ->
   Eff es (Maybe a)
@@ -148,7 +148,7 @@ guardSet var = guardPredicate var (const True)
 
 -- | @since 0.1
 guardSet_ ::
-  (EnvGuardStatic :> es) =>
+  (EnvGuard :> es) =>
   String ->
   Eff es a ->
   Eff es ()
@@ -156,7 +156,7 @@ guardSet_ var = void . guardSet var
 
 -- | @since 0.1
 guardEquals ::
-  (EnvGuardStatic :> es) =>
+  (EnvGuard :> es) =>
   String ->
   String ->
   Eff es a ->
@@ -165,7 +165,7 @@ guardEquals var expected = guardPredicate var (eqCaseInsensitive expected)
 
 -- | @since 0.1
 guardEquals_ ::
-  (EnvGuardStatic :> es) =>
+  (EnvGuard :> es) =>
   String ->
   String ->
   Eff es a ->
@@ -174,7 +174,7 @@ guardEquals_ var expected = void . guardEquals var expected
 
 -- | @since 0.1
 guardPredicate_ ::
-  (EnvGuardStatic :> es) =>
+  (EnvGuard :> es) =>
   String ->
   (String -> Bool) ->
   Eff es a ->

@@ -4,11 +4,11 @@ module Main (main) where
 
 import Data.Foldable (for_)
 import Effectful (Eff, IOE, runEff, (:>))
-import Effectful.FileSystem.FileWriter.Static (FileWriterStatic)
+import Effectful.FileSystem.FileWriter.Static (FileWriter)
 import Effectful.FileSystem.FileWriter.Static qualified as FW
-import Effectful.FileSystem.PathReader.Static (PathReaderStatic)
+import Effectful.FileSystem.PathReader.Static (PathReader)
 import Effectful.FileSystem.PathReader.Static qualified as PR
-import Effectful.FileSystem.PathWriter.Static (PathWriterStatic)
+import Effectful.FileSystem.PathWriter.Static (PathWriter)
 import Effectful.FileSystem.PathWriter.Static qualified as PW
 import FileSystem.OsPath (OsPath, osp, (</>))
 import FileSystem.OsPath qualified as FS.OsPath
@@ -75,9 +75,9 @@ teardown fp = guardOrElse' "NO_CLEANUP" ExpectEnvSet doNothing cleanup
 -- to die when checking out this repo during a build. Thus we build the
 -- needed directory during the test itself.
 createDataDir ::
-  ( FileWriterStatic :> es,
-    PathReaderStatic :> es,
-    PathWriterStatic :> es
+  ( FileWriter :> es,
+    PathReader :> es,
+    PathWriter :> es
   ) =>
   OsPath ->
   Eff es ()
@@ -124,9 +124,9 @@ createDataDir tmpDir = do
           then PW.createDirectoryLink (dataDir </> t) (dataDir </> n)
           else PW.createFileLink (dataDir </> t) (dataDir </> n)
 
-runEffectsIO :: Eff [PathWriterStatic, PathReaderStatic, FileWriterStatic, IOE] a -> IO a
+runEffectsIO :: Eff [PathWriter, PathReader, FileWriter, IOE] a -> IO a
 runEffectsIO =
   runEff
-    . FW.runFileWriterStaticIO
-    . PR.runPathReaderStaticIO
-    . PW.runPathWriterStaticIO
+    . FW.runFileWriter
+    . PR.runPathReader
+    . PW.runPathWriter

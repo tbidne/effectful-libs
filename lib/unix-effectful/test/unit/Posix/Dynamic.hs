@@ -10,7 +10,7 @@ import Effectful.Posix.Dynamic
         PathTypeFile,
         PathTypeSymbolicLink
       ),
-    PosixDynamic,
+    Posix,
   )
 import Effectful.Posix.Dynamic qualified as PC
 import FileSystem.IO qualified as IO
@@ -171,5 +171,5 @@ throwIfNoEx m = do
     Left _ -> pure ()
     Right _ -> assertFailure "Expected exception, received none"
 
-runEffPosix :: Eff '[PosixDynamic, IOE] a -> IO a
-runEffPosix = runEff . PC.runPosixDynamicIO
+runEffPosix :: Eff '[Posix, IOE] a -> IO a
+runEffPosix = runEff . PC.runPosix

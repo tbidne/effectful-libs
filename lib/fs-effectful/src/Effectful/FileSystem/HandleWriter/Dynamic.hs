@@ -3,7 +3,7 @@
 -- @since 0.1
 module Effectful.FileSystem.HandleWriter.Dynamic
   ( -- * Effect
-    HandleWriterDynamic (..),
+    HandleWriter (..),
     openBinaryFile,
     withBinaryFile,
     hClose,
@@ -17,7 +17,7 @@ module Effectful.FileSystem.HandleWriter.Dynamic
     hPutNonBlocking,
 
     -- ** Handlers
-    runHandleWriterDynamicIO,
+    runHandleWriter,
 
     -- * UTF-8 Utils
     hPutUtf8,
@@ -64,33 +64,33 @@ import System.IO
 import System.IO qualified as IO
 
 -- | @since 0.1
-type instance DispatchOf HandleWriterDynamic = Dynamic
+type instance DispatchOf HandleWriter = Dynamic
 
 -- | Dynamic effect for writing to a handle.
 --
 -- @since 0.1
-data HandleWriterDynamic :: Effect where
-  OpenBinaryFile :: OsPath -> IOMode -> HandleWriterDynamic m Handle
-  WithBinaryFile :: OsPath -> IOMode -> (Handle -> m a) -> HandleWriterDynamic m a
-  HClose :: Handle -> HandleWriterDynamic m ()
-  HFlush :: Handle -> HandleWriterDynamic m ()
-  HSetFileSize :: Handle -> Integer -> HandleWriterDynamic m ()
-  HSetBuffering :: Handle -> BufferMode -> HandleWriterDynamic m ()
-  HSeek :: Handle -> SeekMode -> Integer -> HandleWriterDynamic m ()
-  HTell :: Handle -> HandleWriterDynamic m Integer
-  HSetEcho :: Handle -> Bool -> HandleWriterDynamic m ()
-  HPut :: Handle -> ByteString -> HandleWriterDynamic m ()
-  HPutNonBlocking :: Handle -> ByteString -> HandleWriterDynamic m ByteString
+data HandleWriter :: Effect where
+  OpenBinaryFile :: OsPath -> IOMode -> HandleWriter m Handle
+  WithBinaryFile :: OsPath -> IOMode -> (Handle -> m a) -> HandleWriter m a
+  HClose :: Handle -> HandleWriter m ()
+  HFlush :: Handle -> HandleWriter m ()
+  HSetFileSize :: Handle -> Integer -> HandleWriter m ()
+  HSetBuffering :: Handle -> BufferMode -> HandleWriter m ()
+  HSeek :: Handle -> SeekMode -> Integer -> HandleWriter m ()
+  HTell :: Handle -> HandleWriter m Integer
+  HSetEcho :: Handle -> Bool -> HandleWriter m ()
+  HPut :: Handle -> ByteString -> HandleWriter m ()
+  HPutNonBlocking :: Handle -> ByteString -> HandleWriter m ByteString
 
--- | Runs 'HandleWriterDynamic' in 'IO'.
+-- | Runs 'HandleWriter' in 'IO'.
 --
 -- @since 0.1
-runHandleWriterDynamicIO ::
+runHandleWriter ::
   ( IOE :> es
   ) =>
-  Eff (HandleWriterDynamic : es) a ->
+  Eff (HandleWriter : es) a ->
   Eff es a
-runHandleWriterDynamicIO = interpret $ \env -> \case
+runHandleWriter = interpret $ \env -> \case
   OpenBinaryFile p m -> liftIO $ openBinaryFileIO p m
   WithBinaryFile p m f -> localSeqUnliftIO env $ \runInIO ->
     liftIO $ withBinaryFileIO p m (runInIO . f)
@@ -108,7 +108,7 @@ runHandleWriterDynamicIO = interpret $ \env -> \case
 --
 -- @since 0.1
 openBinaryFile ::
-  ( HandleWriterDynamic :> es
+  ( HandleWriter :> es
   ) =>
   OsPath ->
   IOMode ->
@@ -119,7 +119,7 @@ openBinaryFile p = send . OpenBinaryFile p
 --
 -- @since 0.1
 withBinaryFile ::
-  ( HandleWriterDynamic :> es
+  ( HandleWriter :> es
   ) =>
   OsPath ->
   IOMode ->
@@ -131,7 +131,7 @@ withBinaryFile p m = send . WithBinaryFile p m
 --
 -- @since 0.1
 hClose ::
-  ( HandleWriterDynamic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   Eff es ()
@@ -141,7 +141,7 @@ hClose = send . HClose
 --
 -- @since 0.1
 hFlush ::
-  ( HandleWriterDynamic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   Eff es ()
@@ -151,7 +151,7 @@ hFlush = send . HFlush
 --
 -- @since 0.1
 hSetFileSize ::
-  ( HandleWriterDynamic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   Integer ->
@@ -162,7 +162,7 @@ hSetFileSize h = send . HSetFileSize h
 --
 -- @since 0.1
 hSetBuffering ::
-  ( HandleWriterDynamic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   BufferMode ->
@@ -173,7 +173,7 @@ hSetBuffering h = send . HSetBuffering h
 --
 -- @since 0.1
 hSeek ::
-  ( HandleWriterDynamic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   SeekMode ->
@@ -185,7 +185,7 @@ hSeek h m = send . HSeek h m
 --
 -- @since 0.1
 hTell ::
-  ( HandleWriterDynamic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   Eff es Integer
@@ -195,7 +195,7 @@ hTell = send . HTell
 --
 -- @since 0.1
 hSetEcho ::
-  ( HandleWriterDynamic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   Bool ->
@@ -206,7 +206,7 @@ hSetEcho h = send . HSetEcho h
 --
 -- @since 0.1
 hPut ::
-  ( HandleWriterDynamic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   ByteString ->
@@ -217,7 +217,7 @@ hPut h = send . HPut h
 --
 -- @since 0.1
 hPutNonBlocking ::
-  ( HandleWriterDynamic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   ByteString ->
@@ -228,7 +228,7 @@ hPutNonBlocking h = send . HPutNonBlocking h
 --
 -- @since 0.1
 hPutUtf8 ::
-  ( HandleWriterDynamic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   Text ->
@@ -239,7 +239,7 @@ hPutUtf8 h = hPut h . FS.UTF8.encodeUtf8
 --
 -- @since 0.1
 hPutNonBlockingUtf8 ::
-  ( HandleWriterDynamic :> es
+  ( HandleWriter :> es
   ) =>
   Handle ->
   Text ->
@@ -249,7 +249,7 @@ hPutNonBlockingUtf8 h = hPutNonBlocking h . FS.UTF8.encodeUtf8
 -- | Write given error message to `stderr` and terminate with `exitFailure`.
 --
 -- @since 0.1
-die :: (HandleWriterDynamic :> es) => String -> Eff es a
+die :: (HandleWriter :> es) => String -> Eff es a
 die err = hPut IO.stderr err' *> exitFailure
   where
     err' = Char8.pack err

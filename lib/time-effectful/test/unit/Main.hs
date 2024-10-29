@@ -13,12 +13,12 @@ import Effectful
   )
 import Effectful.Time.Dynamic
   ( LocalTime (LocalTime),
-    TimeDynamic,
+    Time,
     TimeSpec (MkTimeSpec),
     ZonedTime (ZonedTime),
-    runTimeDynamicIO,
+    runTime,
   )
-import Effectful.Time.Dynamic qualified as TimeDynamic
+import Effectful.Time.Dynamic qualified as Time
 import Hedgehog (Gen, annotate, annotateShow, diff, forAll, property, (===))
 import Hedgehog.Gen qualified as Gen
 import Hedgehog.Range qualified as R
@@ -51,18 +51,18 @@ classTests =
 getsSystemTime :: TestTree
 getsSystemTime =
   testCase "Retrieves system local time" $
-    void (runEffTime TimeDynamic.getSystemTime)
+    void (runEffTime Time.getSystemTime)
 
 getsSystemZonedTime :: TestTree
 getsSystemZonedTime =
   testCase "Retrieves system zoned time" $
-    void (runEffTime TimeDynamic.getSystemZonedTime)
+    void (runEffTime Time.getSystemZonedTime)
 
 getsMonotonicTime :: TestTree
 getsMonotonicTime = testPropertyNamed desc "getsMonotonicTime" $
   property $ do
-    t1 <- liftIO $ runEffTime TimeDynamic.getMonotonicTime
-    t2 <- liftIO $ runEffTime TimeDynamic.getMonotonicTime
+    t1 <- liftIO $ runEffTime Time.getMonotonicTime
+    t2 <- liftIO $ runEffTime Time.getMonotonicTime
     annotateShow t1
     annotateShow t2
     diff t1 (<=) t2
@@ -101,28 +101,28 @@ eqEquivClass = testPropertyNamed desc "eqEquivClass" $
 createFromSeconds :: TestTree
 createFromSeconds =
   testCase "Creates TimeSpec from Double seconds" $
-    expected @=? TimeDynamic.fromSeconds 10.123456789
+    expected @=? Time.fromSeconds 10.123456789
   where
     expected = MkTimeSpec 10 123456789
 
 createFromNanoSeconds :: TestTree
 createFromNanoSeconds =
   testCase "Creates TimeSpec from Natural nanoseconds" $
-    expected @=? TimeDynamic.fromNanoSeconds 10_123_456_789
+    expected @=? Time.fromNanoSeconds 10_123_456_789
   where
     expected = MkTimeSpec 10 123456789
 
 elimToSeconds :: TestTree
 elimToSeconds =
   testCase "Maps TimeSpec to seconds" $
-    10.123456789 @=? TimeDynamic.toSeconds (MkTimeSpec 10 123_456_789)
+    10.123456789 @=? Time.toSeconds (MkTimeSpec 10 123_456_789)
 
 toFromSecondsEpsilon :: TestTree
 toFromSecondsEpsilon = testPropertyNamed desc "toFromSecondsEpsilon" $
   property $ do
     s <- forAll genDouble
-    let ts = TimeDynamic.fromSeconds s
-        s' = TimeDynamic.toSeconds ts
+    let ts = Time.fromSeconds s
+        s' = Time.toSeconds ts
     annotateShow ts
 
     diff (abs (s - s')) (<) 1
@@ -133,21 +133,21 @@ fromToSecondsEpsilon :: TestTree
 fromToSecondsEpsilon = testPropertyNamed desc "fromToSecondsEpsilon" $
   property $ do
     ts <- forAll genTimeSpec
-    let s = TimeDynamic.toSeconds ts
-        ts' = TimeDynamic.fromSeconds s
+    let s = Time.toSeconds ts
+        ts' = Time.fromSeconds s
     annotateShow s
 
     toSeconds ts === toSeconds ts'
   where
-    toSeconds = view #sec . TimeDynamic.normalizeTimeSpec
+    toSeconds = view #sec . Time.normalizeTimeSpec
     desc = "(toSeconds . fromSeconds) x ~= x (up to 1 sec)"
 
 toFromNatRoundTrip :: TestTree
 toFromNatRoundTrip = testPropertyNamed desc "toFromNatRoundTrip" $
   property $ do
     ns <- forAll genNanoSeconds
-    let ts = TimeDynamic.fromNanoSeconds ns
-        ns' = TimeDynamic.toNanoSeconds ts
+    let ts = Time.fromNanoSeconds ns
+        ns' = Time.toNanoSeconds ts
     annotateShow ts
     ns === ns'
   where
@@ -157,8 +157,8 @@ fromToNatRoundTrip :: TestTree
 fromToNatRoundTrip = testPropertyNamed desc "fromToNatRoundTrip" $
   property $ do
     ts <- forAll genTimeSpec
-    let ns = TimeDynamic.toNanoSeconds ts
-        ts' = TimeDynamic.fromNanoSeconds ns
+    let ns = Time.toNanoSeconds ts
+        ts' = Time.fromNanoSeconds ns
     annotateShow ns
     ts === ts'
   where
@@ -167,12 +167,12 @@ fromToNatRoundTrip = testPropertyNamed desc "fromToNatRoundTrip" $
 elimToNanoseconds :: TestTree
 elimToNanoseconds =
   testCase "Maps TimeSpec to nanoseconds" $
-    10123456789 @=? TimeDynamic.toNanoSeconds (MkTimeSpec 10 123_456_789)
+    10123456789 @=? Time.toNanoSeconds (MkTimeSpec 10 123_456_789)
 
 diffsTimeSpec :: TestTree
 diffsTimeSpec = testCase "Diffs TimeSpecs" $ do
-  MkTimeSpec 10 864197532 @=? TimeDynamic.diffTimeSpec t1 t2
-  MkTimeSpec 10 864197532 @=? TimeDynamic.diffTimeSpec t2 t1
+  MkTimeSpec 10 864197532 @=? Time.diffTimeSpec t1 t2
+  MkTimeSpec 10 864197532 @=? Time.diffTimeSpec t2 t1
   where
     t1 = MkTimeSpec 10 123_456_789
     t2 = MkTimeSpec 20 987_654_321
@@ -182,8 +182,8 @@ diffTimeSpecCommutes = testPropertyNamed desc "diffsTimeSpec2" $
   property $ do
     ts1 <- forAll genTimeSpec
     ts2 <- forAll genTimeSpec
-    let d1 = TimeDynamic.diffTimeSpec ts1 ts2
-        d2 = TimeDynamic.diffTimeSpec ts2 ts1
+    let d1 = Time.diffTimeSpec ts1 ts2
+        d2 = Time.diffTimeSpec ts2 ts1
     d1 === d2
   where
     desc = "diffTimeSpec is commutative"
@@ -191,7 +191,7 @@ diffTimeSpecCommutes = testPropertyNamed desc "diffsTimeSpec2" $
 normalizesTimeSpec :: TestTree
 normalizesTimeSpec =
   testCase "Normalizes TimeSpec" $
-    MkTimeSpec 55 123456789 @=? TimeDynamic.normalizeTimeSpec t
+    MkTimeSpec 55 123456789 @=? Time.normalizeTimeSpec t
   where
     t = MkTimeSpec 10 45_123_456_789
 
@@ -199,7 +199,7 @@ normalizeInvariant :: TestTree
 normalizeInvariant = testPropertyNamed desc "normalizeInvariant" $
   property $ do
     ts <- forAll genTimeSpec
-    let ts'@(MkTimeSpec _ ns') = TimeDynamic.normalizeTimeSpec ts
+    let ts'@(MkTimeSpec _ ns') = Time.normalizeTimeSpec ts
 
     annotateShow ts'
 
@@ -213,7 +213,7 @@ normalizeInvariant = testPropertyNamed desc "normalizeInvariant" $
 
 timesAction :: TestTree
 timesAction = testCase "Times an action" $ do
-  ts <- runEffTime $ TimeDynamic.withTiming_ (liftIO (threadDelay 1_000_000))
+  ts <- runEffTime $ Time.withTiming_ (liftIO (threadDelay 1_000_000))
   assertBool (show ts <> " >= 0.8 s") $ ts >= MkTimeSpec 0 800_000_000
   assertBool (show ts <> " <= 1.2 s") $ ts <= MkTimeSpec 1 200_000_000
 
@@ -240,21 +240,21 @@ zonedTimeTests =
 formatsLocalTime :: TestTree
 formatsLocalTime =
   testCase "Formats LocalTime" $
-    "2022-02-08 10:20:05" @=? TimeDynamic.formatLocalTime localTime
+    "2022-02-08 10:20:05" @=? Time.formatLocalTime localTime
 
 parsesLocalTime :: TestTree
 parsesLocalTime = testCase "Parses LocalTime" $ do
-  lt <- TimeDynamic.parseLocalTime "2022-02-08 10:20:05"
+  lt <- Time.parseLocalTime "2022-02-08 10:20:05"
   localTime @=? lt
 
 formatParseLocalTimeRoundTrip :: TestTree
 formatParseLocalTimeRoundTrip = testPropertyNamed desc "formatParseLocalTimeRoundTrip" $
   property $ do
     str <- forAll genLocalTimeString
-    lt <- TimeDynamic.parseLocalTime str
+    lt <- Time.parseLocalTime str
     annotateShow lt
 
-    let str' = TimeDynamic.formatLocalTime lt
+    let str' = Time.formatLocalTime lt
 
     str === str'
   where
@@ -264,10 +264,10 @@ parseFormatLocalTimeEpsilon :: TestTree
 parseFormatLocalTimeEpsilon = testPropertyNamed desc "parseFormatLocalTimeEpsilon" $
   property $ do
     lt <- forAll genLocalTime
-    let str = TimeDynamic.formatLocalTime lt
+    let str = Time.formatLocalTime lt
     annotate str
 
-    lt' <- TimeDynamic.parseLocalTime str
+    lt' <- Time.parseLocalTime str
 
     diff lt eqLocalTimeEpsilon lt'
   where
@@ -276,11 +276,11 @@ parseFormatLocalTimeEpsilon = testPropertyNamed desc "parseFormatLocalTimeEpsilo
 formatsZonedTime :: TestTree
 formatsZonedTime =
   testCase "Formats ZonedTime" $
-    "2022-02-08 10:20:05 UTC" @=? TimeDynamic.formatZonedTime zonedTime
+    "2022-02-08 10:20:05 UTC" @=? Time.formatZonedTime zonedTime
 
 parsesZonedTime :: TestTree
 parsesZonedTime = testCase "Parses ZonedTime" $ do
-  ZonedTime lt tz <- TimeDynamic.parseZonedTime "2022-02-08 10:20:05 UTC"
+  ZonedTime lt tz <- Time.parseZonedTime "2022-02-08 10:20:05 UTC"
   let ZonedTime expectedLt expectedTz = zonedTime
   expectedLt @=? lt
   expectedTz @=? tz
@@ -289,10 +289,10 @@ formatParseZonedTimeRoundTrip :: TestTree
 formatParseZonedTimeRoundTrip = testPropertyNamed desc "formatParseZonedTimeRoundTrip" $
   property $ do
     str <- forAll genZonedTimeString
-    lt <- TimeDynamic.parseZonedTime str
+    lt <- Time.parseZonedTime str
     annotateShow lt
 
-    let str' = TimeDynamic.formatZonedTime lt
+    let str' = Time.formatZonedTime lt
 
     str === str'
   where
@@ -302,10 +302,10 @@ parseFormatZonedTimeEpsilon :: TestTree
 parseFormatZonedTimeEpsilon = testPropertyNamed desc "parseFormatZonedTimeEpsilon" $
   property $ do
     zt <- forAll genZonedTime
-    let str = TimeDynamic.formatZonedTime zt
+    let str = Time.formatZonedTime zt
     annotate str
 
-    zt' <- TimeDynamic.parseZonedTime str
+    zt' <- Time.parseZonedTime str
 
     diff zt eqZonedTimeEpsilon zt'
   where
@@ -419,5 +419,5 @@ genTimeSpec = MkTimeSpec <$> genSec <*> genNSec
     genSec = Gen.integral (R.linearFrom 5 0 10)
     genNSec = Gen.integral (R.linearFrom 0 0 10_000_000_000)
 
-runEffTime :: Eff '[TimeDynamic, IOE] a -> IO a
-runEffTime = runEff . runTimeDynamicIO
+runEffTime :: Eff '[Time, IOE] a -> IO a
+runEffTime = runEff . runTime
