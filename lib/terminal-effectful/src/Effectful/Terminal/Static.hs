@@ -47,7 +47,6 @@ where
 
 {- ORMOLU_ENABLE -}
 
-import Control.Monad.Catch (MonadThrow (throwM))
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Text (Text)
@@ -66,6 +65,7 @@ import Effectful.Dispatch.Static
     evalStaticRep,
     unsafeEff_,
   )
+import Effectful.Exception (throwIO)
 import GHC.IO.Exception
   ( IOErrorType (SystemError),
     IOException
@@ -155,19 +155,18 @@ getContents' = unsafeEff_ IO.getContents'
 -- @since 0.1
 getTerminalSize :: (Integral a, TerminalStatic :> es) => Eff es (Window a)
 getTerminalSize =
-  unsafeEff_ $
-    size >>= \case
-      Just h -> pure h
-      Nothing ->
-        throwM $
-          IOError
-            { ioe_handle = Nothing,
-              ioe_type = SystemError,
-              ioe_location = "getTerminalSize",
-              ioe_description = "Failed to detect the terminal size",
-              ioe_errno = Nothing,
-              ioe_filename = Nothing
-            }
+  unsafeEff_ size >>= \case
+    Just h -> pure h
+    Nothing ->
+      throwIO $
+        IOError
+          { ioe_handle = Nothing,
+            ioe_type = SystemError,
+            ioe_location = "getTerminalSize",
+            ioe_description = "Failed to detect the terminal size",
+            ioe_errno = Nothing,
+            ioe_filename = Nothing
+          }
 
 -- | Determines if we support ANSI styling.
 --

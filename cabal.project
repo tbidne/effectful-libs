@@ -1,3 +1,5 @@
+index-state: hackage.haskell.org,2024-10-28T09:03:09Z
+
 -- windows cannot build unix package
 if os(windows)
   packages:
@@ -58,6 +60,11 @@ source-repository-package
     type: git
     location: https://github.com/tbidne/bounds.git
     tag: f93b202c9d154b25b42b048570cf6648451aa577
+
+source-repository-package
+    type: git
+    location: https://github.com/tbidne/exception-utils.git
+    tag: e797ee05dee5097d45e9f316d68e231f32e5d7b7
 
 source-repository-package
     type: git

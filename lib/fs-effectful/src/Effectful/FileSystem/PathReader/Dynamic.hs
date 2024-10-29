@@ -131,6 +131,8 @@ data PathReaderDynamic :: Effect where
     [OsPath] ->
     OsPath ->
     PathReaderDynamic m [OsPath]
+  FindFile :: [OsPath] -> OsPath -> PathReaderDynamic m (Maybe OsPath)
+  FindFiles :: [OsPath] -> OsPath -> PathReaderDynamic m [OsPath]
   FindFileWith ::
     (OsPath -> m Bool) ->
     [OsPath] ->
@@ -179,6 +181,8 @@ runPathReaderDynamicIO = interpret $ \env -> \case
   FindExecutables p -> liftIO $ Dir.findExecutables p
   FindExecutablesInDirectories ps str ->
     liftIO $ Dir.findExecutablesInDirectories ps str
+  FindFile xs p -> liftIO $ Dir.findFile xs p
+  FindFiles xs p -> liftIO $ Dir.findFiles xs p
   FindFileWith f ps str -> localSeqUnliftIO env $ \runInIO ->
     liftIO $ Dir.findFileWith (runInIO . f) ps str
   FindFilesWith f ps str -> localSeqUnliftIO env $ \runInIO ->
@@ -196,7 +200,7 @@ runPathReaderDynamicIO = interpret $ \env -> \case
 --
 -- @since 0.1
 findFile :: (PathReaderDynamic :> es) => [OsPath] -> OsPath -> Eff es (Maybe OsPath)
-findFile = findFileWith (\_ -> pure True)
+findFile xs = send . FindFile xs
 
 -- | Search through the given list of directories for the given file and
 -- returns all paths where the given file exists.
@@ -206,7 +210,7 @@ findFile = findFileWith (\_ -> pure True)
 --
 -- @since 0.1
 findFiles :: (PathReaderDynamic :> es) => [OsPath] -> OsPath -> Eff es [OsPath]
-findFiles = findFilesWith (\_ -> pure True)
+findFiles xs = send . FindFiles xs
 
 -- | Lifted 'Dir.listDirectory'.
 --

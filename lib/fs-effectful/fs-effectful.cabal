@@ -103,10 +103,12 @@ test-suite unit
     , base
     , bytestring
     , effectful-core
-    , env-guard       ^>=0.2
+    , env-guard        ^>=0.2
+    , exception-utils  ^>=0.1
+    , text
     , fs-effectful
     , fs-utils
-    , tasty           >=1.1.0.3 && <1.6
-    , tasty-hunit     >=0.9     && <0.11
+    , tasty            >=1.1.0.3 && <1.6
+    , tasty-hunit      >=0.9     && <0.11
 
   hs-source-dirs: test/unit

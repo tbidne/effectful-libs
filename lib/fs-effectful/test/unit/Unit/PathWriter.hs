@@ -2,6 +2,8 @@
 
 module Unit.PathWriter (tests) where
 
+import Control.Exception (IOException, displayException, try)
+import Control.Exception.Utils (TextException, throwText)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Bifunctor (first)
 import Data.ByteString (ByteString)
@@ -15,13 +17,6 @@ import Data.IORef
 import Data.List qualified as L
 import Effectful (Eff, IOE, runEff, (:>))
 import Effectful.Dispatch.Dynamic (reinterpret)
-import Effectful.Exception
-  ( IOException,
-    StringException,
-    displayException,
-    throwString,
-    try,
-  )
 import Effectful.FileSystem.FileReader.Dynamic (readBinaryFile, runFileReaderDynamicIO)
 import Effectful.FileSystem.FileWriter.Dynamic
   ( FileWriterDynamic,
@@ -36,6 +31,7 @@ import Effectful.FileSystem.PathReader.Dynamic
     doesFileExist,
     runPathReaderDynamicIO,
   )
+import Data.Text qualified as T
 import Effectful.FileSystem.PathReader.Dynamic qualified as PR
 import Effectful.FileSystem.PathWriter.Dynamic
   ( CopyDirConfig (MkCopyDirConfig),
@@ -247,7 +243,7 @@ cdrnPartialFails getTmpDir = testCase desc $ do
           destDir
   resultEx <- case result of
     Right _ -> assertFailure "Expected exception, received none"
-    Left (ex :: StringException) -> pure ex
+    Left (ex :: TextException) -> pure ex
 
   let exText = displayException resultEx
 
@@ -559,7 +555,7 @@ cdrtPartialFails getTmpDir = testCase desc $ do
           destDir
   resultEx <- case result of
     Right _ -> assertFailure "Expected exception, received none"
-    Left (ex :: StringException) -> pure ex
+    Left (ex :: TextException) -> pure ex
 
   let exText = displayException resultEx
 
@@ -597,7 +593,7 @@ cdrtOverwritePartialFails getTmpDir = testCase desc $ do
           destDir
   resultEx <- case result of
     Right _ -> assertFailure "Expected exception, received none"
-    Left (ex :: StringException) -> pure ex
+    Left (ex :: TextException) -> pure ex
 
   let exText = displayException resultEx
 
@@ -772,7 +768,7 @@ copyDirNoSrcException getTmpDir = testCase desc $ do
           badSrc
           destDir
 
-  try @_ @IOException (runEffPathWriter copy) >>= \case
+  try @IOException (runEffPathWriter copy) >>= \case
     Left _ -> pure ()
     Right _ -> assertFailure "Expected PathNotFoundException"
   where
@@ -808,7 +804,7 @@ removeSymbolicLinkFileException getTestDir = testCase desc $ do
 
   assertFilesExist [filePath]
 
-  try @_ @IOException (runEffPathWriter $ PW.removeSymbolicLink filePath) >>= \case
+  try @IOException (runEffPathWriter $ PW.removeSymbolicLink filePath) >>= \case
     Left _ -> pure ()
     Right _ -> assertFailure "Expected IOException"
 
@@ -821,7 +817,7 @@ removeSymbolicLinkBadException getTestDir = testCase desc $ do
   testDir <- setupLinks getTestDir [osp|removeSymbolicLinkBadException|]
   let filePath = testDir </> [osp|bad-path|]
 
-  try @_ @IOException (runEffPathWriter $ PW.removeSymbolicLink filePath) >>= \case
+  try @IOException (runEffPathWriter $ PW.removeSymbolicLink filePath) >>= \case
     Left _ -> pure ()
     Right _ -> assertFailure "Expected IOException"
   where
@@ -866,7 +862,7 @@ copySymbolicLinkFileException getTestDir = testCase desc $ do
   testDir <- setupLinks getTestDir [osp|copySymbolicLinkFileException|]
   let src = testDir </> [osp|file|]
       dest = testDir </> [osp|dest|]
-  try @_ @IOException (runEffPathWriter $ PW.copySymbolicLink src dest) >>= \case
+  try @IOException (runEffPathWriter $ PW.copySymbolicLink src dest) >>= \case
     Left _ -> pure ()
     Right _ -> assertFailure "Exception IOException"
   where
@@ -877,7 +873,7 @@ copySymbolicLinkDirException getTestDir = testCase desc $ do
   testDir <- setupLinks getTestDir [osp|copySymbolicLinkDirException|]
   let src = testDir </> [osp|dir|]
       dest = testDir </> [osp|dest|]
-  try @_ @IOException (runEffPathWriter $ PW.copySymbolicLink src dest) >>= \case
+  try @IOException (runEffPathWriter $ PW.copySymbolicLink src dest) >>= \case
     Left _ -> pure ()
     Right _ -> assertFailure "Exception IOException"
   where
@@ -888,7 +884,7 @@ copySymbolicLinkBadException getTestDir = testCase desc $ do
   testDir <- setupLinks getTestDir [osp|copySymbolicLinkBadException|]
   let src = testDir </> [osp|bad-path|]
       dest = testDir </> [osp|dest|]
-  try @_ @IOException (runEffPathWriter $ PW.copySymbolicLink src dest) >>= \case
+  try @IOException (runEffPathWriter $ PW.copySymbolicLink src dest) >>= \case
     Left _ -> pure ()
     Right _ -> assertFailure "Exception IOException"
   where
@@ -1119,10 +1115,10 @@ runPartialDynamicIO effs = do
       CopyFileWithMetadata src dest -> do
         counter <- liftIO $ readIORef counterRef
         if counter > 3
-          then throwString $ "Failed copying: " ++ show dest
+          then throwText $ "Failed copying: " <> (T.pack $ show dest)
           else liftIO $ modifyIORef' counterRef (+ 1)
         copyFileWithMetadata src dest
-      _ -> throwString "unimplemented"
+      _ -> throwText "unimplemented"
 
 -------------------------------------------------------------------------------
 --                                Assertions                                 --

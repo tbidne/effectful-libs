@@ -2,8 +2,8 @@
 
 module Posix.Static (tests) where
 
+import Control.Exception.Utils (trySync)
 import Effectful (Eff, IOE, runEff)
-import Effectful.Exception (tryAny)
 import Effectful.Posix.Static
   ( PathType
       ( PathTypeDirectory,
@@ -142,7 +142,7 @@ getPathTypeBad :: IO OsPath -> TestTree
 getPathTypeBad getTestDir = testCase desc $ do
   testDir <- setupLinks getTestDir [osp|getPathTypeBad|]
 
-  eResult <- runEffPosix $ tryAny $ PC.getPathType (testDir </> [osp|bad file|]).getOsString
+  eResult <- runEffPosix $ trySync $ PC.getPathType (testDir </> [osp|bad file|]).getOsString
 
   case eResult of
     Left _ -> pure ()
@@ -167,7 +167,7 @@ setupLinks getTestDir suffix = do
 
 throwIfNoEx :: IO a -> IO ()
 throwIfNoEx m = do
-  tryAny m >>= \case
+  trySync m >>= \case
     Left _ -> pure ()
     Right _ -> assertFailure "Expected exception, received none"
 
