@@ -15,6 +15,7 @@ import Data.IORef
     readIORef,
   )
 import Data.List qualified as L
+import Data.Text qualified as T
 import Effectful (Eff, IOE, runEff, (:>))
 import Effectful.Dispatch.Dynamic (reinterpret)
 import Effectful.FileSystem.FileReader.Dynamic (readBinaryFile, runFileReaderDynamicIO)
@@ -31,7 +32,6 @@ import Effectful.FileSystem.PathReader.Dynamic
     doesFileExist,
     runPathReaderDynamicIO,
   )
-import Data.Text qualified as T
 import Effectful.FileSystem.PathReader.Dynamic qualified as PR
 import Effectful.FileSystem.PathWriter.Dynamic
   ( CopyDirConfig (MkCopyDirConfig),
@@ -1115,7 +1115,7 @@ runPartialDynamicIO effs = do
       CopyFileWithMetadata src dest -> do
         counter <- liftIO $ readIORef counterRef
         if counter > 3
-          then throwText $ "Failed copying: " <> (T.pack $ show dest)
+          then throwText $ "Failed copying: " <> T.pack (show dest)
           else liftIO $ modifyIORef' counterRef (+ 1)
         copyFileWithMetadata src dest
       _ -> throwText "unimplemented"

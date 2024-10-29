@@ -1,4 +1,4 @@
-index-state: hackage.haskell.org,2024-10-28T09:03:09Z
+index-state: hackage.haskell.org 2024-10-28T09:03:09Z
 
 -- windows cannot build unix package
 if os(windows)
