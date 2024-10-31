@@ -161,7 +161,7 @@ data Logger :: Effect where
 -- | @since 0.1
 type instance DispatchOf Logger = Dynamic
 
--- | Returns the local system time.
+-- | Writes a log.
 --
 -- @since 0.1
 loggerLog ::
