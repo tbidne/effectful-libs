@@ -1,5 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 -- | Dynamic effect for "Control.Monad.Logger".
 --
@@ -111,7 +112,7 @@ import Effectful
     Effect,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (send)
+import Effectful.Dispatch.Dynamic (HasCallStack, send)
 import GHC.Generics (Generic)
 import GHC.Stack
   ( CallStack,
@@ -165,7 +166,8 @@ type instance DispatchOf Logger = Dynamic
 --
 -- @since 0.1
 loggerLog ::
-  ( Logger :> es,
+  ( HasCallStack,
+    Logger :> es,
     ToLogStr msg
   ) =>
   Loc ->
@@ -435,6 +437,7 @@ type LogLine = (Loc, LogSource, LogLevel, LogStr)
 --
 -- @since 0.1
 defaultOutput ::
+  (HasCallStack) =>
   Handle ->
   Loc ->
   LogSource ->
@@ -515,7 +518,8 @@ isDefaultLoc _ = False
 
 -- | @since 0.1
 logWithoutLoc ::
-  ( Logger :> es,
+  ( HasCallStack,
+    Logger :> es,
     ToLogStr msg
   ) =>
   LogSource ->
@@ -578,7 +582,7 @@ logFatalNS src = logWithoutLoc src LevelFatal
 
 -- | @since 0.1
 logOtherNS ::
-  (Logger :> es) =>
+  (HasCallStack, Logger :> es) =>
   LogSource ->
   LogLevel ->
   Text ->
@@ -610,7 +614,7 @@ locFromCS cs = case getCallStack cs of
 
 -- | @since 0.1
 logCS ::
-  (Logger :> es, ToLogStr msg) =>
+  (HasCallStack, Logger :> es, ToLogStr msg) =>
   CallStack ->
   LogSource ->
   LogLevel ->
@@ -621,7 +625,7 @@ logCS cs = loggerLog (locFromCS cs)
 -- | See 'logDebugCS'
 --
 -- @since 0.1
-logTraceCS :: (Logger :> es) => CallStack -> Text -> Eff es ()
+logTraceCS :: (HasCallStack, Logger :> es) => CallStack -> Text -> Eff es ()
 logTraceCS cs = logCS cs "" LevelTrace
 
 -- | Logs a message with location given by 'CallStack'.
@@ -629,38 +633,38 @@ logTraceCS cs = logCS cs "" LevelTrace
 -- functions for 'CallStack' based logging.
 --
 -- @since 0.1
-logDebugCS :: (Logger :> es) => CallStack -> Text -> Eff es ()
+logDebugCS :: (HasCallStack, Logger :> es) => CallStack -> Text -> Eff es ()
 logDebugCS cs = logCS cs "" LevelDebug
 
 -- | See 'logDebugCS'
 --
 -- @since 0.1
-logInfoCS :: (Logger :> es) => CallStack -> Text -> Eff es ()
+logInfoCS :: (HasCallStack, Logger :> es) => CallStack -> Text -> Eff es ()
 logInfoCS cs = logCS cs "" LevelInfo
 
 -- | See 'logDebugCS'
 --
 -- @since 0.1
-logWarnCS :: (Logger :> es) => CallStack -> Text -> Eff es ()
+logWarnCS :: (HasCallStack, Logger :> es) => CallStack -> Text -> Eff es ()
 logWarnCS cs = logCS cs "" LevelWarn
 
 -- | See 'logDebugCS'
 --
 -- @since 0.1
-logErrorCS :: (Logger :> es) => CallStack -> Text -> Eff es ()
+logErrorCS :: (HasCallStack, Logger :> es) => CallStack -> Text -> Eff es ()
 logErrorCS cs = logCS cs "" LevelError
 
 -- | See 'logDebugCS'
 --
 -- @since 0.1
-logFatalCS :: (Logger :> es) => CallStack -> Text -> Eff es ()
+logFatalCS :: (HasCallStack, Logger :> es) => CallStack -> Text -> Eff es ()
 logFatalCS cs = logCS cs "" LevelFatal
 
 -- | See 'logDebugCS'
 --
 -- @since 0.1
 logOtherCS ::
-  (Logger :> es) =>
+  (HasCallStack, Logger :> es) =>
   CallStack ->
   LogLevel ->
   Text ->
@@ -671,13 +675,13 @@ logOtherCS cs = logCS cs ""
 --
 -- @since 0.1
 guardLevel ::
-  (Applicative f) =>
+  (Applicative f, HasCallStack) =>
   -- | The configured log level to check against.
   LogLevel ->
   -- | The log level for this action.
   LogLevel ->
   -- | The logging action to run if the level passes.
-  f () ->
+  ((HasCallStack) => f ()) ->
   f ()
 guardLevel configLvl lvl = when (shouldLog configLvl lvl)
 

@@ -87,7 +87,8 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Static
-  ( SideEffects (WithSideEffects),
+  ( HasCallStack,
+    SideEffects (WithSideEffects),
     StaticRep,
     evalStaticRep,
     seqUnliftIO,
@@ -127,7 +128,12 @@ data instance StaticRep PathReader = MkPathReader
 -- | Runs an 'PathReader' effect in IO.
 --
 -- @since 0.1
-runPathReader :: (IOE :> es) => Eff (PathReader : es) a -> Eff es a
+runPathReader ::
+  ( HasCallStack,
+    IOE :> es
+  ) =>
+  Eff (PathReader : es) a ->
+  Eff es a
 runPathReader = evalStaticRep MkPathReader
 
 -- | Search through the given list of directories for the given file.
@@ -136,7 +142,13 @@ runPathReader = evalStaticRep MkPathReader
 -- occurrence. Details can be found in the documentation of 'findFileWith'.
 --
 -- @since 0.1
-findFile :: (PathReader :> es) => [OsPath] -> OsPath -> Eff es (Maybe OsPath)
+findFile ::
+  ( HasCallStack,
+    PathReader :> es
+  ) =>
+  [OsPath] ->
+  OsPath ->
+  Eff es (Maybe OsPath)
 findFile = findFileWith (\_ -> pure True)
 
 -- | Search through the given list of directories for the given file and
@@ -146,14 +158,21 @@ findFile = findFileWith (\_ -> pure True)
 -- documentation of 'findFilesWith'.
 --
 -- @since 0.1
-findFiles :: (PathReader :> es) => [OsPath] -> OsPath -> Eff es [OsPath]
+findFiles ::
+  ( HasCallStack,
+    PathReader :> es
+  ) =>
+  [OsPath] ->
+  OsPath ->
+  Eff es [OsPath]
 findFiles = findFilesWith (\_ -> pure True)
 
 -- | Lifted 'Dir.listDirectory'.
 --
 -- @since 0.1
 listDirectory ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es [OsPath]
@@ -163,7 +182,8 @@ listDirectory = unsafeEff_ . Dir.listDirectory
 --
 -- @since 0.1
 getDirectoryContents ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es [OsPath]
@@ -173,7 +193,8 @@ getDirectoryContents = unsafeEff_ . Dir.getDirectoryContents
 --
 -- @since 0.1
 getCurrentDirectory ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   Eff es OsPath
 getCurrentDirectory = unsafeEff_ Dir.getCurrentDirectory
@@ -182,7 +203,8 @@ getCurrentDirectory = unsafeEff_ Dir.getCurrentDirectory
 --
 -- @since 0.1
 getHomeDirectory ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   Eff es OsPath
 getHomeDirectory = unsafeEff_ Dir.getHomeDirectory
@@ -191,7 +213,8 @@ getHomeDirectory = unsafeEff_ Dir.getHomeDirectory
 --
 -- @since 0.1
 getXdgDirectory ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   XdgDirectory ->
   OsPath ->
@@ -202,7 +225,8 @@ getXdgDirectory xdg = unsafeEff_ . Dir.getXdgDirectory xdg
 --
 -- @since 0.1
 getXdgDirectoryList ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   XdgDirectoryList ->
   Eff es [OsPath]
@@ -212,7 +236,8 @@ getXdgDirectoryList = unsafeEff_ . Dir.getXdgDirectoryList
 --
 -- @since 0.1
 getAppUserDataDirectory ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es OsPath
@@ -222,7 +247,8 @@ getAppUserDataDirectory = unsafeEff_ . Dir.getAppUserDataDirectory
 --
 -- @since 0.1
 getUserDocumentsDirectory ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   Eff es OsPath
 getUserDocumentsDirectory = unsafeEff_ Dir.getUserDocumentsDirectory
@@ -231,7 +257,8 @@ getUserDocumentsDirectory = unsafeEff_ Dir.getUserDocumentsDirectory
 --
 -- @since 0.1
 getTemporaryDirectory ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   Eff es OsPath
 getTemporaryDirectory = unsafeEff_ Dir.getTemporaryDirectory
@@ -240,7 +267,8 @@ getTemporaryDirectory = unsafeEff_ Dir.getTemporaryDirectory
 --
 -- @since 0.1
 getFileSize ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es Integer
@@ -250,7 +278,8 @@ getFileSize = unsafeEff_ . Dir.getFileSize
 --
 -- @since 0.1
 canonicalizePath ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es OsPath
@@ -260,7 +289,8 @@ canonicalizePath = unsafeEff_ . Dir.canonicalizePath
 --
 -- @since 0.1
 makeAbsolute ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es OsPath
@@ -270,7 +300,8 @@ makeAbsolute = unsafeEff_ . Dir.makeAbsolute
 --
 -- @since 0.1
 makeRelativeToCurrentDirectory ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es OsPath
@@ -280,7 +311,8 @@ makeRelativeToCurrentDirectory = unsafeEff_ . Dir.makeRelativeToCurrentDirectory
 --
 -- @since 0.1
 doesPathExist ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es Bool
@@ -290,7 +322,8 @@ doesPathExist = unsafeEff_ . Dir.doesPathExist
 --
 -- @since 0.1
 doesFileExist ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es Bool
@@ -300,7 +333,8 @@ doesFileExist = unsafeEff_ . Dir.doesFileExist
 --
 -- @since 0.1
 doesDirectoryExist ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es Bool
@@ -310,7 +344,8 @@ doesDirectoryExist = unsafeEff_ . Dir.doesDirectoryExist
 --
 -- @since 0.1
 findExecutable ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es (Maybe OsPath)
@@ -320,7 +355,8 @@ findExecutable = unsafeEff_ . Dir.findExecutable
 --
 -- @since 0.1
 findExecutables ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es [OsPath]
@@ -330,7 +366,8 @@ findExecutables = unsafeEff_ . Dir.findExecutables
 --
 -- @since 0.1
 findExecutablesInDirectories ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   [OsPath] ->
   OsPath ->
@@ -342,7 +379,8 @@ findExecutablesInDirectories ps =
 --
 -- @since 0.1
 findFileWith ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   (OsPath -> Eff es Bool) ->
   [OsPath] ->
@@ -356,7 +394,8 @@ findFileWith f ps s =
 --
 -- @since 0.1
 findFilesWith ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   (OsPath -> Eff es Bool) ->
   [OsPath] ->
@@ -370,7 +409,8 @@ findFilesWith f ps s =
 --
 -- @since 0.1
 pathIsSymbolicLink ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es Bool
@@ -380,7 +420,8 @@ pathIsSymbolicLink = unsafeEff_ . Dir.pathIsSymbolicLink
 --
 -- @since 0.1
 getSymbolicLinkTarget ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es OsPath
@@ -390,7 +431,8 @@ getSymbolicLinkTarget = unsafeEff_ . Dir.getSymbolicLinkTarget
 --
 -- @since 0.1
 getPermissions ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es Permissions
@@ -400,7 +442,8 @@ getPermissions = unsafeEff_ . Dir.getPermissions
 --
 -- @since 0.1
 getAccessTime ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es UTCTime
@@ -410,7 +453,8 @@ getAccessTime = unsafeEff_ . Dir.getAccessTime
 --
 -- @since 0.1
 getModificationTime ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es UTCTime
@@ -420,7 +464,8 @@ getModificationTime = unsafeEff_ . Dir.getModificationTime
 --
 -- @since 0.1
 getXdgData ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es OsPath
@@ -430,7 +475,8 @@ getXdgData = getXdgDirectory XdgData
 --
 -- @since 0.1
 getXdgConfig ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es OsPath
@@ -440,7 +486,8 @@ getXdgConfig = getXdgDirectory XdgConfig
 --
 -- @since 0.1
 getXdgCache ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es OsPath
@@ -450,7 +497,8 @@ getXdgCache = getXdgDirectory XdgCache
 --
 -- @since 0.1
 getXdgState ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es OsPath
@@ -460,7 +508,8 @@ getXdgState = getXdgDirectory XdgState
 --
 -- @since 0.1
 doesSymbolicLinkExist ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es Bool
@@ -477,7 +526,8 @@ doesSymbolicLinkExist p =
 -- @since 0.1
 listDirectoryRecursive ::
   forall es.
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   -- | Root path.
   OsPath ->
@@ -499,7 +549,8 @@ listDirectoryRecursive root = recurseDirs [emptyPath]
 -- @since 0.1
 listDirectoryRecursiveSymbolicLink ::
   forall es.
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   -- | Root path.
   OsPath ->
@@ -518,7 +569,8 @@ listDirectoryRecursiveSymbolicLink root = recurseDirs [emptyPath]
 
 splitPaths ::
   forall es.
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   OsPath ->
@@ -539,7 +591,8 @@ splitPaths root d = go
 
 splitPathsSymboliclink ::
   forall es.
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   OsPath ->
@@ -569,7 +622,8 @@ splitPathsSymboliclink root d = go
 --
 -- @since 0.1
 pathIsSymbolicFileLink ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es Bool
@@ -600,14 +654,16 @@ pathIsSymbolicFileLink = pathIsSymbolicLinkType doesFileExist
 --
 -- @since 0.1
 pathIsSymbolicDirectoryLink ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es Bool
 pathIsSymbolicDirectoryLink = pathIsSymbolicLinkType doesDirectoryExist
 
 pathIsSymbolicLinkType ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   (OsPath -> Eff es Bool) ->
   OsPath ->
@@ -630,7 +686,8 @@ pathIsSymbolicLinkType predicate p = do
 --
 -- @since 0.1
 throwIfWrongPathType ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   -- | The location for the thrown exception (e.g. function name)
   String ->
@@ -662,7 +719,8 @@ throwIfWrongPathType location expected path = do
 --
 -- @since 0.1
 isPathType ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   -- | Expected path type.
   PathType ->
@@ -677,7 +735,8 @@ isPathType expected = fmap (== expected) . getPathType
 --
 -- @since 0.1
 getPathType ::
-  ( PathReader :> es
+  ( HasCallStack,
+    PathReader :> es
   ) =>
   OsPath ->
   Eff es PathType

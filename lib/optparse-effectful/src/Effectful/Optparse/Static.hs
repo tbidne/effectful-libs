@@ -29,7 +29,8 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Static
-  ( SideEffects (WithSideEffects),
+  ( HasCallStack,
+    SideEffects (WithSideEffects),
     StaticRep,
     evalStaticRep,
     unsafeEff_,
@@ -50,20 +51,20 @@ data instance StaticRep Optparse = MkOptparse
 -- | Runs an Optparse effect.
 --
 -- @since 0.1
-runOptparse :: (IOE :> es) => Eff (Optparse : es) a -> Eff es a
+runOptparse :: (HasCallStack, IOE :> es) => Eff (Optparse : es) a -> Eff es a
 runOptparse = evalStaticRep MkOptparse
 
 -- | Lifted 'OA.execParser'.
 --
 -- @since 0.1
-execParser :: (Optparse :> es) => ParserInfo a -> Eff es a
+execParser :: (HasCallStack, Optparse :> es) => ParserInfo a -> Eff es a
 execParser = unsafeEff_ . OA.execParser
 
 -- | Lifted 'OA.execParser'.
 --
 -- @since 0.1
 customExecParser ::
-  (Optparse :> es) =>
+  (HasCallStack, Optparse :> es) =>
   ParserPrefs ->
   ParserInfo a ->
   Eff es a
@@ -72,5 +73,5 @@ customExecParser prefs = unsafeEff_ . OA.customExecParser prefs
 -- | Lifted 'OA.execParser'.
 --
 -- @since 0.1
-handleParseResult :: (Optparse :> es) => ParserResult a -> Eff es a
+handleParseResult :: (HasCallStack, Optparse :> es) => ParserResult a -> Eff es a
 handleParseResult = unsafeEff_ . OA.handleParseResult

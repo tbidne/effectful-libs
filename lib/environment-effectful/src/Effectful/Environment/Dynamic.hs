@@ -41,7 +41,7 @@ import Effectful
     IOE,
     type (:>)
   )
-import Effectful.Dispatch.Dynamic (interpret, send, localSeqUnliftIO)
+import Effectful.Dispatch.Dynamic (interpret, send, localSeqUnliftIO, HasCallStack)
 import Effectful.Environment.Utils (QueryExePath (NoQuery, QueryResult))
 
 -- | Dynamic effects for "System.Environment".
@@ -73,7 +73,8 @@ type instance DispatchOf Environment = Dynamic
 --
 -- @since 0.1
 runEnvironment ::
-  ( IOE :> es
+  ( HasCallStack,
+    IOE :> es
   ) =>
   Eff (Environment : es) a ->
   Eff es a
@@ -102,13 +103,13 @@ runEnvironment = interpret $ \env -> \case
 -- | Lifted 'Env.getArgs'.
 --
 -- @since 0.1
-getArgs :: (Environment :> es) => Eff es [String]
+getArgs :: (Environment :> es, HasCallStack) => Eff es [String]
 getArgs = send GetArgs
 
 -- | Lifted 'Env.getProgName'.
 --
 -- @since 0.1
-getProgName :: (Environment :> es) => Eff es String
+getProgName :: (Environment :> es, HasCallStack) => Eff es String
 getProgName = send GetProgName
 
 #if MIN_VERSION_base(4,17,0)
@@ -116,7 +117,7 @@ getProgName = send GetProgName
 -- | Lifted 'Env.executablePath'.
 --
 -- @since 0.1
-executablePath :: (Environment :> es) => Eff es QueryExePath
+executablePath :: (Environment :> es, HasCallStack) => Eff es QueryExePath
 executablePath = send ExecutablePath
 
 #endif
@@ -124,47 +125,58 @@ executablePath = send ExecutablePath
 -- | Lifted 'Env.getExecutablePath'.
 --
 -- @since 0.1
-getExecutablePath :: (Environment :> es) => Eff es FilePath
+getExecutablePath :: (Environment :> es, HasCallStack) => Eff es FilePath
 getExecutablePath = send GetExecutablePath
 
 -- | Lifted 'Env.getEnv'.
 --
 -- @since 0.1
-getEnv :: (Environment :> es) => String -> Eff es String
+getEnv :: (Environment :> es, HasCallStack) => String -> Eff es String
 getEnv = send . GetEnv
 
 -- | Lifted 'Env.lookupEnv'.
 --
 -- @since 0.1
-lookupEnv :: (Environment :> es) => String -> Eff es (Maybe String)
+lookupEnv ::
+  (Environment :> es, HasCallStack) =>
+  String ->
+  Eff es (Maybe String)
 lookupEnv = send . LookupEnv
 
 -- | Lifted 'Env.setEnv'.
 --
 -- @since 0.1
-setEnv :: (Environment :> es) => String -> String -> Eff es ()
+setEnv :: (Environment :> es, HasCallStack) => String -> String -> Eff es ()
 setEnv s = send . SetEnv s
 
 -- | Lifted 'Env.unsetEnv'.
 --
 -- @since 0.1
-unsetEnv :: (Environment :> es) => String -> Eff es ()
+unsetEnv :: (Environment :> es, HasCallStack) => String -> Eff es ()
 unsetEnv = send . UnsetEnv
 
 -- | Lifted 'Env.withArgs'.
 --
 -- @since 0.1
-withArgs :: (Environment :> es) => [String] -> (Eff es) a -> Eff es a
+withArgs ::
+  (Environment :> es, HasCallStack) =>
+  [String] ->
+  (Eff es) a ->
+  Eff es a
 withArgs args = send . WithArgs args
 
 -- | Lifted 'Env.withProgName'.
 --
 -- @since 0.1
-withProgName :: (Environment :> es) => String -> (Eff es) () -> Eff es ()
+withProgName ::
+  (Environment :> es, HasCallStack) =>
+  String ->
+  (Eff es) () ->
+  Eff es ()
 withProgName name = send . WithProgName name
 
 -- | Lifted 'Env.getEnvironment'.
 --
 -- @since 0.1
-getEnvironment :: (Environment :> es) => Eff es [(String, String)]
+getEnvironment :: (Environment :> es, HasCallStack) => Eff es [(String, String)]
 getEnvironment = send GetEnvironment

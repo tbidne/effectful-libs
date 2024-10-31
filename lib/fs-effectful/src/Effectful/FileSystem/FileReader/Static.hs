@@ -40,7 +40,8 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Static
-  ( SideEffects (WithSideEffects),
+  ( HasCallStack,
+    SideEffects (WithSideEffects),
     StaticRep,
     evalStaticRep,
     unsafeEff_,
@@ -62,14 +63,15 @@ data instance StaticRep FileReader = MkFileReader
 --
 -- @since 0.1
 runFileReader ::
-  (IOE :> es) =>
+  (HasCallStack, IOE :> es) =>
   Eff (FileReader : es) a ->
   Eff es a
 runFileReader = evalStaticRep MkFileReader
 
 -- | @since 0.1
 readBinaryFile ::
-  ( FileReader :> es
+  ( FileReader :> es,
+    HasCallStack
   ) =>
   OsPath ->
   Eff es ByteString
@@ -79,7 +81,8 @@ readBinaryFile = unsafeEff_ . readBinaryFileIO
 --
 -- @since 0.1
 readFileUtf8 ::
-  ( FileReader :> es
+  ( FileReader :> es,
+    HasCallStack
   ) =>
   OsPath ->
   Eff es (Either UnicodeException Text)
@@ -89,7 +92,8 @@ readFileUtf8 = fmap FS.UTF8.decodeUtf8 . readBinaryFile
 --
 -- @since 0.1
 readFileUtf8Lenient ::
-  ( FileReader :> es
+  ( FileReader :> es,
+    HasCallStack
   ) =>
   OsPath ->
   Eff es Text
@@ -99,7 +103,8 @@ readFileUtf8Lenient = fmap FS.UTF8.decodeUtf8Lenient . readBinaryFile
 --
 -- @since 0.1
 readFileUtf8ThrowM ::
-  ( FileReader :> es
+  ( FileReader :> es,
+    HasCallStack
   ) =>
   OsPath ->
   Eff es Text

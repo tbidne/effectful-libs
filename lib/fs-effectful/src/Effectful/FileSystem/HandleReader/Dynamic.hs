@@ -75,7 +75,7 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (interpret, send)
+import Effectful.Dispatch.Dynamic (HasCallStack, interpret, send)
 import FileSystem.OsPath (OsPath)
 import FileSystem.UTF8 qualified as FS.UTF8
 import System.IO (BufferMode, Handle)
@@ -110,7 +110,8 @@ type instance DispatchOf HandleReader = Dynamic
 --
 -- @since 0.1
 runHandleReader ::
-  ( IOE :> es
+  ( HasCallStack,
+    IOE :> es
   ) =>
   Eff (HandleReader : es) a ->
   Eff es a
@@ -136,14 +137,15 @@ runHandleReader = interpret $ \_ -> \case
 -- | Lifted 'IO.hIsEof'.
 --
 -- @since 0.1
-hIsEOF :: (HandleReader :> es) => Handle -> Eff es Bool
+hIsEOF :: (HandleReader :> es, HasCallStack) => Handle -> Eff es Bool
 hIsEOF = send . HIsEOF
 
 -- | Lifted 'IO.hGetBuffering'.
 --
 -- @since 0.1
 hGetBuffering ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es BufferMode
@@ -153,7 +155,8 @@ hGetBuffering = send . HGetBuffering
 --
 -- @since 0.1
 hIsOpen ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es Bool
@@ -163,7 +166,8 @@ hIsOpen = send . HIsOpen
 --
 -- @since 0.1
 hIsClosed ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es Bool
@@ -173,7 +177,8 @@ hIsClosed = send . HIsClosed
 --
 -- @since 0.1
 hIsReadable ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es Bool
@@ -183,7 +188,8 @@ hIsReadable = send . HIsReadable
 --
 -- @since 0.1
 hIsWritable ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es Bool
@@ -193,7 +199,8 @@ hIsWritable = send . HIsWritable
 --
 -- @since 0.1
 hIsSeekable ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es Bool
@@ -203,7 +210,8 @@ hIsSeekable = send . HIsSeekable
 --
 -- @since 0.1
 hIsTerminalDevice ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es Bool
@@ -213,7 +221,8 @@ hIsTerminalDevice = send . HIsTerminalDevice
 --
 -- @since 0.1
 hGetEcho ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es Bool
@@ -223,7 +232,8 @@ hGetEcho = send . HGetEcho
 --
 -- @since 0.1
 hWaitForInput ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Int ->
@@ -234,7 +244,8 @@ hWaitForInput h = send . HWaitForInput h
 --
 -- @since 0.1
 hReady ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es Bool
@@ -244,7 +255,8 @@ hReady = send . HReady
 --
 -- @since 0.1
 hGetChar ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es Char
@@ -254,7 +266,8 @@ hGetChar = send . HGetChar
 --
 -- @since 0.1
 hGetLine ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es ByteString
@@ -264,7 +277,8 @@ hGetLine = send . HGetLine
 --
 -- @since 0.1
 hGetContents ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es ByteString
@@ -274,7 +288,8 @@ hGetContents = send . HGetContents
 --
 -- @since 0.1
 hGet ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Int ->
@@ -285,7 +300,8 @@ hGet h = send . HGet h
 --
 -- @since 0.1
 hGetSome ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Int ->
@@ -296,7 +312,8 @@ hGetSome h = send . HGetSome h
 --
 -- @since 0.1
 hGetNonBlocking ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Int ->
@@ -307,7 +324,8 @@ hGetNonBlocking h = send . HGetNonBlocking h
 --
 -- @since 0.1
 hGetLineUtf8 ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es (Either UnicodeException Text)
@@ -317,7 +335,8 @@ hGetLineUtf8 = fmap FS.UTF8.decodeUtf8 . hGetLine
 --
 -- @since 0.1
 hGetLineUtf8Lenient ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es Text
@@ -327,7 +346,8 @@ hGetLineUtf8Lenient = fmap FS.UTF8.decodeUtf8Lenient . hGetLine
 --
 -- @since 0.1
 hGetLineUtf8ThrowM ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es Text
@@ -337,7 +357,8 @@ hGetLineUtf8ThrowM = hGetLine >=> FS.UTF8.decodeUtf8ThrowM
 --
 -- @since 0.1
 hGetContentsUtf8 ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es (Either UnicodeException Text)
@@ -347,7 +368,8 @@ hGetContentsUtf8 = fmap FS.UTF8.decodeUtf8 . hGetContents
 --
 -- @since 0.1
 hGetContentsUtf8Lenient ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es Text
@@ -357,7 +379,8 @@ hGetContentsUtf8Lenient = fmap FS.UTF8.decodeUtf8Lenient . hGetContents
 --
 -- @since 0.1
 hGetContentsUtf8ThrowM ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es Text
@@ -367,7 +390,8 @@ hGetContentsUtf8ThrowM = hGetContents >=> FS.UTF8.decodeUtf8ThrowM
 --
 -- @since 0.1
 hGetUtf8 ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Int ->
@@ -378,7 +402,8 @@ hGetUtf8 h = fmap FS.UTF8.decodeUtf8 . hGet h
 --
 -- @since 0.1
 hGetUtf8Lenient ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Int ->
@@ -389,7 +414,8 @@ hGetUtf8Lenient h = fmap FS.UTF8.decodeUtf8Lenient . hGet h
 --
 -- @since 0.1
 hGetUtf8ThrowM ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Int ->
@@ -400,7 +426,8 @@ hGetUtf8ThrowM h = hGet h >=> FS.UTF8.decodeUtf8ThrowM
 --
 -- @since 0.1
 hGetSomeUtf8 ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Int ->
@@ -411,7 +438,8 @@ hGetSomeUtf8 h = fmap FS.UTF8.decodeUtf8 . hGetSome h
 --
 -- @since 0.1
 hGetSomeUtf8Lenient ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Int ->
@@ -422,7 +450,8 @@ hGetSomeUtf8Lenient h = fmap FS.UTF8.decodeUtf8Lenient . hGetSome h
 --
 -- @since 0.1
 hGetSomeUtf8ThrowM ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Int ->
@@ -433,7 +462,8 @@ hGetSomeUtf8ThrowM h = hGetSome h >=> FS.UTF8.decodeUtf8ThrowM
 --
 -- @since 0.1
 hGetNonBlockingUtf8 ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Int ->
@@ -444,7 +474,8 @@ hGetNonBlockingUtf8 h = fmap FS.UTF8.decodeUtf8 . hGetNonBlocking h
 --
 -- @since 0.1
 hGetNonBlockingUtf8Lenient ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Int ->
@@ -455,7 +486,8 @@ hGetNonBlockingUtf8Lenient h = fmap FS.UTF8.decodeUtf8Lenient . hGetNonBlocking 
 --
 -- @since 0.1
 hGetNonBlockingUtf8ThrowM ::
-  ( HandleReader :> es
+  ( HandleReader :> es,
+    HasCallStack
   ) =>
   Handle ->
   Int ->

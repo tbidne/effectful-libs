@@ -41,7 +41,8 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Static
-  ( SideEffects (WithSideEffects),
+  ( HasCallStack,
+    SideEffects (WithSideEffects),
     StaticRep,
     evalStaticRep,
     seqUnliftIO,
@@ -67,7 +68,7 @@ data instance StaticRep EnvGuard = MkEnvGuard
 
 -- | @since 0.1
 guardPredicate ::
-  (EnvGuard :> es) =>
+  (EnvGuard :> es, HasCallStack) =>
   String ->
   (String -> Bool) ->
   Eff es a ->
@@ -84,7 +85,7 @@ runEnvGuard = evalStaticRep MkEnvGuard
 
 -- | @since 0.1
 withGuard ::
-  (EnvGuard :> es) =>
+  (EnvGuard :> es, HasCallStack) =>
   String ->
   ExpectEnv ->
   Eff es a ->
@@ -97,7 +98,7 @@ withGuard var expect m =
 
 -- | @since 0.1
 withGuard_ ::
-  (EnvGuard :> es) =>
+  (EnvGuard :> es, HasCallStack) =>
   String ->
   ExpectEnv ->
   Eff es a ->
@@ -106,7 +107,7 @@ withGuard_ var expect = void . withGuard var expect
 
 -- | @since 0.1
 guardOrElse ::
-  (EnvGuard :> es) =>
+  (EnvGuard :> es, HasCallStack) =>
   -- | The environment variable.
   String ->
   -- | The expectation.
@@ -125,7 +126,7 @@ guardOrElse var expect m1 m2 =
 
 -- | @since 0.1
 guardOrElse' ::
-  (EnvGuard :> es) =>
+  (EnvGuard :> es, HasCallStack) =>
   -- | The environment variable.
   String ->
   -- | The expectation.
@@ -140,7 +141,7 @@ guardOrElse' var expect m = fmap (either id id) . guardOrElse var expect m
 
 -- | @since 0.1
 guardSet ::
-  (EnvGuard :> es) =>
+  (EnvGuard :> es, HasCallStack) =>
   String ->
   Eff es a ->
   Eff es (Maybe a)
@@ -148,7 +149,7 @@ guardSet var = guardPredicate var (const True)
 
 -- | @since 0.1
 guardSet_ ::
-  (EnvGuard :> es) =>
+  (EnvGuard :> es, HasCallStack) =>
   String ->
   Eff es a ->
   Eff es ()
@@ -156,7 +157,7 @@ guardSet_ var = void . guardSet var
 
 -- | @since 0.1
 guardEquals ::
-  (EnvGuard :> es) =>
+  (EnvGuard :> es, HasCallStack) =>
   String ->
   String ->
   Eff es a ->
@@ -165,7 +166,7 @@ guardEquals var expected = guardPredicate var (eqCaseInsensitive expected)
 
 -- | @since 0.1
 guardEquals_ ::
-  (EnvGuard :> es) =>
+  (EnvGuard :> es, HasCallStack) =>
   String ->
   String ->
   Eff es a ->
@@ -174,7 +175,7 @@ guardEquals_ var expected = void . guardEquals var expected
 
 -- | @since 0.1
 guardPredicate_ ::
-  (EnvGuard :> es) =>
+  (EnvGuard :> es, HasCallStack) =>
   String ->
   (String -> Bool) ->
   Eff es a ->

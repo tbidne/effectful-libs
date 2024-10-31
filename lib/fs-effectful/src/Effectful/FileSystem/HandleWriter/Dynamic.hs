@@ -51,7 +51,7 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
+import Effectful.Dispatch.Dynamic (HasCallStack, interpret, localSeqUnliftIO, send)
 import FileSystem.IO (openBinaryFileIO, withBinaryFileIO)
 import FileSystem.OsPath (OsPath)
 import FileSystem.UTF8 qualified as FS.UTF8
@@ -86,7 +86,8 @@ data HandleWriter :: Effect where
 --
 -- @since 0.1
 runHandleWriter ::
-  ( IOE :> es
+  ( HasCallStack,
+    IOE :> es
   ) =>
   Eff (HandleWriter : es) a ->
   Eff es a
@@ -108,7 +109,8 @@ runHandleWriter = interpret $ \env -> \case
 --
 -- @since 0.1
 openBinaryFile ::
-  ( HandleWriter :> es
+  ( HandleWriter :> es,
+    HasCallStack
   ) =>
   OsPath ->
   IOMode ->
@@ -119,7 +121,8 @@ openBinaryFile p = send . OpenBinaryFile p
 --
 -- @since 0.1
 withBinaryFile ::
-  ( HandleWriter :> es
+  ( HandleWriter :> es,
+    HasCallStack
   ) =>
   OsPath ->
   IOMode ->
@@ -131,7 +134,8 @@ withBinaryFile p m = send . WithBinaryFile p m
 --
 -- @since 0.1
 hClose ::
-  ( HandleWriter :> es
+  ( HandleWriter :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es ()
@@ -141,7 +145,8 @@ hClose = send . HClose
 --
 -- @since 0.1
 hFlush ::
-  ( HandleWriter :> es
+  ( HandleWriter :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es ()
@@ -151,7 +156,8 @@ hFlush = send . HFlush
 --
 -- @since 0.1
 hSetFileSize ::
-  ( HandleWriter :> es
+  ( HandleWriter :> es,
+    HasCallStack
   ) =>
   Handle ->
   Integer ->
@@ -162,7 +168,8 @@ hSetFileSize h = send . HSetFileSize h
 --
 -- @since 0.1
 hSetBuffering ::
-  ( HandleWriter :> es
+  ( HandleWriter :> es,
+    HasCallStack
   ) =>
   Handle ->
   BufferMode ->
@@ -173,7 +180,8 @@ hSetBuffering h = send . HSetBuffering h
 --
 -- @since 0.1
 hSeek ::
-  ( HandleWriter :> es
+  ( HandleWriter :> es,
+    HasCallStack
   ) =>
   Handle ->
   SeekMode ->
@@ -185,7 +193,8 @@ hSeek h m = send . HSeek h m
 --
 -- @since 0.1
 hTell ::
-  ( HandleWriter :> es
+  ( HandleWriter :> es,
+    HasCallStack
   ) =>
   Handle ->
   Eff es Integer
@@ -195,7 +204,8 @@ hTell = send . HTell
 --
 -- @since 0.1
 hSetEcho ::
-  ( HandleWriter :> es
+  ( HandleWriter :> es,
+    HasCallStack
   ) =>
   Handle ->
   Bool ->
@@ -206,7 +216,8 @@ hSetEcho h = send . HSetEcho h
 --
 -- @since 0.1
 hPut ::
-  ( HandleWriter :> es
+  ( HandleWriter :> es,
+    HasCallStack
   ) =>
   Handle ->
   ByteString ->
@@ -217,7 +228,8 @@ hPut h = send . HPut h
 --
 -- @since 0.1
 hPutNonBlocking ::
-  ( HandleWriter :> es
+  ( HandleWriter :> es,
+    HasCallStack
   ) =>
   Handle ->
   ByteString ->
@@ -228,7 +240,8 @@ hPutNonBlocking h = send . HPutNonBlocking h
 --
 -- @since 0.1
 hPutUtf8 ::
-  ( HandleWriter :> es
+  ( HandleWriter :> es,
+    HasCallStack
   ) =>
   Handle ->
   Text ->
@@ -239,7 +252,8 @@ hPutUtf8 h = hPut h . FS.UTF8.encodeUtf8
 --
 -- @since 0.1
 hPutNonBlockingUtf8 ::
-  ( HandleWriter :> es
+  ( HandleWriter :> es,
+    HasCallStack
   ) =>
   Handle ->
   Text ->
@@ -249,7 +263,12 @@ hPutNonBlockingUtf8 h = hPutNonBlocking h . FS.UTF8.encodeUtf8
 -- | Write given error message to `stderr` and terminate with `exitFailure`.
 --
 -- @since 0.1
-die :: (HandleWriter :> es) => String -> Eff es a
+die ::
+  ( HandleWriter :> es,
+    HasCallStack
+  ) =>
+  String ->
+  Eff es a
 die err = hPut IO.stderr err' *> exitFailure
   where
     err' = Char8.pack err

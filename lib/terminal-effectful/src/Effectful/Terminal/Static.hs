@@ -60,7 +60,8 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Static
-  ( SideEffects (WithSideEffects),
+  ( HasCallStack,
+    SideEffects (WithSideEffects),
     StaticRep,
     evalStaticRep,
     unsafeEff_,
@@ -107,37 +108,37 @@ data instance StaticRep Terminal = MkTerminal
 -- | Runs an Optparse effect.
 --
 -- @since 0.1
-runTerminal :: (IOE :> es) => Eff (Terminal : es) a -> Eff es a
+runTerminal :: (HasCallStack, IOE :> es) => Eff (Terminal : es) a -> Eff es a
 runTerminal = evalStaticRep MkTerminal
 
 -- | Lifted 'IO.putStr'.
 --
 -- @since 0.1
-putStr :: (Terminal :> es) => String -> Eff es ()
+putStr :: (HasCallStack, Terminal :> es) => String -> Eff es ()
 putStr = unsafeEff_ . IO.putStr
 
 -- | Lifted 'IO.putStrLn'.
 --
 -- @since 0.1
-putStrLn :: (Terminal :> es) => String -> Eff es ()
+putStrLn :: (HasCallStack, Terminal :> es) => String -> Eff es ()
 putStrLn = unsafeEff_ . IO.putStrLn
 
 -- | Lifted 'BS.putStr'.
 --
 -- @since 0.1
-putBinary :: (Terminal :> es) => ByteString -> Eff es ()
+putBinary :: (HasCallStack, Terminal :> es) => ByteString -> Eff es ()
 putBinary = unsafeEff_ . BS.putStr
 
 -- | Lifted 'IO.getChar'.
 --
 -- @since 0.1
-getChar :: (Terminal :> es) => Eff es Char
+getChar :: (HasCallStack, Terminal :> es) => Eff es Char
 getChar = unsafeEff_ IO.getChar
 
 -- | Lifted 'IO.getLine'.
 --
 -- @since 0.1
-getLine :: (Terminal :> es) => Eff es String
+getLine :: (HasCallStack, Terminal :> es) => Eff es String
 getLine = unsafeEff_ IO.getLine
 
 #if MIN_VERSION_base(4,15,0)
@@ -145,7 +146,7 @@ getLine = unsafeEff_ IO.getLine
 -- | Lifted 'IO.getContents''.
 --
 -- @since 0.1
-getContents' :: (Terminal :> es) => Eff es String
+getContents' :: (HasCallStack, Terminal :> es) => Eff es String
 getContents' = unsafeEff_ IO.getContents'
 
 #endif
@@ -153,7 +154,12 @@ getContents' = unsafeEff_ IO.getContents'
 -- | Retrieves the terminal size.
 --
 -- @since 0.1
-getTerminalSize :: (Integral a, Terminal :> es) => Eff es (Window a)
+getTerminalSize ::
+  ( HasCallStack,
+    Integral a,
+    Terminal :> es
+  ) =>
+  Eff es (Window a)
 getTerminalSize =
   unsafeEff_ size >>= \case
     Just h -> pure h
@@ -171,33 +177,33 @@ getTerminalSize =
 -- | Determines if we support ANSI styling.
 --
 -- @since 0.1
-supportsPretty :: (Terminal :> es) => Eff es Bool
+supportsPretty :: (HasCallStack, Terminal :> es) => Eff es Bool
 supportsPretty = unsafeEff_ CPretty.supportsPretty
 
 -- | @since 0.1
-print :: (Show a, Terminal :> es) => a -> Eff es ()
+print :: (Show a, HasCallStack, Terminal :> es) => a -> Eff es ()
 print = putStrLn . show
 
 -- | 'Text' version of 'putStr'.
 --
 -- @since 0.1
-putText :: (Terminal :> es) => Text -> Eff es ()
+putText :: (HasCallStack, Terminal :> es) => Text -> Eff es ()
 putText = putStr . T.unpack
 
 -- | 'Text' version of 'putStrLn'.
 --
 -- @since 0.1
-putTextLn :: (Terminal :> es) => Text -> Eff es ()
+putTextLn :: (HasCallStack, Terminal :> es) => Text -> Eff es ()
 putTextLn = putStrLn . T.unpack
 
 -- | @since 0.1
-getTextLine :: (Terminal :> es) => Eff es Text
+getTextLine :: (HasCallStack, Terminal :> es) => Eff es Text
 getTextLine = T.pack <$> getLine
 
 #if MIN_VERSION_base(4,15,0)
 
 -- | @since 0.1
-getTextContents' :: (Terminal :> es) => Eff es Text
+getTextContents' :: (HasCallStack, Terminal :> es) => Eff es Text
 getTextContents' = T.pack <$> getContents'
 
 #endif
@@ -205,11 +211,11 @@ getTextContents' = T.pack <$> getContents'
 -- | Retrieves the terminal width.
 --
 -- @since 0.1
-getTerminalWidth :: (Integral a, Terminal :> es) => Eff es a
+getTerminalWidth :: (HasCallStack, Integral a, Terminal :> es) => Eff es a
 getTerminalWidth = width <$> getTerminalSize
 
 -- | Retrieves the terminal height.
 --
 -- @since 0.1
-getTerminalHeight :: (Integral a, Terminal :> es) => Eff es a
+getTerminalHeight :: (HasCallStack, Integral a, Terminal :> es) => Eff es a
 getTerminalHeight = height <$> getTerminalSize

@@ -54,7 +54,7 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (interpret, send)
+import Effectful.Dispatch.Dynamic (HasCallStack, interpret, send)
 import FileSystem.IO qualified as FS.IO
 import FileSystem.PathType
   ( PathType
@@ -118,7 +118,7 @@ type instance DispatchOf Posix = Dynamic
 --
 -- @since 0.1
 runPosix ::
-  (IOE :> es) =>
+  (HasCallStack, IOE :> es) =>
   Eff (Posix : es) a ->
   Eff es a
 runPosix = interpret $ \_ -> \case
@@ -152,26 +152,45 @@ runPosix = interpret $ \_ -> \case
 -- | Lifted 'PFiles.setFileMode'.
 --
 -- @since 0.1
-setFileMode :: (Posix :> es) => PosixPath -> FileMode -> Eff es ()
+setFileMode ::
+  ( HasCallStack,
+    Posix :> es
+  ) =>
+  PosixPath ->
+  FileMode ->
+  Eff es ()
 setFileMode p = send . SetFileMode p
 
 -- | Lifted 'PFiles.setFdMode'.
 --
 -- @since 0.1
-setFdMode :: (Posix :> es) => Fd -> FileMode -> Eff es ()
+setFdMode ::
+  ( HasCallStack,
+    Posix :> es
+  ) =>
+  Fd ->
+  FileMode ->
+  Eff es ()
 setFdMode p = send . SetFdMode p
 
 -- | Lifted 'PFiles.setFileCreationMask'.
 --
 -- @since 0.1
-setFileCreationMask :: (Posix :> es) => FileMode -> Eff es FileMode
+setFileCreationMask ::
+  ( HasCallStack,
+    Posix :> es
+  ) =>
+  FileMode ->
+  Eff es FileMode
 setFileCreationMask = send . SetFileCreationMask
 
 -- | Lifted 'PFiles.fileAccess'.
 --
 -- @since 0.1
 fileAccess ::
-  (Posix :> es) =>
+  ( HasCallStack,
+    Posix :> es
+  ) =>
   PosixPath ->
   Bool ->
   Bool ->
@@ -182,26 +201,43 @@ fileAccess p b c = send . FileAccess p b c
 -- | Lifted 'PFiles.fileExist'.
 --
 -- @since 0.1
-fileExist :: (Posix :> es) => PosixPath -> Eff es Bool
+fileExist ::
+  ( HasCallStack,
+    Posix :> es
+  ) =>
+  PosixPath ->
+  Eff es Bool
 fileExist = send . FileExist
 
 -- | Lifted 'PFiles.getFileStatus'.
 --
 -- @since 0.1
-getFileStatus :: (Posix :> es) => PosixPath -> Eff es FileStatus
+getFileStatus ::
+  ( HasCallStack,
+    Posix :> es
+  ) =>
+  PosixPath ->
+  Eff es FileStatus
 getFileStatus = send . GetFileStatus
 
 -- | Lifted 'PFiles.getFdStatus'.
 --
 -- @since 0.1
-getFdStatus :: (Posix :> es) => Fd -> Eff es FileStatus
+getFdStatus ::
+  ( HasCallStack,
+    Posix :> es
+  ) =>
+  Fd ->
+  Eff es FileStatus
 getFdStatus = send . GetFdStatus
 
 -- | Lifted 'PFiles.getSymbolicLinkStatus'.
 --
 -- @since 0.1
 getSymbolicLinkStatus ::
-  (Posix :> es) =>
+  ( HasCallStack,
+    Posix :> es
+  ) =>
   PosixPath ->
   Eff es FileStatus
 getSymbolicLinkStatus = send . GetSymbolicLinkStatus
@@ -210,7 +246,9 @@ getSymbolicLinkStatus = send . GetSymbolicLinkStatus
 --
 -- @since 0.1
 createNamedPipe ::
-  (Posix :> es) =>
+  ( HasCallStack,
+    Posix :> es
+  ) =>
   PosixPath ->
   FileMode ->
   Eff es ()
@@ -220,7 +258,9 @@ createNamedPipe p = send . CreateNamedPipe p
 --
 -- @since 0.1
 createDevice ::
-  (Posix :> es) =>
+  ( HasCallStack,
+    Posix :> es
+  ) =>
   PosixPath ->
   FileMode ->
   DeviceID ->
@@ -230,20 +270,33 @@ createDevice p m = send . CreateDevice p m
 -- | Lifted 'PFiles.createLink'.
 --
 -- @since 0.1
-createLink :: (Posix :> es) => PosixPath -> PosixPath -> Eff es ()
+createLink ::
+  ( HasCallStack,
+    Posix :> es
+  ) =>
+  PosixPath ->
+  PosixPath ->
+  Eff es ()
 createLink p = send . CreateLink p
 
 -- | Lifted 'PFiles.removeLink'.
 --
 -- @since 0.1
-removeLink :: (Posix :> es) => PosixPath -> Eff es ()
+removeLink ::
+  ( HasCallStack,
+    Posix :> es
+  ) =>
+  PosixPath ->
+  Eff es ()
 removeLink = send . RemoveLink
 
 -- | Lifted 'PFiles.createSymbolicLink'.
 --
 -- @since 0.1
 createSymbolicLink ::
-  (Posix :> es) =>
+  ( HasCallStack,
+    Posix :> es
+  ) =>
   PosixPath ->
   PosixPath ->
   Eff es ()
@@ -252,20 +305,33 @@ createSymbolicLink p = send . CreateSymbolicLink p
 -- | Lifted 'PFiles.readSymbolicLink'.
 --
 -- @since 0.1
-readSymbolicLink :: (Posix :> es) => PosixPath -> Eff es PosixPath
+readSymbolicLink ::
+  ( HasCallStack,
+    Posix :> es
+  ) =>
+  PosixPath ->
+  Eff es PosixPath
 readSymbolicLink = send . ReadSymbolicLink
 
 -- | Lifted 'PFiles.rename'.
 --
 -- @since 0.1
-rename :: (Posix :> es) => PosixPath -> PosixPath -> Eff es ()
+rename ::
+  ( HasCallStack,
+    Posix :> es
+  ) =>
+  PosixPath ->
+  PosixPath ->
+  Eff es ()
 rename p = send . Rename p
 
 -- | Lifted 'PFiles.setOwnerAndGroup'.
 --
 -- @since 0.1
 setOwnerAndGroup ::
-  (Posix :> es) =>
+  ( HasCallStack,
+    Posix :> es
+  ) =>
   PosixPath ->
   UserID ->
   GroupID ->
@@ -276,7 +342,9 @@ setOwnerAndGroup p uid = send . SetOwnerAndGroup p uid
 --
 -- @since 0.1
 setFdOwnerAndGroup ::
-  (Posix :> es) =>
+  ( HasCallStack,
+    Posix :> es
+  ) =>
   Fd ->
   UserID ->
   GroupID ->
@@ -287,7 +355,9 @@ setFdOwnerAndGroup fd uid = send . SetFdOwnerAndGroup fd uid
 --
 -- @since 0.1
 setSymbolicLinkOwnerAndGroup ::
-  (Posix :> es) =>
+  ( HasCallStack,
+    Posix :> es
+  ) =>
   PosixPath ->
   UserID ->
   GroupID ->
@@ -298,7 +368,9 @@ setSymbolicLinkOwnerAndGroup p uid = send . SetSymbolicLinkOwnerAndGroup p uid
 --
 -- @since 0.1
 setFileTimes ::
-  (Posix :> es) =>
+  ( HasCallStack,
+    Posix :> es
+  ) =>
   PosixPath ->
   EpochTime ->
   EpochTime ->
@@ -308,31 +380,60 @@ setFileTimes p t = send . SetFileTimes p t
 -- | Lifted 'PFiles.touchFile'.
 --
 -- @since 0.1
-touchFile :: (Posix :> es) => PosixPath -> Eff es ()
+touchFile ::
+  ( HasCallStack,
+    Posix :> es
+  ) =>
+  PosixPath ->
+  Eff es ()
 touchFile = send . TouchFile
 
 -- | Lifted 'PFiles.setFileSize'.
 --
 -- @since 0.1
-setFileSize :: (Posix :> es) => PosixPath -> FileOffset -> Eff es ()
+setFileSize ::
+  ( HasCallStack,
+    Posix :> es
+  ) =>
+  PosixPath ->
+  FileOffset ->
+  Eff es ()
 setFileSize p = send . SetFileSize p
 
 -- | Lifted 'PFiles.setFdSize'.
 --
 -- @since 0.1
-setFdSize :: (Posix :> es) => Fd -> FileOffset -> Eff es ()
+setFdSize ::
+  ( HasCallStack,
+    Posix :> es
+  ) =>
+  Fd ->
+  FileOffset ->
+  Eff es ()
 setFdSize fd = send . SetFdSize fd
 
 -- | Lifted 'PFiles.getPathVar'.
 --
 -- @since 0.1
-getPathVar :: (Posix :> es) => PosixPath -> PathVar -> Eff es Limit
+getPathVar ::
+  ( HasCallStack,
+    Posix :> es
+  ) =>
+  PosixPath ->
+  PathVar ->
+  Eff es Limit
 getPathVar p = send . GetPathVar p
 
 -- | Lifted 'PFiles.getFdPathVar'.
 --
 -- @since 0.1
-getFdPathVar :: (Posix :> es) => Fd -> PathVar -> Eff es Limit
+getFdPathVar ::
+  ( HasCallStack,
+    Posix :> es
+  ) =>
+  Fd ->
+  PathVar ->
+  Eff es Limit
 getFdPathVar fd = send . GetFdPathVar fd
 
 -- | Throws 'IOException' if the path does not exist or the expected path type
@@ -340,7 +441,8 @@ getFdPathVar fd = send . GetFdPathVar fd
 --
 -- @since 0.1
 throwIfWrongPathType ::
-  ( Posix :> es
+  ( HasCallStack,
+    Posix :> es
   ) =>
   String ->
   PathType ->
@@ -369,7 +471,8 @@ throwIfWrongPathType location expected path = do
 --
 -- @since 0.1
 isPathType ::
-  ( Posix :> es
+  ( HasCallStack,
+    Posix :> es
   ) =>
   PathType ->
   PosixPath ->
@@ -382,7 +485,8 @@ isPathType expected = fmap (== expected) . getPathType
 --
 -- @since 0.1
 getPathType ::
-  ( Posix :> es
+  ( HasCallStack,
+    Posix :> es
   ) =>
   PosixPath ->
   Eff es PathType

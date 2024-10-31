@@ -87,7 +87,7 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
-import Effectful.Dispatch.Static (unsafeEff_)
+import Effectful.Dispatch.Static (HasCallStack, unsafeEff_)
 import Effectful.Exception (mask_)
 import Effectful.FileSystem.PathReader.Dynamic
   ( PathReader,
@@ -140,7 +140,8 @@ type instance DispatchOf PathWriter = Dynamic
 --
 -- @since 0.1
 runPathWriter ::
-  ( IOE :> es
+  ( HasCallStack,
+    IOE :> es
   ) =>
   Eff (PathWriter : es) a ->
   Eff es a
@@ -171,7 +172,9 @@ runPathWriter = interpret $ \env -> \case
 --
 -- @since 0.1
 createDirectory ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   OsPath ->
   Eff es ()
 createDirectory = send . CreateDirectory
@@ -180,7 +183,9 @@ createDirectory = send . CreateDirectory
 --
 -- @since 0.1
 createDirectoryIfMissing ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   Bool ->
   OsPath ->
   Eff es ()
@@ -190,7 +195,9 @@ createDirectoryIfMissing b = send . CreateDirectoryIfMissing b
 --
 -- @since 0.1
 removeDirectory ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   OsPath ->
   Eff es ()
 removeDirectory = send . RemoveDirectory
@@ -199,7 +206,9 @@ removeDirectory = send . RemoveDirectory
 --
 -- @since 0.1
 removeDirectoryRecursive ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   OsPath ->
   Eff es ()
 removeDirectoryRecursive = send . RemoveDirectoryRecursive
@@ -208,7 +217,9 @@ removeDirectoryRecursive = send . RemoveDirectoryRecursive
 --
 -- @since 0.1
 removePathForcibly ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   OsPath ->
   Eff es ()
 removePathForcibly = send . RemovePathForcibly
@@ -217,7 +228,9 @@ removePathForcibly = send . RemovePathForcibly
 --
 -- @since 0.1
 renameDirectory ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -227,7 +240,9 @@ renameDirectory p = send . RenameDirectory p
 --
 -- @since 0.1
 setCurrentDirectory ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   OsPath ->
   Eff es ()
 setCurrentDirectory = send . SetCurrentDirectory
@@ -236,7 +251,9 @@ setCurrentDirectory = send . SetCurrentDirectory
 --
 -- @since 0.1
 withCurrentDirectory ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   OsPath ->
   Eff es a ->
   Eff es a
@@ -246,7 +263,9 @@ withCurrentDirectory p = send . WithCurrentDirectory p
 --
 -- @since 0.1
 removeFile ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   OsPath ->
   Eff es ()
 removeFile = send . RemoveFile
@@ -255,7 +274,9 @@ removeFile = send . RemoveFile
 --
 -- @since 0.1
 renameFile ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -265,7 +286,9 @@ renameFile p = send . RenameFile p
 --
 -- @since 0.1
 renamePath ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -275,7 +298,9 @@ renamePath p = send . RenamePath p
 --
 -- @since 0.1
 copyFile ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -285,7 +310,9 @@ copyFile p = send . CopyFile p
 --
 -- @since 0.1
 copyFileWithMetadata ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -295,7 +322,9 @@ copyFileWithMetadata p = send . CopyFileWithMetadata p
 --
 -- @since 0.1
 createFileLink ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -305,7 +334,9 @@ createFileLink p = send . CreateFileLink p
 --
 -- @since 0.1
 createDirectoryLink ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -315,7 +346,9 @@ createDirectoryLink p = send . CreateDirectoryLink p
 --
 -- @since 0.1
 removeDirectoryLink ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   OsPath ->
   Eff es ()
 removeDirectoryLink = send . RemoveDirectoryLink
@@ -324,7 +357,9 @@ removeDirectoryLink = send . RemoveDirectoryLink
 --
 -- @since 0.1
 setPermissions ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   OsPath ->
   Permissions ->
   Eff es ()
@@ -334,7 +369,9 @@ setPermissions p = send . SetPermissions p
 --
 -- @since 0.1
 copyPermissions ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   OsPath ->
   OsPath ->
   Eff es ()
@@ -344,7 +381,9 @@ copyPermissions p = send . CopyPermissions p
 --
 -- @since 0.1
 setAccessTime ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   OsPath ->
   UTCTime ->
   Eff es ()
@@ -354,7 +393,9 @@ setAccessTime p = send . SetAccessTime p
 --
 -- @since 0.1
 setModificationTime ::
-  (PathWriter :> es) =>
+  ( HasCallStack,
+    PathWriter :> es
+  ) =>
   OsPath ->
   UTCTime ->
   Eff es ()
@@ -364,7 +405,8 @@ setModificationTime p = send . SetModificationTime p
 --
 -- @since 0.1
 removeFileIfExists ::
-  ( PathReader :> es,
+  ( HasCallStack,
+    PathReader :> es,
     PathWriter :> es
   ) =>
   OsPath ->
@@ -375,7 +417,8 @@ removeFileIfExists = removeIfExists PR.doesFileExist removeFile
 --
 -- @since 0.1
 removeDirectoryIfExists ::
-  ( PathReader :> es,
+  ( HasCallStack,
+    PathReader :> es,
     PathWriter :> es
   ) =>
   OsPath ->
@@ -386,7 +429,8 @@ removeDirectoryIfExists = removeIfExists PR.doesDirectoryExist removeDirectory
 --
 -- @since 0.1
 removeDirectoryRecursiveIfExists ::
-  ( PathReader :> es,
+  ( HasCallStack,
+    PathReader :> es,
     PathWriter :> es
   ) =>
   OsPath ->
@@ -398,7 +442,8 @@ removeDirectoryRecursiveIfExists =
 --
 -- @since 0.1
 removePathForciblyIfExists ::
-  ( PathReader :> es,
+  ( HasCallStack,
+    PathReader :> es,
     PathWriter :> es
   ) =>
   OsPath ->
@@ -410,7 +455,8 @@ removePathForciblyIfExists =
 --
 -- @since 0.1
 removeSymbolicLinkIfExists ::
-  ( PathReader :> es,
+  ( HasCallStack,
+    PathReader :> es,
     PathWriter :> es
   ) =>
   OsPath ->
@@ -431,7 +477,8 @@ removeIfExists existsFn deleteFn f =
 -- @since 0.1
 copyDirectoryRecursive ::
   forall es.
-  ( PathReader :> es,
+  ( HasCallStack,
+    PathReader :> es,
     PathWriter :> es
   ) =>
   -- | Source
@@ -476,7 +523,8 @@ copyDirectoryRecursive = copyDirectoryRecursiveConfig Utils.defaultCopyDirConfig
 -- @since 0.1
 copyDirectoryRecursiveConfig ::
   forall es.
-  ( PathReader :> es,
+  ( HasCallStack,
+    PathReader :> es,
     PathWriter :> es
   ) =>
   -- | Config
@@ -520,7 +568,8 @@ copyDirectoryRecursiveConfig config src destRoot = do
 
 copyDirectoryOverwrite ::
   forall es.
-  ( PathReader :> es,
+  ( HasCallStack,
+    PathReader :> es,
     PathWriter :> es
   ) =>
   -- | Overwrite files
@@ -627,7 +676,8 @@ copyDirectoryOverwrite overwriteFiles src dest = do
 
 copyDirectoryNoOverwrite ::
   forall es.
-  ( PathReader :> es,
+  ( HasCallStack,
+    PathReader :> es,
     PathWriter :> es
   ) =>
   -- | Source
@@ -667,7 +717,8 @@ copyDirectoryNoOverwrite src dest = do
 --
 -- @since 0.1
 removeSymbolicLink ::
-  ( PathReader :> es,
+  ( HasCallStack,
+    PathReader :> es,
     PathWriter :> es
   ) =>
   OsPath ->
@@ -690,7 +741,8 @@ removeSymbolicLink p = do
 --
 -- @since 0.1
 copySymbolicLink ::
-  ( PathReader :> es,
+  ( HasCallStack,
+    PathReader :> es,
     PathWriter :> es
   ) =>
   -- | Source

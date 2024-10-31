@@ -38,7 +38,7 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (interpret, send)
+import Effectful.Dispatch.Dynamic (HasCallStack, interpret, send)
 import FileSystem.IO (readBinaryFileIO)
 import FileSystem.OsPath (OsPath)
 import FileSystem.UTF8 qualified as FS.UTF8
@@ -56,7 +56,8 @@ type instance DispatchOf FileReader = Dynamic
 --
 -- @since 0.1
 runFileReader ::
-  ( IOE :> es
+  ( HasCallStack,
+    IOE :> es
   ) =>
   Eff (FileReader : es) a ->
   Eff es a
@@ -65,7 +66,8 @@ runFileReader = interpret $ \_ -> \case
 
 -- | @since 0.1
 readBinaryFile ::
-  ( FileReader :> es
+  ( FileReader :> es,
+    HasCallStack
   ) =>
   OsPath ->
   Eff es ByteString
@@ -75,7 +77,8 @@ readBinaryFile = send . ReadBinaryFile
 --
 -- @since 0.1
 readFileUtf8 ::
-  ( FileReader :> es
+  ( FileReader :> es,
+    HasCallStack
   ) =>
   OsPath ->
   Eff es (Either UnicodeException Text)
@@ -85,7 +88,8 @@ readFileUtf8 = fmap FS.UTF8.decodeUtf8 . readBinaryFile
 --
 -- @since 0.1
 readFileUtf8Lenient ::
-  ( FileReader :> es
+  ( FileReader :> es,
+    HasCallStack
   ) =>
   OsPath ->
   Eff es Text
@@ -95,7 +99,8 @@ readFileUtf8Lenient = fmap FS.UTF8.decodeUtf8Lenient . readBinaryFile
 --
 -- @since 0.1
 readFileUtf8ThrowM ::
-  ( FileReader :> es
+  ( FileReader :> es,
+    HasCallStack
   ) =>
   OsPath ->
   Eff es Text

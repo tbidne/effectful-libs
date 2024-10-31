@@ -62,7 +62,7 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (interpret, send)
+import Effectful.Dispatch.Dynamic (HasCallStack, interpret, send)
 import Effectful.Time.TimeSpec (TimeSpec (nsec, sec))
 import Effectful.Time.TimeSpec qualified as TimeSpec
 import Effectful.Time.Utils qualified as Utils
@@ -81,7 +81,7 @@ type instance DispatchOf Time = Dynamic
 -- | Runs 'Time' in 'IO'.
 --
 -- @since 0.1
-runTime :: (IOE :> es) => Eff (Time : es) a -> Eff es a
+runTime :: (HasCallStack, IOE :> es) => Eff (Time : es) a -> Eff es a
 runTime = interpret $ \_ -> \case
   GetSystemZonedTime -> liftIO Local.getZonedTime
   GetMonotonicTime -> liftIO C.getMonotonicTime
@@ -89,25 +89,25 @@ runTime = interpret $ \_ -> \case
 -- | Returns the local system time.
 --
 -- @since 0.1
-getSystemTime :: (Time :> es) => Eff es LocalTime
+getSystemTime :: (HasCallStack, Time :> es) => Eff es LocalTime
 getSystemTime = Local.zonedTimeToLocalTime <$> getSystemZonedTime
 
 -- | Returns the zoned system time
 --
 -- @since 0.1
-getSystemZonedTime :: (Time :> es) => Eff es ZonedTime
+getSystemZonedTime :: (HasCallStack, Time :> es) => Eff es ZonedTime
 getSystemZonedTime = send GetSystemZonedTime
 
 -- | Returns the zoned system time
 --
 -- @since 0.1
-getMonotonicTime :: (Time :> es) => Eff es Double
+getMonotonicTime :: (HasCallStack, Time :> es) => Eff es Double
 getMonotonicTime = send GetMonotonicTime
 
 -- | Runs an action, returning the elapsed time.
 --
 -- @since 0.1
-withTiming :: (Time :> es) => Eff es a -> Eff es (TimeSpec, a)
+withTiming :: (HasCallStack, Time :> es) => Eff es a -> Eff es (TimeSpec, a)
 withTiming m = do
   start <- getMonotonicTime
   res <- m
@@ -117,17 +117,17 @@ withTiming m = do
 -- | 'withTiming' but ignores the result value.
 --
 -- @since 0.1
-withTiming_ :: (Time :> es) => Eff es a -> Eff es TimeSpec
+withTiming_ :: (HasCallStack, Time :> es) => Eff es a -> Eff es TimeSpec
 withTiming_ = fmap fst . withTiming
 
 -- | Retrieves the formatted 'LocalTime'.
 --
 -- @since 0.1
-getSystemTimeString :: (Time :> es) => Eff es String
+getSystemTimeString :: (HasCallStack, Time :> es) => Eff es String
 getSystemTimeString = fmap Utils.formatLocalTime getSystemTime
 
 -- | Retrieves the formatted 'ZonedTime'.
 --
 -- @since 0.1
-getSystemZonedTimeString :: (Time :> es) => Eff es String
+getSystemZonedTimeString :: (HasCallStack, Time :> es) => Eff es String
 getSystemZonedTimeString = fmap Utils.formatZonedTime getSystemZonedTime

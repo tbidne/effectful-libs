@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 -- | Provides namespaced logging functionality on top of 'Logger'.
 --
@@ -59,7 +60,7 @@ import Effectful.Concurrent.Static (Concurrent)
 #if MIN_VERSION_base(4, 18, 0)
 import Effectful.Concurrent.Static qualified as Thread
 #endif
-import Effectful.Dispatch.Dynamic (send)
+import Effectful.Dispatch.Dynamic (HasCallStack, send)
 import Effectful.Logger.Dynamic
   ( LogLevel
       ( LevelDebug,
@@ -162,14 +163,15 @@ type instance DispatchOf LoggerNS = Dynamic
 -- | Retrieves the namespace.
 --
 -- @since 0.1
-getNamespace :: (LoggerNS :> es) => Eff es Namespace
+getNamespace :: (HasCallStack, LoggerNS :> es) => Eff es Namespace
 getNamespace = send GetNamespace
 
 -- | Locally modifies the namespace.
 --
 -- @since 0.1
 localNamespace ::
-  ( LoggerNS :> es
+  ( HasCallStack,
+    LoggerNS :> es
   ) =>
   (Namespace -> Namespace) ->
   Eff es a ->
@@ -180,7 +182,8 @@ localNamespace f = send . LocalNamespace f
 --
 -- @since 0.1
 addNamespace ::
-  ( LoggerNS :> es
+  ( HasCallStack,
+    LoggerNS :> es
   ) =>
   Text ->
   Eff es a ->
@@ -354,6 +357,7 @@ defaultLogFormatter loc =
 -- @since 0.1
 formatLog ::
   ( Concurrent :> es,
+    HasCallStack,
     LoggerNS :> es,
     Time :> es,
     ToLogStr msg
@@ -401,7 +405,7 @@ formatLog formatter lvl msg = do
 {- ORMOLU_DISABLE -}
 
 -- | Retrieves the thread label or thread id, if the former has not been set.
-getThreadLabel :: (Concurrent :> es) => Eff es LogStr
+getThreadLabel :: (Concurrent :> es, HasCallStack) => Eff es LogStr
 getThreadLabel = do
 #if MIN_VERSION_base(4, 18, 0)
   tid <- CC.myThreadId

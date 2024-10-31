@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
+
 -- | Time utils.
 --
 -- @since 0.1
@@ -11,6 +13,7 @@ where
 
 import Data.Time.Format qualified as Format
 import Data.Time.LocalTime (LocalTime, ZonedTime)
+import Effectful.Dispatch.Dynamic (HasCallStack)
 
 -- | Formats the 'LocalTime' to @YYYY-MM-DD HH:MM:SS@.
 --
@@ -29,7 +32,7 @@ formatZonedTime = Format.formatTime Format.defaultTimeLocale zonedTimeFormat
 -- 'parseLocalTimeCallStack'.
 --
 -- @since 0.1
-parseLocalTime :: (MonadFail f) => String -> f LocalTime
+parseLocalTime :: (HasCallStack, MonadFail f) => String -> f LocalTime
 parseLocalTime =
   Format.parseTimeM
     True
@@ -56,7 +59,7 @@ parseLocalTime =
 -- * +HHMM (e.g. +1300)
 --
 -- @since 0.1
-parseZonedTime :: (MonadFail f) => String -> f ZonedTime
+parseZonedTime :: (HasCallStack, MonadFail f) => String -> f ZonedTime
 parseZonedTime =
   Format.parseTimeM
     True

@@ -42,7 +42,7 @@ where
 
 #if MIN_VERSION_base(4,17,0)
 import Effectful (Eff, type (:>))
-import Effectful.Dispatch.Static (unsafeEff_)
+import Effectful.Dispatch.Static (unsafeEff_, HasCallStack)
 import System.Environment qualified as Env
 #endif
 import Effectful.Environment (Environment, runEnvironment)
@@ -55,7 +55,7 @@ import Effectful.Environment.Utils (QueryExePath (NoQuery, QueryResult))
   -- | Lifted 'Env.executablePath'.
   --
   -- @since 0.1
-executablePath :: (Environment :> es) => Eff es QueryExePath
+executablePath :: (Environment :> es, HasCallStack) => Eff es QueryExePath
 executablePath = case Env.executablePath of
     Nothing -> pure NoQuery
     Just io -> QueryResult <$> unsafeEff_ io

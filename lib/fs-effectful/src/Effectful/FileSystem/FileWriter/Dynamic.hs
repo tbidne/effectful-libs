@@ -32,7 +32,7 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (interpret, send)
+import Effectful.Dispatch.Dynamic (HasCallStack, interpret, send)
 import FileSystem.IO (appendBinaryFileIO, writeBinaryFileIO)
 import FileSystem.OsPath (OsPath)
 import FileSystem.UTF8 qualified as FS.UTF8
@@ -51,7 +51,8 @@ type instance DispatchOf FileWriter = Dynamic
 --
 -- @since 0.1
 runFileWriter ::
-  ( IOE :> es
+  ( HasCallStack,
+    IOE :> es
   ) =>
   Eff (FileWriter : es) a ->
   Eff es a
@@ -61,7 +62,8 @@ runFileWriter = interpret $ \_ -> \case
 
 -- | @since 0.1
 writeBinaryFile ::
-  ( FileWriter :> es
+  ( FileWriter :> es,
+    HasCallStack
   ) =>
   OsPath ->
   ByteString ->
@@ -70,7 +72,8 @@ writeBinaryFile p = send . WriteBinaryFile p
 
 -- | @since 0.1
 appendBinaryFile ::
-  ( FileWriter :> es
+  ( FileWriter :> es,
+    HasCallStack
   ) =>
   OsPath ->
   ByteString ->
@@ -81,7 +84,8 @@ appendBinaryFile p = send . AppendBinaryFile p
 --
 -- @since 0.1
 writeFileUtf8 ::
-  ( FileWriter :> es
+  ( FileWriter :> es,
+    HasCallStack
   ) =>
   OsPath ->
   Text ->
@@ -92,7 +96,8 @@ writeFileUtf8 f = writeBinaryFile f . FS.UTF8.encodeUtf8
 --
 -- @since 0.1
 appendFileUtf8 ::
-  ( FileWriter :> es
+  ( FileWriter :> es,
+    HasCallStack
   ) =>
   OsPath ->
   Text ->

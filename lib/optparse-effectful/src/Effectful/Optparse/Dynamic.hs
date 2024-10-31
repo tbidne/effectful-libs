@@ -26,7 +26,7 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (interpret, send)
+import Effectful.Dispatch.Dynamic (HasCallStack, interpret, send)
 import Effectful.Optparse.Utils qualified as Utils
 import Options.Applicative (ParserInfo, ParserPrefs, ParserResult)
 import Options.Applicative qualified as OA
@@ -46,7 +46,8 @@ type instance DispatchOf Optparse = Dynamic
 --
 -- @since 0.1
 runOptparse ::
-  ( IOE :> es
+  ( HasCallStack,
+    IOE :> es
   ) =>
   Eff (Optparse : es) a ->
   Eff es a
@@ -58,14 +59,14 @@ runOptparse = interpret $ \_ -> \case
 -- | Lifted 'OA.execParser'.
 --
 -- @since 0.1
-execParser :: (Optparse :> es) => ParserInfo a -> Eff es a
+execParser :: (HasCallStack, Optparse :> es) => ParserInfo a -> Eff es a
 execParser = send . ExecParser
 
 -- | Lifted 'OA.customExecParser'.
 --
 -- @since 0.1
 customExecParser ::
-  (Optparse :> es) =>
+  (HasCallStack, Optparse :> es) =>
   ParserPrefs ->
   ParserInfo a ->
   Eff es a
@@ -74,5 +75,5 @@ customExecParser prefs = send . CustomExecParser prefs
 -- | Lifted 'OA.handleParseResult'.
 --
 -- @since 0.1
-handleParseResult :: (Optparse :> es) => ParserResult a -> Eff es a
+handleParseResult :: (HasCallStack, Optparse :> es) => ParserResult a -> Eff es a
 handleParseResult = send . HandleParseResult

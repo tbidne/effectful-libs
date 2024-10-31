@@ -34,7 +34,8 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Static
-  ( SideEffects (WithSideEffects),
+  ( HasCallStack,
+    SideEffects (WithSideEffects),
     StaticRep,
     evalStaticRep,
     unsafeEff_,
@@ -56,7 +57,7 @@ data instance StaticRep FileWriter = MkFileWriter
 --
 -- @since 0.1
 runFileWriter ::
-  (IOE :> es) =>
+  (HasCallStack, IOE :> es) =>
   Eff (FileWriter : es) a ->
   Eff es a
 runFileWriter = evalStaticRep MkFileWriter
@@ -65,7 +66,8 @@ runFileWriter = evalStaticRep MkFileWriter
 --
 -- @since 0.1
 writeBinaryFile ::
-  ( FileWriter :> es
+  ( FileWriter :> es,
+    HasCallStack
   ) =>
   OsPath ->
   ByteString ->
@@ -76,7 +78,8 @@ writeBinaryFile p = unsafeEff_ . writeBinaryFileIO p
 --
 -- @since 0.1
 appendBinaryFile ::
-  ( FileWriter :> es
+  ( FileWriter :> es,
+    HasCallStack
   ) =>
   OsPath ->
   ByteString ->
@@ -87,7 +90,8 @@ appendBinaryFile p = unsafeEff_ . appendBinaryFileIO p
 --
 -- @since 0.1
 writeFileUtf8 ::
-  ( FileWriter :> es
+  ( FileWriter :> es,
+    HasCallStack
   ) =>
   OsPath ->
   Text ->
@@ -98,7 +102,8 @@ writeFileUtf8 f = writeBinaryFile f . FS.UTF8.encodeUtf8
 --
 -- @since 0.1
 appendFileUtf8 ::
-  ( FileWriter :> es
+  ( FileWriter :> es,
+    HasCallStack
   ) =>
   OsPath ->
   Text ->

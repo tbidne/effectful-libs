@@ -32,14 +32,18 @@ import Data.Foldable (for_)
 import Effectful (Eff, type (:>))
 import Effectful.Concurrent (Concurrent)
 import Effectful.Concurrent qualified as EffCC
-import Effectful.Dispatch.Static (unsafeEff_)
+import Effectful.Dispatch.Static (HasCallStack, unsafeEff_)
 import GHC.Conc.Sync qualified as Sync
 import GHC.Natural (Natural)
 
 -- | Lifted 'Sync.labelThread'.
 --
 -- @since 0.1
-labelThread :: (Concurrent :> es) => ThreadId -> String -> Eff es ()
+labelThread ::
+  (Concurrent :> es, HasCallStack) =>
+  ThreadId ->
+  String ->
+  Eff es ()
 labelThread tid = unsafeEff_ . Sync.labelThread tid
 
 #if MIN_VERSION_base(4, 18, 0)
@@ -47,7 +51,9 @@ labelThread tid = unsafeEff_ . Sync.labelThread tid
 -- | Lifted 'Sync.threadLabel'.
 --
 -- @since 0.1
-threadLabel :: (Concurrent :> es) => ThreadId -> Eff es (Maybe String)
+threadLabel ::
+  (Concurrent :> es, HasCallStack) =>
+  ThreadId -> Eff es (Maybe String)
 threadLabel = unsafeEff_ . Sync.threadLabel
 
 #endif
@@ -56,14 +62,14 @@ threadLabel = unsafeEff_ . Sync.threadLabel
 -- runs sleep in the current thread for the specified number of microseconds.
 --
 -- @since 0.1
-microsleep :: (Concurrent :> es) => Natural -> Eff es ()
+microsleep :: (Concurrent :> es, HasCallStack) => Natural -> Eff es ()
 microsleep n = for_ (natToInts n) EffCC.threadDelay
 
 -- | Runs sleep in the current thread for the specified number of
 -- seconds.
 --
 -- @since 0.1
-sleep :: (Concurrent :> es) => Natural -> Eff es ()
+sleep :: (Concurrent :> es, HasCallStack) => Natural -> Eff es ()
 sleep = microsleep . (* 1_000_000)
 
 natToInts :: Natural -> [Int]
