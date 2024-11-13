@@ -85,8 +85,8 @@ instance
   (k ~ A_Lens, a ~ Natural, b ~ Natural) =>
   LabelOptic "sec" k TimeSpec TimeSpec a b
   where
-  labelOptic = lensVL $ \f (MkTimeSpec _sec _nsec) ->
-    fmap (`MkTimeSpec` _nsec) (f _sec)
+  labelOptic = lensVL $ \f (MkTimeSpec a1 a2) ->
+    fmap (\b -> MkTimeSpec b a2) (f a1)
   {-# INLINE labelOptic #-}
 
 -- | @since 0.1
@@ -94,8 +94,8 @@ instance
   (k ~ A_Lens, a ~ Natural, b ~ Natural) =>
   LabelOptic "nsec" k TimeSpec TimeSpec a b
   where
-  labelOptic = lensVL $ \f (MkTimeSpec _sec _nsec) ->
-    fmap (MkTimeSpec _sec) (f _nsec)
+  labelOptic = lensVL $ \f (MkTimeSpec a1 a2) ->
+    fmap (\b -> MkTimeSpec a1 b) (f a2)
   {-# INLINE labelOptic #-}
 
 -- | @since 0.1

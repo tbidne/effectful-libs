@@ -1,19 +1,9 @@
+---
 - ignore:
-    name: "Use putStrLn"
+    name: "Avoid lambda"
     within:
-      - "Effectful.Terminal.Dynamic"
-      - "Effectful.Terminal.Static"
-    name: "Redundant bracket"
-    within:
-      - "Effectful.Exception"
-      - "Effectful.LoggerNS"
-      - "Effectful.FileSystem.FileReader"
-      - "Effectful.FileSystem.FileWriter"
-      - "Effectful.FileSystem.HandleReader"
-      - "Effectful.FileSystem.HandleWriter"
-      - "Effectful.FileSystem.PathReader"
-      - "Effectful.FileSystem.PathWriter"
-      - "Effectful.IORef"
-      - "Effectful.STM"
-      - "Effectful.Time"
-      - "Effectful.Thread"
+      - "Effectful.FileSystem.PathWriter.Utils"
+      - "Effectful.Time.TimeSpec"
+
+- ignore:
+    name: "Avoid lambda using `infix`"

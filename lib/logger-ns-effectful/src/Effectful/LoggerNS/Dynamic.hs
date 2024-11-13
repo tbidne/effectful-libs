@@ -284,12 +284,10 @@ instance
   (k ~ A_Lens, a ~ LocStrategy, b ~ LocStrategy) =>
   LabelOptic "locStrategy" k LogFormatter LogFormatter a b
   where
-  labelOptic = lensVL $ \f (MkLogFormatter locStrategy_ newline_ threadLabel_ timezone_) ->
+  labelOptic = lensVL $ \f (MkLogFormatter a1 a2 a3 a4) ->
     fmap
-      ( \locStrategy' ->
-          MkLogFormatter locStrategy' newline_ threadLabel_ timezone_
-      )
-      (f locStrategy_)
+      (\b -> MkLogFormatter b a2 a3 a4)
+      (f a1)
   {-# INLINE labelOptic #-}
 
 -- | @since 0.1
@@ -297,12 +295,10 @@ instance
   (k ~ A_Lens, a ~ Bool, b ~ Bool) =>
   LabelOptic "newline" k LogFormatter LogFormatter a b
   where
-  labelOptic = lensVL $ \f (MkLogFormatter locStrategy_ newline_ threadLabel_ timezone_) ->
+  labelOptic = lensVL $ \f (MkLogFormatter a1 a2 a3 a4) ->
     fmap
-      ( \newline' ->
-          MkLogFormatter locStrategy_ newline' threadLabel_ timezone_
-      )
-      (f newline_)
+      (\b -> MkLogFormatter a1 b a3 a4)
+      (f a2)
   {-# INLINE labelOptic #-}
 
 -- | @since 0.1
@@ -310,12 +306,10 @@ instance
   (k ~ A_Lens, a ~ Bool, b ~ Bool) =>
   LabelOptic "threadLabel" k LogFormatter LogFormatter a b
   where
-  labelOptic = lensVL $ \f (MkLogFormatter locStrategy_ newline_ threadLabel_ timezone_) ->
+  labelOptic = lensVL $ \f (MkLogFormatter a1 a2 a3 a4) ->
     fmap
-      ( \threadLabel' ->
-          MkLogFormatter locStrategy_ newline_ threadLabel' timezone_
-      )
-      (f threadLabel_)
+      (\b -> MkLogFormatter a1 a2 b a4)
+      (f a3)
   {-# INLINE labelOptic #-}
 
 {- HLINT ignore "Avoid lambda" -}
@@ -325,12 +319,10 @@ instance
   (k ~ A_Lens, a ~ Bool, b ~ Bool) =>
   LabelOptic "timezone" k LogFormatter LogFormatter a b
   where
-  labelOptic = lensVL $ \f (MkLogFormatter locStrategy_ newline_ threadLabel_ timezone_) ->
+  labelOptic = lensVL $ \f (MkLogFormatter a1 a2 a3 a4) ->
     fmap
-      ( \timezone' ->
-          MkLogFormatter locStrategy_ newline_ threadLabel_ timezone'
-      )
-      (f timezone_)
+      (\b -> MkLogFormatter a1 a2 a3 b)
+      (f a4)
   {-# INLINE labelOptic #-}
 
 -- | 'LogFormatter' with:

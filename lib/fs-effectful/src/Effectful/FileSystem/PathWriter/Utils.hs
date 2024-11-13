@@ -186,8 +186,8 @@ instance
   (k ~ A_Lens, a ~ Overwrite, b ~ Overwrite) =>
   LabelOptic "overwrite" k CopyDirConfig CopyDirConfig a b
   where
-  labelOptic = lensVL $ \f (MkCopyDirConfig _overwrite _targetName) ->
-    fmap (`MkCopyDirConfig` _targetName) (f _overwrite)
+  labelOptic = lensVL $ \f (MkCopyDirConfig a1 a2) ->
+    fmap (\b -> MkCopyDirConfig b a2) (f a1)
   {-# INLINE labelOptic #-}
 
 -- | @since 0.1
@@ -195,8 +195,8 @@ instance
   (k ~ A_Lens, a ~ TargetName, b ~ TargetName) =>
   LabelOptic "targetName" k CopyDirConfig CopyDirConfig a b
   where
-  labelOptic = lensVL $ \f (MkCopyDirConfig _overwrite _targetName) ->
-    fmap (MkCopyDirConfig _overwrite) (f _targetName)
+  labelOptic = lensVL $ \f (MkCopyDirConfig a1 a2) ->
+    fmap (\b -> MkCopyDirConfig a1 b) (f a2)
   {-# INLINE labelOptic #-}
 
 -- | Default config for copying directories.
