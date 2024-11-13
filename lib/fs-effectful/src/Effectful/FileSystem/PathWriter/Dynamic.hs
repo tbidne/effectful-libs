@@ -55,13 +55,18 @@ module Effectful.FileSystem.PathWriter.Dynamic
     -- * Removing
     -- $if-exists
     removeFileIfExists,
+    removeFileIfExists_,
     removeDirectoryIfExists,
+    removeDirectoryIfExists_,
     removeDirectoryRecursiveIfExists,
+    removeDirectoryRecursiveIfExists_,
     removePathForciblyIfExists,
+    removePathForciblyIfExists_,
 
     -- ** Symbolic Links
     removeSymbolicLink,
     removeSymbolicLinkIfExists,
+    removeSymbolicLinkIfExists_,
 
     -- * Re-exports
     OsPath,
@@ -73,9 +78,10 @@ where
 
 import Control.Exception (IOException)
 import Control.Exception.Utils (onSyncException)
-import Control.Monad (unless, when)
+import Control.Monad (unless, void, when)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Foldable (for_, traverse_)
+import Data.Functor (($>))
 import Data.IORef (modifyIORef', newIORef, readIORef)
 import Data.Time (UTCTime (UTCTime, utctDay, utctDayTime))
 import Effectful
@@ -401,6 +407,19 @@ setModificationTime ::
   Eff es ()
 setModificationTime p = send . SetModificationTime p
 
+-- | Variant of 'removeFileIfExists' that ignores the return value.
+--
+-- @since 0.1
+removeFileIfExists_ ::
+  ( HasCallStack,
+    PathReader :> es,
+    PathWriter :> es
+  ) =>
+  -- | .
+  OsPath ->
+  Eff es ()
+removeFileIfExists_ = void . removeFileIfExists
+
 -- | Calls 'removeFile' if 'doesFileExist' is 'True'.
 --
 -- @since 0.1
@@ -409,9 +428,23 @@ removeFileIfExists ::
     PathReader :> es,
     PathWriter :> es
   ) =>
+  -- | .
+  OsPath ->
+  Eff es Bool
+removeFileIfExists = removeIfExists PR.doesFileExist removeFile
+
+-- | Variant of 'removeDirectoryIfExists' that ignores the return value.
+--
+-- @since 0.1
+removeDirectoryIfExists_ ::
+  ( HasCallStack,
+    PathReader :> es,
+    PathWriter :> es
+  ) =>
+  -- | .
   OsPath ->
   Eff es ()
-removeFileIfExists = removeIfExists PR.doesFileExist removeFile
+removeDirectoryIfExists_ = void . removeDirectoryIfExists
 
 -- | Calls 'removeDirectory' if 'doesDirectoryExist' is 'True'.
 --
@@ -421,9 +454,23 @@ removeDirectoryIfExists ::
     PathReader :> es,
     PathWriter :> es
   ) =>
+  -- | .
+  OsPath ->
+  Eff es Bool
+removeDirectoryIfExists = removeIfExists PR.doesDirectoryExist removeDirectory
+
+-- | Variant of 'removeDirectoryRecursiveIfExists' that ignores the return value.
+--
+-- @since 0.1
+removeDirectoryRecursiveIfExists_ ::
+  ( HasCallStack,
+    PathReader :> es,
+    PathWriter :> es
+  ) =>
+  -- | .
   OsPath ->
   Eff es ()
-removeDirectoryIfExists = removeIfExists PR.doesDirectoryExist removeDirectory
+removeDirectoryRecursiveIfExists_ = void . removeDirectoryRecursiveIfExists
 
 -- | Calls 'removeDirectoryRecursive' if 'doesDirectoryExist' is 'True'.
 --
@@ -433,10 +480,24 @@ removeDirectoryRecursiveIfExists ::
     PathReader :> es,
     PathWriter :> es
   ) =>
+  -- | .
   OsPath ->
-  Eff es ()
+  Eff es Bool
 removeDirectoryRecursiveIfExists =
   removeIfExists PR.doesDirectoryExist removeDirectoryRecursive
+
+-- | Variant of 'removePathForciblyIfExists' that ignores the return value.
+--
+-- @since 0.1
+removePathForciblyIfExists_ ::
+  ( HasCallStack,
+    PathReader :> es,
+    PathWriter :> es
+  ) =>
+  -- | .
+  OsPath ->
+  Eff es ()
+removePathForciblyIfExists_ = void . removePathForciblyIfExists
 
 -- | Calls 'removePathForcibly' if 'doesPathExist' is 'True'.
 --
@@ -446,10 +507,24 @@ removePathForciblyIfExists ::
     PathReader :> es,
     PathWriter :> es
   ) =>
+  -- | .
   OsPath ->
-  Eff es ()
+  Eff es Bool
 removePathForciblyIfExists =
   removeIfExists PR.doesPathExist removePathForcibly
+
+-- | Variant of 'removeSymbolicLinkIfExists' that ignores the return value.
+--
+-- @since 0.1
+removeSymbolicLinkIfExists_ ::
+  ( HasCallStack,
+    PathReader :> es,
+    PathWriter :> es
+  ) =>
+  -- | .
+  OsPath ->
+  Eff es ()
+removeSymbolicLinkIfExists_ = void . removeSymbolicLinkIfExists
 
 -- | Calls 'removeSymbolicLink' if 'doesSymbolicLinkExist' is 'True'.
 --
@@ -459,8 +534,9 @@ removeSymbolicLinkIfExists ::
     PathReader :> es,
     PathWriter :> es
   ) =>
+  -- | .
   OsPath ->
-  Eff es ()
+  Eff es Bool
 removeSymbolicLinkIfExists =
   removeIfExists PR.doesSymbolicLinkExist removeSymbolicLink
 
@@ -468,9 +544,12 @@ removeIfExists ::
   (OsPath -> Eff es Bool) ->
   (OsPath -> Eff es ()) ->
   OsPath ->
-  Eff es ()
-removeIfExists existsFn deleteFn f =
-  existsFn f >>= \b -> when b (deleteFn f)
+  Eff es Bool
+removeIfExists existsFn deleteFn f = do
+  exists <- existsFn f
+  if exists
+    then deleteFn f $> True
+    else pure False
 
 -- | 'copyDirectoryRecursiveConfig' with 'defaultCopyDirConfig'.
 --

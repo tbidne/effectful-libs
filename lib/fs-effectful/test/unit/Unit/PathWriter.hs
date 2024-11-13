@@ -928,7 +928,8 @@ removeFileIfExistsTrue getTestDir = testCase desc $ do
   let file = testDir </> [osp|file|]
   assertFilesExist [file]
 
-  runEffPathWriter $ PW.removeFileIfExists file
+  deleted <- runEffPathWriter $ PW.removeFileIfExists file
+  assertBool "Should run delete" deleted
 
   assertFilesDoNotExist [file]
   where
@@ -940,7 +941,8 @@ removeFileIfExistsFalseBad getTestDir = testCase desc $ do
   let file = testDir </> [osp|bad-path|]
   assertFilesDoNotExist [file]
 
-  runEffPathWriter $ PW.removeFileIfExists file
+  deleted <- runEffPathWriter $ PW.removeFileIfExists file
+  assertBool "Should not run delete" (not deleted)
 
   assertFilesDoNotExist [file]
   where
@@ -953,7 +955,8 @@ removeFileIfExistsFalseWrongType getTestDir = testCase desc $ do
 
   assertDirsExist [dir]
 
-  runEffPathWriter $ PW.removeFileIfExists dir
+  deleted <- runEffPathWriter $ PW.removeFileIfExists dir
+  assertBool "Should not run delete" (not deleted)
 
   assertDirsExist [dir]
   where
@@ -965,7 +968,8 @@ removeDirIfExistsTrue getTestDir = testCase desc $ do
   let dir = testDir </> [osp|dir|]
   assertDirsExist [dir]
 
-  runEffPathWriter $ PW.removeDirectoryIfExists dir
+  deleted <- runEffPathWriter $ PW.removeDirectoryIfExists dir
+  assertBool "Should run delete" deleted
 
   assertDirsDoNotExist [dir]
   where
@@ -977,7 +981,8 @@ removeDirIfExistsFalseBad getTestDir = testCase desc $ do
   let dir = testDir </> [osp|bad-path|]
   assertDirsDoNotExist [dir]
 
-  runEffPathWriter $ PW.removeDirectoryIfExists dir
+  deleted <- runEffPathWriter $ PW.removeDirectoryIfExists dir
+  assertBool "Should not run delete" (not deleted)
 
   assertDirsDoNotExist [dir]
   where
@@ -990,7 +995,8 @@ removeDirIfExistsFalseWrongType getTestDir = testCase desc $ do
 
   assertFilesExist [file]
 
-  runEffPathWriter $ PW.removeDirectoryIfExists file
+  deleted <- runEffPathWriter $ PW.removeDirectoryIfExists file
+  assertBool "Should not run delete" (not deleted)
 
   assertFilesExist [file]
   where
@@ -1004,10 +1010,14 @@ removeSymlinkIfExistsTrue getTestDir = testCase desc $ do
 
   assertSymlinksExist [fileLink, dirLink]
 
-  runEffPathWriter $ do
-    PW.removeSymbolicLinkIfExists fileLink
-    PW.removeSymbolicLinkIfExists dirLink
+  (deleted1, deleted2) <- runEffPathWriter $ do
+    deleted1 <- PW.removeSymbolicLinkIfExists fileLink
+    deleted2 <- PW.removeSymbolicLinkIfExists dirLink
 
+    pure (deleted1, deleted2)
+
+  assertBool "Should run delete" deleted1
+  assertBool "Should run delete" deleted2
   assertSymlinksDoNotExist [fileLink, dirLink]
   where
     desc = "removeSymbolicLinkIfExists removes links"
@@ -1018,7 +1028,8 @@ removeSymlinkIfExistsFalseBad getTestDir = testCase desc $ do
   let link = testDir </> [osp|bad-path|]
   assertSymlinksDoNotExist [link]
 
-  runEffPathWriter $ PW.removeSymbolicLinkIfExists link
+  deleted <- runEffPathWriter $ PW.removeSymbolicLinkIfExists link
+  assertBool "Should not run delete" (not deleted)
 
   assertSymlinksDoNotExist [link]
   where
@@ -1033,9 +1044,13 @@ removeSymlinkIfExistsFalseWrongType getTestDir = testCase desc $ do
   assertFilesExist [file]
   assertDirsExist [dir]
 
-  runEffPathWriter $ do
-    PW.removeSymbolicLinkIfExists file
-    PW.removeSymbolicLinkIfExists dir
+  (deleted1, deleted2) <- runEffPathWriter $ do
+    deleted1 <- PW.removeSymbolicLinkIfExists file
+    deleted2 <- PW.removeSymbolicLinkIfExists dir
+    pure (deleted1, deleted2)
+
+  assertBool "Should not run delete" (not deleted1)
+  assertBool "Should not run delete" (not deleted2)
 
   assertFilesExist [file]
   assertDirsExist [dir]

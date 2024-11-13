@@ -32,7 +32,7 @@ setup = runEffectsIO $ do
   tmpDir <-
     (\s -> s </> [osp|fs-effectful|] </> [osp|unit|])
       <$> PR.getTemporaryDirectory
-  PW.removeDirectoryRecursiveIfExists tmpDir
+  PW.removeDirectoryRecursiveIfExists_ tmpDir
   PW.createDirectoryIfMissing True tmpDir
 
   createDataDir tmpDir
@@ -82,7 +82,7 @@ createDataDir ::
   OsPath ->
   Eff es ()
 createDataDir tmpDir = do
-  PW.removeDirectoryIfExists dataDir
+  PW.removeDirectoryIfExists_ dataDir
   PW.createDirectoryIfMissing True dataDir
 
   createDirs
