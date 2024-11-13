@@ -80,6 +80,10 @@
           pkgsCompiler = {
             inherit pkgs compiler;
           };
+          pkgsMkDrv = {
+            inherit pkgs;
+            mkDrv = false;
+          };
           hsOverlay = (
             compiler.extend (
               hlib.compose.packageSourceOverrides {
@@ -156,9 +160,21 @@
           };
 
           apps = {
-            format = nix-hs-utils.format pkgsCompiler;
-            lint = nix-hs-utils.lint pkgsCompiler;
-            lintRefactor = nix-hs-utils.lintRefactor pkgsCompiler;
+            format = nix-hs-utils.mergeApps {
+              apps = [
+                (nix-hs-utils.format (pkgsCompiler // pkgsMkDrv))
+                (nix-hs-utils.format-yaml pkgsMkDrv)
+              ];
+            };
+
+            lint = nix-hs-utils.mergeApps {
+              apps = [
+                (nix-hs-utils.lint (pkgsCompiler // pkgsMkDrv))
+                (nix-hs-utils.lint-yaml pkgsMkDrv)
+              ];
+            };
+
+            lint-refactor = nix-hs-utils.lint-refactor pkgsCompiler;
           };
         };
       systems = [

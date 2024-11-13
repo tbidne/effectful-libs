@@ -1,6 +1,7 @@
+---
 name: ci
 
-on:
+on: # yamllint disable-line rule:truthy rule:comments
   push:
     branches:
       - main
@@ -27,8 +28,8 @@ jobs:
           - "ubuntu-latest"
           - "windows-latest"
         exclude:
-          - {ghc: "8.10.7", os: "macos-latest"}
-          - {ghc: "9.0.2", os: "macos-latest"}
+          - { ghc: "8.10.7", os: "macos-latest" }
+          - { ghc: "9.0.2", os: "macos-latest" }
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -38,7 +39,9 @@ jobs:
           ghc-version: ${{ matrix.ghc }}
 
       - name: Configure
+        # yamllint disable rule:line-length
         run: cabal configure --enable-tests --ghc-options='-Wno-deprecations -Werror'
+        # yamllint enable
 
       - name: Build concurrent-effectful
         run: cabal build concurrent-effectful
@@ -62,7 +65,9 @@ jobs:
         run: cabal build logger-effectful
 
       - name: Test logger-effectful
+        # yamllint disable rule:line-length
         run: cabal test logger-effectful --test-options '--hedgehog-tests 100000'
+        # yamllint enable
 
       - name: Build logger-ns-effectful
         run: cabal build logger-ns-effectful
@@ -102,6 +107,7 @@ jobs:
       - name: Benchmark fs-unix
         if: ${{ matrix.os == 'ubuntu-latest' }}
         id: bench
+        # yamllint disable rule:line-length
         run: |
           cabal bench --enable-benchmarks fs-unix:benchmark:benchmarks --benchmark-options '
             +RTS -T -RTS -t100
@@ -110,6 +116,7 @@ jobs:
             --svg bench/bench_${{ matrix.os }}_${{ matrix.ghc }}_ci.svg
             --fail-if-slower 30
             --fail-if-faster 30'
+        # yamllint enable
 
       - uses: actions/upload-artifact@v3
         if: ${{ failure() && steps.bench.conclusion == 'failure' }}
