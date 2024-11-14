@@ -161,7 +161,7 @@ unsetEnv = send . UnsetEnv
 withArgs ::
   (Environment :> es, HasCallStack) =>
   [String] ->
-  (Eff es) a ->
+  Eff es a ->
   Eff es a
 withArgs args = send . WithArgs args
 
@@ -171,7 +171,7 @@ withArgs args = send . WithArgs args
 withProgName ::
   (Environment :> es, HasCallStack) =>
   String ->
-  (Eff es) () ->
+  Eff es () ->
   Eff es ()
 withProgName name = send . WithProgName name
 
