@@ -3,15 +3,11 @@
 module Unit.PathReader (tests) where
 
 import Data.List qualified as L
-import Effectful (Eff, IOE, runEff)
-import Effectful.FileSystem.PathReader.Dynamic
-  ( PathReader,
-    runPathReader,
-  )
-import Effectful.FileSystem.PathReader.Dynamic qualified as PathReader
+import Effectful.FileSystem.PathReader.Static qualified as PR
 import FileSystem.OsPath (OsPath, osp, (</>))
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase, (@=?))
+import Unit.TestUtils qualified as TestUtils
 
 tests :: IO OsPath -> TestTree
 tests getTmpDir =
@@ -25,7 +21,7 @@ tests getTmpDir =
 testListDirectoryRecursive :: TestTree
 testListDirectoryRecursive = testCase "Recursively lists sub-files/dirs" $ do
   (files, dirs) <-
-    runEffPathReader $ PathReader.listDirectoryRecursive [osp|src|]
+    TestUtils.runTestEff $ PR.listDirectoryRecursive [osp|src|]
   let (files', dirs') = (L.sort files, L.sort dirs)
   expectedFiles @=? files'
   expectedDirs @=? dirs'
@@ -62,7 +58,7 @@ testListDirectoryRecursiveSymlinkTargets getTmpDir = testCase desc $ do
   let dataDir = tmpDir </> [osp|data|]
 
   (files, dirs) <-
-    runEffPathReader $ PathReader.listDirectoryRecursive dataDir
+    TestUtils.runTestEff $ PR.listDirectoryRecursive dataDir
   let (files', dirs') = (L.sort files, L.sort dirs)
 
   expectedFiles @=? files'
@@ -97,7 +93,7 @@ testListDirectoryRecursiveSymbolicLink getTmpDir = testCase desc $ do
   let dataDir = tmpDir </> [osp|data|]
 
   (files, dirs, symlinks) <-
-    runEffPathReader $ PathReader.listDirectoryRecursiveSymbolicLink dataDir
+    TestUtils.runTestEff $ PR.listDirectoryRecursiveSymbolicLink dataDir
   let (files', dirs', symlinks') = (L.sort files, L.sort dirs, L.sort symlinks)
 
   expectedFiles @=? files'
@@ -127,6 +123,3 @@ testListDirectoryRecursiveSymbolicLink getTmpDir = testCase desc $ do
         [osp|l2|],
         [osp|l3|]
       ]
-
-runEffPathReader :: Eff '[PathReader, IOE] a -> IO a
-runEffPathReader = runEff . runPathReader

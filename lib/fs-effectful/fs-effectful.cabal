@@ -98,6 +98,9 @@ test-suite unit
   other-modules:
     Unit.PathReader
     Unit.PathWriter
+    Unit.PathWriter.CopyDir
+    Unit.PathWriter.Symlink
+    Unit.TestUtils
 
   build-depends:
     , base
@@ -105,6 +108,7 @@ test-suite unit
     , effectful-core
     , env-guard        ^>=0.2
     , exception-utils  ^>=0.1
+    , exceptions       ^>=0.10.4
     , fs-effectful
     , fs-utils
     , tasty            >=1.1.0.3 && <1.6
