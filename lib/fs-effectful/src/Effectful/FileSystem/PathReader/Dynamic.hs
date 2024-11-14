@@ -72,7 +72,7 @@ module Effectful.FileSystem.PathReader.Dynamic
   )
 where
 
-import Control.Monad (unless)
+import Control.Monad (unless, (>=>))
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Time (UTCTime (UTCTime, utctDay, utctDayTime))
 import Effectful
@@ -680,10 +680,11 @@ pathIsSymbolicFileLink ::
   ) =>
   OsPath ->
   Eff es Bool
-pathIsSymbolicFileLink = pathIsSymbolicLinkType doesFileExist
+pathIsSymbolicFileLink = getSymbolicLinkTarget >=> doesFileExist
 
 -- | Returns true if @p@ is a symbolic link and it points to an extant
--- directory.
+-- directory. Throws an exception if the path is not a symbolic link or the
+-- target does not exist.
 --
 -- This function and 'pathIsSymbolicFileLink' are intended to distinguish file
 -- and directory links on Windows. This matters for knowing when to use:
@@ -712,27 +713,7 @@ pathIsSymbolicDirectoryLink ::
   ) =>
   OsPath ->
   Eff es Bool
-pathIsSymbolicDirectoryLink = pathIsSymbolicLinkType doesDirectoryExist
-
-pathIsSymbolicLinkType ::
-  ( HasCallStack,
-    PathReader :> es
-  ) =>
-  (OsPath -> Eff es Bool) ->
-  OsPath ->
-  Eff es Bool
-pathIsSymbolicLinkType predicate p = do
-  isSymLink <- doesSymbolicLinkExist p
-  if not isSymLink
-    then pure False
-    else do
-      mtarget <-
-        (Just <$> getSymbolicLinkTarget p)
-          `catchIO` \_ -> pure Nothing
-
-      case mtarget of
-        Nothing -> pure False
-        Just target -> predicate target
+pathIsSymbolicDirectoryLink = getSymbolicLinkTarget >=> doesDirectoryExist
 
 -- | Throws 'IOException' if the path does not exist or the expected path type
 -- does not match actual.

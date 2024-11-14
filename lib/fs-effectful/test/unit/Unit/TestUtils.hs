@@ -63,12 +63,12 @@ writeFiles = runTestEff . traverse_ (uncurry writeBinaryFile)
 -- (static) file deletion.
 runTestEff ::
   Eff
-    '[ PR.PathReader,
-       PW.PathWriter,
-       FR.FileReader,
-       FW.FileWriter,
-       IOE
-     ]
+    [ PR.PathReader,
+      PW.PathWriter,
+      FR.FileReader,
+      FW.FileWriter,
+      IOE
+    ]
     a ->
   IO a
 runTestEff =

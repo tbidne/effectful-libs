@@ -31,8 +31,8 @@ import Effectful.FileSystem.PathWriter.Dynamic
     TargetName (TargetNameDest, TargetNameLiteral, TargetNameSrc),
   )
 import Effectful.FileSystem.PathWriter.Dynamic qualified as PWD
-import Effectful.FileSystem.PathWriter.Static qualified as PW
 import Effectful.FileSystem.PathWriter.Static (createDirectoryIfMissing)
+import Effectful.FileSystem.PathWriter.Static qualified as PW
 import FileSystem.OsPath (osp, (</>))
 import FileSystem.OsPath qualified as FS.OsPath
 import GHC.Stack (HasCallStack)
