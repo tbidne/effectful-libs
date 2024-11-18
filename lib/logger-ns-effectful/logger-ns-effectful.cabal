@@ -24,26 +24,17 @@ common common-lang
   default-extensions:
     DataKinds
     DeriveAnyClass
-    DeriveFunctor
-    DeriveGeneric
     DerivingStrategies
     DerivingVia
-    FlexibleContexts
-    FlexibleInstances
-    GADTs
-    ImportQualifiedPost
+    ExplicitNamespaces
     LambdaCase
-    MultiParamTypeClasses
-    NumericUnderscores
     OverloadedLabels
     OverloadedRecordDot
     OverloadedStrings
     ScopedTypeVariables
-    TypeApplications
     TypeFamilies
-    TypeOperators
 
-  default-language:   Haskell2010
+  default-language:   GHC2021
 
 library
   import:          common-lang

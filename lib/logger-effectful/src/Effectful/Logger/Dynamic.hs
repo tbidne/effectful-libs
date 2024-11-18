@@ -671,6 +671,8 @@ logOtherCS ::
   Eff es ()
 logOtherCS cs = logCS cs ""
 
+{- HLINT ignore "Eta reduce" -}
+
 -- | @guardLevel configLvl lvl m@ runs @m@ iff @'shouldLog' configLvl lvl@.
 --
 -- @since 0.1
@@ -683,7 +685,9 @@ guardLevel ::
   -- | The logging action to run if the level passes.
   ((HasCallStack) => f ()) ->
   f ()
-guardLevel configLvl lvl = when (shouldLog configLvl lvl)
+guardLevel configLvl lvl logAction =
+  -- NOTE: No eta reduction, presumably related to DeepSubsumption
+  when (shouldLog configLvl lvl) logAction
 
 -- | @shouldLog configLvl lvl@ returns true iff @configLvl <= lvl@. Uses
 -- LogLevel's built-in ordering. The ordering is thus:
