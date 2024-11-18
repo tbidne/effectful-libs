@@ -36,6 +36,7 @@ common common-lang
     MultiParamTypeClasses
     NumericUnderscores
     OverloadedLabels
+    OverloadedRecordDot
     OverloadedStrings
     ScopedTypeVariables
     TypeApplications
@@ -46,7 +47,11 @@ common common-lang
 
 library
   import:          common-lang
-  exposed-modules: Effectful.LoggerNS.Dynamic
+  exposed-modules:
+    Effectful.LoggerNS.Dynamic
+    Effectful.LoggerNS.Static
+    Effectful.LoggerNS.Utils
+
   build-depends:
     , base                  >=4.16.0.0  && <4.21
     , bytestring            >=0.10.12.0 && <0.13

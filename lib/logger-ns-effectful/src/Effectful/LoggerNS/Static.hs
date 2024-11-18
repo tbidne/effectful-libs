@@ -1,9 +1,9 @@
--- | Provides namespaced logging functionality on top of 'Logger'.
+-- | Provides static namespaced logging functionality on top of 'Logger'.
 --
 -- @since 0.1
-module Effectful.LoggerNS.Dynamic
+module Effectful.LoggerNS.Static
   ( -- * Effect
-    LoggerNS (..),
+    LoggerNS,
     Namespace (..),
     addNamespace,
     getNamespace,
@@ -36,18 +36,20 @@ where
 import Data.Sequence ((|>))
 import Data.Text (Text)
 import Effectful
-  ( Dispatch (Dynamic),
+  ( Dispatch (Static),
     DispatchOf,
     Eff,
     Effect,
     type (:>),
   )
 import Effectful.Concurrent.Static (Concurrent)
-import Effectful.Dispatch.Dynamic
+import Effectful.Dispatch.Static
   ( HasCallStack,
-    localSeqUnlift,
-    reinterpret,
-    send,
+    SideEffects (NoSideEffects),
+    StaticRep,
+    evalStaticRep,
+    getStaticRep,
+    localStaticRep,
   )
 import Effectful.Logger.Dynamic (LogLevel, LogStr, ToLogStr)
 import Effectful.LoggerNS.Utils
@@ -56,23 +58,18 @@ import Effectful.LoggerNS.Utils
     Namespace (unNamespace),
   )
 import Effectful.LoggerNS.Utils qualified as LoggerNS.Utils
-import Effectful.Reader.Static (ask, local, runReader)
 import Effectful.Time.Dynamic (Time)
 import Language.Haskell.TH (Loc)
 import Optics.Core (over')
 
--- | Dynamic effect for a namespaced logger.
+-- | Static effect for a namespaced logger.
 --
 -- @since 0.1
-data LoggerNS :: Effect where
-  GetNamespace :: LoggerNS es Namespace
-  LocalNamespace ::
-    (Namespace -> Namespace) ->
-    m a ->
-    LoggerNS m a
+data LoggerNS :: Effect
 
--- | @since 0.1
-type instance DispatchOf LoggerNS = Dynamic
+type instance DispatchOf LoggerNS = Static NoSideEffects
+
+newtype instance StaticRep LoggerNS = MkLoggerNS Namespace
 
 -- | Handler for 'LoggerNS'.
 --
@@ -83,15 +80,15 @@ runLoggerNS ::
   Namespace ->
   Eff (LoggerNS : es) a ->
   Eff es a
-runLoggerNS ns = reinterpret (runReader ns) $ \env -> \case
-  GetNamespace -> ask
-  LocalNamespace f eff -> localSeqUnlift env $ \run -> local f (run eff)
+runLoggerNS r = evalStaticRep (MkLoggerNS r)
 
 -- | Retrieves the namespace.
 --
 -- @since 0.1
 getNamespace :: (HasCallStack, LoggerNS :> es) => Eff es Namespace
-getNamespace = send GetNamespace
+getNamespace = do
+  MkLoggerNS r <- getStaticRep
+  pure r
 
 -- | Locally modifies the namespace.
 --
@@ -103,7 +100,7 @@ localNamespace ::
   (Namespace -> Namespace) ->
   Eff es a ->
   Eff es a
-localNamespace f = send . LocalNamespace f
+localNamespace f = localStaticRep $ \(MkLoggerNS r) -> MkLoggerNS (f r)
 
 -- | Adds to the namespace.
 --
@@ -120,7 +117,7 @@ addNamespace txt = localNamespace (over' #unNamespace (|> txt))
 -- | Produces a formatted 'LogStr' in terms of:
 --
 -- - Static Concurrent.
--- - Dynamic LoggerNS.
+-- - Static LoggerNS.
 -- - Dynamic Time.
 --
 -- __Example__

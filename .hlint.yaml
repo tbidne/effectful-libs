@@ -3,6 +3,7 @@
     name: "Avoid lambda"
     within:
       - "Effectful.FileSystem.PathWriter.Utils"
+      - "Effectful.LoggerNS.Utils"
       - "Effectful.Time.TimeSpec"
 
 - ignore:
