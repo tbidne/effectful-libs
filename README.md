@@ -1,6 +1,8 @@
 <div align="center">
 
-# effectful-effects
+# effectful-libs
+
+## A collection of libraries for effectful
 
 [![ci](http://img.shields.io/github/actions/workflow/status/tbidne/effectful-effects/ci.yaml?branch=main)](https://github.com/tbidne/monad-effects/actions/workflows/ci.yaml)
 [![MIT](https://img.shields.io/github/license/tbidne/effectful-effects?color=blue)](https://opensource.org/licenses/MIT)
