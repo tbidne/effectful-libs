@@ -320,8 +320,8 @@ formatLog namespace formatter lvl msg = do
           [ brackets timestampTxt,
             threadLbl,
             brackets namespaceTxt,
-            brackets lvlTxt,
             locTxt,
+            brackets lvlTxt,
             " ",
             msgTxt,
             newline'

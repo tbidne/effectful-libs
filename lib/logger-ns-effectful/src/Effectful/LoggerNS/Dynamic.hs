@@ -100,6 +100,7 @@ localNamespace ::
   ( HasCallStack,
     LoggerNS :> es
   ) =>
+  -- | Modifier.
   (Namespace -> Namespace) ->
   Eff es a ->
   Eff es a
@@ -112,6 +113,7 @@ addNamespace ::
   ( HasCallStack,
     LoggerNS :> es
   ) =>
+  -- | New namespace.
   Text ->
   Eff es a ->
   Eff es a
@@ -126,6 +128,7 @@ addNamespace txt = localNamespace (over' #unNamespace (|> txt))
 -- __Example__
 --
 -- @
+-- -- [timestamp][thread_label][namespace][level] msg
 -- [2022-02-08 10:20:05][thread-label][one.two][Warn][filename:1:2] msg
 -- @
 --

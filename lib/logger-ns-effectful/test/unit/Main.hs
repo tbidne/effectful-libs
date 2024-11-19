@@ -105,7 +105,7 @@ formatTimezone = testCase "Formats a log with a timezone" $ do
 formatLocStable :: TestTree
 formatLocStable = testCase "Formats a log with stable loc" $ do
   logMsg <- runEffLoggerNamespace (formatNamespaced fmt)
-  "[2022-02-08 10:20:05][one.two][Warn][filename] msg" @=? fromLogStr logMsg
+  "[2022-02-08 10:20:05][one.two][filename][Warn] msg" @=? fromLogStr logMsg
   where
     fmt =
       MkLogFormatter
@@ -118,7 +118,7 @@ formatLocStable = testCase "Formats a log with stable loc" $ do
 formatLocPartial :: TestTree
 formatLocPartial = testCase "Formats a log with partial loc" $ do
   logMsg <- runEffLoggerNamespace (formatNamespaced fmt)
-  "[2022-02-08 10:20:05][one.two][Warn][filename:1:2] msg" @=? fromLogStr logMsg
+  "[2022-02-08 10:20:05][one.two][filename:1:2][Warn] msg" @=? fromLogStr logMsg
   where
     fmt =
       MkLogFormatter
