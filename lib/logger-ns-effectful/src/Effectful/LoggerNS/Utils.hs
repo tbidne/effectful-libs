@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 module Effectful.LoggerNS.Utils
   ( -- * Namespace
@@ -57,7 +58,11 @@ import Effectful.Logger.Dynamic
 import Effectful.Time.Dynamic (Time)
 import Effectful.Time.Dynamic qualified as Time
 import GHC.Generics (Generic)
+#if MIN_VERSION_base(4, 17, 0)
 import GHC.IsList (IsList (Item, fromList, toList))
+#else
+import GHC.Exts (IsList (Item, fromList, toList))
+#endif
 import GHC.Stack (HasCallStack)
 import Language.Haskell.TH (Loc (loc_filename, loc_start))
 import Optics.Core
