@@ -49,6 +49,9 @@ cradle:
     - path: "./lib/time-effectful/test/unit"
       component: "time-effectful:test:unit"
 
+    - path: "./lib/typed-process-dynamic-effectful/src"
+      component: "lib:typed-process-dynamic-effectful"
+
     - path: "./lib/unix-compat-effectful/src"
       component: "lib:unix-compat-effectful"
 

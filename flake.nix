@@ -97,6 +97,7 @@
                 terminal-effectful = ./lib/terminal-effectful;
                 concurrent-effectful = ./lib/concurrent-effectful;
                 time-effectful = ./lib/time-effectful;
+                typed-process-dynamic-effectful = ./lib/typed-process-dynamic-effectful;
                 unix-compat-effectful = ./lib/unix-compat-effectful;
                 unix-effectful = ./lib/unix-effectful;
               }
@@ -113,6 +114,7 @@
             p.terminal-effectful
             p.concurrent-effectful
             p.time-effectful
+            p.typed-process-dynamic-effectful
             p.unix-compat-effectful
             p.unix-effectful
           ];
@@ -150,6 +152,9 @@
           packages.stm-effectful = mkPkg "stm-effectful" ./lib/stm-effectful { };
           packages.terminal-effectful = mkPkg "terminal-effectful" ./lib/terminal-effectful { };
           packages.time-effectful = mkPkg "time-effectful" ./lib/time-effectful { };
+          packages.typed-process-dynamic-effectful =
+            mkPkg "time-effectful" ./lib/typed-process-dynamic-effectful
+              { };
           packages.unix-compat-effectful = mkPkg "unix-compat-effectful" ./lib/unix-compat-effectful { };
           packages.unix-effectful = mkPkg "unix-effectful" ./lib/unix-effectful { };
 
