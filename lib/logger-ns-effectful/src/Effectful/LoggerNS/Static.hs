@@ -125,8 +125,8 @@ addNamespace txt = localNamespace (over' #unNamespace (|> txt))
 -- __Example__
 --
 -- @
--- -- [timestamp][thread_label][namespace][level] msg
--- [2022-02-08 10:20:05][thread-label][one.two][Warn][filename:1:2] msg
+-- -- [timestamp][thread_label][namespace][code_loc][level] msg
+-- [2022-02-08 10:20:05][thread-label][one.two][filename:1:2][Warn] msg
 -- @
 --
 -- @since 0.1
