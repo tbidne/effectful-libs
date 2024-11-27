@@ -15,7 +15,7 @@ module Effectful.Process.Typed.Dynamic
     -- * Types
     ProcessConfig,
     StreamSpec,
-    StreamType,
+    StreamType (..),
     Process,
 
     -- * ProcessConfig
@@ -126,7 +126,7 @@ import System.Process.Typed
   ( Process,
     ProcessConfig,
     StreamSpec,
-    StreamType,
+    StreamType (STInput, STOutput),
   )
 import System.Process.Typed qualified as P
 import System.Process.Typed qualified as TP
