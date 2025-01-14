@@ -50,13 +50,13 @@ import Effectful.Dispatch.Dynamic
     send,
   )
 import Effectful.Logger.Dynamic (LogLevel, LogStr, ToLogStr)
+import Effectful.LoggerNS.Static qualified as Static
 import Effectful.LoggerNS.Utils
   ( LocStrategy (LocNone, LocPartial, LocStable),
     LogFormatter (locStrategy, newline, threadLabel, timezone),
     Namespace (unNamespace),
   )
 import Effectful.LoggerNS.Utils qualified as LoggerNS.Utils
-import Effectful.Reader.Static (ask, local, runReader)
 import Effectful.Time.Dynamic (Time)
 import Language.Haskell.TH (Loc)
 import Optics.Core (over')
@@ -83,9 +83,10 @@ runLoggerNS ::
   Namespace ->
   Eff (LoggerNS : es) a ->
   Eff es a
-runLoggerNS ns = reinterpret (runReader ns) $ \env -> \case
-  GetNamespace -> ask
-  LocalNamespace f eff -> localSeqUnlift env $ \run -> local f (run eff)
+runLoggerNS ns = reinterpret (Static.runLoggerNS ns) $ \env -> \case
+  GetNamespace -> Static.getNamespace
+  LocalNamespace f eff -> localSeqUnlift env $ \runInStatic ->
+    Static.localNamespace f (runInStatic eff)
 
 -- | Retrieves the namespace.
 --

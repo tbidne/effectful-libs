@@ -17,7 +17,6 @@ module Effectful.Optparse.Dynamic
   )
 where
 
-import Control.Monad.IO.Class (MonadIO (liftIO))
 import Effectful
   ( Dispatch (Dynamic),
     DispatchOf,
@@ -26,10 +25,10 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (HasCallStack, interpret, send)
+import Effectful.Dispatch.Dynamic (HasCallStack, reinterpret_, send)
+import Effectful.Optparse.Static qualified as Static
 import Effectful.Optparse.Utils qualified as Utils
 import Options.Applicative (ParserInfo, ParserPrefs, ParserResult)
-import Options.Applicative qualified as OA
 
 -- | Dynamic effect for optparse-applicative.
 --
@@ -51,10 +50,10 @@ runOptparse ::
   ) =>
   Eff (Optparse : es) a ->
   Eff es a
-runOptparse = interpret $ \_ -> \case
-  ExecParser i -> liftIO $ OA.execParser i
-  CustomExecParser prefs i -> liftIO $ OA.customExecParser prefs i
-  HandleParseResult r -> liftIO $ OA.handleParseResult r
+runOptparse = reinterpret_ Static.runOptparse $ \case
+  ExecParser i -> Static.execParser i
+  CustomExecParser prefs i -> Static.customExecParser prefs i
+  HandleParseResult r -> Static.handleParseResult r
 
 -- | Lifted 'OA.execParser'.
 --

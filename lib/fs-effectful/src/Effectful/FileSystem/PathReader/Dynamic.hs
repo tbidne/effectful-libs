@@ -83,8 +83,9 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (HasCallStack, interpret, localSeqUnliftIO, send)
+import Effectful.Dispatch.Dynamic (HasCallStack, localSeqUnlift, reinterpret, send)
 import Effectful.Exception (catchIO)
+import Effectful.FileSystem.PathReader.Static qualified as Static
 import FileSystem.IO qualified as IO
 import FileSystem.OsPath (OsPath, (</>))
 import FileSystem.PathType
@@ -161,38 +162,38 @@ runPathReader ::
   ) =>
   Eff (PathReader : es) a ->
   Eff es a
-runPathReader = interpret $ \env -> \case
-  ListDirectory p -> liftIO $ Dir.listDirectory p
-  GetDirectoryContents p -> liftIO $ Dir.getDirectoryContents p
+runPathReader = reinterpret Static.runPathReader $ \env -> \case
+  ListDirectory p -> Static.listDirectory p
+  GetDirectoryContents p -> Static.getDirectoryContents p
   GetCurrentDirectory -> liftIO Dir.getCurrentDirectory
   GetHomeDirectory -> liftIO Dir.getHomeDirectory
-  GetXdgDirectory xdg p -> liftIO $ Dir.getXdgDirectory xdg p
-  GetXdgDirectoryList xdg -> liftIO $ Dir.getXdgDirectoryList xdg
-  GetAppUserDataDirectory p -> liftIO $ Dir.getAppUserDataDirectory p
+  GetXdgDirectory xdg p -> Static.getXdgDirectory xdg p
+  GetXdgDirectoryList xdg -> Static.getXdgDirectoryList xdg
+  GetAppUserDataDirectory p -> Static.getAppUserDataDirectory p
   GetUserDocumentsDirectory -> liftIO Dir.getUserDocumentsDirectory
   GetTemporaryDirectory -> liftIO Dir.getTemporaryDirectory
-  GetFileSize p -> liftIO $ Dir.getFileSize p
-  CanonicalizePath p -> liftIO $ Dir.canonicalizePath p
-  MakeAbsolute p -> liftIO $ Dir.makeAbsolute p
-  MakeRelativeToCurrentDirectory p -> liftIO $ Dir.makeRelativeToCurrentDirectory p
-  DoesPathExist p -> liftIO $ Dir.doesPathExist p
-  DoesFileExist p -> liftIO $ Dir.doesFileExist p
-  DoesDirectoryExist p -> liftIO $ Dir.doesDirectoryExist p
-  FindExecutable p -> liftIO $ Dir.findExecutable p
-  FindExecutables p -> liftIO $ Dir.findExecutables p
+  GetFileSize p -> Static.getFileSize p
+  CanonicalizePath p -> Static.canonicalizePath p
+  MakeAbsolute p -> Static.makeAbsolute p
+  MakeRelativeToCurrentDirectory p -> Static.makeRelativeToCurrentDirectory p
+  DoesPathExist p -> Static.doesPathExist p
+  DoesFileExist p -> Static.doesFileExist p
+  DoesDirectoryExist p -> Static.doesDirectoryExist p
+  FindExecutable p -> Static.findExecutable p
+  FindExecutables p -> Static.findExecutables p
   FindExecutablesInDirectories ps str ->
-    liftIO $ Dir.findExecutablesInDirectories ps str
-  FindFile xs p -> liftIO $ Dir.findFile xs p
-  FindFiles xs p -> liftIO $ Dir.findFiles xs p
-  FindFileWith f ps str -> localSeqUnliftIO env $ \runInIO ->
-    liftIO $ Dir.findFileWith (runInIO . f) ps str
-  FindFilesWith f ps str -> localSeqUnliftIO env $ \runInIO ->
-    liftIO $ Dir.findFilesWith (runInIO . f) ps str
-  PathIsSymbolicLink p -> liftIO $ Dir.pathIsSymbolicLink p
-  GetSymbolicLinkTarget p -> liftIO $ Dir.getSymbolicLinkTarget p
-  GetPermissions p -> liftIO $ Dir.getPermissions p
-  GetAccessTime p -> liftIO $ Dir.getAccessTime p
-  GetModificationTime p -> liftIO $ Dir.getModificationTime p
+    Static.findExecutablesInDirectories ps str
+  FindFile xs p -> Static.findFile xs p
+  FindFiles xs p -> Static.findFiles xs p
+  FindFileWith f ps str -> localSeqUnlift env $ \runInStatic ->
+    Static.findFileWith (runInStatic . f) ps str
+  FindFilesWith f ps str -> localSeqUnlift env $ \runInStatic ->
+    Static.findFilesWith (runInStatic . f) ps str
+  PathIsSymbolicLink p -> Static.pathIsSymbolicLink p
+  GetSymbolicLinkTarget p -> Static.getSymbolicLinkTarget p
+  GetPermissions p -> Static.getPermissions p
+  GetAccessTime p -> Static.getAccessTime p
+  GetModificationTime p -> Static.getModificationTime p
 
 -- | Search through the given list of directories for the given file.
 --

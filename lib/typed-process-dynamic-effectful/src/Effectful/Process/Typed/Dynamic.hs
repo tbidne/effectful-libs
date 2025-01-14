@@ -131,6 +131,9 @@ import System.Process.Typed
 import System.Process.Typed qualified as P
 import System.Process.Typed qualified as TP
 
+-- NOTE: This could be implemented in terms of the static effect, defined in
+-- typed-process-effectful. But not doing so saves us a dependency, so...
+
 -- | Dynamic effect for typed process.
 --
 -- @since 0.1

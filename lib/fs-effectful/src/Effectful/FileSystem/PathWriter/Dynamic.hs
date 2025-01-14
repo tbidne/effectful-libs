@@ -79,7 +79,6 @@ where
 import Control.Exception (IOException)
 import Control.Exception.Utils (onSyncException)
 import Control.Monad (unless, void, when)
-import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Foldable (for_, traverse_)
 import Data.Functor (($>))
 import Data.IORef (modifyIORef', newIORef, readIORef)
@@ -92,7 +91,7 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
+import Effectful.Dispatch.Dynamic (localSeqUnlift, reinterpret, send)
 import Effectful.Dispatch.Static (HasCallStack, unsafeEff_)
 import Effectful.Exception (mask_)
 import Effectful.FileSystem.PathReader.Dynamic
@@ -100,6 +99,7 @@ import Effectful.FileSystem.PathReader.Dynamic
     PathType (PathTypeDirectory, PathTypeSymbolicLink),
   )
 import Effectful.FileSystem.PathReader.Dynamic qualified as PR
+import Effectful.FileSystem.PathWriter.Static qualified as Static
 import Effectful.FileSystem.PathWriter.Utils
   ( CopyDirConfig (MkCopyDirConfig, overwrite, targetName),
     Overwrite (OverwriteAll, OverwriteDirectories, OverwriteNone),
@@ -110,7 +110,6 @@ import FileSystem.IO qualified as FS.IO
 import FileSystem.OsPath (OsPath, (</>))
 import Optics.Core ((^.))
 import System.Directory (Permissions)
-import System.Directory.OsPath qualified as Dir
 import System.IO.Error qualified as Error
 import System.OsPath qualified as FP
 
@@ -151,28 +150,28 @@ runPathWriter ::
   ) =>
   Eff (PathWriter : es) a ->
   Eff es a
-runPathWriter = interpret $ \env -> \case
-  CreateDirectory p -> liftIO $ Dir.createDirectory p
-  CreateDirectoryIfMissing b p -> liftIO $ Dir.createDirectoryIfMissing b p
-  RemoveDirectory p -> liftIO $ Dir.removeDirectory p
-  RemoveDirectoryRecursive p -> liftIO $ Dir.removeDirectoryRecursive p
-  RemovePathForcibly p -> liftIO $ Dir.removePathForcibly p
-  RenameDirectory p p' -> liftIO $ Dir.renameDirectory p p'
-  SetCurrentDirectory p -> liftIO $ Dir.setCurrentDirectory p
-  WithCurrentDirectory p m -> localSeqUnliftIO env $ \runInIO ->
-    liftIO $ Dir.withCurrentDirectory p (runInIO m)
-  RemoveFile p -> liftIO $ Dir.removeFile p
-  RenameFile p p' -> liftIO $ Dir.renameFile p p'
-  RenamePath p p' -> liftIO $ Dir.renamePath p p'
-  CopyFile p p' -> liftIO $ Dir.copyFile p p'
-  CopyFileWithMetadata p p' -> liftIO $ Dir.copyFileWithMetadata p p'
-  CreateFileLink p p' -> liftIO $ Dir.createFileLink p p'
-  CreateDirectoryLink p p' -> liftIO $ Dir.createDirectoryLink p p'
-  RemoveDirectoryLink p -> liftIO $ Dir.removeDirectoryLink p
-  SetPermissions p ps -> liftIO $ Dir.setPermissions p ps
-  CopyPermissions p ps -> liftIO $ Dir.copyPermissions p ps
-  SetAccessTime p t -> liftIO $ Dir.setAccessTime p t
-  SetModificationTime p t -> liftIO $ Dir.setModificationTime p t
+runPathWriter = reinterpret Static.runPathWriter $ \env -> \case
+  CreateDirectory p -> Static.createDirectory p
+  CreateDirectoryIfMissing b p -> Static.createDirectoryIfMissing b p
+  RemoveDirectory p -> Static.removeDirectory p
+  RemoveDirectoryRecursive p -> Static.removeDirectoryRecursive p
+  RemovePathForcibly p -> Static.removePathForcibly p
+  RenameDirectory p p' -> Static.renameDirectory p p'
+  SetCurrentDirectory p -> Static.setCurrentDirectory p
+  WithCurrentDirectory p m -> localSeqUnlift env $ \runInStatic ->
+    Static.withCurrentDirectory p (runInStatic m)
+  RemoveFile p -> Static.removeFile p
+  RenameFile p p' -> Static.renameFile p p'
+  RenamePath p p' -> Static.renamePath p p'
+  CopyFile p p' -> Static.copyFile p p'
+  CopyFileWithMetadata p p' -> Static.copyFileWithMetadata p p'
+  CreateFileLink p p' -> Static.createFileLink p p'
+  CreateDirectoryLink p p' -> Static.createDirectoryLink p p'
+  RemoveDirectoryLink p -> Static.removeDirectoryLink p
+  SetPermissions p ps -> Static.setPermissions p ps
+  CopyPermissions p ps -> Static.copyPermissions p ps
+  SetAccessTime p t -> Static.setAccessTime p t
+  SetModificationTime p t -> Static.setModificationTime p t
 
 -- | Lifted 'Dir.createDirectory'.
 --

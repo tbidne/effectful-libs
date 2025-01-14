@@ -62,9 +62,7 @@ module Effectful.FileSystem.HandleReader.Dynamic
 where
 
 import Control.Monad ((>=>))
-import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.ByteString (ByteString)
-import Data.ByteString.Char8 qualified as C8
 import Data.Text (Text)
 import Data.Text.Encoding.Error (UnicodeException)
 import Effectful
@@ -75,11 +73,11 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (HasCallStack, interpret, send)
+import Effectful.Dispatch.Dynamic (HasCallStack, reinterpret_, send)
+import Effectful.FileSystem.HandleReader.Static qualified as Static
 import FileSystem.OsPath (OsPath)
 import FileSystem.UTF8 qualified as FS.UTF8
 import System.IO (BufferMode, Handle)
-import System.IO qualified as IO
 
 -- | Dynamic effect for reading a handle.
 --
@@ -115,24 +113,24 @@ runHandleReader ::
   ) =>
   Eff (HandleReader : es) a ->
   Eff es a
-runHandleReader = interpret $ \_ -> \case
-  HIsEOF h -> liftIO $ IO.hIsEOF h
-  HGetBuffering h -> liftIO $ IO.hGetBuffering h
-  HIsOpen h -> liftIO $ IO.hIsOpen h
-  HIsClosed h -> liftIO $ IO.hIsClosed h
-  HIsReadable h -> liftIO $ IO.hIsReadable h
-  HIsWritable h -> liftIO $ IO.hIsWritable h
-  HIsSeekable h -> liftIO $ IO.hIsSeekable h
-  HIsTerminalDevice h -> liftIO $ IO.hIsTerminalDevice h
-  HGetEcho h -> liftIO $ IO.hGetEcho h
-  HWaitForInput h i -> liftIO $ IO.hWaitForInput h i
-  HReady h -> liftIO $ IO.hReady h
-  HGetChar h -> liftIO $ IO.hGetChar h
-  HGetLine h -> liftIO $ C8.hGetLine h
-  HGetContents h -> liftIO $ C8.hGetContents h
-  HGet h i -> liftIO $ C8.hGet h i
-  HGetSome h i -> liftIO $ C8.hGetSome h i
-  HGetNonBlocking h i -> liftIO $ C8.hGetNonBlocking h i
+runHandleReader = reinterpret_ Static.runHandleReader $ \case
+  HIsEOF h -> Static.hIsEOF h
+  HGetBuffering h -> Static.hGetBuffering h
+  HIsOpen h -> Static.hIsOpen h
+  HIsClosed h -> Static.hIsClosed h
+  HIsReadable h -> Static.hIsReadable h
+  HIsWritable h -> Static.hIsWritable h
+  HIsSeekable h -> Static.hIsSeekable h
+  HIsTerminalDevice h -> Static.hIsTerminalDevice h
+  HGetEcho h -> Static.hGetEcho h
+  HWaitForInput h i -> Static.hWaitForInput h i
+  HReady h -> Static.hReady h
+  HGetChar h -> Static.hGetChar h
+  HGetLine h -> Static.hGetLine h
+  HGetContents h -> Static.hGetContents h
+  HGet h i -> Static.hGet h i
+  HGetSome h i -> Static.hGetSome h i
+  HGetNonBlocking h i -> Static.hGetNonBlocking h i
 
 -- | Lifted 'IO.hIsEof'.
 --

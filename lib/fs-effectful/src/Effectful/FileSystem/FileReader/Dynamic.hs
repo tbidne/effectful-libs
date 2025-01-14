@@ -26,7 +26,6 @@ module Effectful.FileSystem.FileReader.Dynamic
 where
 
 import Control.Monad ((>=>))
-import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.ByteString (ByteString)
 import Data.Text (Text)
 import Data.Text.Encoding.Error (UnicodeException)
@@ -38,8 +37,8 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (HasCallStack, interpret, send)
-import FileSystem.IO (readBinaryFileIO)
+import Effectful.Dispatch.Dynamic (HasCallStack, reinterpret_, send)
+import Effectful.FileSystem.FileReader.Static qualified as Static
 import FileSystem.OsPath (OsPath)
 import FileSystem.UTF8 qualified as FS.UTF8
 
@@ -61,8 +60,8 @@ runFileReader ::
   ) =>
   Eff (FileReader : es) a ->
   Eff es a
-runFileReader = interpret $ \_ -> \case
-  ReadBinaryFile p -> liftIO $ readBinaryFileIO p
+runFileReader = reinterpret_ Static.runFileReader $ \case
+  ReadBinaryFile p -> Static.readBinaryFile p
 
 -- | @since 0.1
 readBinaryFile ::

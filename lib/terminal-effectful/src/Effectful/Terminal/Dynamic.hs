@@ -46,9 +46,7 @@ where
 
 {- ORMOLU_ENABLE -}
 
-import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.ByteString (ByteString)
-import Data.ByteString qualified as BS
 import Data.Text (Text)
 import Data.Text qualified as T
 import Effectful
@@ -59,30 +57,13 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (HasCallStack, interpret, send)
-import Effectful.Exception (throwIO)
-import GHC.IO.Exception
-  ( IOErrorType (SystemError),
-    IOException
-      ( IOError,
-        ioe_description,
-        ioe_errno,
-        ioe_filename,
-        ioe_handle,
-        ioe_location,
-        ioe_type
-      ),
-  )
-import System.Console.Pretty qualified as CPretty
-import System.Console.Terminal.Size (Window (Window, height, width), size)
-import System.IO qualified as IO
+import Effectful.Dispatch.Dynamic (HasCallStack, reinterpret_, send)
+import Effectful.Terminal.Static qualified as Static
+import System.Console.Terminal.Size (Window (Window, height, width))
 import Prelude
-  ( Applicative (pure),
-    Bool,
+  ( Bool,
     Char,
     Integral,
-    Maybe (Just, Nothing),
-    Monad ((>>=)),
     Show (show),
     String,
     ($),
@@ -114,29 +95,17 @@ type instance DispatchOf Terminal = Dynamic
 --
 -- @since 0.1
 runTerminal :: (HasCallStack, IOE :> es) => Eff (Terminal : es) a -> Eff es a
-runTerminal = interpret $ \_ -> \case
-  PutStr s -> liftIO $ IO.putStr s
-  PutStrLn s -> liftIO $ IO.putStrLn s
-  PutBinary s -> liftIO $ BS.putStr s
-  GetChar -> liftIO IO.getChar
-  GetLine -> liftIO IO.getLine
+runTerminal = reinterpret_ Static.runTerminal $ \case
+  PutStr s -> Static.putStr s
+  PutStrLn s -> Static.putStrLn s
+  PutBinary s -> Static.putBinary s
+  GetChar -> Static.getChar
+  GetLine -> Static.getLine
 #if MIN_VERSION_base(4,15,0)
-  GetContents' -> liftIO IO.getContents'
+  GetContents' -> Static.getContents'
 #endif
-  GetTerminalSize ->
-    liftIO size >>= \case
-      Just h -> pure h
-      Nothing ->
-        throwIO
-          $ IOError
-            { ioe_handle = Nothing,
-              ioe_type = SystemError,
-              ioe_location = "getTerminalSize",
-              ioe_description = "Failed to detect the terminal size",
-              ioe_errno = Nothing,
-              ioe_filename = Nothing
-            }
-  SupportsPretty -> liftIO CPretty.supportsPretty
+  GetTerminalSize -> Static.getTerminalSize
+  SupportsPretty -> Static.supportsPretty
 
 {- ORMOLU_ENABLE -}
 

@@ -48,7 +48,6 @@ module Effectful.Time.Dynamic
   )
 where
 
-import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Time.LocalTime
   ( LocalTime (LocalTime, localDay, localTimeOfDay),
     ZonedTime (ZonedTime, zonedTimeToLocalTime, zonedTimeZone),
@@ -62,11 +61,11 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (HasCallStack, interpret, send)
+import Effectful.Dispatch.Dynamic (HasCallStack, reinterpret_, send)
+import Effectful.Time.Static qualified as Static
 import Effectful.Time.TimeSpec (TimeSpec (nsec, sec))
 import Effectful.Time.TimeSpec qualified as TimeSpec
 import Effectful.Time.Utils qualified as Utils
-import GHC.Clock qualified as C
 
 -- | Dynamic effect for "Data.Time".
 --
@@ -82,9 +81,9 @@ type instance DispatchOf Time = Dynamic
 --
 -- @since 0.1
 runTime :: (HasCallStack, IOE :> es) => Eff (Time : es) a -> Eff es a
-runTime = interpret $ \_ -> \case
-  GetSystemZonedTime -> liftIO Local.getZonedTime
-  GetMonotonicTime -> liftIO C.getMonotonicTime
+runTime = reinterpret_ Static.runTime $ \case
+  GetSystemZonedTime -> Static.getSystemZonedTime
+  GetMonotonicTime -> Static.getMonotonicTime
 
 -- | Returns the local system time.
 --

@@ -21,7 +21,6 @@ module Effectful.FileSystem.FileWriter.Dynamic
   )
 where
 
-import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.ByteString (ByteString)
 import Data.Text (Text)
 import Effectful
@@ -32,8 +31,8 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (HasCallStack, interpret, send)
-import FileSystem.IO (appendBinaryFileIO, writeBinaryFileIO)
+import Effectful.Dispatch.Dynamic (HasCallStack, reinterpret_, send)
+import Effectful.FileSystem.FileWriter.Static qualified as Static
 import FileSystem.OsPath (OsPath)
 import FileSystem.UTF8 qualified as FS.UTF8
 
@@ -56,9 +55,9 @@ runFileWriter ::
   ) =>
   Eff (FileWriter : es) a ->
   Eff es a
-runFileWriter = interpret $ \_ -> \case
-  WriteBinaryFile p bs -> liftIO $ writeBinaryFileIO p bs
-  AppendBinaryFile p bs -> liftIO $ appendBinaryFileIO p bs
+runFileWriter = reinterpret_ Static.runFileWriter $ \case
+  WriteBinaryFile p bs -> Static.writeBinaryFile p bs
+  AppendBinaryFile p bs -> Static.appendBinaryFile p bs
 
 -- | @since 0.1
 writeBinaryFile ::

@@ -31,18 +31,26 @@ module Effectful.Environment.Dynamic
   )
 where
 
-import Control.Monad.IO.Class (MonadIO (liftIO))
-import System.Environment qualified as Env
+{- ORMOLU_ENABLE -}
+
 import Effectful
   ( Dispatch (Dynamic),
     DispatchOf,
     Eff,
     Effect,
     IOE,
-    type (:>)
+    type (:>),
   )
-import Effectful.Dispatch.Dynamic (interpret, send, localSeqUnliftIO, HasCallStack)
+import Effectful.Dispatch.Dynamic
+  ( HasCallStack,
+    localSeqUnlift,
+    reinterpret,
+    send,
+  )
+import Effectful.Environment.Static qualified as Static
 import Effectful.Environment.Utils (QueryExePath (NoQuery, QueryResult))
+
+{- ORMOLU_DISABLE -}
 
 -- | Dynamic effects for "System.Environment".
 --
@@ -78,25 +86,22 @@ runEnvironment ::
   ) =>
   Eff (Environment : es) a ->
   Eff es a
-runEnvironment = interpret $ \env -> \case
-  GetArgs -> liftIO Env.getArgs
-  GetProgName -> liftIO Env.getProgName
+runEnvironment = reinterpret Static.runEnvironment $ \env -> \case
+  GetArgs -> Static.getArgs
+  GetProgName -> Static.getProgName
 #if MIN_VERSION_base(4,17,0)
-  ExecutablePath ->
-    case Env.executablePath of
-      Nothing -> pure NoQuery
-      Just mpath -> liftIO $ QueryResult <$> mpath
+  ExecutablePath -> Static.executablePath
 #endif
-  GetExecutablePath -> liftIO Env.getExecutablePath
-  GetEnv s -> liftIO $ Env.getEnv s
-  LookupEnv s -> liftIO $ Env.lookupEnv s
-  SetEnv s t -> liftIO $ Env.setEnv s t
-  UnsetEnv s -> liftIO $ Env.unsetEnv s
-  WithArgs args m -> localSeqUnliftIO env $ \runInIO ->
-    liftIO $ Env.withArgs args (runInIO m)
-  WithProgName name m -> localSeqUnliftIO env $ \runInIO ->
-    liftIO $ Env.withProgName name (runInIO m)
-  GetEnvironment -> liftIO Env.getEnvironment
+  GetExecutablePath -> Static.getExecutablePath
+  GetEnv s -> Static.getEnv s
+  LookupEnv s -> Static.lookupEnv s
+  SetEnv s t -> Static.setEnv s t
+  UnsetEnv s -> Static.unsetEnv s
+  WithArgs args m -> localSeqUnlift env $ \runInStatic ->
+    Static.withArgs args (runInStatic m)
+  WithProgName name m -> localSeqUnlift env $ \runInStatic ->
+    Static.withProgName name (runInStatic m)
+  GetEnvironment -> Static.getEnvironment
 
 {- ORMOLU_ENABLE -}
 

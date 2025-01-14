@@ -44,7 +44,6 @@ module Effectful.PosixCompat.Dynamic
 where
 
 import Control.Monad (unless)
-import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Functor ((<&>))
 import Effectful
   ( Dispatch (Dynamic),
@@ -54,7 +53,8 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (HasCallStack, interpret, send)
+import Effectful.Dispatch.Dynamic (HasCallStack, reinterpret_, send)
+import Effectful.PosixCompat.Static qualified as Static
 import FileSystem.IO qualified as FS.IO
 import FileSystem.PathType
   ( PathType
@@ -119,33 +119,33 @@ runPosixCompat ::
   (HasCallStack, IOE :> es) =>
   Eff (PosixCompat : es) a ->
   Eff es a
-runPosixCompat = interpret $ \_ -> \case
-  SetFileMode p m -> liftIO $ PFiles.setFileMode p m
-  SetFdMode fd m -> liftIO $ PFiles.setFdMode fd m
-  SetFileCreationMask m -> liftIO $ PFiles.setFileCreationMask m
-  FileAccess p b c d -> liftIO $ PFiles.fileAccess p b c d
-  FileExist p -> liftIO $ PFiles.fileExist p
-  GetFileStatus p -> liftIO $ PFiles.getFileStatus p
-  GetFdStatus fd -> liftIO $ PFiles.getFdStatus fd
-  GetSymbolicLinkStatus p -> liftIO $ PFiles.getSymbolicLinkStatus p
-  CreateNamedPipe p m -> liftIO $ PFiles.createNamedPipe p m
-  CreateDevice p m did -> liftIO $ PFiles.createDevice p m did
-  CreateLink p1 p2 -> liftIO $ PFiles.createLink p1 p2
-  RemoveLink p -> liftIO $ PFiles.removeLink p
-  CreateSymbolicLink p1 p2 -> liftIO $ PFiles.createSymbolicLink p1 p2
-  ReadSymbolicLink p -> liftIO $ PFiles.readSymbolicLink p
-  Rename p1 p2 -> liftIO $ PFiles.rename p1 p2
-  SetOwnerAndGroup p uid gid -> liftIO $ PFiles.setOwnerAndGroup p uid gid
+runPosixCompat = reinterpret_ Static.runPosixCompat $ \case
+  SetFileMode p m -> Static.setFileMode p m
+  SetFdMode fd m -> Static.setFdMode fd m
+  SetFileCreationMask m -> Static.setFileCreationMask m
+  FileAccess p b c d -> Static.fileAccess p b c d
+  FileExist p -> Static.fileExist p
+  GetFileStatus p -> Static.getFileStatus p
+  GetFdStatus fd -> Static.getFdStatus fd
+  GetSymbolicLinkStatus p -> Static.getSymbolicLinkStatus p
+  CreateNamedPipe p m -> Static.createNamedPipe p m
+  CreateDevice p m did -> Static.createDevice p m did
+  CreateLink p1 p2 -> Static.createLink p1 p2
+  RemoveLink p -> Static.removeLink p
+  CreateSymbolicLink p1 p2 -> Static.createSymbolicLink p1 p2
+  ReadSymbolicLink p -> Static.readSymbolicLink p
+  Rename p1 p2 -> Static.rename p1 p2
+  SetOwnerAndGroup p uid gid -> Static.setOwnerAndGroup p uid gid
   SetFdOwnerAndGroup fd uid gid ->
-    liftIO $ PFiles.setFdOwnerAndGroup fd uid gid
+    Static.setFdOwnerAndGroup fd uid gid
   SetSymbolicLinkOwnerAndGroup p uid gid ->
-    liftIO $ PFiles.setSymbolicLinkOwnerAndGroup p uid gid
-  SetFileTimes p t1 t2 -> liftIO $ PFiles.setFileTimes p t1 t2
-  TouchFile p -> liftIO $ PFiles.touchFile p
-  SetFileSize p oset -> liftIO $ PFiles.setFileSize p oset
-  SetFdSize fd oset -> liftIO $ PFiles.setFdSize fd oset
-  GetPathVar p m -> liftIO $ PFiles.getPathVar p m
-  GetFdPathVar fd m -> liftIO $ PFiles.getFdPathVar fd m
+    Static.setSymbolicLinkOwnerAndGroup p uid gid
+  SetFileTimes p t1 t2 -> Static.setFileTimes p t1 t2
+  TouchFile p -> Static.touchFile p
+  SetFileSize p oset -> Static.setFileSize p oset
+  SetFdSize fd oset -> Static.setFdSize fd oset
+  GetPathVar p m -> Static.getPathVar p m
+  GetFdPathVar fd m -> Static.getFdPathVar fd m
 
 -- | Lifted 'PFiles.setFileMode'.
 --

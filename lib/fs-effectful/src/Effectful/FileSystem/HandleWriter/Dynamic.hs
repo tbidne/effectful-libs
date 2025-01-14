@@ -38,9 +38,7 @@ module Effectful.FileSystem.HandleWriter.Dynamic
 where
 
 import Control.Exception.Utils (exitFailure)
-import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.ByteString (ByteString)
-import Data.ByteString qualified as BS
 import Data.ByteString.Char8 qualified as Char8
 import Data.Text (Text)
 import Effectful
@@ -51,8 +49,13 @@ import Effectful
     IOE,
     type (:>),
   )
-import Effectful.Dispatch.Dynamic (HasCallStack, interpret, localSeqUnliftIO, send)
-import FileSystem.IO (openBinaryFileIO, withBinaryFileIO)
+import Effectful.Dispatch.Dynamic
+  ( HasCallStack,
+    localSeqUnlift,
+    reinterpret,
+    send,
+  )
+import Effectful.FileSystem.HandleWriter.Static qualified as Static
 import FileSystem.OsPath (OsPath)
 import FileSystem.UTF8 qualified as FS.UTF8
 import System.IO
@@ -91,19 +94,19 @@ runHandleWriter ::
   ) =>
   Eff (HandleWriter : es) a ->
   Eff es a
-runHandleWriter = interpret $ \env -> \case
-  OpenBinaryFile p m -> liftIO $ openBinaryFileIO p m
-  WithBinaryFile p m f -> localSeqUnliftIO env $ \runInIO ->
-    liftIO $ withBinaryFileIO p m (runInIO . f)
-  HClose h -> liftIO $ IO.hClose h
-  HFlush h -> liftIO $ IO.hFlush h
-  HSetFileSize h i -> liftIO $ IO.hSetFileSize h i
-  HSetBuffering h m -> liftIO $ IO.hSetBuffering h m
-  HSeek h m i -> liftIO $ IO.hSeek h m i
-  HTell h -> liftIO $ IO.hTell h
-  HSetEcho h b -> liftIO $ IO.hSetEcho h b
-  HPut h bs -> liftIO $ BS.hPut h bs
-  HPutNonBlocking h bs -> liftIO $ BS.hPutNonBlocking h bs
+runHandleWriter = reinterpret Static.runHandleWriter $ \env -> \case
+  OpenBinaryFile p m -> Static.openBinaryFile p m
+  WithBinaryFile p m f -> localSeqUnlift env $ \runInStatic ->
+    Static.withBinaryFile p m (runInStatic . f)
+  HClose h -> Static.hClose h
+  HFlush h -> Static.hFlush h
+  HSetFileSize h i -> Static.hSetFileSize h i
+  HSetBuffering h m -> Static.hSetBuffering h m
+  HSeek h m i -> Static.hSeek h m i
+  HTell h -> Static.hTell h
+  HSetEcho h b -> Static.hSetEcho h b
+  HPut h bs -> Static.hPut h bs
+  HPutNonBlocking h bs -> Static.hPutNonBlocking h bs
 
 -- | Lifted 'IO.openBinaryFile'.
 --
