@@ -1,20 +1,18 @@
-cabal-version:      2.4
-name:               optparse-effectful
-version:            0.1
-license:            MIT
-license-file:       LICENSE
-tested-with:
-  GHC ==9.2.8 || ==9.4.8 || ==9.6.5 || ==9.8.2 || ==9.10.1
-
-copyright:          2022-2025 Thomas Bidne
-author:             Thomas Bidne
-maintainer:         tbidne@protonmail.com
-homepage:           https://github.com/tbidne/effectful-effects/
-bug-reports:        https://github.com/tbidne/effectful-effects/issues
-synopsis:           Optparse-applicative effects
-description:        Optparse-applicative effects
-category:           Effects
-extra-source-files: CHANGELOG.md
+cabal-version:   2.4
+name:            optparse-effectful
+version:         0.1
+license:         MIT
+license-file:    LICENSE
+tested-with:     GHC ==9.2.8 || ==9.4.8 || ==9.6.5 || ==9.8.2 || ==9.10.1
+copyright:       2022-2025 Thomas Bidne
+author:          Thomas Bidne
+maintainer:      tbidne@protonmail.com
+homepage:        https://github.com/tbidne/effectful-effects/
+bug-reports:     https://github.com/tbidne/effectful-effects/issues
+synopsis:        Optparse-applicative effects
+description:     Provides optparse-applicative effects
+category:        Effects
+extra-doc-files: CHANGELOG.md
 
 source-repository head
   type:     git
@@ -46,7 +44,7 @@ library
   build-depends:
     , base                  >=4.16.0.0 && <4.21
     , effectful-core        >=2.5.0.0  && <2.6
-    , fs-effectful
+    , fs-effectful          ^>=0.1
     , optparse-applicative  >=0.16.1.0 && <0.19
 
   hs-source-dirs:  src
