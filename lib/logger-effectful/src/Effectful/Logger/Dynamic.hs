@@ -151,8 +151,7 @@ import System.Log.FastLogger (LogStr, ToLogStr (toLogStr), fromLogStr)
 -- @since 0.1
 data Logger :: Effect where
   LoggerLog ::
-    ( ToLogStr msg
-    ) =>
+    (ToLogStr msg) =>
     Loc ->
     LogSource ->
     LogLevel ->

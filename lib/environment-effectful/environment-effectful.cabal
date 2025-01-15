@@ -3,7 +3,14 @@ name:            environment-effectful
 version:         0.1
 license:         MIT
 license-file:    LICENSE
-tested-with:     GHC ==9.2.8 || ==9.4.8 || ==9.6.5 || ==9.8.2 || ==9.10.1
+tested-with:
+  GHC ==9.2.8
+   || ==9.4.8
+   || ==9.6.5
+   || ==9.8.2
+   || ==9.10.1
+   || ==9.12.1
+
 copyright:       2022-2025 Thomas Bidne
 author:          Thomas Bidne
 maintainer:      tbidne@protonmail.com
@@ -42,7 +49,7 @@ library
     Effectful.Environment.Utils
 
   build-depends:
-    , base       >=4.16.0.0 && <4.21
+    , base       >=4.16.0.0 && <4.22
     , deepseq    >=1.4.4.0  && <1.6
     , effectful  >=2.5.0.0  && <2.6
 

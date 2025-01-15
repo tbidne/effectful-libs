@@ -77,8 +77,7 @@ writeIORef ref = unsafeEff_ . IORef.writeIORef ref
 --
 -- @since 0.1
 modifyIORef' ::
-  ( IORefE :> es
-  ) =>
+  (IORefE :> es) =>
   IORef a ->
   (a -> a) ->
   Eff es ()
@@ -88,8 +87,7 @@ modifyIORef' ref = unsafeEff_ . IORef.modifyIORef' ref
 --
 -- @since 0.1
 atomicModifyIORef' ::
-  ( IORefE :> es
-  ) =>
+  (IORefE :> es) =>
   IORef a ->
   (a -> (a, b)) ->
   Eff es b
@@ -99,8 +97,7 @@ atomicModifyIORef' ref = unsafeEff_ . IORef.atomicModifyIORef' ref
 --
 -- @since 0.1
 atomicModifyIORef'_ ::
-  ( IORefE :> es
-  ) =>
+  (IORefE :> es) =>
   IORef a ->
   (a -> a) ->
   Eff es ()

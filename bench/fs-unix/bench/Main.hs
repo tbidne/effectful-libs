@@ -1,10 +1,4 @@
 {-# LANGUAGE QuasiQuotes #-}
-{-# OPTIONS_GHC -Wno-unused-imports #-}
-
--- "Unused" import FilePath here so we can set the transitive dep version,
--- same as effects-unix.
---
--- See NOTE: [Unused FilePath].
 
 module Main (main) where
 
@@ -12,7 +6,6 @@ import Effectful
   ( Eff,
     IOE,
     runEff,
-    type (:>),
   )
 import Effectful.FileSystem.PathReader.Static (PathReader)
 import Effectful.FileSystem.PathReader.Static qualified as PR
@@ -21,7 +14,6 @@ import Effectful.Posix.Static qualified as P
 import Effectful.PosixCompat.Static (PosixCompat)
 import Effectful.PosixCompat.Static qualified as PC
 import FileSystem.OsPath (OsPath, combineFilePaths, osp, (</>))
-import System.FilePath qualified
 import System.OsString.Internal.Types (OsString (getOsString), PosixString)
 import Test.Tasty.Bench
   ( bench,

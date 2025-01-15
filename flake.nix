@@ -42,33 +42,15 @@
       perSystem =
         { pkgs, ... }:
         let
-          ghc-version = "ghc982";
+          ghc-version = "ghc9101";
           hlib = pkgs.haskell.lib;
           compiler = pkgs.haskell.packages."${ghc-version}".override {
             overrides =
               final: prev:
               {
-                effectful-core = (
-                  final.callHackageDirect {
-                    pkg = "effectful-core";
-                    ver = "2.5.0.0";
-                    sha256 = "sha256-UCbMP8BfNfdIRTLzB4nBr17jxRp5Qmw3sTuORO06Npg=";
-                  } { }
-                );
-                effectful = (
-                  final.callHackageDirect {
-                    pkg = "effectful";
-                    ver = "2.5.0.0";
-                    sha256 = "sha256-lmM0kdM5PS45Jol5Y2Nw30VWWfDPiPJLrwVj+GmJSOQ=";
-                  } { }
-                );
-                strict-mutable-base = (
-                  final.callHackageDirect {
-                    pkg = "strict-mutable-base";
-                    ver = "1.1.0.0";
-                    sha256 = "sha256-cBSwoNGU/GZDW3eg7GI28t0HrrrxMW9hRapoOL2zU7Q=";
-                  } { }
-                );
+                effectful-core = prev.effectful-core_2_5_0_0;
+                effectful = prev.effectful_2_5_0_0;
+                path = hlib.dontCheck prev.path_0_9_6;
               }
               // nix-hs-utils.mkLibs inputs final [
                 "algebra-simple"
@@ -174,12 +156,16 @@
 
             lint = nix-hs-utils.mergeApps {
               apps = [
-                (nix-hs-utils.lint (pkgsCompiler // pkgsMkDrv))
+                # TODO: We require GHC 9.10+ since we need filepath >= 1.5,
+                # but hlint is sadly not compatible yet. Hence it is disabled
+                # for now.
+                #
+                #(nix-hs-utils.lint (compilerPkgs // pkgsMkDrv))
                 (nix-hs-utils.lint-yaml pkgsMkDrv)
               ];
             };
 
-            lint-refactor = nix-hs-utils.lint-refactor pkgsCompiler;
+            #lint-refactor = nix-hs-utils.lint-refactor pkgsCompiler;
           };
         };
       systems = [

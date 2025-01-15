@@ -45,7 +45,7 @@ import Numeric.Algebra
     ASemigroup ((.+.)),
     MSemiSpace ((.*)),
     MSpace ((.%)),
-    Normed (norm),
+    Normed (norm, sgn),
     Semimodule,
     SemivectorSpace,
   )
@@ -138,6 +138,8 @@ instance SemivectorSpace TimeSpec Natural
 -- | @since 0.1
 instance Normed TimeSpec where
   norm = id
+
+  sgn _ = MkTimeSpec 1 0
 
 -- | Converts a 'Double' to a 'TimeSpec'.
 --

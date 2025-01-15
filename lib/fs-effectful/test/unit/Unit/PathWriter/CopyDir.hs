@@ -843,8 +843,7 @@ runPartialIO eff = do
     $ eff
   where
     runMockWriter ::
-      ( IOE :> es
-      ) =>
+      (IOE :> es) =>
       IORef Word8 ->
       Eff (PathWriter : es) a ->
       Eff es a

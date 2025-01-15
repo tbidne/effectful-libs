@@ -1,4 +1,4 @@
-index-state: hackage.haskell.org 2024-10-28T09:03:09Z
+index-state: hackage.haskell.org 2025-01-15T20:10:46Z
 
 -- windows cannot build unix package
 if os(windows)
@@ -56,21 +56,27 @@ program-options
 source-repository-package
     type: git
     location: https://github.com/tbidne/algebra-simple.git
-    tag: f8590486ec0fc66acf7db20308e1ed6993a52151
+    tag: 973852fc69a3bb7c0477dafcc933c14ec4cb0f75
 
 source-repository-package
     type: git
     location: https://github.com/tbidne/bounds.git
-    tag: f93b202c9d154b25b42b048570cf6648451aa577
+    tag: b7ca541cfdd8564bcebe5d38456fe7abf77885b8
 
 source-repository-package
     type: git
     location: https://github.com/tbidne/exception-utils.git
-    tag: e797ee05dee5097d45e9f316d68e231f32e5d7b7
+    tag: d9d3d6061d9ad16d9840a4e5e9cdc36a498a2a82
 
 source-repository-package
     type: git
     location: https://github.com/tbidne/fs-utils.git
-    tag: 5d891a45fa37e9b1365dbf46494dd75311da8af0
+    tag: e2273c91c411e1fe12347524065855ba8e34a481
 
 test-show-details: direct
+
+allow-newer: aeson:ghc-prim
+allow-newer: aeson:template-haskell
+allow-newer: effectful:async
+allow-newer: path:hashable
+allow-newer: unix-compat:time
