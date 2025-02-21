@@ -93,6 +93,7 @@ import Effectful
   )
 import Effectful.Dispatch.Dynamic (localSeqUnlift, reinterpret, send)
 import Effectful.Dispatch.Static (HasCallStack, unsafeEff_)
+import Effectful.Dynamic.Utils (ShowEffect (showEffectCons))
 import Effectful.Exception (mask_)
 import Effectful.FileSystem.PathReader.Dynamic
   ( PathReader,
@@ -140,6 +141,30 @@ data PathWriter :: Effect where
 
 -- | @since 0.1
 type instance DispatchOf PathWriter = Dynamic
+
+-- | @since 0.1
+instance ShowEffect PathWriter where
+  showEffectCons = \case
+    CreateDirectory _ -> "CreateDirectory"
+    CreateDirectoryIfMissing _ _ -> "CreateDirectoryIfMissing"
+    RemoveDirectory _ -> "RemoveDirectory"
+    RemoveDirectoryRecursive _ -> "RemoveDirectoryRecursive"
+    RemovePathForcibly _ -> "RemovePathForcibly"
+    RenameDirectory _ _ -> "RenameDirectory"
+    SetCurrentDirectory _ -> "SetCurrentDirectory"
+    WithCurrentDirectory _ _ -> "WithCurrentDirectory"
+    RemoveFile _ -> "RemoveFile"
+    RenameFile _ _ -> "RenameFile"
+    RenamePath _ _ -> "RenamePath"
+    CopyFile _ _ -> "CopyFile"
+    CopyFileWithMetadata _ _ -> "CopyFileWithMetadata"
+    CreateFileLink _ _ -> "CreateFileLink"
+    CreateDirectoryLink _ _ -> "CreateDirectoryLink"
+    RemoveDirectoryLink _ -> "RemoveDirectoryLink"
+    SetPermissions _ _ -> "SetPermissions"
+    CopyPermissions _ _ -> "CopyPermissions"
+    SetAccessTime _ _ -> "SetAccessTime"
+    SetModificationTime _ _ -> "SetModificationTime"
 
 -- | Runs 'PathWriter' in 'IO'.
 --

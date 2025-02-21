@@ -15,6 +15,7 @@ import Data.Text qualified as T
 import Data.Word (Word8)
 import Effectful (Eff, IOE, runEff, (:>))
 import Effectful.Dispatch.Dynamic (reinterpret_)
+import Effectful.Dynamic.Utils (showEffectCons)
 import Effectful.FileSystem.FileWriter.Static (OsPath)
 import Effectful.FileSystem.PathReader.Dynamic qualified as PR
 import Effectful.FileSystem.PathWriter.Dynamic
@@ -861,7 +862,7 @@ runPartialIO eff = do
           else do
             liftIO $ modifyIORef' counterRef (+ 1)
             PW.copyFileWithMetadata src dest
-      _other -> error "unimplemented"
+      other -> error $ (showEffectCons other) ++ ": unimplemented"
 
 -------------------------------------------------------------------------------
 --                                Assertions                                 --

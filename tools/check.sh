@@ -2,7 +2,7 @@ set +e
 
 export LANG="C.UTF-8"
 
-export dirs="lib/*-effectful"
+export dirs="lib/effectful-utils lib/*-effectful"
 
 any_fail=0
 

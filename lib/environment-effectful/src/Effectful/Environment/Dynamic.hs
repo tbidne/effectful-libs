@@ -47,6 +47,7 @@ import Effectful.Dispatch.Dynamic
     reinterpret,
     send,
   )
+import Effectful.Dynamic.Utils (ShowEffect (showEffectCons))
 import Effectful.Environment.Static qualified as Static
 import Effectful.Environment.Utils (QueryExePath (NoQuery, QueryResult))
 
@@ -69,6 +70,23 @@ data Environment :: Effect where
   WithArgs :: [String] -> m a -> Environment m a
   WithProgName :: String -> m () -> Environment m ()
   GetEnvironment :: Environment m [(String, String)]
+
+-- | @since 0.1
+instance ShowEffect Environment where
+  showEffectCons = \case
+    GetArgs -> "GetArgs"
+    GetProgName -> "GetProgName"
+#if MIN_VERSION_base(4,17,0)
+    ExecutablePath -> "ExecutablePath"
+#endif
+    GetExecutablePath -> "GetExecutablePath"
+    GetEnv _ -> "GetEnv"
+    LookupEnv _ -> "LookupEnv"
+    SetEnv _ _ -> "SetEnv"
+    UnsetEnv _ -> "UnsetEnv"
+    WithArgs _ _ -> "WithArgs"
+    WithProgName _ _ -> "WithProgName"
+    GetEnvironment -> "GetEnvironment"
 
 {- ORMOLU_ENABLE -}
 

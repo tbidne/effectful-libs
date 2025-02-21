@@ -5,6 +5,7 @@ on: # yamllint disable-line rule:truthy rule:comments
   push:
     branches:
       - main
+      - utils
 
   pull_request:
     branches:
@@ -46,6 +47,9 @@ jobs:
 
       - name: Build concurrent-effectful
         run: cabal build concurrent-effectful
+
+      - name: Build effectful-utils
+        run: cabal build effectful-utils
 
       - name: Build env-guard-effectful
         run: cabal build env-guard-effectful
@@ -148,6 +152,9 @@ jobs:
 
       - name: Build concurrent-effectful
         run: nix build -Lv .#concurrent-effectful
+
+      - name: Build effectful-utils
+        run: nix build -Lv .#effectful-utils
 
       - name: Build env-guard-effectful
         run: nix build -Lv .#env-guard-effectful

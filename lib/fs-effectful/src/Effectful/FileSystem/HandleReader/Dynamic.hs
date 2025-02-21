@@ -74,6 +74,7 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (HasCallStack, reinterpret_, send)
+import Effectful.Dynamic.Utils (ShowEffect (showEffectCons))
 import Effectful.FileSystem.HandleReader.Static qualified as Static
 import FileSystem.OsPath (OsPath)
 import FileSystem.UTF8 qualified as FS.UTF8
@@ -103,6 +104,27 @@ data HandleReader :: Effect where
 
 -- | @since 0.1
 type instance DispatchOf HandleReader = Dynamic
+
+-- | @since 0.1
+instance ShowEffect HandleReader where
+  showEffectCons = \case
+    HIsEOF _ -> "HIsEOF"
+    HGetBuffering _ -> "HGetBuffering"
+    HIsOpen _ -> "HIsOpen"
+    HIsClosed _ -> "HIsClosed"
+    HIsReadable _ -> "HIsReadable"
+    HIsWritable _ -> "HIsWritable"
+    HIsSeekable _ -> "HIsSeekable"
+    HIsTerminalDevice _ -> "HIsTerminalDevice"
+    HGetEcho _ -> "HGetEcho"
+    HWaitForInput _ _ -> "HWaitForInput"
+    HReady _ -> "HReady"
+    HGetChar _ -> "HGetChar"
+    HGetLine _ -> "HGetLine"
+    HGetContents _ -> "HGetContents"
+    HGet _ _ -> "HGet"
+    HGetSome _ _ -> "HGetSome"
+    HGetNonBlocking _ _ -> "HGetNonBlocking"
 
 -- | Runs 'HandleReader' in 'IO'.
 --

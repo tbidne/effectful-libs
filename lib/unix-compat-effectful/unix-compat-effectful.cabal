@@ -48,10 +48,11 @@ library
     Effectful.PosixCompat.Static
 
   build-depends:
-    , base            >=4.16.0.0 && <4.22
-    , effectful-core  >=2.5.0.0  && <2.6
-    , fs-utils        ^>=0.1
-    , unix-compat     >=0.6      && <0.8
+    , base             >=4.16.0.0 && <4.22
+    , effectful-core   >=2.5.0.0  && <2.6
+    , effectful-utils  ^>=0.1
+    , fs-utils         ^>=0.1
+    , unix-compat      >=0.6      && <0.8
 
   hs-source-dirs:  src
 

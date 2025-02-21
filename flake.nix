@@ -1,5 +1,5 @@
 {
-  description = "A Collection of Effectful Effects";
+  description = "A Collection of Effectful Libraries";
 
   # nix
   inputs.flake-parts.url = "github:hercules-ci/flake-parts";
@@ -69,6 +69,7 @@
           hsOverlay = (
             compiler.extend (
               hlib.compose.packageSourceOverrides {
+                effectful-utils = ./lib/effectful-utils;
                 environment-effectful = ./lib/environment-effectful;
                 fs-effectful = ./lib/fs-effectful;
                 ioref-effectful = ./lib/ioref-effectful;
@@ -113,37 +114,61 @@
         in
         {
           packages.concurrent-effectful = mkPkg "concurrent-effectful" ./lib/concurrent-effectful { };
+          packages.effectful-utils = mkPkg "effectful-utils" ./lib/effectful-utils { };
           packages.env-guard-effectful = mkPkg "env-guard-effectful" ./lib/env-guard-effectful { };
-          packages.environment-effectful = mkPkg "environment-effectful" ./lib/environment-effectful { };
+          packages.environment-effectful = mkPkg "environment-effectful" ./lib/environment-effectful {
+            effectful-utils = ./lib/effectful-utils;
+          };
           packages.fs-effectful = mkPkg "fs-effectful" ./lib/fs-effectful {
+            effectful-utils = ./lib/effectful-utils;
             ioref-effectful = ./lib/ioref-effectful;
             unix-compat-effectful = ./lib/unix-compat-effectful;
           };
           packages.ioref-effectful = mkPkg "ioref-effectful" ./lib/ioref-effectful { };
-          packages.logger-effectful = mkPkg "logger-effectful" ./lib/logger-effectful { };
+          packages.logger-effectful = mkPkg "logger-effectful" ./lib/logger-effectful {
+            effectful-utils = ./lib/effectful-utils;
+          };
           packages.logger-ns-effectful = mkPkg "logger-ns-effectful" ./lib/logger-ns-effectful {
             concurrent-effectful = ./lib/concurrent-effectful;
+            effectful-utils = ./lib/effectful-utils;
             logger-effectful = ./lib/logger-effectful;
             time-effectful = ./lib/time-effectful;
           };
           packages.optparse-effectful = mkPkg "optparse-effectful" ./lib/optparse-effectful {
+            effectful-utils = ./lib/effectful-utils;
             fs-effectful = ./lib/fs-effectful;
             ioref-effectful = ./lib/ioref-effectful;
             unix-compat-effectful = ./lib/unix-compat-effectful;
           };
           packages.stm-effectful = mkPkg "stm-effectful" ./lib/stm-effectful { };
-          packages.terminal-effectful = mkPkg "terminal-effectful" ./lib/terminal-effectful { };
-          packages.time-effectful = mkPkg "time-effectful" ./lib/time-effectful { };
+          packages.terminal-effectful = mkPkg "terminal-effectful" ./lib/terminal-effectful {
+            effectful-utils = ./lib/effectful-utils;
+          };
+          packages.time-effectful = mkPkg "time-effectful" ./lib/time-effectful {
+            effectful-utils = ./lib/effectful-utils;
+          };
           packages.typed-process-dynamic-effectful =
             mkPkg "time-effectful" ./lib/typed-process-dynamic-effectful
-              { };
-          packages.unix-compat-effectful = mkPkg "unix-compat-effectful" ./lib/unix-compat-effectful { };
-          packages.unix-effectful = mkPkg "unix-effectful" ./lib/unix-effectful { };
+              {
+                effectful-utils = ./lib/effectful-utils;
+              };
+          packages.unix-compat-effectful = mkPkg "unix-compat-effectful" ./lib/unix-compat-effectful {
+            effectful-utils = ./lib/effectful-utils;
+          };
+          packages.unix-effectful = mkPkg "unix-effectful" ./lib/unix-effectful {
+            effectful-utils = ./lib/effectful-utils;
+          };
 
           devShells.default = hsOverlay.shellFor {
             inherit packages;
             withHoogle = true;
-            buildInputs = (nix-hs-utils.mkBuildTools pkgsCompiler) ++ (nix-hs-utils.mkDevTools pkgsCompiler);
+            # Restore this once hlint is working again.
+            #buildInputs = (nix-hs-utils.mkBuildTools pkgsCompiler) ++ (nix-hs-utils.mkDevTools pkgsCompiler);
+            buildInputs = [
+              (hlib.dontCheck compiler.cabal-fmt)
+              (hlib.dontCheck compiler.haskell-language-server)
+              pkgs.nixfmt-rfc-style
+            ] ++ (nix-hs-utils.mkBuildTools pkgsCompiler);
           };
 
           apps = {

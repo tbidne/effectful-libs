@@ -120,6 +120,7 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (interpret, localSeqUnliftIO, send)
+import Effectful.Dynamic.Utils (ShowEffect (showEffectCons))
 import GHC.Stack (HasCallStack)
 import System.Exit (ExitCode)
 import System.Process.Typed
@@ -190,6 +191,29 @@ data TypedProcess :: Effect where
 
 -- | @since 0.1
 type instance DispatchOf TypedProcess = Dynamic
+
+-- | @since 0.1
+instance ShowEffect TypedProcess where
+  showEffectCons = \case
+    RunProcess _ -> "RunProcess"
+    ReadProcess _ -> "ReadProcess"
+    ReadProcessStdout _ -> "ReadProcessStdout"
+    ReadProcessStderr _ -> "ReadProcessStderr"
+    ReadProcessInterleaved _ -> "ReadProcessInterleaved"
+    WithProcessWait _ _ -> "WithProcessWait"
+    WithProcessTerm _ _ -> "WithProcessTerm"
+    StartProcess _ -> "StartProcess"
+    StopProcess _ -> "StopProcess"
+    RunProcess_ _ -> "RunProcess_"
+    ReadProcess_ _ -> "ReadProcess_"
+    ReadProcessStdout_ _ -> "ReadProcessStdout_"
+    ReadProcessStderr_ _ -> "ReadProcessStderr_"
+    ReadProcessInterleaved_ _ -> "ReadProcessInterleaved_"
+    WithProcessWait_ _ _ -> "WithProcessWait_"
+    WithProcessTerm_ _ _ -> "WithProcessTerm_"
+    WaitExitCode _ -> "WaitExitCode"
+    GetExitCode _ -> "GetExitCode"
+    CheckExitCode _ -> "CheckExitCode"
 
 -- | Runs 'TypedProcess' in 'IO'.
 --

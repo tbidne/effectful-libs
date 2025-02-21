@@ -113,6 +113,7 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (HasCallStack, send)
+import Effectful.Dynamic.Utils (ShowEffect (showEffectCons))
 import GHC.Generics (Generic)
 import GHC.Stack
   ( CallStack,
@@ -160,6 +161,11 @@ data Logger :: Effect where
 
 -- | @since 0.1
 type instance DispatchOf Logger = Dynamic
+
+-- | @since 0.1
+instance ShowEffect Logger where
+  showEffectCons = \case
+    LoggerLog _ _ _ _ -> "LoggerLog"
 
 -- | Writes a log.
 --

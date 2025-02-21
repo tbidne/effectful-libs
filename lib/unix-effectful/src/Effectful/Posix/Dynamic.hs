@@ -54,6 +54,7 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (HasCallStack, reinterpret_, send)
+import Effectful.Dynamic.Utils (ShowEffect (showEffectCons))
 import Effectful.Posix.Static qualified as Static
 import FileSystem.IO qualified as FS.IO
 import FileSystem.PathType
@@ -113,6 +114,34 @@ data Posix :: Effect where
 
 -- | @since 0.1
 type instance DispatchOf Posix = Dynamic
+
+-- | @since 0.1
+instance ShowEffect Posix where
+  showEffectCons = \case
+    SetFileMode _ _ -> "SetFileMode"
+    SetFdMode _ _ -> "SetFdMode"
+    SetFileCreationMask _ -> "SetFileCreationMask"
+    FileAccess _ _ _ _ -> "FileAccess"
+    FileExist _ -> "FileExist"
+    GetFileStatus _ -> "GetFileStatus"
+    GetFdStatus _ -> "GetFdStatus"
+    GetSymbolicLinkStatus _ -> "GetSymbolicLinkStatus"
+    CreateNamedPipe _ _ -> "CreateNamedPipe"
+    CreateDevice _ _ _ -> "CreateDevice"
+    CreateLink _ _ -> "CreateLink"
+    RemoveLink _ -> "RemoveLink"
+    CreateSymbolicLink _ _ -> "CreateSymbolicLink"
+    ReadSymbolicLink _ -> "ReadSymbolicLink"
+    Rename _ _ -> "Rename"
+    SetOwnerAndGroup _ _ _ -> "SetOwnerAndGroup"
+    SetFdOwnerAndGroup _ _ _ -> "SetFdOwnerAndGroup"
+    SetSymbolicLinkOwnerAndGroup _ _ _ -> "SetSymbolicLinkOwnerAndGroup"
+    SetFileTimes _ _ _ -> "SetFileTimes"
+    TouchFile _ -> "TouchFile"
+    SetFileSize _ _ -> "SetFileSize"
+    SetFdSize _ _ -> "SetFdSize"
+    GetPathVar _ _ -> "GetPathVar"
+    GetFdPathVar _ _ -> "GetFdPathVar"
 
 -- | Runs 'Posix' in 'IO'.
 --

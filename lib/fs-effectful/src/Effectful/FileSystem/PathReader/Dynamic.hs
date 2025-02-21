@@ -84,6 +84,7 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (HasCallStack, localSeqUnlift, reinterpret, send)
+import Effectful.Dynamic.Utils (ShowEffect (showEffectCons))
 import Effectful.Exception (catchIO)
 import Effectful.FileSystem.PathReader.Static qualified as Static
 import FileSystem.IO qualified as IO
@@ -152,6 +153,38 @@ data PathReader :: Effect where
 
 -- | @since 0.1
 type instance DispatchOf PathReader = Dynamic
+
+-- | @since 0.1
+instance ShowEffect PathReader where
+  showEffectCons = \case
+    ListDirectory _ -> "ListDirectory"
+    GetDirectoryContents _ -> "GetDirectoryContents"
+    GetCurrentDirectory -> "GetCurrentDirectory"
+    GetHomeDirectory -> "GetHomeDirectory"
+    GetXdgDirectory _ _ -> "GetXdgDirectory"
+    GetXdgDirectoryList _ -> "GetXdgDirectoryList"
+    GetAppUserDataDirectory _ -> "GetAppUserDataDirectory"
+    GetUserDocumentsDirectory -> "GetUserDocumentsDirectory"
+    GetTemporaryDirectory -> "GetTemporaryDirectory"
+    GetFileSize _ -> "GetFileSize"
+    CanonicalizePath _ -> "CanonicalizePath"
+    MakeAbsolute _ -> "MakeAbsolute"
+    MakeRelativeToCurrentDirectory _ -> "MakeRelativeToCurrentDirectory"
+    DoesPathExist _ -> "DoesPathExist"
+    DoesFileExist _ -> "DoesFileExist"
+    DoesDirectoryExist _ -> "DoesDirectoryExist"
+    FindExecutable _ -> "FindExecutable"
+    FindExecutables _ -> "FindExecutables"
+    FindExecutablesInDirectories _ _ -> "FindExecutablesInDirectories"
+    FindFile _ _ -> "FindFile"
+    FindFiles _ _ -> "FindFiles"
+    FindFileWith _ _ _ -> "FindFileWith"
+    FindFilesWith _ _ _ -> "FindFilesWith"
+    PathIsSymbolicLink _ -> "PathIsSymbolicLink"
+    GetSymbolicLinkTarget _ -> "GetSymbolicLinkTarget"
+    GetPermissions _ -> "GetPermissions"
+    GetAccessTime _ -> "GetAccessTime"
+    GetModificationTime _ -> "GetModificationTime"
 
 -- | Runs 'PathReader' in 'IO'.
 --

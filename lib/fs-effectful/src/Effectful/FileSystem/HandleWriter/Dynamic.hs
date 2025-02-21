@@ -55,6 +55,7 @@ import Effectful.Dispatch.Dynamic
     reinterpret,
     send,
   )
+import Effectful.Dynamic.Utils (ShowEffect (showEffectCons))
 import Effectful.FileSystem.HandleWriter.Static qualified as Static
 import FileSystem.OsPath (OsPath)
 import FileSystem.UTF8 qualified as FS.UTF8
@@ -84,6 +85,21 @@ data HandleWriter :: Effect where
   HSetEcho :: Handle -> Bool -> HandleWriter m ()
   HPut :: Handle -> ByteString -> HandleWriter m ()
   HPutNonBlocking :: Handle -> ByteString -> HandleWriter m ByteString
+
+-- | @since 0.1
+instance ShowEffect HandleWriter where
+  showEffectCons = \case
+    OpenBinaryFile _ _ -> "OpenBinaryFile"
+    WithBinaryFile _ _ _ -> "WithBinaryFile"
+    HClose _ -> "HClose"
+    HFlush _ -> "HFlush"
+    HSetFileSize _ _ -> "HSetFileSize"
+    HSetBuffering _ _ -> "HSetBuffering"
+    HSeek _ _ _ -> "HSeek"
+    HTell _ -> "HTell"
+    HSetEcho _ _ -> "HSetEcho"
+    HPut _ _ -> "HPut"
+    HPutNonBlocking _ _ -> "HPutNonBlocking"
 
 -- | Runs 'HandleWriter' in 'IO'.
 --

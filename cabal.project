@@ -4,6 +4,7 @@ index-state: hackage.haskell.org 2025-01-15T20:10:46Z
 if os(windows)
   packages:
     ./lib/concurrent-effectful
+    ./lib/effectful-utils
     ./lib/env-guard-effectful
     ./lib/environment-effectful
     ./lib/fs-effectful
@@ -20,6 +21,7 @@ else
   packages:
     ./bench/fs-unix
     ./lib/concurrent-effectful
+    ./lib/effectful-utils
     ./lib/env-guard-effectful
     ./lib/environment-effectful
     ./lib/fs-effectful

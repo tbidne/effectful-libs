@@ -26,6 +26,7 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (HasCallStack, reinterpret_, send)
+import Effectful.Dynamic.Utils (ShowEffect (showEffectCons))
 import Effectful.Optparse.Static qualified as Static
 import Effectful.Optparse.Utils qualified as Utils
 import Options.Applicative (ParserInfo, ParserPrefs, ParserResult)
@@ -40,6 +41,13 @@ data Optparse :: Effect where
 
 -- | @since 0.1
 type instance DispatchOf Optparse = Dynamic
+
+-- | @since 0.1
+instance ShowEffect Optparse where
+  showEffectCons = \case
+    ExecParser _ -> "ExecParser"
+    CustomExecParser _ _ -> "CustomExecParser"
+    HandleParseResult _ -> "HandleParseResult"
 
 -- | Runs 'Optparse' in 'IO'.
 --

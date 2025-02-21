@@ -2,7 +2,7 @@ set -e
 
 export LANG="C.UTF-8"
 
-export dirs="*-effectful"
+export dirs="lib/effectful-utils *-effectful"
 
 mkdir -p docs/
 rm -rf docs/$dirs

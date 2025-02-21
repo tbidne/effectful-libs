@@ -38,6 +38,7 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (HasCallStack, reinterpret_, send)
+import Effectful.Dynamic.Utils (ShowEffect (showEffectCons))
 import Effectful.FileSystem.FileReader.Static qualified as Static
 import FileSystem.OsPath (OsPath)
 import FileSystem.UTF8 qualified as FS.UTF8
@@ -50,6 +51,11 @@ data FileReader :: Effect where
 
 -- | @since 0.1
 type instance DispatchOf FileReader = Dynamic
+
+-- | @since 0.1
+instance ShowEffect FileReader where
+  showEffectCons = \case
+    ReadBinaryFile _ -> "ReadBinaryFile"
 
 -- | Runs 'FileReader' in 'IO'.
 --

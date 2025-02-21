@@ -49,6 +49,7 @@ import Effectful.Dispatch.Dynamic
     reinterpret,
     send,
   )
+import Effectful.Dynamic.Utils (ShowEffect (showEffectCons))
 import Effectful.Logger.Dynamic (LogLevel, LogStr, ToLogStr)
 import Effectful.LoggerNS.Static qualified as Static
 import Effectful.LoggerNS.Utils
@@ -73,6 +74,12 @@ data LoggerNS :: Effect where
 
 -- | @since 0.1
 type instance DispatchOf LoggerNS = Dynamic
+
+-- | @since 0.1
+instance ShowEffect LoggerNS where
+  showEffectCons = \case
+    GetNamespace -> "GetNamespace"
+    LocalNamespace _ _ -> "LocalNamespace"
 
 -- | Handler for 'LoggerNS'.
 --

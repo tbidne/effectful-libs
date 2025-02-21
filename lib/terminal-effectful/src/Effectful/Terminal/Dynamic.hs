@@ -58,6 +58,7 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (HasCallStack, reinterpret_, send)
+import Effectful.Dynamic.Utils (ShowEffect (showEffectCons))
 import Effectful.Terminal.Static qualified as Static
 import System.Console.Terminal.Size (Window (Window, height, width))
 import Prelude
@@ -87,6 +88,21 @@ data Terminal :: Effect where
 #endif
   GetTerminalSize :: Integral a => Terminal m (Window a)
   SupportsPretty :: Terminal m Bool
+
+
+-- | @since 0.1
+instance ShowEffect Terminal where
+  showEffectCons = \case
+    PutStr _ -> "PutStr"
+    PutStrLn _ -> "PutStrLn"
+    PutBinary _ -> "PutBinary"
+    GetChar -> "GetChar"
+    GetLine -> "GetLine"
+#if MIN_VERSION_base(4,15,0)
+    GetContents' -> "GetContents'"
+#endif
+    GetTerminalSize -> "GetTerminalSize"
+    SupportsPretty -> "SupportsPretty"
 
 -- | @since 0.1
 type instance DispatchOf Terminal = Dynamic

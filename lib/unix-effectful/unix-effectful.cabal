@@ -41,11 +41,12 @@ library
     Effectful.Posix.Static
 
   build-depends:
-    , base            >=4.16.0.0 && <4.22
-    , effectful-core  >=2.5.0.0  && <2.6
-    , fs-utils        ^>=0.1
-    , os-string       ^>=2.0.0
-    , unix            >=2.7.2.2  && <2.9
+    , base             >=4.16.0.0 && <4.22
+    , effectful-core   >=2.5.0.0  && <2.6
+    , effectful-utils  ^>=0.1
+    , fs-utils         ^>=0.1
+    , os-string        ^>=2.0.0
+    , unix             >=2.7.2.2  && <2.9
 
   hs-source-dirs:  src
 

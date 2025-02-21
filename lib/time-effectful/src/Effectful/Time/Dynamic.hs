@@ -62,6 +62,7 @@ import Effectful
     type (:>),
   )
 import Effectful.Dispatch.Dynamic (HasCallStack, reinterpret_, send)
+import Effectful.Dynamic.Utils (ShowEffect (showEffectCons))
 import Effectful.Time.Static qualified as Static
 import Effectful.Time.TimeSpec (TimeSpec (nsec, sec))
 import Effectful.Time.TimeSpec qualified as TimeSpec
@@ -76,6 +77,12 @@ data Time :: Effect where
 
 -- | @since 0.1
 type instance DispatchOf Time = Dynamic
+
+-- | @since 0.1
+instance ShowEffect Time where
+  showEffectCons = \case
+    GetSystemZonedTime -> "GetSystemZonedTime"
+    GetMonotonicTime -> "GetMonotonicTime"
 
 -- | Runs 'Time' in 'IO'.
 --
