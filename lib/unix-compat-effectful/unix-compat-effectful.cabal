@@ -14,8 +14,8 @@ tested-with:
 copyright:       2022-2025 Thomas Bidne
 author:          Thomas Bidne
 maintainer:      tbidne@protonmail.com
-homepage:        https://github.com/tbidne/effectful-effects/
-bug-reports:     https://github.com/tbidne/effectful-effects/issues
+homepage:        https://github.com/tbidne/effectful-libs/
+bug-reports:     https://github.com/tbidne/effectful-libs/issues
 synopsis:        Unix-compat effects
 description:     Provides unix-compat effects
 category:        Effects
@@ -23,7 +23,7 @@ extra-doc-files: CHANGELOG.md
 
 source-repository head
   type:     git
-  location: https://github.com/tbidne/effectful-effects
+  location: https://github.com/tbidne/effectful-libs
 
 common common-lang
   default-extensions:
