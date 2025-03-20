@@ -191,6 +191,7 @@ runTimePure ::
 runTimePure = interpret $ \_ -> \case
   GetSystemZonedTime -> pure zonedTime
   GetMonotonicTime -> pure 50
+  _ -> error "runTimePure: unimplemented"
 
 runLoggerNamespacePure ::
   Eff (LoggerNS : es) a ->

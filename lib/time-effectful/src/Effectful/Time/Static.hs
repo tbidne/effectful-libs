@@ -8,6 +8,9 @@ module Effectful.Time.Static
     Time,
     getSystemTime,
     getSystemZonedTime,
+    getTimeZone,
+    utcToLocalZonedTime,
+    loadLocalTZ,
     getMonotonicTime,
 
     -- ** Handlers
@@ -50,11 +53,15 @@ module Effectful.Time.Static
   )
 where
 
+import Data.Time.Clock (UTCTime)
 import Data.Time.LocalTime
   ( LocalTime (LocalTime, localDay, localTimeOfDay),
+    TimeZone,
     ZonedTime (ZonedTime, zonedTimeToLocalTime, zonedTimeZone),
   )
 import Data.Time.LocalTime qualified as Local
+import Data.Time.Zones (TZ)
+import Data.Time.Zones qualified as TZ
 import Effectful
   ( Dispatch (Static),
     DispatchOf,
@@ -96,11 +103,29 @@ runTime = evalStaticRep MkTime
 getSystemTime :: (HasCallStack, Time :> es) => Eff es LocalTime
 getSystemTime = Local.zonedTimeToLocalTime <$> getSystemZonedTime
 
--- | Returns the zoned system time
+-- | Returns the zoned system time.
 --
 -- @since 0.1
 getSystemZonedTime :: (HasCallStack, Time :> es) => Eff es ZonedTime
 getSystemZonedTime = unsafeEff_ Local.getZonedTime
+
+-- | Lifted 'Local.getTimeZone'.
+--
+-- @since 0.1
+getTimeZone :: (HasCallStack, Time :> es) => UTCTime -> Eff es TimeZone
+getTimeZone = unsafeEff_ . Local.getTimeZone
+
+-- | Lifted 'Local.utcToLocalZonedTime'.
+--
+-- @since 0.1
+utcToLocalZonedTime :: (HasCallStack, Time :> es) => UTCTime -> Eff es ZonedTime
+utcToLocalZonedTime = unsafeEff_ . Local.utcToLocalZonedTime
+
+-- | Lifted 'TZ.loadLocalTZ'.
+--
+-- @since 0.1
+loadLocalTZ :: (HasCallStack, Time :> es) => Eff es TZ
+loadLocalTZ = unsafeEff_ TZ.loadLocalTZ
 
 -- | Returns the zoned system time
 --

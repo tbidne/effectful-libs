@@ -6,6 +6,9 @@ module Effectful.Time.Dynamic
     Time (..),
     getSystemTime,
     getSystemZonedTime,
+    getTimeZone,
+    utcToLocalZonedTime,
+    loadLocalTZ,
     getMonotonicTime,
 
     -- ** Handlers
@@ -48,11 +51,14 @@ module Effectful.Time.Dynamic
   )
 where
 
+import Data.Time.Clock (UTCTime)
 import Data.Time.LocalTime
   ( LocalTime (LocalTime, localDay, localTimeOfDay),
+    TimeZone,
     ZonedTime (ZonedTime, zonedTimeToLocalTime, zonedTimeZone),
   )
 import Data.Time.LocalTime qualified as Local
+import Data.Time.Zones (TZ)
 import Effectful
   ( Dispatch (Dynamic),
     DispatchOf,
@@ -73,6 +79,9 @@ import Effectful.Time.Utils qualified as Utils
 -- @since 0.1
 data Time :: Effect where
   GetSystemZonedTime :: Time m ZonedTime
+  GetTimeZone :: UTCTime -> Time m TimeZone
+  UtcToLocalZonedTime :: UTCTime -> Time m ZonedTime
+  LoadLocalTZ :: Time m TZ
   GetMonotonicTime :: Time m Double
 
 -- | @since 0.1
@@ -82,6 +91,9 @@ type instance DispatchOf Time = Dynamic
 instance ShowEffect Time where
   showEffectCons = \case
     GetSystemZonedTime -> "GetSystemZonedTime"
+    GetTimeZone _ -> "GetTimeZone"
+    UtcToLocalZonedTime _ -> "UtcToLocalZonedTime"
+    LoadLocalTZ -> "LoadLocalTZ"
     GetMonotonicTime -> "GetMonotonicTime"
 
 -- | Runs 'Time' in 'IO'.
@@ -90,6 +102,9 @@ instance ShowEffect Time where
 runTime :: (HasCallStack, IOE :> es) => Eff (Time : es) a -> Eff es a
 runTime = reinterpret_ Static.runTime $ \case
   GetSystemZonedTime -> Static.getSystemZonedTime
+  GetTimeZone utc -> Static.getTimeZone utc
+  UtcToLocalZonedTime utc -> Static.utcToLocalZonedTime utc
+  LoadLocalTZ -> Static.loadLocalTZ
   GetMonotonicTime -> Static.getMonotonicTime
 
 -- | Returns the local system time.
@@ -98,11 +113,29 @@ runTime = reinterpret_ Static.runTime $ \case
 getSystemTime :: (HasCallStack, Time :> es) => Eff es LocalTime
 getSystemTime = Local.zonedTimeToLocalTime <$> getSystemZonedTime
 
--- | Returns the zoned system time
+-- | Returns the zoned system time.
 --
 -- @since 0.1
 getSystemZonedTime :: (HasCallStack, Time :> es) => Eff es ZonedTime
 getSystemZonedTime = send GetSystemZonedTime
+
+-- | Lifted 'Local.getTimeZone'.
+--
+-- @since 0.1
+getTimeZone :: (HasCallStack, Time :> es) => UTCTime -> Eff es TimeZone
+getTimeZone = send . GetTimeZone
+
+-- | Lifted 'Local.utcToLocalZonedTime'.
+--
+-- @since 0.1
+utcToLocalZonedTime :: (HasCallStack, Time :> es) => UTCTime -> Eff es ZonedTime
+utcToLocalZonedTime = send . UtcToLocalZonedTime
+
+-- | Lifted 'TZ.loadLocalTZ'.
+--
+-- @since 0.1
+loadLocalTZ :: (HasCallStack, Time :> es) => Eff es TZ
+loadLocalTZ = send LoadLocalTZ
 
 -- | Returns the zoned system time
 --
