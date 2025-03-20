@@ -107,7 +107,7 @@ instance ShowEffect Terminal where
 -- | @since 0.1
 type instance DispatchOf Terminal = Dynamic
 
--- | Runs 'Terminal' in 'IO'.
+-- | Runs 'Terminal' in 'Prelude.IO'.
 --
 -- @since 0.1
 runTerminal :: (HasCallStack, IOE :> es) => Eff (Terminal : es) a -> Eff es a

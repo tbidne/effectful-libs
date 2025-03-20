@@ -58,7 +58,7 @@ threadLabel = unsafeEff_ . Sync.threadLabel
 
 #endif
 
--- | 'threadDelay' in terms of unbounded 'Natural' rather than 'Int' i.e.
+-- | 'EffCC.threadDelay' in terms of unbounded 'Natural' rather than 'Int' i.e.
 -- runs sleep in the current thread for the specified number of microseconds.
 --
 -- @since 0.1

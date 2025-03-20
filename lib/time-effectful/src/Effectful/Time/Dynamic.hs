@@ -159,13 +159,13 @@ withTiming m = do
 withTiming_ :: (HasCallStack, Time :> es) => Eff es a -> Eff es TimeSpec
 withTiming_ = fmap fst . withTiming
 
--- | Retrieves the formatted 'LocalTime'.
+-- | Retrieves the formatted 'Data.Time.LocalTime'.
 --
 -- @since 0.1
 getSystemTimeString :: (HasCallStack, Time :> es) => Eff es String
 getSystemTimeString = fmap Utils.formatLocalTime getSystemTime
 
--- | Retrieves the formatted 'ZonedTime'.
+-- | Retrieves the formatted 'Data.Time.ZonedTime'.
 --
 -- @since 0.1
 getSystemZonedTimeString :: (HasCallStack, Time :> es) => Eff es String

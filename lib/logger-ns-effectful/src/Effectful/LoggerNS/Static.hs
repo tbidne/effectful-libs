@@ -1,4 +1,5 @@
--- | Provides static namespaced logging functionality on top of 'Logger'.
+-- | Provides static namespaced logging functionality on top of
+-- 'Effectful.Logger.Dynamic.Logger'.
 --
 -- @since 0.1
 module Effectful.LoggerNS.Static

@@ -27,9 +27,7 @@ formatLocalTime = Format.formatTime Format.defaultTimeLocale localTimeFormat
 formatZonedTime :: ZonedTime -> String
 formatZonedTime = Format.formatTime Format.defaultTimeLocale zonedTimeFormat
 
--- | Parses the 'LocalTime' from @YYYY-MM-DD HH:MM:SS@. If the 'MonadFail'
--- instance throws an 'Control.Exception.Exception' consider
--- 'parseLocalTimeCallStack'.
+-- | Parses the 'LocalTime' from @YYYY-MM-DD HH:MM:SS@.
 --
 -- @since 0.1
 parseLocalTime :: (HasCallStack, MonadFail f) => String -> f LocalTime
@@ -39,9 +37,7 @@ parseLocalTime =
     Format.defaultTimeLocale
     localTimeFormat
 
--- | Parses the 'ZonedTime' from @YYYY-MM-DD HH:MM:SS Z@. If the 'MonadFail'
--- instance throws an 'Control.Exception.Exception' consider
--- 'parseZonedTimeCallStack'.
+-- | Parses the 'ZonedTime' from @YYYY-MM-DD HH:MM:SS Z@.
 --
 -- ==== __Known Timezones__
 --

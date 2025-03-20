@@ -105,7 +105,7 @@ type instance DispatchOf Terminal = Static WithSideEffects
 
 data instance StaticRep Terminal = MkTerminal
 
--- | Runs an Optparse effect.
+-- | Runs 'Terminal' in 'Prelude.IO'.
 --
 -- @since 0.1
 runTerminal :: (HasCallStack, IOE :> es) => Eff (Terminal : es) a -> Eff es a
