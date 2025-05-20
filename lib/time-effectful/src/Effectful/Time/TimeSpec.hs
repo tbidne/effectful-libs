@@ -139,7 +139,9 @@ instance SemivectorSpace TimeSpec Natural
 instance Normed TimeSpec where
   norm = id
 
-  sgn _ = MkTimeSpec 1 0
+  sgn x
+    | x == zero = zero
+    | otherwise = MkTimeSpec 1 0
 
 -- | Converts a 'Double' to a 'TimeSpec'.
 --
