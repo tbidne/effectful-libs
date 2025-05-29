@@ -34,6 +34,9 @@ module Effectful.Terminal.Dynamic
     getTextContents',
 #endif
 
+    -- * ByteString
+    putBinaryLn,
+
     -- * Window
     getTerminalWidth,
     getTerminalHeight,
@@ -65,6 +68,7 @@ import Prelude
   ( Bool,
     Char,
     Integral,
+    Semigroup ((<>)),
     Show (show),
     String,
     ($),
@@ -142,6 +146,12 @@ putStrLn = send . PutStrLn
 -- @since 0.1
 putBinary :: (HasCallStack, Terminal :> es) => ByteString -> Eff es ()
 putBinary = send . PutBinary
+
+-- | 'putBinary' with appended newline.
+--
+-- @since 0.1
+putBinaryLn :: (HasCallStack, Terminal :> es) => ByteString -> Eff es ()
+putBinaryLn = putBinary . (<> "\n")
 
 -- | Lifted 'IO.getChar'.
 --

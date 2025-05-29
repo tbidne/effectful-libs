@@ -46,6 +46,9 @@ cradle:
     - path: "./lib/terminal-effectful/src"
       component: "lib:terminal-effectful"
 
+    - path: "./lib/terminal-effectful/test/unit"
+      component: "terminal-effectful:test:unit"
+
     - path: "./lib/time-effectful/src"
       component: "lib:time-effectful"
 

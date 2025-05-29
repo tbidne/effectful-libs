@@ -5,7 +5,7 @@ on: # yamllint disable-line rule:truthy rule:comments
   push:
     branches:
       - main
-      - utils
+      - terminal-unicode
 
   pull_request:
     branches:
@@ -88,6 +88,9 @@ jobs:
 
       - name: Build terminal-effectful
         run: cabal build terminal-effectful
+
+      - name: Test terminal-effectful
+        run: cabal test terminal-effectful
 
       - name: Build time-effectful
         run: cabal build time-effectful
