@@ -53,6 +53,6 @@ library
     , effectful-core        >=2.5.0.0  && <2.6
     , effectful-utils       ^>=0.1
     , fs-effectful          ^>=0.1
-    , optparse-applicative  >=0.16.1.0 && <0.19
+    , optparse-applicative  >=0.16.1.0 && <0.20
 
   hs-source-dirs:  src
