@@ -60,6 +60,11 @@ module Effectful.FileSystem.PathReader.Static
     isPathType,
     throwIfWrongPathType,
 
+    -- * Tilde expansion
+    expandTilde,
+    forExpandedTilde,
+    onExpandedTilde,
+
     -- * Misc
     listDirectoryRecursive,
     listDirectoryRecursiveSymbolicLink,
@@ -76,6 +81,7 @@ module Effectful.FileSystem.PathReader.Static
   )
 where
 
+import Control.Category ((>>>))
 import Control.Monad (unless, (>=>))
 import Data.Time (UTCTime (UTCTime, utctDay, utctDayTime))
 import Effectful
@@ -95,9 +101,20 @@ import Effectful.Dispatch.Static
     unsafeEff,
     unsafeEff_,
   )
-import Effectful.Exception (catchIO)
+import Effectful.Exception (catchIO, throwIO)
 import FileSystem.IO qualified as IO
-import FileSystem.OsPath (OsPath, (</>))
+import FileSystem.OsPath
+  ( OsPath,
+    OsPathNE (OsPathEmpty, OsPathNonEmpty),
+    TildeException (MkTildeException),
+    TildeState
+      ( TildeStateNonPrefix,
+        TildeStateNone,
+        TildeStatePrefix
+      ),
+    (</>),
+  )
+import FileSystem.OsPath qualified as OsP
 import FileSystem.PathType
   ( PathType
       ( PathTypeDirectory,
@@ -744,3 +761,58 @@ getPathType path = do
                     "getPathType"
                     IO.Error.doesNotExistErrorType
                     "path does not exist"
+
+-- | 'onExpandedTilde' that simply returns the expanded path.
+--
+-- @since 0.1
+expandTilde ::
+  ( HasCallStack,
+    PathReader :> es
+  ) =>
+  -- | Path to potentially expand.
+  OsPath ->
+  Eff es OsPath
+expandTilde = onExpandedTilde pure
+
+-- | Flipped 'onExpandedTilde'.
+--
+-- @since 0.1
+forExpandedTilde ::
+  ( HasCallStack,
+    PathReader :> es
+  ) =>
+  -- | Path to potentially expand.
+  OsPath ->
+  -- | Action to run on the expanded path.
+  (OsPath -> Eff es a) ->
+  Eff es a
+forExpandedTilde = flip onExpandedTilde
+
+-- | Expands a "tilde prefix" (~) with the home directory, running the
+-- action on the result. Throws an exception if the 'OsPath' contains any
+-- other tildes i.e. the only expansions we allow are:
+--
+-- - @"~/..."@
+-- - @"~"@
+-- - @"~\\..."@ (windows only)
+--
+-- If the path contains no tildes, it is handled normally.
+--
+-- @since 0.1
+onExpandedTilde ::
+  ( HasCallStack,
+    PathReader :> es
+  ) =>
+  -- | Action to run on the expanded path.
+  (OsPath -> Eff es a) ->
+  -- | Path to potentially expand.
+  OsPath ->
+  Eff es a
+onExpandedTilde onPath =
+  OsP.toTildeState >>> \case
+    TildeStateNone p -> onPath p
+    TildeStatePrefix pne ->
+      getHomeDirectory >>= \d -> case pne of
+        OsPathEmpty -> onPath d
+        OsPathNonEmpty p -> onPath $ d </> p
+    TildeStateNonPrefix p -> throwIO $ MkTildeException p
