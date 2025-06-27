@@ -101,16 +101,14 @@ import Effectful.Dispatch.Static
     unsafeEff,
     unsafeEff_,
   )
-import Effectful.Exception (catchIO, throwIO)
+import Effectful.Exception (catchIO)
 import FileSystem.IO qualified as IO
 import FileSystem.OsPath
   ( OsPath,
-    OsPathNE (OsPathEmpty, OsPathNonEmpty),
-    TildeException (MkTildeException),
-    TildeState
-      ( TildeStateNonPrefix,
-        TildeStateNone,
-        TildeStatePrefix
+    OsPathOrEmpty (OsPathEmpty, OsPathNonEmpty),
+    TildePrefixState
+      ( TildePrefixStateNone,
+        TildePrefixStateStripped
       ),
     (</>),
   )
@@ -809,10 +807,9 @@ onExpandedTilde ::
   OsPath ->
   Eff es a
 onExpandedTilde onPath =
-  OsP.toTildeState >>> \case
-    TildeStateNone p -> onPath p
-    TildeStatePrefix pne ->
+  OsP.toTildePrefixState >>> \case
+    TildePrefixStateNone p -> onPath p
+    TildePrefixStateStripped pne ->
       getHomeDirectory >>= \d -> case pne of
         OsPathEmpty -> onPath d
         OsPathNonEmpty p -> onPath $ d </> p
-    TildeStateNonPrefix p -> throwIO $ MkTildeException p
