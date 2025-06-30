@@ -31,6 +31,10 @@
     inputs.nixpkgs.follows = "nixpkgs";
     inputs.nix-hs-utils.follows = "nix-hs-utils";
   };
+  inputs.haskeline = {
+    url = "github:haskell/haskeline";
+    flake = false;
+  };
   outputs =
     inputs@{
       flake-parts,
@@ -51,6 +55,8 @@
                 effectful-core = prev.effectful-core_2_5_0_0;
                 effectful = prev.effectful_2_5_0_0;
                 path = hlib.dontCheck prev.path_0_9_6;
+
+                haskeline = hlib.dontCheck (final.callCabal2nix "haskeline" inputs.haskeline { });
               }
               // nix-hs-utils.mkLibs inputs final [
                 "algebra-simple"
@@ -72,6 +78,7 @@
                 effectful-utils = ./lib/effectful-utils;
                 environment-effectful = ./lib/environment-effectful;
                 fs-effectful = ./lib/fs-effectful;
+                haskeline-effectful = ./lib/haskeline-effectful;
                 ioref-effectful = ./lib/ioref-effectful;
                 logger-effectful = ./lib/logger-effectful;
                 optparse-effectful = ./lib/optparse-effectful;
@@ -88,6 +95,7 @@
           packages = p: [
             p.environment-effectful
             p.fs-effectful
+            p.haskeline-effectful
             p.ioref-effectful
             p.logger-effectful
             p.optparse-effectful
@@ -121,6 +129,9 @@
             effectful-utils = ./lib/effectful-utils;
             ioref-effectful = ./lib/ioref-effectful;
             unix-compat-effectful = ./lib/unix-compat-effectful;
+          };
+          packages.haskeline-effectful = mkPkg "haskeline-effectful" ./lib/haskeline-effectful {
+            effectful-utils = ./lib/effectful-utils;
           };
           packages.ioref-effectful = mkPkg "ioref-effectful" ./lib/ioref-effectful { };
           packages.logger-effectful = mkPkg "logger-effectful" ./lib/logger-effectful {

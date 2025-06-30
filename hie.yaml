@@ -22,6 +22,9 @@ cradle:
     - path: "./lib/fs-effectful/test/unit"
       component: "fs-effectful:test:unit"
 
+    - path: "./lib/haskeline-effectful/src"
+      component: "lib:haskeline-effectful"
+
     - path: "./lib/ioref-effectful/src"
       component: "lib:ioref-effectful"
 
