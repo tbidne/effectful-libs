@@ -89,7 +89,6 @@ data Terminal :: Effect where
   GetTerminalSize :: Integral a => Terminal m (Window a)
   SupportsPretty :: Terminal m Bool
 
-
 -- | @since 0.1
 instance ShowEffect Terminal where
   showEffectCons = \case
