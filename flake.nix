@@ -74,7 +74,6 @@
                 fs-effectful = ./lib/fs-effectful;
                 ioref-effectful = ./lib/ioref-effectful;
                 logger-effectful = ./lib/logger-effectful;
-                logger-ns-effectful = ./lib/logger-ns-effectful;
                 optparse-effectful = ./lib/optparse-effectful;
                 stm-effectful = ./lib/stm-effectful;
                 terminal-effectful = ./lib/terminal-effectful;
@@ -91,7 +90,6 @@
             p.fs-effectful
             p.ioref-effectful
             p.logger-effectful
-            p.logger-ns-effectful
             p.optparse-effectful
             p.stm-effectful
             p.terminal-effectful
@@ -126,12 +124,8 @@
           };
           packages.ioref-effectful = mkPkg "ioref-effectful" ./lib/ioref-effectful { };
           packages.logger-effectful = mkPkg "logger-effectful" ./lib/logger-effectful {
-            effectful-utils = ./lib/effectful-utils;
-          };
-          packages.logger-ns-effectful = mkPkg "logger-ns-effectful" ./lib/logger-ns-effectful {
             concurrent-effectful = ./lib/concurrent-effectful;
             effectful-utils = ./lib/effectful-utils;
-            logger-effectful = ./lib/logger-effectful;
             time-effectful = ./lib/time-effectful;
           };
           packages.optparse-effectful = mkPkg "optparse-effectful" ./lib/optparse-effectful {

@@ -1,5 +1,4 @@
 {-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 -- | Dynamic effect for "Control.Monad.Logger".
@@ -88,6 +87,12 @@ module Effectful.Logger.Dynamic
     guardLevel,
     shouldLog,
 
+    -- * Formatting
+    LogFormatter (..),
+    Utils.defaultLogFormatter,
+    LocStrategy (..),
+    formatLog,
+
     -- * Optics
     _LevelTrace,
     _LevelInfo,
@@ -99,11 +104,10 @@ module Effectful.Logger.Dynamic
   )
 where
 
-import Control.DeepSeq (NFData)
 import Control.Monad (when)
 import Data.ByteString (ByteString)
 import Data.ByteString.Char8 qualified as S8
-import Data.Text (Text, pack, unpack)
+import Data.Text (Text, pack)
 import Data.Text qualified as T
 import Effectful
   ( Dispatch (Dynamic),
@@ -112,9 +116,24 @@ import Effectful
     Effect,
     type (:>),
   )
+import Effectful.Concurrent (Concurrent)
 import Effectful.Dispatch.Dynamic (HasCallStack, send)
 import Effectful.Dynamic.Utils (ShowEffect (showEffectCons))
-import GHC.Generics (Generic)
+import Effectful.Logger.Utils
+  ( LocStrategy (LocNone, LocPartial, LocStable),
+    LogFormatter (MkLogFormatter, locStrategy, newline, threadLabel, timezone),
+    LogLevel
+      ( LevelDebug,
+        LevelError,
+        LevelFatal,
+        LevelInfo,
+        LevelOther,
+        LevelTrace,
+        LevelWarn
+      ),
+  )
+import Effectful.Logger.Utils qualified as Utils
+import Effectful.Time.Dynamic (Time)
 import GHC.Stack
   ( CallStack,
     SrcLoc
@@ -130,7 +149,7 @@ import GHC.Stack
   )
 import Language.Haskell.TH.Syntax
   ( Exp,
-    Lift (lift, liftTyped),
+    Lift (lift),
     Loc
       ( Loc,
         loc_end,
@@ -183,58 +202,37 @@ loggerLog ::
 loggerLog loc src lvl = send . LoggerLog loc src lvl
 
 -- | @since 0.1
-data LogLevel
-  = -- | @since 0.1
-    LevelTrace
-  | -- | @since 0.1
-    LevelDebug
-  | -- | @since 0.1
-    LevelInfo
-  | -- | @since 0.1
-    LevelWarn
-  | -- | @since 0.1
-    LevelError
-  | -- | @since 0.1
-    LevelFatal
-  | -- | @since 0.1
-    LevelOther Text
-  deriving stock
-    ( -- | @since 0.1
-      Eq,
-      -- | @since 0.1
-      Generic,
-      -- | @since 0.1
-      Show,
-      -- | @since 0.1
-      Read,
-      -- | @since 0.1
-      Ord
-    )
-  deriving anyclass
-    ( -- | @since 0.1
-      NFData
-    )
-
--- | @since 0.1
 type LogSource = Text
 
--- | @since 0.1
-instance Lift LogLevel where
-  lift LevelTrace = [|LevelTrace|]
-  lift LevelDebug = [|LevelDebug|]
-  lift LevelInfo = [|LevelInfo|]
-  lift LevelWarn = [|LevelWarn|]
-  lift LevelError = [|LevelError|]
-  lift LevelFatal = [|LevelFatal|]
-  lift (LevelOther x) = [|LevelOther $ pack $(lift $ unpack x)|]
-
-  liftTyped LevelTrace = [||LevelTrace||]
-  liftTyped LevelDebug = [||LevelDebug||]
-  liftTyped LevelInfo = [||LevelInfo||]
-  liftTyped LevelWarn = [||LevelWarn||]
-  liftTyped LevelError = [||LevelError||]
-  liftTyped LevelFatal = [||LevelFatal||]
-  liftTyped (LevelOther x) = [||LevelOther $ pack $$(liftTyped $ unpack x)||]
+-- | Produces a formatted 'LogStr' in terms of:
+--
+-- - Static Concurrent.
+-- - Dynamic Time.
+--
+-- __Example__
+--
+-- @
+-- -- [timestamp][thread_label][code_loc][level] msg
+-- [2022-02-08 10:20:05][thread-label][filename:1:2][Warn] msg
+-- @
+--
+-- @since 0.1
+formatLog ::
+  forall msg es.
+  ( Concurrent :> es,
+    HasCallStack,
+    Time :> es,
+    ToLogStr msg
+  ) =>
+  -- | Formatter to use.
+  LogFormatter ->
+  -- | The level in which to log.
+  LogLevel ->
+  -- | Message.
+  msg ->
+  -- | Formatted LogStr.
+  Eff es LogStr
+formatLog = Utils.formatLog Nothing
 
 -- | @since 0.1
 logTH :: LogLevel -> Q Exp

@@ -74,12 +74,6 @@ jobs:
         run: cabal test logger-effectful --test-options '--hedgehog-tests 100000'
         # yamllint enable
 
-      - name: Build logger-ns-effectful
-        run: cabal build logger-ns-effectful
-
-      - name: Test logger-ns-effectful
-        run: cabal test logger-ns-effectful
-
       - name: Build optparse-effectful
         run: cabal build optparse-effectful
 
@@ -170,9 +164,6 @@ jobs:
 
       - name: Build logger-effectful
         run: nix build -Lv .#logger-effectful
-
-      - name: Build logger-ns-effectful
-        run: nix build -Lv .#logger-ns-effectful
 
       - name: Build optparse-effectful
         run: nix build -Lv .#optparse-effectful

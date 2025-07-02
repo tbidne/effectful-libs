@@ -1,22 +1,21 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
-module Effectful.LoggerNS.Utils
+module Effectful.Logger.Utils
   ( -- * Namespace
     Namespace (..),
     displayNamespace,
+
+    -- * Levels
+    LogLevel (..),
 
     -- * Formatter
     LogFormatter (..),
     defaultLogFormatter,
     LocStrategy (..),
     formatLog,
-
-    -- * Optics
-    _LocPartial,
-    _LocStable,
-    _LocNone,
 
     -- * Misc
     logStrToText,
@@ -44,17 +43,6 @@ import Effectful.Concurrent qualified as CC
 #if MIN_VERSION_base(4, 18, 0)
 import Effectful.Concurrent.Static qualified as Thread
 #endif
-import Effectful.Logger.Dynamic
-  ( LogLevel
-      ( LevelDebug,
-        LevelError,
-        LevelFatal,
-        LevelInfo,
-        LevelOther,
-        LevelTrace,
-        LevelWarn
-      ),
-  )
 import Effectful.Time.Dynamic (Time)
 import Effectful.Time.Dynamic qualified as Time
 import GHC.Generics (Generic)
@@ -65,14 +53,13 @@ import GHC.Exts (IsList (Item, fromList, toList))
 #endif
 import GHC.Stack (HasCallStack)
 import Language.Haskell.TH (Loc (loc_filename, loc_start))
+import Language.Haskell.TH.Syntax (Lift (lift, liftTyped))
 import Optics.Core
   ( A_Lens,
     An_Iso,
     LabelOptic (labelOptic),
-    Prism',
     iso,
     lensVL,
-    prism,
     view,
     (%),
     (^.),
@@ -157,39 +144,6 @@ data LocStrategy
       -- | @since 0.1
       Show
     )
-
--- | @since 0.1
-_LocPartial :: Prism' LocStrategy Loc
-_LocPartial =
-  prism
-    LocPartial
-    ( \case
-        LocPartial loc -> Right loc
-        x -> Left x
-    )
-{-# INLINE _LocPartial #-}
-
--- | @since 0.1
-_LocStable :: Prism' LocStrategy Loc
-_LocStable =
-  prism
-    LocStable
-    ( \case
-        LocStable loc -> Right loc
-        x -> Left x
-    )
-{-# INLINE _LocStable #-}
-
--- | @since 0.1
-_LocNone :: Prism' LocStrategy ()
-_LocNone =
-  prism
-    (const LocNone)
-    ( \case
-        LocNone -> Right ()
-        x -> Left x
-    )
-{-# INLINE _LocNone #-}
 
 -- | Formatter for logs.
 --
@@ -294,13 +248,16 @@ formatLog ::
     Time :> es,
     ToLogStr msg
   ) =>
-  Namespace ->
+  Maybe Namespace ->
   LogFormatter ->
   LogLevel ->
   msg ->
   Eff es LogStr
-formatLog namespace formatter lvl msg = do
+formatLog mNamespace formatter lvl msg = do
   timestampTxt <- timeFn
+  let namespaceTxt = case mNamespace of
+        Nothing -> ""
+        Just namespace -> brackets $ toLogStr $ displayNamespace namespace
   threadLbl <-
     if formatter ^. #threadLabel
       then getThreadLabel
@@ -309,7 +266,6 @@ formatLog namespace formatter lvl msg = do
         LocPartial loc -> (brackets . toLogStr . partialLoc) loc
         LocStable loc -> (brackets . toLogStr . stableLoc) loc
         LocNone -> ""
-      namespaceTxt = toLogStr $ displayNamespace namespace
       lvlTxt = toLogStr $ showLevel lvl
       msgTxt = toLogStr msg
       newline'
@@ -319,7 +275,7 @@ formatLog namespace formatter lvl msg = do
         mconcat
           [ brackets timestampTxt,
             threadLbl,
-            brackets namespaceTxt,
+            namespaceTxt,
             locTxt,
             brackets lvlTxt,
             " ",
@@ -390,3 +346,54 @@ logStrToBs = FL.fromLogStr
 -- | @since 0.1
 logStrToText :: LogStr -> Text
 logStrToText = TEnc.decodeUtf8With TEncError.lenientDecode . FL.fromLogStr
+
+-- | @since 0.1
+data LogLevel
+  = -- | @since 0.1
+    LevelTrace
+  | -- | @since 0.1
+    LevelDebug
+  | -- | @since 0.1
+    LevelInfo
+  | -- | @since 0.1
+    LevelWarn
+  | -- | @since 0.1
+    LevelError
+  | -- | @since 0.1
+    LevelFatal
+  | -- | @since 0.1
+    LevelOther Text
+  deriving stock
+    ( -- | @since 0.1
+      Eq,
+      -- | @since 0.1
+      Generic,
+      -- | @since 0.1
+      Show,
+      -- | @since 0.1
+      Read,
+      -- | @since 0.1
+      Ord
+    )
+  deriving anyclass
+    ( -- | @since 0.1
+      NFData
+    )
+
+-- | @since 0.1
+instance Lift LogLevel where
+  lift LevelTrace = [|LevelTrace|]
+  lift LevelDebug = [|LevelDebug|]
+  lift LevelInfo = [|LevelInfo|]
+  lift LevelWarn = [|LevelWarn|]
+  lift LevelError = [|LevelError|]
+  lift LevelFatal = [|LevelFatal|]
+  lift (LevelOther x) = [|LevelOther $ pack $(lift $ T.unpack x)|]
+
+  liftTyped LevelTrace = [||LevelTrace||]
+  liftTyped LevelDebug = [||LevelDebug||]
+  liftTyped LevelInfo = [||LevelInfo||]
+  liftTyped LevelWarn = [||LevelWarn||]
+  liftTyped LevelError = [||LevelError||]
+  liftTyped LevelFatal = [||LevelFatal||]
+  liftTyped (LevelOther x) = [||LevelOther $ T.pack $$(liftTyped $ T.unpack x)||]

@@ -10,7 +10,6 @@ if os(windows)
     ./lib/fs-effectful
     ./lib/ioref-effectful
     ./lib/logger-effectful
-    ./lib/logger-ns-effectful
     ./lib/optparse-effectful
     ./lib/stm-effectful
     ./lib/terminal-effectful
@@ -27,7 +26,6 @@ else
     ./lib/fs-effectful
     ./lib/ioref-effectful
     ./lib/logger-effectful
-    ./lib/logger-ns-effectful
     ./lib/optparse-effectful
     ./lib/stm-effectful
     ./lib/terminal-effectful
