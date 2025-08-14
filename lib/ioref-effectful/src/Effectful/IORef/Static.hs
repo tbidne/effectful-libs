@@ -7,8 +7,10 @@ module Effectful.IORef.Static
   ( -- * Effect
     IORefE,
     newIORef,
+    newIORef',
     readIORef,
     writeIORef,
+    writeIORef',
     modifyIORef',
     atomicModifyIORef',
 
@@ -23,6 +25,7 @@ module Effectful.IORef.Static
   )
 where
 
+import Control.Monad ((>=>))
 import Data.IORef (IORef)
 import Data.IORef qualified as IORef
 import Effectful
@@ -39,6 +42,7 @@ import Effectful.Dispatch.Static
     evalStaticRep,
     unsafeEff_,
   )
+import Effectful.Exception (evaluate)
 
 -- | Static effect for 'IORef'.
 --
@@ -61,6 +65,12 @@ runIORef = evalStaticRep MkIORefEtatic
 newIORef :: (IORefE :> es) => a -> Eff es (IORef a)
 newIORef = unsafeEff_ . IORef.newIORef
 
+-- | Evaluates a to WHNF then calls 'newIORef'.
+--
+-- @since 0.1
+newIORef' :: (IORefE :> es) => a -> Eff es (IORef a)
+newIORef' = evaluate >=> newIORef
+
 -- | Lifted 'IORef.readIORef'.
 --
 -- @since 0.1
@@ -72,6 +82,12 @@ readIORef = unsafeEff_ . IORef.readIORef
 -- @since 0.1
 writeIORef :: (IORefE :> es) => IORef a -> a -> Eff es ()
 writeIORef ref = unsafeEff_ . IORef.writeIORef ref
+
+-- | Evaluates a to WHNF before calling 'writeIORef'.
+--
+-- @since 0.1
+writeIORef' :: (IORefE :> es) => IORef a -> a -> Eff es ()
+writeIORef' ref = evaluate >=> writeIORef ref
 
 -- | Lifted 'IORef.modifyIORef''.
 --
