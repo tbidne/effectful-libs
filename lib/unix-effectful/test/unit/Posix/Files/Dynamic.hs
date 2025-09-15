@@ -1,18 +1,18 @@
 {-# LANGUAGE QuasiQuotes #-}
 
-module Posix.Static (tests) where
+module Posix.Files.Dynamic (tests) where
 
 import Control.Exception.Utils (trySync)
 import Effectful (Eff, IOE, runEff)
-import Effectful.Posix.Static
+import Effectful.Posix.Files.Dynamic
   ( PathType
       ( PathTypeDirectory,
         PathTypeFile,
         PathTypeSymbolicLink
       ),
-    Posix,
+    PosixFiles,
   )
-import Effectful.Posix.Static qualified as PC
+import Effectful.Posix.Files.Dynamic qualified as PC
 import FileSystem.IO qualified as IO
 import FileSystem.OsPath (OsPath, osp, (</>))
 import System.Directory.OsPath qualified as Dir
@@ -23,7 +23,7 @@ import Test.Tasty.HUnit (assertBool, assertFailure, testCase, (@=?))
 tests :: IO OsPath -> TestTree
 tests getTmpDir =
   testGroup
-    "Posix.Static"
+    "Posix.Files.Dynamic"
     [ pathTypeTests getTmpDir
     ]
 
@@ -171,5 +171,5 @@ throwIfNoEx m = do
     Left _ -> pure ()
     Right _ -> assertFailure "Expected exception, received none"
 
-runEffPosix :: Eff '[Posix, IOE] a -> IO a
-runEffPosix = runEff . PC.runPosix
+runEffPosix :: Eff '[PosixFiles, IOE] a -> IO a
+runEffPosix = runEff . PC.runPosixFiles

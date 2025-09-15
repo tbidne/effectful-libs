@@ -9,10 +9,10 @@ import Effectful
   )
 import Effectful.FileSystem.PathReader.Static (PathReader)
 import Effectful.FileSystem.PathReader.Static qualified as PR
-import Effectful.Posix.Static (Posix)
-import Effectful.Posix.Static qualified as P
-import Effectful.PosixCompat.Static (PosixCompat)
-import Effectful.PosixCompat.Static qualified as PC
+import Effectful.Posix.Files.Static (PosixFiles)
+import Effectful.Posix.Files.Static qualified as P
+import Effectful.PosixCompat.Files.Static (PosixCompatFiles)
+import Effectful.PosixCompat.Files.Static qualified as PC
 import FileSystem.OsPath (OsPath, combineFilePaths, osp, (</>))
 import System.OsString.Internal.Types (OsString (getOsString), PosixString)
 import Test.Tasty.Bench
@@ -111,8 +111,8 @@ cfp = combineFilePaths
 runEffPathReader :: Eff '[PathReader, IOE] a -> IO a
 runEffPathReader = runEff . PR.runPathReader
 
-runEffPosix :: Eff '[Posix, IOE] a -> IO a
-runEffPosix = runEff . P.runPosix
+runEffPosix :: Eff '[PosixFiles, IOE] a -> IO a
+runEffPosix = runEff . P.runPosixFiles
 
-runEffPosixCompat :: Eff '[PosixCompat, IOE] a -> IO a
-runEffPosixCompat = runEff . PC.runPosixCompat
+runEffPosixCompat :: Eff '[PosixCompatFiles, IOE] a -> IO a
+runEffPosixCompat = runEff . PC.runPosixFilesCompat

@@ -1,17 +1,17 @@
-module PosixCompat.Dynamic (tests) where
+module PosixCompat.Files.Dynamic (tests) where
 
 import Control.Exception.Utils (trySync)
 import Data.ByteString qualified as BS
 import Effectful (Eff, IOE, runEff)
-import Effectful.PosixCompat.Dynamic
+import Effectful.PosixCompat.Files.Dynamic
   ( PathType
       ( PathTypeDirectory,
         PathTypeFile,
         PathTypeSymbolicLink
       ),
-    PosixCompat,
+    PosixCompatFiles,
   )
-import Effectful.PosixCompat.Dynamic qualified as PC
+import Effectful.PosixCompat.Files.Dynamic qualified as PC
 import System.Directory qualified as Dir
 import System.FilePath ((</>))
 import Test.Tasty (TestTree, testGroup)
@@ -20,7 +20,7 @@ import Test.Tasty.HUnit (assertBool, assertFailure, testCase, (@=?))
 tests :: IO FilePath -> TestTree
 tests getTmpDir =
   testGroup
-    "PosixCompat.Dynamic"
+    "PosixCompat.Files.Dynamic"
     [ pathTypeTests getTmpDir
     ]
 
@@ -168,5 +168,5 @@ throwIfNoEx m = do
     Left _ -> pure ()
     Right _ -> assertFailure "Expected exception, received none"
 
-runEffPosix :: Eff '[PosixCompat, IOE] a -> IO a
-runEffPosix = runEff . PC.runPosixCompat
+runEffPosix :: Eff '[PosixCompatFiles, IOE] a -> IO a
+runEffPosix = runEff . PC.runPosixFilesCompat

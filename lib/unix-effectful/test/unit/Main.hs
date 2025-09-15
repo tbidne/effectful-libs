@@ -4,8 +4,8 @@ module Main (main) where
 
 import Control.Monad (when)
 import FileSystem.OsPath (OsPath, osp, (</>))
-import Posix.Dynamic qualified
-import Posix.Static qualified
+import Posix.Files.Dynamic qualified
+import Posix.Files.Static qualified
 import System.Directory.OsPath qualified as Dir
 import System.Environment.Guard (ExpectEnv (ExpectEnvSet), guardOrElse')
 import Test.Tasty (defaultMain, testGroup, withResource)
@@ -16,8 +16,8 @@ main =
     withResource setup teardown $ \dirs ->
       testGroup
         "Unit Tests"
-        [ Posix.Dynamic.tests ((\(_, d, _) -> d) <$> dirs),
-          Posix.Static.tests ((\(_, _, s) -> s) <$> dirs)
+        [ Posix.Files.Dynamic.tests ((\(_, d, _) -> d) <$> dirs),
+          Posix.Files.Static.tests ((\(_, _, s) -> s) <$> dirs)
         ]
 
 setup :: IO (OsPath, OsPath, OsPath)

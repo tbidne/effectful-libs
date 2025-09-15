@@ -44,8 +44,8 @@ common common-lang
 library
   import:          common-lang
   exposed-modules:
-    Effectful.PosixCompat.Dynamic
-    Effectful.PosixCompat.Static
+    Effectful.PosixCompat.Files.Dynamic
+    Effectful.PosixCompat.Files.Static
 
   build-depends:
     , base             >=4.16.0.0 && <4.22
@@ -61,8 +61,8 @@ test-suite unit
   type:           exitcode-stdio-1.0
   main-is:        Main.hs
   other-modules:
-    PosixCompat.Dynamic
-    PosixCompat.Static
+    PosixCompat.Files.Dynamic
+    PosixCompat.Files.Static
 
   build-depends:
     , base

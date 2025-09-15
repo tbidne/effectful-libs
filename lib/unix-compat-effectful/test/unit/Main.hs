@@ -1,8 +1,8 @@
 module Main (main) where
 
 import Control.Monad (when)
-import PosixCompat.Dynamic qualified
-import PosixCompat.Static qualified
+import PosixCompat.Files.Dynamic qualified
+import PosixCompat.Files.Static qualified
 import System.Directory qualified as Dir
 import System.Environment.Guard (ExpectEnv (ExpectEnvSet), guardOrElse')
 import System.FilePath ((</>))
@@ -14,8 +14,8 @@ main =
     withResource setup teardown $ \dirs ->
       testGroup
         "Unit Tests"
-        [ PosixCompat.Dynamic.tests ((\(_, d, _) -> d) <$> dirs),
-          PosixCompat.Static.tests ((\(_, _, s) -> s) <$> dirs)
+        [ PosixCompat.Files.Dynamic.tests ((\(_, d, _) -> d) <$> dirs),
+          PosixCompat.Files.Static.tests ((\(_, _, s) -> s) <$> dirs)
         ]
 
 -- NOTE: FilePath and not OsPath as the unix-compat API uses FilePath.
