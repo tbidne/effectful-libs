@@ -39,7 +39,10 @@ library
   exposed-modules:
     Effectful.Posix.Files.Dynamic
     Effectful.Posix.Files.Static
+    Effectful.Posix.Signals.Dynamic
+    Effectful.Posix.Signals.Static
 
+  other-modules:   Effectful.Posix.Signals.Handler
   build-depends:
     , base             >=4.16.0.0 && <4.22
     , effectful-core   >=2.5.0.0  && <2.6
