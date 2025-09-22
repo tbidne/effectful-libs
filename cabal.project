@@ -1,4 +1,4 @@
-index-state: hackage.haskell.org 2025-01-15T20:10:46Z
+index-state: 2025-09-21T21:31:06Z
 
 -- windows cannot build unix package
 if os(windows)
@@ -11,6 +11,7 @@ if os(windows)
     ./lib/ioref-effectful
     ./lib/logger-effectful
     ./lib/optparse-effectful
+    ./lib/process-dynamic-effectful
     ./lib/stm-effectful
     ./lib/terminal-effectful
     ./lib/time-effectful
@@ -27,6 +28,7 @@ else
     ./lib/ioref-effectful
     ./lib/logger-effectful
     ./lib/optparse-effectful
+    ./lib/process-dynamic-effectful
     ./lib/stm-effectful
     ./lib/terminal-effectful
     ./lib/time-effectful

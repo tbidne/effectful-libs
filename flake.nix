@@ -75,6 +75,7 @@
                 ioref-effectful = ./lib/ioref-effectful;
                 logger-effectful = ./lib/logger-effectful;
                 optparse-effectful = ./lib/optparse-effectful;
+                process-dynamic-effectful = ./lib/process-dynamic-effectful;
                 stm-effectful = ./lib/stm-effectful;
                 terminal-effectful = ./lib/terminal-effectful;
                 concurrent-effectful = ./lib/concurrent-effectful;
@@ -91,6 +92,7 @@
             p.ioref-effectful
             p.logger-effectful
             p.optparse-effectful
+            p.process-dynamic-effectful
             p.stm-effectful
             p.terminal-effectful
             p.concurrent-effectful
@@ -134,6 +136,11 @@
             ioref-effectful = ./lib/ioref-effectful;
             unix-compat-effectful = ./lib/unix-compat-effectful;
           };
+          packages.process-dynamic-effectful =
+            mkPkg "process-dynamic-effectful" ./lib/process-dynamic-effectful
+              {
+                effectful-utils = ./lib/effectful-utils;
+              };
           packages.stm-effectful = mkPkg "stm-effectful" ./lib/stm-effectful { };
           packages.terminal-effectful = mkPkg "terminal-effectful" ./lib/terminal-effectful {
             effectful-utils = ./lib/effectful-utils;

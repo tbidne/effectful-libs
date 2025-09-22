@@ -31,14 +31,11 @@ cradle:
     - path: "./lib/logger-effectful/test/unit"
       component: "logger-effectful:test:unit"
 
-    - path: "./lib/logger-ns-effectful/src"
-      component: "lib:logger-ns-effectful"
-
-    - path: "./lib/logger-ns-effectful/test/unit"
-      component: "logger-ns-effectful:test:unit"
-
     - path: "./lib/optparse-effectful/src"
       component: "lib:optparse-effectful"
+
+    - path: "./lib/process-dynamic-effectful/src"
+      component: "lib:typed-process-dynamic-effectful"
 
     - path: "./lib/stm-effectful/src"
       component: "lib:stm-effectful"
