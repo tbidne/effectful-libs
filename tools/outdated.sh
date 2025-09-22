@@ -4,6 +4,7 @@ export LANG="C.UTF-8"
 
 export dirs="lib/effectful-utils lib/*-effectful"
 
+any_outdated=0
 for d in $dirs; do
   echo "$d"
   cd "$d"

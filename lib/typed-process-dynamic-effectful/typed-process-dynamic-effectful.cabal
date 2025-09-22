@@ -52,7 +52,7 @@ library
   build-depends:
     , base             >=4.16.0.0  && <4.22
     , bytestring       >=0.10.12.0 && <0.13
-    , effectful-core   >=2.5.0.0   && <2.6
+    , effectful-core   >=2.5.0.0   && <2.7
     , effectful-utils  ^>=0.1
     , typed-process    >=0.1.0.0   && <0.3
 
