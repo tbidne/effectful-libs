@@ -5,3 +5,4 @@ ignore-from-file: .gitignore
 
 rules:
   braces: disable
+  line-length: disable

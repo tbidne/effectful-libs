@@ -38,9 +38,7 @@ jobs:
           ghc-version: ${{ matrix.ghc }}
 
       - name: Configure
-        # yamllint disable rule:line-length
         run: cabal configure --enable-tests --ghc-options='-Wno-deprecations -Werror'
-        # yamllint enable
 
       - name: Build concurrent-effectful
         run: cabal build concurrent-effectful
@@ -67,9 +65,7 @@ jobs:
         run: cabal build logger-effectful
 
       - name: Test logger-effectful
-        # yamllint disable rule:line-length
         run: cabal test logger-effectful --test-options '--hedgehog-tests 100000'
-        # yamllint enable
 
       - name: Build optparse-effectful
         run: cabal build optparse-effectful
@@ -109,7 +105,6 @@ jobs:
       - name: Benchmark fs-unix
         if: ${{ matrix.os == 'ubuntu-latest' }}
         id: bench
-        # yamllint disable rule:line-length
         run: |
           cabal bench --enable-benchmarks fs-unix:benchmark:benchmarks --benchmark-options '
             +RTS -T -RTS -t100
@@ -118,7 +113,6 @@ jobs:
             --svg bench/bench_${{ matrix.os }}_${{ matrix.ghc }}_ci.svg
             --fail-if-slower 30
             --fail-if-faster 30'
-        # yamllint enable
 
       - uses: actions/upload-artifact@v4
         if: ${{ failure() && steps.bench.conclusion == 'failure' }}
@@ -201,3 +195,6 @@ jobs:
         run: |
           nix run .#format
           git diff --exit-code --color=always
+
+      - name: Linting
+        run: nix run .#lint

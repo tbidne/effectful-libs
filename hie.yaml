@@ -35,7 +35,7 @@ cradle:
       component: "lib:optparse-effectful"
 
     - path: "./lib/process-dynamic-effectful/src"
-      component: "lib:typed-process-dynamic-effectful"
+      component: "lib:process-dynamic-effectful"
 
     - path: "./lib/stm-effectful/src"
       component: "lib:stm-effectful"

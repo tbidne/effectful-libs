@@ -90,12 +90,12 @@ data HandleWriter :: Effect where
 instance ShowEffect HandleWriter where
   showEffectCons = \case
     OpenBinaryFile _ _ -> "OpenBinaryFile"
-    WithBinaryFile _ _ _ -> "WithBinaryFile"
+    WithBinaryFile {} -> "WithBinaryFile"
     HClose _ -> "HClose"
     HFlush _ -> "HFlush"
     HSetFileSize _ _ -> "HSetFileSize"
     HSetBuffering _ _ -> "HSetBuffering"
-    HSeek _ _ _ -> "HSeek"
+    HSeek {} -> "HSeek"
     HTell _ -> "HTell"
     HSetEcho _ _ -> "HSetEcho"
     HPut _ _ -> "HPut"

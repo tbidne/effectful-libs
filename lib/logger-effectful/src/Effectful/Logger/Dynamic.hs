@@ -184,7 +184,7 @@ type instance DispatchOf Logger = Dynamic
 -- | @since 0.1
 instance ShowEffect Logger where
   showEffectCons = \case
-    LoggerLog _ _ _ _ -> "LoggerLog"
+    LoggerLog {} -> "LoggerLog"
 
 -- | Writes a log.
 --
