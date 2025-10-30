@@ -8,6 +8,7 @@ if os(windows)
     ./lib/env-guard-effectful
     ./lib/environment-effectful
     ./lib/fs-effectful
+    ./lib/haskeline-effectful
     ./lib/ioref-effectful
     ./lib/logger-effectful
     ./lib/optparse-effectful
@@ -25,6 +26,7 @@ else
     ./lib/env-guard-effectful
     ./lib/environment-effectful
     ./lib/fs-effectful
+    ./lib/haskeline-effectful
     ./lib/ioref-effectful
     ./lib/logger-effectful
     ./lib/optparse-effectful
