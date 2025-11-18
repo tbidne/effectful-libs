@@ -9,15 +9,21 @@ module Effectful.IORef.Static
     newIORef,
     newIORef',
     readIORef,
+    readIORef',
     writeIORef,
     writeIORef',
+    atomicWriteIORef,
+    atomicWriteIORef',
+    modifyIORef,
     modifyIORef',
+    atomicModifyIORef,
     atomicModifyIORef',
 
     -- ** Handlers
     runIORef,
 
     -- * Utils
+    atomicModifyIORef_,
     atomicModifyIORef'_,
 
     -- * Re-exports
@@ -77,6 +83,12 @@ newIORef' = evaluate >=> newIORef
 readIORef :: (IORefE :> es) => IORef a -> Eff es a
 readIORef = unsafeEff_ . IORef.readIORef
 
+-- | Evaluates the result of 'readIORef' to WHNF.
+--
+-- @since 0.1
+readIORef' :: (IORefE :> es) => IORef a -> Eff es a
+readIORef' = readIORef >=> evaluate
+
 -- | Lifted 'IORef.writeIORef'.
 --
 -- @since 0.1
@@ -89,6 +101,16 @@ writeIORef ref = unsafeEff_ . IORef.writeIORef ref
 writeIORef' :: (IORefE :> es) => IORef a -> a -> Eff es ()
 writeIORef' ref = evaluate >=> writeIORef ref
 
+-- | Lifted 'IORef.modifyIORef'.
+--
+-- @since 0.1
+modifyIORef ::
+  (IORefE :> es) =>
+  IORef a ->
+  (a -> a) ->
+  Eff es ()
+modifyIORef ref = unsafeEff_ . IORef.modifyIORef ref
+
 -- | Lifted 'IORef.modifyIORef''.
 --
 -- @since 0.1
@@ -99,6 +121,18 @@ modifyIORef' ::
   Eff es ()
 modifyIORef' ref = unsafeEff_ . IORef.modifyIORef' ref
 
+-- | Lifted 'IORef.atomicWriteIORef'.
+--
+-- @since 0.1
+atomicWriteIORef :: (IORefE :> es) => IORef a -> a -> Eff es ()
+atomicWriteIORef ref = unsafeEff_ . IORef.atomicWriteIORef ref
+
+-- | Lifted 'IORef.atomicWriteIORef''.
+--
+-- @since 0.1
+atomicWriteIORef' :: (IORefE :> es) => IORef a -> a -> Eff es ()
+atomicWriteIORef' ref = evaluate >=> atomicWriteIORef ref
+
 -- | Lifted 'IORef.atomicModifyIORef''.
 --
 -- @since 0.1
@@ -108,6 +142,26 @@ atomicModifyIORef' ::
   (a -> (a, b)) ->
   Eff es b
 atomicModifyIORef' ref = unsafeEff_ . IORef.atomicModifyIORef' ref
+
+-- | Lifted 'IORef.atomicModifyIORef'.
+--
+-- @since 0.1
+atomicModifyIORef ::
+  (IORefE :> es) =>
+  IORef a ->
+  (a -> (a, b)) ->
+  Eff es b
+atomicModifyIORef ref = unsafeEff_ . IORef.atomicModifyIORef ref
+
+-- | Variant of 'atomicModifyIORef' which ignores the return value.
+--
+-- @since 0.1
+atomicModifyIORef_ ::
+  (IORefE :> es) =>
+  IORef a ->
+  (a -> a) ->
+  Eff es ()
+atomicModifyIORef_ ref f = atomicModifyIORef ref $ \a -> (f a, ())
 
 -- | Variant of 'atomicModifyIORef'' which ignores the return value.
 --
