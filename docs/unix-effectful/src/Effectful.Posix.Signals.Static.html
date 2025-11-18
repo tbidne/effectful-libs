@@ -1,0 +1,407 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# OPTIONS_GHC -Wno-redundant-constraints #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- | Provides a static effect for &quot;System.Posix.Signals&quot;.</span><span>
+</span><span id="line-4"></span><span class="hs-comment">--</span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html"><span class="hs-identifier">Effectful.Posix.Signals.Static</span></a></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- * Effect</span></span><span>
+</span><span id="line-8"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#PosixSignals"><span class="hs-identifier">PosixSignals</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-9"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#raiseSignal"><span class="hs-identifier">raiseSignal</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-10"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#signalProcess"><span class="hs-identifier">signalProcess</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-11"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#signalProcessGroup"><span class="hs-identifier">signalProcessGroup</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-12"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#installHandler"><span class="hs-identifier">installHandler</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-13"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#getSignalMask"><span class="hs-identifier">getSignalMask</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-14"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#setSignalMask"><span class="hs-identifier">setSignalMask</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-15"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#blockSignals"><span class="hs-identifier">blockSignals</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-16"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#unblockSignals"><span class="hs-identifier">unblockSignals</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-17"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#scheduleAlarm"><span class="hs-identifier">scheduleAlarm</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-18"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#getPendingSignals"><span class="hs-identifier">getPendingSignals</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-19"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#awaitSignal"><span class="hs-identifier">awaitSignal</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-20"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#setStoppedChildFlag"><span class="hs-identifier">setStoppedChildFlag</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-21"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#queryStoppedChildFlag"><span class="hs-identifier">queryStoppedChildFlag</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-22"></span><span>
+</span><span id="line-23"></span><span>    </span><span class="annot"><span class="hs-comment">-- ** Handler</span></span><span>
+</span><span id="line-24"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#runPosixSignals"><span class="hs-identifier">runPosixSignals</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-25"></span><span>
+</span><span id="line-26"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Posix Handler</span></span><span>
+</span><span id="line-27"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#Handler"><span class="hs-identifier">Handler</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-28"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#mapHandler"><span class="hs-identifier">Handler.mapHandler</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-29"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#handlerToPosix"><span class="hs-identifier">Handler.handlerToPosix</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-30"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#handlerFromPosix"><span class="hs-identifier">Handler.handlerFromPosix</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-31"></span><span>
+</span><span id="line-32"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Re-exports</span></span><span>
+</span><span id="line-33"></span><span>    </span><span class="annot"><span class="hs-identifier">Signal</span></span><span class="hs-special">,</span><span>
+</span><span id="line-34"></span><span>    </span><span class="annot"><span class="hs-identifier">SignalSet</span></span><span class="hs-special">,</span><span>
+</span><span id="line-35"></span><span>    </span><span class="annot"><span class="hs-identifier">ProcessID</span></span><span class="hs-special">,</span><span>
+</span><span id="line-36"></span><span>    </span><span class="annot"><span class="hs-identifier">ProcessGroupID</span></span><span class="hs-special">,</span><span>
+</span><span id="line-37"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-38"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-39"></span><span>
+</span><span id="line-40"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.html"><span class="hs-identifier">Effectful</span></a></span><span>
+</span><span id="line-41"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Env.html#Dispatch"><span class="hs-identifier">Dispatch</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Env.html#Static"><span class="hs-identifier">Static</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-42"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Env.html#DispatchOf"><span class="hs-identifier">DispatchOf</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-43"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier">Eff</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-44"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#Effect"><span class="hs-identifier">Effect</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-45"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#IOE"><span class="hs-identifier">IOE</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-46"></span><span>    </span><span class="hs-keyword">type</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator">(:&gt;)</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-47"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-48"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Dispatch.Static.html"><span class="hs-identifier">Effectful.Dispatch.Static</span></a></span><span>
+</span><span id="line-49"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-50"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Env.html#SideEffects"><span class="hs-identifier">SideEffects</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Env.html#WithSideEffects"><span class="hs-identifier">WithSideEffects</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-51"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#StaticRep"><span class="hs-identifier">StaticRep</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-52"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#evalStaticRep"><span class="hs-identifier">evalStaticRep</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-53"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#seqUnliftIO"><span class="hs-identifier">seqUnliftIO</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-54"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#unsafeEff"><span class="hs-identifier">unsafeEff</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-55"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#unsafeEff_"><span class="hs-identifier">unsafeEff_</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-56"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-57"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html"><span class="hs-identifier">Effectful.Posix.Signals.Handler</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#Handler"><span class="hs-identifier">Handler</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-58"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html"><span class="hs-identifier">Effectful.Posix.Signals.Handler</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Handler</span></span><span>
+</span><span id="line-59"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">System.Posix.Signals</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Signal</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">SignalSet</span></span><span class="hs-special">)</span><span>
+</span><span id="line-60"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">System.Posix.Signals</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Signals</span></span><span>
+</span><span id="line-61"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">System.Posix.Types</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">ProcessGroupID</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">ProcessID</span></span><span class="hs-special">)</span><span>
+</span><span id="line-62"></span><span>
+</span><span id="line-63"></span><span class="hs-comment">-- | Provides a static effect for &quot;System.Posix.Signals&quot;.</span><span>
+</span><span id="line-64"></span><span class="hs-comment">--</span><span>
+</span><span id="line-65"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-66"></span><span class="hs-keyword">data</span><span> </span><span id="PosixSignals"><span class="annot"><a href="Effectful.Posix.Signals.Static.html#PosixSignals"><span class="hs-identifier hs-var">PosixSignals</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#Effect"><span class="hs-identifier hs-type">Effect</span></a></span><span>
+</span><span id="line-67"></span><span>
+</span><span id="line-68"></span><span class="hs-keyword">type</span><span> </span><span class="hs-keyword">instance</span><span> </span><span id="DispatchOf"><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Env.html#DispatchOf"><span class="hs-identifier hs-var">DispatchOf</span></a></span></span><span> </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#PosixSignals"><span class="hs-identifier hs-type">PosixSignals</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Env.html#Static"><span class="hs-identifier hs-type">Static</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Env.html#WithSideEffects"><span class="hs-identifier hs-type">WithSideEffects</span></a></span><span>
+</span><span id="line-69"></span><span>
+</span><span id="line-70"></span><span class="hs-keyword">data</span><span> </span><span class="hs-keyword">instance</span><span> </span><span id="StaticRep"><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#StaticRep"><span class="hs-identifier hs-var">StaticRep</span></a></span></span><span> </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#PosixSignals"><span class="hs-identifier hs-type">PosixSignals</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="MkPosixSignals"><span class="annot"><a href="Effectful.Posix.Signals.Static.html#MkPosixSignals"><span class="hs-identifier hs-var">MkPosixSignals</span></a></span></span><span>
+</span><span id="line-71"></span><span>
+</span><span id="line-72"></span><span class="hs-comment">-- | Runs a PosixSignals effect.</span><span>
+</span><span id="line-73"></span><span class="hs-comment">--</span><span>
+</span><span id="line-74"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-75"></span><span id="local-6989586621679083725"><span id="local-6989586621679083728"><span class="annot"><a href="Effectful.Posix.Signals.Static.html#runPosixSignals"><span class="hs-identifier hs-type">runPosixSignals</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-76"></span><span>  </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#IOE"><span class="hs-identifier hs-type">IOE</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083725"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-77"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#PosixSignals"><span class="hs-identifier hs-type">PosixSignals</span></a></span><span> </span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span> </span><span class="annot"><a href="#local-6989586621679083725"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679083728"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-78"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083725"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083728"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-79"></span><span id="runPosixSignals"><span class="annot"><span class="annottext">runPosixSignals :: forall (es :: [Effect]) a.
+(HasCallStack, IOE :&gt; es) =&gt;
+Eff (PosixSignals : es) a -&gt; Eff es a
+</span><a href="Effectful.Posix.Signals.Static.html#runPosixSignals"><span class="hs-identifier hs-var hs-var">runPosixSignals</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">StaticRep PosixSignals -&gt; Eff (PosixSignals : es) a -&gt; Eff es a
+forall (e :: Effect) (sideEffects :: SideEffects) (es :: [Effect])
+       a.
+(HasCallStack, DispatchOf e ~ 'Static sideEffects,
+ MaybeIOE sideEffects es) =&gt;
+StaticRep e -&gt; Eff (e : es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#evalStaticRep"><span class="hs-identifier hs-var">evalStaticRep</span></a></span><span> </span><span class="annot"><span class="annottext">StaticRep PosixSignals
+</span><a href="Effectful.Posix.Signals.Static.html#MkPosixSignals"><span class="hs-identifier hs-var">MkPosixSignals</span></a></span><span>
+</span><span id="line-80"></span><span>
+</span><span id="line-81"></span><span class="hs-comment">-- | Lifted 'Signals.raiseSignal'.</span><span>
+</span><span id="line-82"></span><span class="hs-comment">--</span><span>
+</span><span id="line-83"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-84"></span><span id="local-6989586621679083746"><span class="annot"><a href="Effectful.Posix.Signals.Static.html#raiseSignal"><span class="hs-identifier hs-type">raiseSignal</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-85"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-86"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#PosixSignals"><span class="hs-identifier hs-type">PosixSignals</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083746"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-87"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-88"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">Signal</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-89"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083746"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-90"></span><span id="raiseSignal"><span class="annot"><span class="annottext">raiseSignal :: forall (es :: [Effect]).
+(HasCallStack, PosixSignals :&gt; es) =&gt;
+Signal -&gt; Eff es ()
+</span><a href="Effectful.Posix.Signals.Static.html#raiseSignal"><span class="hs-identifier hs-var hs-var">raiseSignal</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; Eff es ()
+forall a (es :: [Effect]). IO a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#unsafeEff_"><span class="hs-identifier hs-var">unsafeEff_</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; Eff es ()) -&gt; (Signal -&gt; IO ()) -&gt; Signal -&gt; Eff es ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Signal -&gt; IO ()
+</span><span class="hs-identifier hs-var">Signals.raiseSignal</span></span><span>
+</span><span id="line-91"></span><span>
+</span><span id="line-92"></span><span class="hs-comment">-- | Lifted 'Signals.signalProcess'.</span><span>
+</span><span id="line-93"></span><span class="hs-comment">--</span><span>
+</span><span id="line-94"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-95"></span><span id="local-6989586621679083754"><span class="annot"><a href="Effectful.Posix.Signals.Static.html#signalProcess"><span class="hs-identifier hs-type">signalProcess</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-96"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-97"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#PosixSignals"><span class="hs-identifier hs-type">PosixSignals</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083754"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-98"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-99"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">Signal</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-100"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">ProcessID</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-101"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083754"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-102"></span><span id="signalProcess"><span class="annot"><span class="annottext">signalProcess :: forall (es :: [Effect]).
+(HasCallStack, PosixSignals :&gt; es) =&gt;
+Signal -&gt; ProcessID -&gt; Eff es ()
+</span><a href="Effectful.Posix.Signals.Static.html#signalProcess"><span class="hs-identifier hs-var hs-var">signalProcess</span></a></span></span><span> </span><span id="local-6989586621679083834"><span class="annot"><span class="annottext">Signal
+</span><a href="#local-6989586621679083834"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; Eff es ()
+forall a (es :: [Effect]). IO a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#unsafeEff_"><span class="hs-identifier hs-var">unsafeEff_</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; Eff es ())
+-&gt; (ProcessID -&gt; IO ()) -&gt; ProcessID -&gt; Eff es ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Signal -&gt; ProcessID -&gt; IO ()
+</span><span class="hs-identifier hs-var">Signals.signalProcess</span></span><span> </span><span class="annot"><span class="annottext">Signal
+</span><a href="#local-6989586621679083834"><span class="hs-identifier hs-var">x1</span></a></span><span>
+</span><span id="line-103"></span><span>
+</span><span id="line-104"></span><span class="hs-comment">-- | Lifted 'Signals.signalProcessGroup'.</span><span>
+</span><span id="line-105"></span><span class="hs-comment">--</span><span>
+</span><span id="line-106"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-107"></span><span id="local-6989586621679083836"><span class="annot"><a href="Effectful.Posix.Signals.Static.html#signalProcessGroup"><span class="hs-identifier hs-type">signalProcessGroup</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-108"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-109"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#PosixSignals"><span class="hs-identifier hs-type">PosixSignals</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083836"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-110"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-111"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">Signal</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-112"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">ProcessGroupID</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-113"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083836"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-114"></span><span id="signalProcessGroup"><span class="annot"><span class="annottext">signalProcessGroup :: forall (es :: [Effect]).
+(HasCallStack, PosixSignals :&gt; es) =&gt;
+Signal -&gt; ProcessID -&gt; Eff es ()
+</span><a href="Effectful.Posix.Signals.Static.html#signalProcessGroup"><span class="hs-identifier hs-var hs-var">signalProcessGroup</span></a></span></span><span> </span><span id="local-6989586621679083839"><span class="annot"><span class="annottext">Signal
+</span><a href="#local-6989586621679083839"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; Eff es ()
+forall a (es :: [Effect]). IO a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#unsafeEff_"><span class="hs-identifier hs-var">unsafeEff_</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; Eff es ())
+-&gt; (ProcessID -&gt; IO ()) -&gt; ProcessID -&gt; Eff es ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Signal -&gt; ProcessID -&gt; IO ()
+</span><span class="hs-identifier hs-var">Signals.signalProcessGroup</span></span><span> </span><span class="annot"><span class="annottext">Signal
+</span><a href="#local-6989586621679083839"><span class="hs-identifier hs-var">x1</span></a></span><span>
+</span><span id="line-115"></span><span>
+</span><span id="line-116"></span><span class="hs-comment">-- | Lifted 'Signals.installHandler'.</span><span>
+</span><span id="line-117"></span><span class="hs-comment">--</span><span>
+</span><span id="line-118"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-119"></span><span id="local-6989586621679083758"><span class="annot"><a href="Effectful.Posix.Signals.Static.html#installHandler"><span class="hs-identifier hs-type">installHandler</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-120"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-121"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#PosixSignals"><span class="hs-identifier hs-type">PosixSignals</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083758"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-122"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-123"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">Signal</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-124"></span><span>  </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083758"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-125"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">SignalSet</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-126"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083758"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083758"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span></span><span>
+</span><span id="line-127"></span><span id="installHandler"><span class="annot"><span class="annottext">installHandler :: forall (es :: [Effect]).
+(HasCallStack, PosixSignals :&gt; es) =&gt;
+Signal
+-&gt; Handler (Eff es) -&gt; Maybe SignalSet -&gt; Eff es (Handler (Eff es))
+</span><a href="Effectful.Posix.Signals.Static.html#installHandler"><span class="hs-identifier hs-var hs-var">installHandler</span></a></span></span><span> </span><span id="local-6989586621679083847"><span class="annot"><span class="annottext">Signal
+</span><a href="#local-6989586621679083847"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span id="local-6989586621679083848"><span class="annot"><span class="annottext">Handler (Eff es)
+</span><a href="#local-6989586621679083848"><span class="hs-identifier hs-var">h</span></a></span></span><span> </span><span id="local-6989586621679083849"><span class="annot"><span class="annottext">Maybe SignalSet
+</span><a href="#local-6989586621679083849"><span class="hs-identifier hs-var">ms</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-128"></span><span>  </span><span class="annot"><span class="annottext">(Env es -&gt; IO (Handler (Eff es))) -&gt; Eff es (Handler (Eff es))
+forall (es :: [Effect]) a. (Env es -&gt; IO a) -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#unsafeEff"><span class="hs-identifier hs-var">unsafeEff</span></a></span><span> </span><span class="annot"><span class="annottext">((Env es -&gt; IO (Handler (Eff es))) -&gt; Eff es (Handler (Eff es)))
+-&gt; (Env es -&gt; IO (Handler (Eff es))) -&gt; Eff es (Handler (Eff es))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679083850"><span class="annot"><span class="annottext">Env es
+</span><a href="#local-6989586621679083850"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Env es
+-&gt; ((forall r. Eff es r -&gt; IO r) -&gt; IO (Handler (Eff es)))
+-&gt; IO (Handler (Eff es))
+forall (es :: [Effect]) a.
+HasCallStack =&gt;
+Env es -&gt; ((forall r. Eff es r -&gt; IO r) -&gt; IO a) -&gt; IO a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#seqUnliftIO"><span class="hs-identifier hs-var">seqUnliftIO</span></a></span><span> </span><span class="annot"><span class="annottext">Env es
+</span><a href="#local-6989586621679083850"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="annot"><span class="annottext">(((forall r. Eff es r -&gt; IO r) -&gt; IO (Handler (Eff es)))
+ -&gt; IO (Handler (Eff es)))
+-&gt; ((forall r. Eff es r -&gt; IO r) -&gt; IO (Handler (Eff es)))
+-&gt; IO (Handler (Eff es))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679083851"><span class="annot"><span class="annottext">forall r. Eff es r -&gt; IO r
+</span><a href="#local-6989586621679083851"><span class="hs-identifier hs-var">runInIO</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-129"></span><span>    </span><span class="annot"><span class="annottext">(Handler -&gt; Handler (Eff es))
+-&gt; IO Handler -&gt; IO (Handler (Eff es))
+forall a b. (a -&gt; b) -&gt; IO a -&gt; IO b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><span class="hs-identifier hs-var">fmap</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(forall x. IO x -&gt; Eff es x) -&gt; Handler IO -&gt; Handler (Eff es)
+forall (m :: * -&gt; *) (n :: * -&gt; *).
+(forall x. m x -&gt; n x) -&gt; Handler m -&gt; Handler n
+</span><a href="Effectful.Posix.Signals.Handler.html#mapHandler"><span class="hs-identifier hs-var">Handler.mapHandler</span></a></span><span> </span><span class="annot"><span class="annottext">IO x -&gt; Eff es x
+forall x. IO x -&gt; Eff es x
+forall a (es :: [Effect]). IO a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#unsafeEff_"><span class="hs-identifier hs-var">unsafeEff_</span></a></span><span> </span><span class="annot"><span class="annottext">(Handler IO -&gt; Handler (Eff es))
+-&gt; (Handler -&gt; Handler IO) -&gt; Handler -&gt; Handler (Eff es)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Handler -&gt; Handler IO
+</span><a href="Effectful.Posix.Signals.Handler.html#handlerFromPosix"><span class="hs-identifier hs-var">Handler.handlerFromPosix</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-130"></span><span>      </span><span class="annot"><span class="annottext">(IO Handler -&gt; IO (Handler (Eff es)))
+-&gt; (Handler (Eff es) -&gt; IO Handler)
+-&gt; Handler (Eff es)
+-&gt; IO (Handler (Eff es))
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679083852"><span class="annot"><span class="annottext">Handler
+</span><a href="#local-6989586621679083852"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Signal -&gt; Handler -&gt; Maybe SignalSet -&gt; IO Handler
+</span><span class="hs-identifier hs-var">Signals.installHandler</span></span><span> </span><span class="annot"><span class="annottext">Signal
+</span><a href="#local-6989586621679083847"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="annot"><span class="annottext">Handler
+</span><a href="#local-6989586621679083852"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe SignalSet
+</span><a href="#local-6989586621679083849"><span class="hs-identifier hs-var">ms</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-131"></span><span>      </span><span class="annot"><span class="annottext">(Handler -&gt; IO Handler)
+-&gt; (Handler (Eff es) -&gt; Handler) -&gt; Handler (Eff es) -&gt; IO Handler
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Handler IO -&gt; Handler
+</span><a href="Effectful.Posix.Signals.Handler.html#handlerToPosix"><span class="hs-identifier hs-var">Handler.handlerToPosix</span></a></span><span>
+</span><span id="line-132"></span><span>      </span><span class="annot"><span class="annottext">(Handler IO -&gt; Handler)
+-&gt; (Handler (Eff es) -&gt; Handler IO) -&gt; Handler (Eff es) -&gt; Handler
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(forall r. Eff es r -&gt; IO r) -&gt; Handler (Eff es) -&gt; Handler IO
+forall (m :: * -&gt; *) (n :: * -&gt; *).
+(forall x. m x -&gt; n x) -&gt; Handler m -&gt; Handler n
+</span><a href="Effectful.Posix.Signals.Handler.html#mapHandler"><span class="hs-identifier hs-var">Handler.mapHandler</span></a></span><span> </span><span class="annot"><span class="annottext">Eff es x -&gt; IO x
+forall r. Eff es r -&gt; IO r
+</span><a href="#local-6989586621679083851"><span class="hs-identifier hs-var">runInIO</span></a></span><span>
+</span><span id="line-133"></span><span>      </span><span class="annot"><span class="annottext">(Handler (Eff es) -&gt; IO (Handler (Eff es)))
+-&gt; Handler (Eff es) -&gt; IO (Handler (Eff es))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">Handler (Eff es)
+</span><a href="#local-6989586621679083848"><span class="hs-identifier hs-var">h</span></a></span><span>
+</span><span id="line-134"></span><span>
+</span><span id="line-135"></span><span class="hs-comment">-- | Lifted 'Signals.getSignalMask'.</span><span>
+</span><span id="line-136"></span><span class="hs-comment">--</span><span>
+</span><span id="line-137"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-138"></span><span id="local-6989586621679083782"><span class="annot"><a href="Effectful.Posix.Signals.Static.html#getSignalMask"><span class="hs-identifier hs-type">getSignalMask</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-139"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-140"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#PosixSignals"><span class="hs-identifier hs-type">PosixSignals</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083782"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-141"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-142"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083782"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">SignalSet</span></span></span><span>
+</span><span id="line-143"></span><span id="getSignalMask"><span class="annot"><span class="annottext">getSignalMask :: forall (es :: [Effect]).
+(HasCallStack, PosixSignals :&gt; es) =&gt;
+Eff es SignalSet
+</span><a href="Effectful.Posix.Signals.Static.html#getSignalMask"><span class="hs-identifier hs-var hs-var">getSignalMask</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO SignalSet -&gt; Eff es SignalSet
+forall a (es :: [Effect]). IO a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#unsafeEff_"><span class="hs-identifier hs-var">unsafeEff_</span></a></span><span> </span><span class="annot"><span class="annottext">IO SignalSet
+</span><span class="hs-identifier hs-var">Signals.getSignalMask</span></span><span>
+</span><span id="line-144"></span><span>
+</span><span id="line-145"></span><span class="hs-comment">-- | Lifted 'Signals.setSignalMask'.</span><span>
+</span><span id="line-146"></span><span class="hs-comment">--</span><span>
+</span><span id="line-147"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-148"></span><span id="local-6989586621679083784"><span class="annot"><a href="Effectful.Posix.Signals.Static.html#setSignalMask"><span class="hs-identifier hs-type">setSignalMask</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-149"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-150"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#PosixSignals"><span class="hs-identifier hs-type">PosixSignals</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083784"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-151"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-152"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">SignalSet</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-153"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083784"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-154"></span><span id="setSignalMask"><span class="annot"><span class="annottext">setSignalMask :: forall (es :: [Effect]).
+(HasCallStack, PosixSignals :&gt; es) =&gt;
+SignalSet -&gt; Eff es ()
+</span><a href="Effectful.Posix.Signals.Static.html#setSignalMask"><span class="hs-identifier hs-var hs-var">setSignalMask</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; Eff es ()
+forall a (es :: [Effect]). IO a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#unsafeEff_"><span class="hs-identifier hs-var">unsafeEff_</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; Eff es ())
+-&gt; (SignalSet -&gt; IO ()) -&gt; SignalSet -&gt; Eff es ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">SignalSet -&gt; IO ()
+</span><span class="hs-identifier hs-var">Signals.setSignalMask</span></span><span>
+</span><span id="line-155"></span><span>
+</span><span id="line-156"></span><span class="hs-comment">-- | Lifted 'Signals.blockSignals'.</span><span>
+</span><span id="line-157"></span><span class="hs-comment">--</span><span>
+</span><span id="line-158"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-159"></span><span id="local-6989586621679083860"><span class="annot"><a href="Effectful.Posix.Signals.Static.html#blockSignals"><span class="hs-identifier hs-type">blockSignals</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-160"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-161"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#PosixSignals"><span class="hs-identifier hs-type">PosixSignals</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083860"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-162"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-163"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">SignalSet</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-164"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083860"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-165"></span><span id="blockSignals"><span class="annot"><span class="annottext">blockSignals :: forall (es :: [Effect]).
+(HasCallStack, PosixSignals :&gt; es) =&gt;
+SignalSet -&gt; Eff es ()
+</span><a href="Effectful.Posix.Signals.Static.html#blockSignals"><span class="hs-identifier hs-var hs-var">blockSignals</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; Eff es ()
+forall a (es :: [Effect]). IO a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#unsafeEff_"><span class="hs-identifier hs-var">unsafeEff_</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; Eff es ())
+-&gt; (SignalSet -&gt; IO ()) -&gt; SignalSet -&gt; Eff es ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">SignalSet -&gt; IO ()
+</span><span class="hs-identifier hs-var">Signals.blockSignals</span></span><span>
+</span><span id="line-166"></span><span>
+</span><span id="line-167"></span><span class="hs-comment">-- | Lifted 'Signals.unblockSignals'.</span><span>
+</span><span id="line-168"></span><span class="hs-comment">--</span><span>
+</span><span id="line-169"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-170"></span><span id="local-6989586621679083864"><span class="annot"><a href="Effectful.Posix.Signals.Static.html#unblockSignals"><span class="hs-identifier hs-type">unblockSignals</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-171"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-172"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#PosixSignals"><span class="hs-identifier hs-type">PosixSignals</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083864"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-173"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-174"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">SignalSet</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-175"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083864"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-176"></span><span id="unblockSignals"><span class="annot"><span class="annottext">unblockSignals :: forall (es :: [Effect]).
+(HasCallStack, PosixSignals :&gt; es) =&gt;
+SignalSet -&gt; Eff es ()
+</span><a href="Effectful.Posix.Signals.Static.html#unblockSignals"><span class="hs-identifier hs-var hs-var">unblockSignals</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; Eff es ()
+forall a (es :: [Effect]). IO a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#unsafeEff_"><span class="hs-identifier hs-var">unsafeEff_</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; Eff es ())
+-&gt; (SignalSet -&gt; IO ()) -&gt; SignalSet -&gt; Eff es ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">SignalSet -&gt; IO ()
+</span><span class="hs-identifier hs-var">Signals.unblockSignals</span></span><span>
+</span><span id="line-177"></span><span>
+</span><span id="line-178"></span><span class="hs-comment">-- | Lifted 'Signals.scheduleAlarm'.</span><span>
+</span><span id="line-179"></span><span class="hs-comment">--</span><span>
+</span><span id="line-180"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-181"></span><span id="local-6989586621679083788"><span class="annot"><a href="Effectful.Posix.Signals.Static.html#scheduleAlarm"><span class="hs-identifier hs-type">scheduleAlarm</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-182"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-183"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#PosixSignals"><span class="hs-identifier hs-type">PosixSignals</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083788"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-184"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-185"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-186"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083788"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span></span><span>
+</span><span id="line-187"></span><span id="scheduleAlarm"><span class="annot"><span class="annottext">scheduleAlarm :: forall (es :: [Effect]).
+(HasCallStack, PosixSignals :&gt; es) =&gt;
+Int -&gt; Eff es Int
+</span><a href="Effectful.Posix.Signals.Static.html#scheduleAlarm"><span class="hs-identifier hs-var hs-var">scheduleAlarm</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO Int -&gt; Eff es Int
+forall a (es :: [Effect]). IO a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#unsafeEff_"><span class="hs-identifier hs-var">unsafeEff_</span></a></span><span> </span><span class="annot"><span class="annottext">(IO Int -&gt; Eff es Int) -&gt; (Int -&gt; IO Int) -&gt; Int -&gt; Eff es Int
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; IO Int
+</span><span class="hs-identifier hs-var">Signals.scheduleAlarm</span></span><span>
+</span><span id="line-188"></span><span>
+</span><span id="line-189"></span><span class="hs-comment">-- | Lifted 'Signals.getPendingSignals'.</span><span>
+</span><span id="line-190"></span><span class="hs-comment">--</span><span>
+</span><span id="line-191"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-192"></span><span id="local-6989586621679083871"><span class="annot"><a href="Effectful.Posix.Signals.Static.html#getPendingSignals"><span class="hs-identifier hs-type">getPendingSignals</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-193"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-194"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#PosixSignals"><span class="hs-identifier hs-type">PosixSignals</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083871"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-195"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-196"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083871"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">SignalSet</span></span></span><span>
+</span><span id="line-197"></span><span id="getPendingSignals"><span class="annot"><span class="annottext">getPendingSignals :: forall (es :: [Effect]).
+(HasCallStack, PosixSignals :&gt; es) =&gt;
+Eff es SignalSet
+</span><a href="Effectful.Posix.Signals.Static.html#getPendingSignals"><span class="hs-identifier hs-var hs-var">getPendingSignals</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO SignalSet -&gt; Eff es SignalSet
+forall a (es :: [Effect]). IO a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#unsafeEff_"><span class="hs-identifier hs-var">unsafeEff_</span></a></span><span> </span><span class="annot"><span class="annottext">IO SignalSet
+</span><span class="hs-identifier hs-var">Signals.getPendingSignals</span></span><span>
+</span><span id="line-198"></span><span>
+</span><span id="line-199"></span><span class="hs-comment">-- | Lifted 'Signals.awaitSignal'.</span><span>
+</span><span id="line-200"></span><span class="hs-comment">--</span><span>
+</span><span id="line-201"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-202"></span><span id="local-6989586621679083791"><span class="annot"><a href="Effectful.Posix.Signals.Static.html#awaitSignal"><span class="hs-identifier hs-type">awaitSignal</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-203"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-204"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#PosixSignals"><span class="hs-identifier hs-type">PosixSignals</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083791"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-205"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-206"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">SignalSet</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-207"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083791"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-208"></span><span id="awaitSignal"><span class="annot"><span class="annottext">awaitSignal :: forall (es :: [Effect]).
+(HasCallStack, PosixSignals :&gt; es) =&gt;
+Maybe SignalSet -&gt; Eff es ()
+</span><a href="Effectful.Posix.Signals.Static.html#awaitSignal"><span class="hs-identifier hs-var hs-var">awaitSignal</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; Eff es ()
+forall a (es :: [Effect]). IO a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#unsafeEff_"><span class="hs-identifier hs-var">unsafeEff_</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; Eff es ())
+-&gt; (Maybe SignalSet -&gt; IO ()) -&gt; Maybe SignalSet -&gt; Eff es ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Maybe SignalSet -&gt; IO ()
+</span><span class="hs-identifier hs-var">Signals.awaitSignal</span></span><span>
+</span><span id="line-209"></span><span>
+</span><span id="line-210"></span><span class="hs-comment">-- | Lifted 'Signals.setStoppedChildFlag'.</span><span>
+</span><span id="line-211"></span><span class="hs-comment">--</span><span>
+</span><span id="line-212"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-213"></span><span id="local-6989586621679083793"><span class="annot"><a href="Effectful.Posix.Signals.Static.html#setStoppedChildFlag"><span class="hs-identifier hs-type">setStoppedChildFlag</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-214"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-215"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#PosixSignals"><span class="hs-identifier hs-type">PosixSignals</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083793"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-216"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-217"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-218"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083793"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span><span>
+</span><span id="line-219"></span><span id="setStoppedChildFlag"><span class="annot"><span class="annottext">setStoppedChildFlag :: forall (es :: [Effect]).
+(HasCallStack, PosixSignals :&gt; es) =&gt;
+Bool -&gt; Eff es Bool
+</span><a href="Effectful.Posix.Signals.Static.html#setStoppedChildFlag"><span class="hs-identifier hs-var hs-var">setStoppedChildFlag</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO Bool -&gt; Eff es Bool
+forall a (es :: [Effect]). IO a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#unsafeEff_"><span class="hs-identifier hs-var">unsafeEff_</span></a></span><span> </span><span class="annot"><span class="annottext">(IO Bool -&gt; Eff es Bool)
+-&gt; (Bool -&gt; IO Bool) -&gt; Bool -&gt; Eff es Bool
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; IO Bool
+</span><span class="hs-identifier hs-var">Signals.setStoppedChildFlag</span></span><span>
+</span><span id="line-220"></span><span>
+</span><span id="line-221"></span><span class="hs-comment">-- | Lifted 'Signals.queryStoppedChildFlag'.</span><span>
+</span><span id="line-222"></span><span class="hs-comment">--</span><span>
+</span><span id="line-223"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-224"></span><span id="local-6989586621679083795"><span class="annot"><a href="Effectful.Posix.Signals.Static.html#queryStoppedChildFlag"><span class="hs-identifier hs-type">queryStoppedChildFlag</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-225"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-226"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Static.html#PosixSignals"><span class="hs-identifier hs-type">PosixSignals</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083795"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-227"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-228"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083795"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Bool</span></span></span><span>
+</span><span id="line-229"></span><span id="queryStoppedChildFlag"><span class="annot"><span class="annottext">queryStoppedChildFlag :: forall (es :: [Effect]).
+(HasCallStack, PosixSignals :&gt; es) =&gt;
+Eff es Bool
+</span><a href="Effectful.Posix.Signals.Static.html#queryStoppedChildFlag"><span class="hs-identifier hs-var hs-var">queryStoppedChildFlag</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO Bool -&gt; Eff es Bool
+forall a (es :: [Effect]). IO a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#unsafeEff_"><span class="hs-identifier hs-var">unsafeEff_</span></a></span><span> </span><span class="annot"><span class="annottext">IO Bool
+</span><span class="hs-identifier hs-var">Signals.queryStoppedChildFlag</span></span><span>
+</span><span id="line-230"></span></pre></body></html>

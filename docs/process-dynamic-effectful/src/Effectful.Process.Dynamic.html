@@ -1,0 +1,876 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE CPP #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- | Provides a dynamic effect for typed process.</span><span>
+</span><span id="line-4"></span><span class="hs-comment">--</span><span>
+</span><span id="line-5"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Effectful.Process.Dynamic.html"><span class="hs-identifier">Effectful.Process.Dynamic</span></a></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- * Effect</span></span><span>
+</span><span id="line-8"></span><span>    </span><span class="annot"><span class="hs-comment">-- $effect</span></span><span>
+</span><span id="line-9"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier">Process</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Handler</span></span><span>
+</span><span id="line-12"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#runProcess"><span class="hs-identifier">runProcess</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span>    </span><span class="annot"><span class="hs-comment">-- * API</span></span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span>    </span><span class="annot"><span class="hs-comment">-- ** Running sub-processes</span></span><span>
+</span><span id="line-17"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#createProcess"><span class="hs-identifier">createProcess</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-18"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#createProcess_"><span class="hs-identifier">createProcess_</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-19"></span><span>    </span><span class="annot"><span class="hs-identifier">EP.shell</span></span><span class="hs-special">,</span><span>
+</span><span id="line-20"></span><span>    </span><span class="annot"><span class="hs-identifier">EP.proc</span></span><span class="hs-special">,</span><span>
+</span><span id="line-21"></span><span>    </span><span class="annot"><span class="hs-identifier">EP.CreateProcess</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-22"></span><span>    </span><span class="annot"><span class="hs-identifier">EP.CmdSpec</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-23"></span><span>    </span><span class="annot"><span class="hs-identifier">EP.StdStream</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-24"></span><span>    </span><span class="annot"><span class="hs-identifier">EP.ProcessHandle</span></span><span class="hs-special">,</span><span>
+</span><span id="line-25"></span><span>
+</span><span id="line-26"></span><span>    </span><span class="annot"><span class="hs-comment">-- ** Simpler functions for common tasks</span></span><span>
+</span><span id="line-27"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#callProcess"><span class="hs-identifier">callProcess</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-28"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#callCommand"><span class="hs-identifier">callCommand</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-29"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#spawnProcess"><span class="hs-identifier">spawnProcess</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-30"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#spawnCommand"><span class="hs-identifier">spawnCommand</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-31"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#readCreateProcess"><span class="hs-identifier">readCreateProcess</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-32"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#readProcess"><span class="hs-identifier">readProcess</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-33"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#readCreateProcessWithExitCode"><span class="hs-identifier">readCreateProcessWithExitCode</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-34"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#readProcessWithExitCode"><span class="hs-identifier">readProcessWithExitCode</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-35"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#withCreateProcess"><span class="hs-identifier">withCreateProcess</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-36"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#cleanupProcess"><span class="hs-identifier">cleanupProcess</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-37"></span><span>
+</span><span id="line-38"></span><span>    </span><span class="annot"><span class="hs-comment">-- ** Related utilities</span></span><span>
+</span><span id="line-39"></span><span>    </span><span class="annot"><span class="hs-identifier">EP.showCommandForUser</span></span><span class="hs-special">,</span><span>
+</span><span id="line-40"></span><span>    </span><span class="annot"><span class="hs-identifier">Pid</span></span><span class="hs-special">,</span><span>
+</span><span id="line-41"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#getPid"><span class="hs-identifier">getPid</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-42"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#getCurrentPid"><span class="hs-identifier">getCurrentPid</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-43"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#waitForProcess"><span class="hs-identifier">waitForProcess</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-44"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#getProcessExitCode"><span class="hs-identifier">getProcessExitCode</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-45"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#terminateProcess"><span class="hs-identifier">terminateProcess</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-46"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#interruptProcessGroupOf"><span class="hs-identifier">interruptProcessGroupOf</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-47"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#createPipe"><span class="hs-identifier">createPipe</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-48"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.html#createPipeFd"><span class="hs-identifier">createPipeFd</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-49"></span><span>
+</span><span id="line-50"></span><span>    </span><span class="annot"><span class="hs-comment">-- ** Re-exports</span></span><span>
+</span><span id="line-51"></span><span>    </span><span class="annot"><span class="hs-identifier">FD</span></span><span class="hs-special">,</span><span>
+</span><span id="line-52"></span><span>    </span><span class="annot"><span class="hs-identifier">Handle</span></span><span class="hs-special">,</span><span>
+</span><span id="line-53"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-54"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-55"></span><span>
+</span><span id="line-56"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.html"><span class="hs-identifier">Effectful</span></a></span><span>
+</span><span id="line-57"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier">Eff</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-58"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#IOE"><span class="hs-identifier">IOE</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-59"></span><span>    </span><span class="hs-keyword">type</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator">(:&gt;)</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-60"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-61"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Dispatch.Dynamic.html"><span class="hs-identifier">Effectful.Dispatch.Dynamic</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Dispatch.Dynamic.html#localSeqUnlift"><span class="hs-identifier">localSeqUnlift</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Dispatch.Dynamic.html#reinterpret"><span class="hs-identifier">reinterpret</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier">send</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-62"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html"><span class="hs-identifier">Effectful.Process</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Pid</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">ProcessHandle</span></span><span class="hs-special">)</span><span>
+</span><span id="line-63"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html"><span class="hs-identifier">Effectful.Process</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">EP</span></span><span>
+</span><span id="line-64"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html"><span class="hs-identifier">Effectful.Process.Dynamic.Effect</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier">Process</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-65"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html"><span class="hs-identifier">Effectful.Process.Dynamic.Effect</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Effect</span></span><span>
+</span><span id="line-66"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">GHC.Stack</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">HasCallStack</span></span><span class="hs-special">)</span><span>
+</span><span id="line-67"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">System.Exit</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">ExitCode</span></span><span class="hs-special">)</span><span>
+</span><span id="line-68"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">System.IO</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Handle</span></span><span class="hs-special">)</span><span>
+</span><span id="line-69"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">System.Posix.Internals</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">FD</span></span><span class="hs-special">)</span><span>
+</span><span id="line-70"></span><span>
+</span><span id="line-71"></span><span class="hs-comment">-- $effect</span><span>
+</span><span id="line-72"></span><span class="hs-comment">--</span><span>
+</span><span id="line-73"></span><span class="hs-comment">-- The full definition for 'Process' is exported from</span><span>
+</span><span id="line-74"></span><span class="hs-comment">-- &quot;Effectful.Process.Dynamic.Effect&quot;, due to a name clash between some of</span><span>
+</span><span id="line-75"></span><span class="hs-comment">-- its constructors and process re-exports. Hence if you need the data</span><span>
+</span><span id="line-76"></span><span class="hs-comment">-- constructors, import that module qualified.</span><span>
+</span><span id="line-77"></span><span>
+</span><span id="line-78"></span><span class="hs-comment">-- | Runs 'Process' in 'IO'.</span><span>
+</span><span id="line-79"></span><span class="hs-comment">--</span><span>
+</span><span id="line-80"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-81"></span><span id="local-6989586621679068537"><span id="local-6989586621679068540"><span class="annot"><a href="Effectful.Process.Dynamic.html#runProcess"><span class="hs-identifier hs-type">runProcess</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#IOE"><span class="hs-identifier hs-type">IOE</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068537"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span> </span><span class="annot"><a href="#local-6989586621679068537"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679068540"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068537"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068540"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-82"></span><span id="runProcess"><span class="annot"><span class="annottext">runProcess :: forall (es :: [Effect]) a.
+(HasCallStack, IOE :&gt; es) =&gt;
+Eff (Process : es) a -&gt; Eff es a
+</span><a href="Effectful.Process.Dynamic.html#runProcess"><span class="hs-identifier hs-var hs-var">runProcess</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Eff (Process : es) a -&gt; Eff es a)
+-&gt; EffectHandler Process (Process : es)
+-&gt; Eff (Process : es) a
+-&gt; Eff es a
+forall (e :: Effect) (handlerEs :: [Effect]) a (es :: [Effect]) b.
+(HasCallStack, DispatchOf e ~ 'Dynamic) =&gt;
+(Eff handlerEs a -&gt; Eff es b)
+-&gt; EffectHandler e handlerEs -&gt; Eff (e : es) a -&gt; Eff es b
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Dispatch.Dynamic.html#reinterpret"><span class="hs-identifier hs-var">reinterpret</span></a></span><span> </span><span class="annot"><span class="annottext">Eff (Process : es) a -&gt; Eff es a
+forall (es :: [Effect]) a.
+(HasCallStack, IOE :&gt; es) =&gt;
+Eff (Process : es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#runProcess"><span class="hs-identifier hs-var">EP.runProcess</span></a></span><span> </span><span class="annot"><span class="annottext">(EffectHandler Process (Process : es)
+ -&gt; Eff (Process : es) a -&gt; Eff es a)
+-&gt; EffectHandler Process (Process : es)
+-&gt; Eff (Process : es) a
+-&gt; Eff es a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679068698"><span class="annot"><span class="annottext">LocalEnv localEs (Process : es)
+</span><a href="#local-6989586621679068698"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-83"></span><span>  </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#CreateProcess"><span class="hs-identifier hs-type">Effect.CreateProcess</span></a></span><span> </span><span id="local-6989586621679068702"><span class="annot"><span class="annottext">CreateProcess
+</span><a href="#local-6989586621679068702"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">CreateProcess
+-&gt; Eff
+     (Process : es)
+     (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+forall (es :: [Effect]).
+(Process :&gt; es) =&gt;
+CreateProcess
+-&gt; Eff es (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#createProcess"><span class="hs-identifier hs-var">EP.createProcess</span></a></span><span> </span><span class="annot"><span class="annottext">CreateProcess
+</span><a href="#local-6989586621679068702"><span class="hs-identifier hs-var">x1</span></a></span><span>
+</span><span id="line-84"></span><span>  </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#CreateProcess_"><span class="hs-identifier hs-type">Effect.CreateProcess_</span></a></span><span> </span><span id="local-6989586621679068707"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068707"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679068708"><span class="annot"><span class="annottext">CreateProcess
+</span><a href="#local-6989586621679068708"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; CreateProcess
+-&gt; Eff
+     (Process : es)
+     (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+forall (es :: [Effect]).
+(Process :&gt; es) =&gt;
+String
+-&gt; CreateProcess
+-&gt; Eff es (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#createProcess_"><span class="hs-identifier hs-var">EP.createProcess_</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068707"><span class="hs-identifier hs-var">x1</span></a></span><span> </span><span class="annot"><span class="annottext">CreateProcess
+</span><a href="#local-6989586621679068708"><span class="hs-identifier hs-var">x2</span></a></span><span>
+</span><span id="line-85"></span><span>  </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#CallProcess"><span class="hs-identifier hs-type">Effect.CallProcess</span></a></span><span> </span><span id="local-6989586621679068713"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068713"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679068714"><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679068714"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; [String] -&gt; Eff (Process : es) ()
+forall (es :: [Effect]).
+(Process :&gt; es) =&gt;
+String -&gt; [String] -&gt; Eff es ()
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#callProcess"><span class="hs-identifier hs-var">EP.callProcess</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068713"><span class="hs-identifier hs-var">x1</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679068714"><span class="hs-identifier hs-var">x2</span></a></span><span>
+</span><span id="line-86"></span><span>  </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#CallCommand"><span class="hs-identifier hs-type">Effect.CallCommand</span></a></span><span> </span><span id="local-6989586621679068719"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068719"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; Eff (Process : es) ()
+forall (es :: [Effect]). (Process :&gt; es) =&gt; String -&gt; Eff es ()
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#callCommand"><span class="hs-identifier hs-var">EP.callCommand</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068719"><span class="hs-identifier hs-var">x1</span></a></span><span>
+</span><span id="line-87"></span><span>  </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#SpawnProcess"><span class="hs-identifier hs-type">Effect.SpawnProcess</span></a></span><span> </span><span id="local-6989586621679068724"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068724"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679068725"><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679068725"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; [String] -&gt; Eff (Process : es) ProcessHandle
+forall (es :: [Effect]).
+(Process :&gt; es) =&gt;
+String -&gt; [String] -&gt; Eff es ProcessHandle
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#spawnProcess"><span class="hs-identifier hs-var">EP.spawnProcess</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068724"><span class="hs-identifier hs-var">x1</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679068725"><span class="hs-identifier hs-var">x2</span></a></span><span>
+</span><span id="line-88"></span><span>  </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#SpawnCommand"><span class="hs-identifier hs-type">Effect.SpawnCommand</span></a></span><span> </span><span id="local-6989586621679068730"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068730"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; Eff (Process : es) ProcessHandle
+forall (es :: [Effect]).
+(Process :&gt; es) =&gt;
+String -&gt; Eff es ProcessHandle
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#spawnCommand"><span class="hs-identifier hs-var">EP.spawnCommand</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068730"><span class="hs-identifier hs-var">x1</span></a></span><span>
+</span><span id="line-89"></span><span>  </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#ReadCreateProcess"><span class="hs-identifier hs-type">Effect.ReadCreateProcess</span></a></span><span> </span><span id="local-6989586621679068735"><span class="annot"><span class="annottext">CreateProcess
+</span><a href="#local-6989586621679068735"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679068736"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068736"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">CreateProcess -&gt; String -&gt; Eff (Process : es) String
+forall (es :: [Effect]).
+(Process :&gt; es) =&gt;
+CreateProcess -&gt; String -&gt; Eff es String
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#readCreateProcess"><span class="hs-identifier hs-var">EP.readCreateProcess</span></a></span><span> </span><span class="annot"><span class="annottext">CreateProcess
+</span><a href="#local-6989586621679068735"><span class="hs-identifier hs-var">x1</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068736"><span class="hs-identifier hs-var">x2</span></a></span><span>
+</span><span id="line-90"></span><span>  </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#ReadProcess"><span class="hs-identifier hs-type">Effect.ReadProcess</span></a></span><span> </span><span id="local-6989586621679068741"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068741"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679068742"><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679068742"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span id="local-6989586621679068743"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068743"><span class="hs-identifier hs-var">x3</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; [String] -&gt; String -&gt; Eff (Process : es) String
+forall (es :: [Effect]).
+(Process :&gt; es) =&gt;
+String -&gt; [String] -&gt; String -&gt; Eff es String
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#readProcess"><span class="hs-identifier hs-var">EP.readProcess</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068741"><span class="hs-identifier hs-var">x1</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679068742"><span class="hs-identifier hs-var">x2</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068743"><span class="hs-identifier hs-var">x3</span></a></span><span>
+</span><span id="line-91"></span><span>  </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#ReadCreateProcessWithExitCode"><span class="hs-identifier hs-type">Effect.ReadCreateProcessWithExitCode</span></a></span><span> </span><span id="local-6989586621679068748"><span class="annot"><span class="annottext">CreateProcess
+</span><a href="#local-6989586621679068748"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679068749"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068749"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">CreateProcess
+-&gt; String -&gt; Eff (Process : es) (ExitCode, String, String)
+forall (es :: [Effect]).
+(Process :&gt; es) =&gt;
+CreateProcess -&gt; String -&gt; Eff es (ExitCode, String, String)
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#readCreateProcessWithExitCode"><span class="hs-identifier hs-var">EP.readCreateProcessWithExitCode</span></a></span><span> </span><span class="annot"><span class="annottext">CreateProcess
+</span><a href="#local-6989586621679068748"><span class="hs-identifier hs-var">x1</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068749"><span class="hs-identifier hs-var">x2</span></a></span><span>
+</span><span id="line-92"></span><span>  </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#ReadProcessWithExitCode"><span class="hs-identifier hs-type">Effect.ReadProcessWithExitCode</span></a></span><span> </span><span id="local-6989586621679068754"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068754"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679068755"><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679068755"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span id="local-6989586621679068756"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068756"><span class="hs-identifier hs-var">x3</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; [String]
+-&gt; String
+-&gt; Eff (Process : es) (ExitCode, String, String)
+forall (es :: [Effect]).
+(Process :&gt; es) =&gt;
+String -&gt; [String] -&gt; String -&gt; Eff es (ExitCode, String, String)
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#readProcessWithExitCode"><span class="hs-identifier hs-var">EP.readProcessWithExitCode</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068754"><span class="hs-identifier hs-var">x1</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679068755"><span class="hs-identifier hs-var">x2</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068756"><span class="hs-identifier hs-var">x3</span></a></span><span>
+</span><span id="line-93"></span><span>  </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#WithCreateProcess"><span class="hs-identifier hs-type">Effect.WithCreateProcess</span></a></span><span> </span><span id="local-6989586621679068759"><span class="annot"><span class="annottext">CreateProcess
+</span><a href="#local-6989586621679068759"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679068760"><span class="annot"><span class="annottext">Maybe Handle
+-&gt; Maybe Handle -&gt; Maybe Handle -&gt; ProcessHandle -&gt; Eff localEs a
+</span><a href="#local-6989586621679068760"><span class="hs-identifier hs-var">onProcess</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LocalEnv localEs (Process : es)
+-&gt; ((forall r. Eff localEs r -&gt; Eff (Process : es) r)
+    -&gt; Eff (Process : es) a)
+-&gt; Eff (Process : es) a
+forall (es :: [Effect]) (handlerEs :: [Effect])
+       (localEs :: [Effect]) a.
+(HasCallStack, SharedSuffix es handlerEs) =&gt;
+LocalEnv localEs handlerEs
+-&gt; ((forall r. Eff localEs r -&gt; Eff es r) -&gt; Eff es a) -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Dispatch.Dynamic.html#localSeqUnlift"><span class="hs-identifier hs-var">localSeqUnlift</span></a></span><span> </span><span class="annot"><span class="annottext">LocalEnv localEs (Process : es)
+</span><a href="#local-6989586621679068698"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="annot"><span class="annottext">(((forall r. Eff localEs r -&gt; Eff (Process : es) r)
+  -&gt; Eff (Process : es) a)
+ -&gt; Eff (Process : es) a)
+-&gt; ((forall r. Eff localEs r -&gt; Eff (Process : es) r)
+    -&gt; Eff (Process : es) a)
+-&gt; Eff (Process : es) a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679068761"><span class="annot"><span class="annottext">forall r. Eff localEs r -&gt; Eff (Process : es) r
+</span><a href="#local-6989586621679068761"><span class="hs-identifier hs-var">unlift</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-94"></span><span>    </span><span class="annot"><span class="annottext">CreateProcess
+-&gt; (Maybe Handle
+    -&gt; Maybe Handle
+    -&gt; Maybe Handle
+    -&gt; ProcessHandle
+    -&gt; Eff (Process : es) a)
+-&gt; Eff (Process : es) a
+forall (es :: [Effect]) a.
+(Process :&gt; es) =&gt;
+CreateProcess
+-&gt; (Maybe Handle
+    -&gt; Maybe Handle -&gt; Maybe Handle -&gt; ProcessHandle -&gt; Eff es a)
+-&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#withCreateProcess"><span class="hs-identifier hs-var">EP.withCreateProcess</span></a></span><span> </span><span class="annot"><span class="annottext">CreateProcess
+</span><a href="#local-6989586621679068759"><span class="hs-identifier hs-var">x1</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679068763"><span class="annot"><span class="annottext">Maybe Handle
+</span><a href="#local-6989586621679068763"><span class="hs-identifier hs-var">y1</span></a></span></span><span> </span><span id="local-6989586621679068764"><span class="annot"><span class="annottext">Maybe Handle
+</span><a href="#local-6989586621679068764"><span class="hs-identifier hs-var">y2</span></a></span></span><span> </span><span id="local-6989586621679068765"><span class="annot"><span class="annottext">Maybe Handle
+</span><a href="#local-6989586621679068765"><span class="hs-identifier hs-var">y3</span></a></span></span><span> </span><span id="local-6989586621679068766"><span class="annot"><span class="annottext">ProcessHandle
+</span><a href="#local-6989586621679068766"><span class="hs-identifier hs-var">y4</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Eff localEs a -&gt; Eff (Process : es) a
+forall r. Eff localEs r -&gt; Eff (Process : es) r
+</span><a href="#local-6989586621679068761"><span class="hs-identifier hs-var">unlift</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe Handle
+-&gt; Maybe Handle -&gt; Maybe Handle -&gt; ProcessHandle -&gt; Eff localEs a
+</span><a href="#local-6989586621679068760"><span class="hs-identifier hs-var">onProcess</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Handle
+</span><a href="#local-6989586621679068763"><span class="hs-identifier hs-var">y1</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Handle
+</span><a href="#local-6989586621679068764"><span class="hs-identifier hs-var">y2</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe Handle
+</span><a href="#local-6989586621679068765"><span class="hs-identifier hs-var">y3</span></a></span><span> </span><span class="annot"><span class="annottext">ProcessHandle
+</span><a href="#local-6989586621679068766"><span class="hs-identifier hs-var">y4</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-95"></span><span>  </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#CleanupProcess"><span class="hs-identifier hs-type">Effect.CleanupProcess</span></a></span><span> </span><span id="local-6989586621679068770"><span class="annot"><span class="annottext">(Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+</span><a href="#local-6989586621679068770"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+-&gt; Eff (Process : es) ()
+forall (es :: [Effect]).
+(Process :&gt; es) =&gt;
+(Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+-&gt; Eff es ()
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#cleanupProcess"><span class="hs-identifier hs-var">EP.cleanupProcess</span></a></span><span> </span><span class="annot"><span class="annottext">(Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+</span><a href="#local-6989586621679068770"><span class="hs-identifier hs-var">x1</span></a></span><span>
+</span><span id="line-96"></span><span>  </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#GetPid"><span class="hs-identifier hs-type">Effect.GetPid</span></a></span><span> </span><span id="local-6989586621679068775"><span class="annot"><span class="annottext">ProcessHandle
+</span><a href="#local-6989586621679068775"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">ProcessHandle -&gt; Eff (Process : es) (Maybe Pid)
+forall (es :: [Effect]).
+(Process :&gt; es) =&gt;
+ProcessHandle -&gt; Eff es (Maybe Pid)
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#getPid"><span class="hs-identifier hs-var">EP.getPid</span></a></span><span> </span><span class="annot"><span class="annottext">ProcessHandle
+</span><a href="#local-6989586621679068775"><span class="hs-identifier hs-var">x1</span></a></span><span>
+</span><span id="line-97"></span><span>  </span><span class="annot"><span class="annottext">Process (Eff localEs) a
+</span><a href="Effectful.Process.Dynamic.Effect.html#GetCurrentPid"><span class="hs-identifier hs-var">Effect.GetCurrentPid</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Eff (Process : es) a
+Eff (Process : es) Pid
+forall (es :: [Effect]). (Process :&gt; es) =&gt; Eff es Pid
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#getCurrentPid"><span class="hs-identifier hs-var">EP.getCurrentPid</span></a></span><span>
+</span><span id="line-98"></span><span>  </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#WaitForProcess"><span class="hs-identifier hs-type">Effect.WaitForProcess</span></a></span><span> </span><span id="local-6989586621679068784"><span class="annot"><span class="annottext">ProcessHandle
+</span><a href="#local-6989586621679068784"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">ProcessHandle -&gt; Eff (Process : es) ExitCode
+forall (es :: [Effect]).
+(Process :&gt; es) =&gt;
+ProcessHandle -&gt; Eff es ExitCode
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#waitForProcess"><span class="hs-identifier hs-var">EP.waitForProcess</span></a></span><span> </span><span class="annot"><span class="annottext">ProcessHandle
+</span><a href="#local-6989586621679068784"><span class="hs-identifier hs-var">x1</span></a></span><span>
+</span><span id="line-99"></span><span>  </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#GetProcessExitCode"><span class="hs-identifier hs-type">Effect.GetProcessExitCode</span></a></span><span> </span><span id="local-6989586621679068789"><span class="annot"><span class="annottext">ProcessHandle
+</span><a href="#local-6989586621679068789"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">ProcessHandle -&gt; Eff (Process : es) (Maybe ExitCode)
+forall (es :: [Effect]).
+(Process :&gt; es) =&gt;
+ProcessHandle -&gt; Eff es (Maybe ExitCode)
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#getProcessExitCode"><span class="hs-identifier hs-var">EP.getProcessExitCode</span></a></span><span> </span><span class="annot"><span class="annottext">ProcessHandle
+</span><a href="#local-6989586621679068789"><span class="hs-identifier hs-var">x1</span></a></span><span>
+</span><span id="line-100"></span><span>  </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#TerminateProcess"><span class="hs-identifier hs-type">Effect.TerminateProcess</span></a></span><span> </span><span id="local-6989586621679068794"><span class="annot"><span class="annottext">ProcessHandle
+</span><a href="#local-6989586621679068794"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">ProcessHandle -&gt; Eff (Process : es) ()
+forall (es :: [Effect]).
+(Process :&gt; es) =&gt;
+ProcessHandle -&gt; Eff es ()
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#terminateProcess"><span class="hs-identifier hs-var">EP.terminateProcess</span></a></span><span> </span><span class="annot"><span class="annottext">ProcessHandle
+</span><a href="#local-6989586621679068794"><span class="hs-identifier hs-var">x1</span></a></span><span>
+</span><span id="line-101"></span><span>  </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#InterruptProcessGroupOf"><span class="hs-identifier hs-type">Effect.InterruptProcessGroupOf</span></a></span><span> </span><span id="local-6989586621679068799"><span class="annot"><span class="annottext">ProcessHandle
+</span><a href="#local-6989586621679068799"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">ProcessHandle -&gt; Eff (Process : es) ()
+forall (es :: [Effect]).
+(Process :&gt; es) =&gt;
+ProcessHandle -&gt; Eff es ()
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#interruptProcessGroupOf"><span class="hs-identifier hs-var">EP.interruptProcessGroupOf</span></a></span><span> </span><span class="annot"><span class="annottext">ProcessHandle
+</span><a href="#local-6989586621679068799"><span class="hs-identifier hs-var">x1</span></a></span><span>
+</span><span id="line-102"></span><span>  </span><span class="annot"><span class="annottext">Process (Eff localEs) a
+</span><a href="Effectful.Process.Dynamic.Effect.html#CreatePipe"><span class="hs-identifier hs-var">Effect.CreatePipe</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Eff (Process : es) a
+Eff (Process : es) (Handle, Handle)
+forall (es :: [Effect]). (Process :&gt; es) =&gt; Eff es (Handle, Handle)
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#createPipe"><span class="hs-identifier hs-var">EP.createPipe</span></a></span><span>
+</span><span id="line-103"></span><span>  </span><span class="annot"><span class="annottext">Process (Eff localEs) a
+</span><a href="Effectful.Process.Dynamic.Effect.html#CreatePipeFd"><span class="hs-identifier hs-var">Effect.CreatePipeFd</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Eff (Process : es) a
+Eff (Process : es) (FD, FD)
+forall (es :: [Effect]). (Process :&gt; es) =&gt; Eff es (FD, FD)
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-2.5.1.0-bb6c3042f71573cab8e9a629bc828e12ecbefd20f9d423c3752160e716a0b222/share/doc/html/src/Effectful.Process.html#createPipeFd"><span class="hs-identifier hs-var">EP.createPipeFd</span></a></span><span>
+</span><span id="line-104"></span><span>
+</span><span id="line-105"></span><span class="hs-comment">-- | Lifted 'EP.createProcess'.</span><span>
+</span><span id="line-106"></span><span class="hs-comment">--</span><span>
+</span><span id="line-107"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-108"></span><span id="local-6989586621679068602"><span class="annot"><a href="Effectful.Process.Dynamic.html#createProcess"><span class="hs-identifier hs-type">createProcess</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-109"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-110"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068602"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-111"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-112"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">EP.CreateProcess</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-113"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068602"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Handle</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Handle</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Handle</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ProcessHandle</span></span><span class="hs-special">)</span></span><span>
+</span><span id="line-114"></span><span id="createProcess"><span class="annot"><span class="annottext">createProcess :: forall (es :: [Effect]).
+(HasCallStack, Process :&gt; es) =&gt;
+CreateProcess
+-&gt; Eff es (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+</span><a href="Effectful.Process.Dynamic.html#createProcess"><span class="hs-identifier hs-var hs-var">createProcess</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process
+  (Eff es) (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+-&gt; Eff es (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Process
+   (Eff es) (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+ -&gt; Eff
+      es (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle))
+-&gt; (CreateProcess
+    -&gt; Process
+         (Eff es) (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle))
+-&gt; CreateProcess
+-&gt; Eff es (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">CreateProcess
+-&gt; Process
+     (Eff es) (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+forall (a :: * -&gt; *).
+CreateProcess
+-&gt; Process
+     a (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+</span><a href="Effectful.Process.Dynamic.Effect.html#CreateProcess"><span class="hs-identifier hs-var">Effect.CreateProcess</span></a></span><span>
+</span><span id="line-115"></span><span>
+</span><span id="line-116"></span><span class="hs-comment">-- | Lifted 'EP.createProcess_'.</span><span>
+</span><span id="line-117"></span><span class="hs-comment">--</span><span>
+</span><span id="line-118"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-119"></span><span id="local-6989586621679068611"><span class="annot"><a href="Effectful.Process.Dynamic.html#createProcess_"><span class="hs-identifier hs-type">createProcess_</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-120"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-121"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068611"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-122"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-123"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-124"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">EP.CreateProcess</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-125"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068611"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Handle</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Handle</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Handle</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ProcessHandle</span></span><span class="hs-special">)</span></span><span>
+</span><span id="line-126"></span><span id="createProcess_"><span class="annot"><span class="annottext">createProcess_ :: forall (es :: [Effect]).
+(HasCallStack, Process :&gt; es) =&gt;
+String
+-&gt; CreateProcess
+-&gt; Eff es (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+</span><a href="Effectful.Process.Dynamic.html#createProcess_"><span class="hs-identifier hs-var hs-var">createProcess_</span></a></span></span><span> </span><span id="local-6989586621679068824"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068824"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process
+  (Eff es) (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+-&gt; Eff es (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Process
+   (Eff es) (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+ -&gt; Eff
+      es (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle))
+-&gt; (CreateProcess
+    -&gt; Process
+         (Eff es) (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle))
+-&gt; CreateProcess
+-&gt; Eff es (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String
+-&gt; CreateProcess
+-&gt; Process
+     (Eff es) (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+forall (a :: * -&gt; *).
+String
+-&gt; CreateProcess
+-&gt; Process
+     a (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+</span><a href="Effectful.Process.Dynamic.Effect.html#CreateProcess_"><span class="hs-identifier hs-var">Effect.CreateProcess_</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068824"><span class="hs-identifier hs-var">x1</span></a></span><span>
+</span><span id="line-127"></span><span>
+</span><span id="line-128"></span><span class="hs-comment">-- | Lifted 'EP.callProcess'.</span><span>
+</span><span id="line-129"></span><span class="hs-comment">--</span><span>
+</span><span id="line-130"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-131"></span><span id="local-6989586621679068613"><span class="annot"><a href="Effectful.Process.Dynamic.html#callProcess"><span class="hs-identifier hs-type">callProcess</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-132"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-133"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068613"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-134"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-135"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-136"></span><span>  </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-137"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068613"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-138"></span><span id="callProcess"><span class="annot"><span class="annottext">callProcess :: forall (es :: [Effect]).
+(HasCallStack, Process :&gt; es) =&gt;
+String -&gt; [String] -&gt; Eff es ()
+</span><a href="Effectful.Process.Dynamic.html#callProcess"><span class="hs-identifier hs-var hs-var">callProcess</span></a></span></span><span> </span><span id="local-6989586621679068833"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068833"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process (Eff es) () -&gt; Eff es ()
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Process (Eff es) () -&gt; Eff es ())
+-&gt; ([String] -&gt; Process (Eff es) ()) -&gt; [String] -&gt; Eff es ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; [String] -&gt; Process (Eff es) ()
+forall (a :: * -&gt; *). String -&gt; [String] -&gt; Process a ()
+</span><a href="Effectful.Process.Dynamic.Effect.html#CallProcess"><span class="hs-identifier hs-var">Effect.CallProcess</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068833"><span class="hs-identifier hs-var">x1</span></a></span><span>
+</span><span id="line-139"></span><span>
+</span><span id="line-140"></span><span class="hs-comment">-- | Lifted 'EP.callCommand'.</span><span>
+</span><span id="line-141"></span><span class="hs-comment">--</span><span>
+</span><span id="line-142"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-143"></span><span id="local-6989586621679068615"><span class="annot"><a href="Effectful.Process.Dynamic.html#callCommand"><span class="hs-identifier hs-type">callCommand</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-144"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-145"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068615"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-146"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-147"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-148"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068615"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-149"></span><span id="callCommand"><span class="annot"><span class="annottext">callCommand :: forall (es :: [Effect]).
+(HasCallStack, Process :&gt; es) =&gt;
+String -&gt; Eff es ()
+</span><a href="Effectful.Process.Dynamic.html#callCommand"><span class="hs-identifier hs-var hs-var">callCommand</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process (Eff es) () -&gt; Eff es ()
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Process (Eff es) () -&gt; Eff es ())
+-&gt; (String -&gt; Process (Eff es) ()) -&gt; String -&gt; Eff es ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Process (Eff es) ()
+forall (a :: * -&gt; *). String -&gt; Process a ()
+</span><a href="Effectful.Process.Dynamic.Effect.html#CallCommand"><span class="hs-identifier hs-var">Effect.CallCommand</span></a></span><span>
+</span><span id="line-150"></span><span>
+</span><span id="line-151"></span><span class="hs-comment">-- | Lifted 'EP.spawnProcess'.</span><span>
+</span><span id="line-152"></span><span class="hs-comment">--</span><span>
+</span><span id="line-153"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-154"></span><span id="local-6989586621679068617"><span class="annot"><a href="Effectful.Process.Dynamic.html#spawnProcess"><span class="hs-identifier hs-type">spawnProcess</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-155"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-156"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068617"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-157"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-158"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-159"></span><span>  </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-160"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068617"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">ProcessHandle</span></span></span><span>
+</span><span id="line-161"></span><span id="spawnProcess"><span class="annot"><span class="annottext">spawnProcess :: forall (es :: [Effect]).
+(HasCallStack, Process :&gt; es) =&gt;
+String -&gt; [String] -&gt; Eff es ProcessHandle
+</span><a href="Effectful.Process.Dynamic.html#spawnProcess"><span class="hs-identifier hs-var hs-var">spawnProcess</span></a></span></span><span> </span><span id="local-6989586621679068848"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068848"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process (Eff es) ProcessHandle -&gt; Eff es ProcessHandle
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Process (Eff es) ProcessHandle -&gt; Eff es ProcessHandle)
+-&gt; ([String] -&gt; Process (Eff es) ProcessHandle)
+-&gt; [String]
+-&gt; Eff es ProcessHandle
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; [String] -&gt; Process (Eff es) ProcessHandle
+forall (a :: * -&gt; *). String -&gt; [String] -&gt; Process a ProcessHandle
+</span><a href="Effectful.Process.Dynamic.Effect.html#SpawnProcess"><span class="hs-identifier hs-var">Effect.SpawnProcess</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068848"><span class="hs-identifier hs-var">x1</span></a></span><span>
+</span><span id="line-162"></span><span>
+</span><span id="line-163"></span><span class="hs-comment">-- | Lifted 'EP.spawnCommand'.</span><span>
+</span><span id="line-164"></span><span class="hs-comment">--</span><span>
+</span><span id="line-165"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-166"></span><span id="local-6989586621679068619"><span class="annot"><a href="Effectful.Process.Dynamic.html#spawnCommand"><span class="hs-identifier hs-type">spawnCommand</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-167"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-168"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068619"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-169"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-170"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-171"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068619"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">ProcessHandle</span></span></span><span>
+</span><span id="line-172"></span><span id="spawnCommand"><span class="annot"><span class="annottext">spawnCommand :: forall (es :: [Effect]).
+(HasCallStack, Process :&gt; es) =&gt;
+String -&gt; Eff es ProcessHandle
+</span><a href="Effectful.Process.Dynamic.html#spawnCommand"><span class="hs-identifier hs-var hs-var">spawnCommand</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process (Eff es) ProcessHandle -&gt; Eff es ProcessHandle
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Process (Eff es) ProcessHandle -&gt; Eff es ProcessHandle)
+-&gt; (String -&gt; Process (Eff es) ProcessHandle)
+-&gt; String
+-&gt; Eff es ProcessHandle
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Process (Eff es) ProcessHandle
+forall (a :: * -&gt; *). String -&gt; Process a ProcessHandle
+</span><a href="Effectful.Process.Dynamic.Effect.html#SpawnCommand"><span class="hs-identifier hs-var">Effect.SpawnCommand</span></a></span><span>
+</span><span id="line-173"></span><span>
+</span><span id="line-174"></span><span class="hs-comment">-- | Lifted 'EP.readCreateProcess'.</span><span>
+</span><span id="line-175"></span><span class="hs-comment">--</span><span>
+</span><span id="line-176"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-177"></span><span id="local-6989586621679068621"><span class="annot"><a href="Effectful.Process.Dynamic.html#readCreateProcess"><span class="hs-identifier hs-type">readCreateProcess</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-178"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-179"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068621"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-180"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-181"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">EP.CreateProcess</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-182"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-183"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068621"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span></span><span>
+</span><span id="line-184"></span><span id="readCreateProcess"><span class="annot"><span class="annottext">readCreateProcess :: forall (es :: [Effect]).
+(HasCallStack, Process :&gt; es) =&gt;
+CreateProcess -&gt; String -&gt; Eff es String
+</span><a href="Effectful.Process.Dynamic.html#readCreateProcess"><span class="hs-identifier hs-var hs-var">readCreateProcess</span></a></span></span><span> </span><span id="local-6989586621679068863"><span class="annot"><span class="annottext">CreateProcess
+</span><a href="#local-6989586621679068863"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process (Eff es) String -&gt; Eff es String
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Process (Eff es) String -&gt; Eff es String)
+-&gt; (String -&gt; Process (Eff es) String) -&gt; String -&gt; Eff es String
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">CreateProcess -&gt; String -&gt; Process (Eff es) String
+forall (a :: * -&gt; *). CreateProcess -&gt; String -&gt; Process a String
+</span><a href="Effectful.Process.Dynamic.Effect.html#ReadCreateProcess"><span class="hs-identifier hs-var">Effect.ReadCreateProcess</span></a></span><span> </span><span class="annot"><span class="annottext">CreateProcess
+</span><a href="#local-6989586621679068863"><span class="hs-identifier hs-var">x1</span></a></span><span>
+</span><span id="line-185"></span><span>
+</span><span id="line-186"></span><span class="hs-comment">-- | Lifted 'EP.readProcess'.</span><span>
+</span><span id="line-187"></span><span class="hs-comment">--</span><span>
+</span><span id="line-188"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-189"></span><span id="local-6989586621679068623"><span class="annot"><a href="Effectful.Process.Dynamic.html#readProcess"><span class="hs-identifier hs-type">readProcess</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-190"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-191"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068623"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-192"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-193"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-194"></span><span>  </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-195"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-196"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068623"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span></span><span>
+</span><span id="line-197"></span><span id="readProcess"><span class="annot"><span class="annottext">readProcess :: forall (es :: [Effect]).
+(HasCallStack, Process :&gt; es) =&gt;
+String -&gt; [String] -&gt; String -&gt; Eff es String
+</span><a href="Effectful.Process.Dynamic.html#readProcess"><span class="hs-identifier hs-var hs-var">readProcess</span></a></span></span><span> </span><span id="local-6989586621679068871"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068871"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679068872"><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679068872"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process (Eff es) String -&gt; Eff es String
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Process (Eff es) String -&gt; Eff es String)
+-&gt; (String -&gt; Process (Eff es) String) -&gt; String -&gt; Eff es String
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; [String] -&gt; String -&gt; Process (Eff es) String
+forall (a :: * -&gt; *).
+String -&gt; [String] -&gt; String -&gt; Process a String
+</span><a href="Effectful.Process.Dynamic.Effect.html#ReadProcess"><span class="hs-identifier hs-var">Effect.ReadProcess</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068871"><span class="hs-identifier hs-var">x1</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679068872"><span class="hs-identifier hs-var">x2</span></a></span><span>
+</span><span id="line-198"></span><span>
+</span><span id="line-199"></span><span class="hs-comment">-- | Lifted 'EP.readCreateProcessWithExitCode'.</span><span>
+</span><span id="line-200"></span><span class="hs-comment">--</span><span>
+</span><span id="line-201"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-202"></span><span id="local-6989586621679068625"><span class="annot"><a href="Effectful.Process.Dynamic.html#readCreateProcessWithExitCode"><span class="hs-identifier hs-type">readCreateProcessWithExitCode</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-203"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-204"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068625"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-205"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-206"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">EP.CreateProcess</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-207"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-208"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068625"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">ExitCode</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">)</span></span><span>
+</span><span id="line-209"></span><span id="readCreateProcessWithExitCode"><span class="annot"><span class="annottext">readCreateProcessWithExitCode :: forall (es :: [Effect]).
+(HasCallStack, Process :&gt; es) =&gt;
+CreateProcess -&gt; String -&gt; Eff es (ExitCode, String, String)
+</span><a href="Effectful.Process.Dynamic.html#readCreateProcessWithExitCode"><span class="hs-identifier hs-var hs-var">readCreateProcessWithExitCode</span></a></span></span><span> </span><span id="local-6989586621679068880"><span class="annot"><span class="annottext">CreateProcess
+</span><a href="#local-6989586621679068880"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process (Eff es) (ExitCode, String, String)
+-&gt; Eff es (ExitCode, String, String)
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Process (Eff es) (ExitCode, String, String)
+ -&gt; Eff es (ExitCode, String, String))
+-&gt; (String -&gt; Process (Eff es) (ExitCode, String, String))
+-&gt; String
+-&gt; Eff es (ExitCode, String, String)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">CreateProcess
+-&gt; String -&gt; Process (Eff es) (ExitCode, String, String)
+forall (a :: * -&gt; *).
+CreateProcess -&gt; String -&gt; Process a (ExitCode, String, String)
+</span><a href="Effectful.Process.Dynamic.Effect.html#ReadCreateProcessWithExitCode"><span class="hs-identifier hs-var">Effect.ReadCreateProcessWithExitCode</span></a></span><span> </span><span class="annot"><span class="annottext">CreateProcess
+</span><a href="#local-6989586621679068880"><span class="hs-identifier hs-var">x1</span></a></span><span>
+</span><span id="line-210"></span><span>
+</span><span id="line-211"></span><span class="hs-comment">-- | Lifted 'EP.readProcessWithExitCode'.</span><span>
+</span><span id="line-212"></span><span class="hs-comment">--</span><span>
+</span><span id="line-213"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-214"></span><span id="local-6989586621679068627"><span class="annot"><a href="Effectful.Process.Dynamic.html#readProcessWithExitCode"><span class="hs-identifier hs-type">readProcessWithExitCode</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-215"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-216"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068627"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-217"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-218"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-219"></span><span>  </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-220"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-221"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068627"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">ExitCode</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">)</span></span><span>
+</span><span id="line-222"></span><span id="readProcessWithExitCode"><span class="annot"><span class="annottext">readProcessWithExitCode :: forall (es :: [Effect]).
+(HasCallStack, Process :&gt; es) =&gt;
+String -&gt; [String] -&gt; String -&gt; Eff es (ExitCode, String, String)
+</span><a href="Effectful.Process.Dynamic.html#readProcessWithExitCode"><span class="hs-identifier hs-var hs-var">readProcessWithExitCode</span></a></span></span><span> </span><span id="local-6989586621679068888"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068888"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span id="local-6989586621679068889"><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679068889"><span class="hs-identifier hs-var">x2</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process (Eff es) (ExitCode, String, String)
+-&gt; Eff es (ExitCode, String, String)
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Process (Eff es) (ExitCode, String, String)
+ -&gt; Eff es (ExitCode, String, String))
+-&gt; (String -&gt; Process (Eff es) (ExitCode, String, String))
+-&gt; String
+-&gt; Eff es (ExitCode, String, String)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">String
+-&gt; [String]
+-&gt; String
+-&gt; Process (Eff es) (ExitCode, String, String)
+forall (a :: * -&gt; *).
+String
+-&gt; [String] -&gt; String -&gt; Process a (ExitCode, String, String)
+</span><a href="Effectful.Process.Dynamic.Effect.html#ReadProcessWithExitCode"><span class="hs-identifier hs-var">Effect.ReadProcessWithExitCode</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679068888"><span class="hs-identifier hs-var">x1</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679068889"><span class="hs-identifier hs-var">x2</span></a></span><span>
+</span><span id="line-223"></span><span>
+</span><span id="line-224"></span><span class="hs-comment">-- | Lifted 'EP.withCreateProcess'.</span><span>
+</span><span id="line-225"></span><span class="hs-comment">--</span><span>
+</span><span id="line-226"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-227"></span><span id="local-6989586621679068629"><span id="local-6989586621679068630"><span class="annot"><a href="Effectful.Process.Dynamic.html#withCreateProcess"><span class="hs-identifier hs-type">withCreateProcess</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-228"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-229"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068629"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-230"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-231"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">EP.CreateProcess</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-232"></span><span>  </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Handle</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Handle</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Handle</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ProcessHandle</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068629"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068630"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-233"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068629"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068630"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-234"></span><span id="withCreateProcess"><span class="annot"><span class="annottext">withCreateProcess :: forall (es :: [Effect]) a.
+(HasCallStack, Process :&gt; es) =&gt;
+CreateProcess
+-&gt; (Maybe Handle
+    -&gt; Maybe Handle -&gt; Maybe Handle -&gt; ProcessHandle -&gt; Eff es a)
+-&gt; Eff es a
+</span><a href="Effectful.Process.Dynamic.html#withCreateProcess"><span class="hs-identifier hs-var hs-var">withCreateProcess</span></a></span></span><span> </span><span id="local-6989586621679068897"><span class="annot"><span class="annottext">CreateProcess
+</span><a href="#local-6989586621679068897"><span class="hs-identifier hs-var">x1</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process (Eff es) a -&gt; Eff es a
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Process (Eff es) a -&gt; Eff es a)
+-&gt; ((Maybe Handle
+     -&gt; Maybe Handle -&gt; Maybe Handle -&gt; ProcessHandle -&gt; Eff es a)
+    -&gt; Process (Eff es) a)
+-&gt; (Maybe Handle
+    -&gt; Maybe Handle -&gt; Maybe Handle -&gt; ProcessHandle -&gt; Eff es a)
+-&gt; Eff es a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">CreateProcess
+-&gt; (Maybe Handle
+    -&gt; Maybe Handle -&gt; Maybe Handle -&gt; ProcessHandle -&gt; Eff es a)
+-&gt; Process (Eff es) a
+forall (a :: * -&gt; *) b.
+CreateProcess
+-&gt; (Maybe Handle
+    -&gt; Maybe Handle -&gt; Maybe Handle -&gt; ProcessHandle -&gt; a b)
+-&gt; Process a b
+</span><a href="Effectful.Process.Dynamic.Effect.html#WithCreateProcess"><span class="hs-identifier hs-var">Effect.WithCreateProcess</span></a></span><span> </span><span class="annot"><span class="annottext">CreateProcess
+</span><a href="#local-6989586621679068897"><span class="hs-identifier hs-var">x1</span></a></span><span>
+</span><span id="line-235"></span><span>
+</span><span id="line-236"></span><span class="hs-comment">-- | Lifted 'EP.cleanupProcess'.</span><span>
+</span><span id="line-237"></span><span class="hs-comment">--</span><span>
+</span><span id="line-238"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-239"></span><span id="local-6989586621679068634"><span class="annot"><a href="Effectful.Process.Dynamic.html#cleanupProcess"><span class="hs-identifier hs-type">cleanupProcess</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-240"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-241"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068634"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-242"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-243"></span><span>  </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Handle</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Handle</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Handle</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ProcessHandle</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-244"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068634"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-245"></span><span id="cleanupProcess"><span class="annot"><span class="annottext">cleanupProcess :: forall (es :: [Effect]).
+(HasCallStack, Process :&gt; es) =&gt;
+(Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+-&gt; Eff es ()
+</span><a href="Effectful.Process.Dynamic.html#cleanupProcess"><span class="hs-identifier hs-var hs-var">cleanupProcess</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process (Eff es) () -&gt; Eff es ()
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Process (Eff es) () -&gt; Eff es ())
+-&gt; ((Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+    -&gt; Process (Eff es) ())
+-&gt; (Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+-&gt; Eff es ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">(Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+-&gt; Process (Eff es) ()
+forall (a :: * -&gt; *).
+(Maybe Handle, Maybe Handle, Maybe Handle, ProcessHandle)
+-&gt; Process a ()
+</span><a href="Effectful.Process.Dynamic.Effect.html#CleanupProcess"><span class="hs-identifier hs-var">Effect.CleanupProcess</span></a></span><span>
+</span><span id="line-246"></span><span>
+</span><span id="line-247"></span><span class="hs-comment">-- | Lifted 'EP.getPid'.</span><span>
+</span><span id="line-248"></span><span class="hs-comment">--</span><span>
+</span><span id="line-249"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-250"></span><span id="local-6989586621679068636"><span class="annot"><a href="Effectful.Process.Dynamic.html#getPid"><span class="hs-identifier hs-type">getPid</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-251"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-252"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068636"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-253"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-254"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">ProcessHandle</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-255"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068636"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Pid</span></span><span class="hs-special">)</span></span><span>
+</span><span id="line-256"></span><span id="getPid"><span class="annot"><span class="annottext">getPid :: forall (es :: [Effect]).
+(HasCallStack, Process :&gt; es) =&gt;
+ProcessHandle -&gt; Eff es (Maybe Pid)
+</span><a href="Effectful.Process.Dynamic.html#getPid"><span class="hs-identifier hs-var hs-var">getPid</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process (Eff es) (Maybe Pid) -&gt; Eff es (Maybe Pid)
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Process (Eff es) (Maybe Pid) -&gt; Eff es (Maybe Pid))
+-&gt; (ProcessHandle -&gt; Process (Eff es) (Maybe Pid))
+-&gt; ProcessHandle
+-&gt; Eff es (Maybe Pid)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ProcessHandle -&gt; Process (Eff es) (Maybe Pid)
+forall (a :: * -&gt; *). ProcessHandle -&gt; Process a (Maybe Pid)
+</span><a href="Effectful.Process.Dynamic.Effect.html#GetPid"><span class="hs-identifier hs-var">Effect.GetPid</span></a></span><span>
+</span><span id="line-257"></span><span>
+</span><span id="line-258"></span><span class="hs-comment">-- | Lifted 'EP.getCurrentPid'.</span><span>
+</span><span id="line-259"></span><span class="hs-comment">--</span><span>
+</span><span id="line-260"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-261"></span><span id="local-6989586621679068638"><span class="annot"><a href="Effectful.Process.Dynamic.html#getCurrentPid"><span class="hs-identifier hs-type">getCurrentPid</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-262"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-263"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068638"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-264"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-265"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068638"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Pid</span></span></span><span>
+</span><span id="line-266"></span><span id="getCurrentPid"><span class="annot"><span class="annottext">getCurrentPid :: forall (es :: [Effect]).
+(HasCallStack, Process :&gt; es) =&gt;
+Eff es Pid
+</span><a href="Effectful.Process.Dynamic.html#getCurrentPid"><span class="hs-identifier hs-var hs-var">getCurrentPid</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process (Eff es) Pid -&gt; Eff es Pid
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">Process (Eff es) Pid
+forall (a :: * -&gt; *). Process a Pid
+</span><a href="Effectful.Process.Dynamic.Effect.html#GetCurrentPid"><span class="hs-identifier hs-var">Effect.GetCurrentPid</span></a></span><span>
+</span><span id="line-267"></span><span>
+</span><span id="line-268"></span><span class="hs-comment">-- | Lifted 'EP.waitForProcess'.</span><span>
+</span><span id="line-269"></span><span class="hs-comment">--</span><span>
+</span><span id="line-270"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-271"></span><span id="local-6989586621679068640"><span class="annot"><a href="Effectful.Process.Dynamic.html#waitForProcess"><span class="hs-identifier hs-type">waitForProcess</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-272"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-273"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068640"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-274"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-275"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">ProcessHandle</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-276"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068640"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">ExitCode</span></span></span><span>
+</span><span id="line-277"></span><span id="waitForProcess"><span class="annot"><span class="annottext">waitForProcess :: forall (es :: [Effect]).
+(HasCallStack, Process :&gt; es) =&gt;
+ProcessHandle -&gt; Eff es ExitCode
+</span><a href="Effectful.Process.Dynamic.html#waitForProcess"><span class="hs-identifier hs-var hs-var">waitForProcess</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process (Eff es) ExitCode -&gt; Eff es ExitCode
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Process (Eff es) ExitCode -&gt; Eff es ExitCode)
+-&gt; (ProcessHandle -&gt; Process (Eff es) ExitCode)
+-&gt; ProcessHandle
+-&gt; Eff es ExitCode
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ProcessHandle -&gt; Process (Eff es) ExitCode
+forall (a :: * -&gt; *). ProcessHandle -&gt; Process a ExitCode
+</span><a href="Effectful.Process.Dynamic.Effect.html#WaitForProcess"><span class="hs-identifier hs-var">Effect.WaitForProcess</span></a></span><span>
+</span><span id="line-278"></span><span>
+</span><span id="line-279"></span><span class="hs-comment">-- | Lifted 'EP.getProcessExitCode'.</span><span>
+</span><span id="line-280"></span><span class="hs-comment">--</span><span>
+</span><span id="line-281"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-282"></span><span id="local-6989586621679068642"><span class="annot"><a href="Effectful.Process.Dynamic.html#getProcessExitCode"><span class="hs-identifier hs-type">getProcessExitCode</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-283"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-284"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068642"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-285"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-286"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">ProcessHandle</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-287"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068642"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">ExitCode</span></span><span class="hs-special">)</span></span><span>
+</span><span id="line-288"></span><span id="getProcessExitCode"><span class="annot"><span class="annottext">getProcessExitCode :: forall (es :: [Effect]).
+(HasCallStack, Process :&gt; es) =&gt;
+ProcessHandle -&gt; Eff es (Maybe ExitCode)
+</span><a href="Effectful.Process.Dynamic.html#getProcessExitCode"><span class="hs-identifier hs-var hs-var">getProcessExitCode</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process (Eff es) (Maybe ExitCode) -&gt; Eff es (Maybe ExitCode)
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Process (Eff es) (Maybe ExitCode) -&gt; Eff es (Maybe ExitCode))
+-&gt; (ProcessHandle -&gt; Process (Eff es) (Maybe ExitCode))
+-&gt; ProcessHandle
+-&gt; Eff es (Maybe ExitCode)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ProcessHandle -&gt; Process (Eff es) (Maybe ExitCode)
+forall (a :: * -&gt; *). ProcessHandle -&gt; Process a (Maybe ExitCode)
+</span><a href="Effectful.Process.Dynamic.Effect.html#GetProcessExitCode"><span class="hs-identifier hs-var">Effect.GetProcessExitCode</span></a></span><span>
+</span><span id="line-289"></span><span>
+</span><span id="line-290"></span><span class="hs-comment">-- | Lifted 'EP.terminateProcess'.</span><span>
+</span><span id="line-291"></span><span class="hs-comment">--</span><span>
+</span><span id="line-292"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-293"></span><span id="local-6989586621679068644"><span class="annot"><a href="Effectful.Process.Dynamic.html#terminateProcess"><span class="hs-identifier hs-type">terminateProcess</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-294"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-295"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068644"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-296"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-297"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">ProcessHandle</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-298"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068644"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-299"></span><span id="terminateProcess"><span class="annot"><span class="annottext">terminateProcess :: forall (es :: [Effect]).
+(HasCallStack, Process :&gt; es) =&gt;
+ProcessHandle -&gt; Eff es ()
+</span><a href="Effectful.Process.Dynamic.html#terminateProcess"><span class="hs-identifier hs-var hs-var">terminateProcess</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process (Eff es) () -&gt; Eff es ()
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Process (Eff es) () -&gt; Eff es ())
+-&gt; (ProcessHandle -&gt; Process (Eff es) ())
+-&gt; ProcessHandle
+-&gt; Eff es ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ProcessHandle -&gt; Process (Eff es) ()
+forall (a :: * -&gt; *). ProcessHandle -&gt; Process a ()
+</span><a href="Effectful.Process.Dynamic.Effect.html#TerminateProcess"><span class="hs-identifier hs-var">Effect.TerminateProcess</span></a></span><span>
+</span><span id="line-300"></span><span>
+</span><span id="line-301"></span><span class="hs-comment">-- | Lifted 'EP.interruptProcessGroupOf'.</span><span>
+</span><span id="line-302"></span><span class="hs-comment">--</span><span>
+</span><span id="line-303"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-304"></span><span id="local-6989586621679068940"><span class="annot"><a href="Effectful.Process.Dynamic.html#interruptProcessGroupOf"><span class="hs-identifier hs-type">interruptProcessGroupOf</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-305"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-306"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068940"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-307"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-308"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">ProcessHandle</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-309"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068940"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-310"></span><span id="interruptProcessGroupOf"><span class="annot"><span class="annottext">interruptProcessGroupOf :: forall (es :: [Effect]).
+(HasCallStack, Process :&gt; es) =&gt;
+ProcessHandle -&gt; Eff es ()
+</span><a href="Effectful.Process.Dynamic.html#interruptProcessGroupOf"><span class="hs-identifier hs-var hs-var">interruptProcessGroupOf</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process (Eff es) () -&gt; Eff es ()
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(Process (Eff es) () -&gt; Eff es ())
+-&gt; (ProcessHandle -&gt; Process (Eff es) ())
+-&gt; ProcessHandle
+-&gt; Eff es ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">ProcessHandle -&gt; Process (Eff es) ()
+forall (a :: * -&gt; *). ProcessHandle -&gt; Process a ()
+</span><a href="Effectful.Process.Dynamic.Effect.html#InterruptProcessGroupOf"><span class="hs-identifier hs-var">Effect.InterruptProcessGroupOf</span></a></span><span>
+</span><span id="line-311"></span><span>
+</span><span id="line-312"></span><span class="hs-comment">-- | Lifted 'EP.createPipe'.</span><span>
+</span><span id="line-313"></span><span class="hs-comment">--</span><span>
+</span><span id="line-314"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-315"></span><span id="local-6989586621679068647"><span class="annot"><a href="Effectful.Process.Dynamic.html#createPipe"><span class="hs-identifier hs-type">createPipe</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-316"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-317"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068647"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-318"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-319"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068647"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Handle</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Handle</span></span><span class="hs-special">)</span></span><span>
+</span><span id="line-320"></span><span id="createPipe"><span class="annot"><span class="annottext">createPipe :: forall (es :: [Effect]).
+(HasCallStack, Process :&gt; es) =&gt;
+Eff es (Handle, Handle)
+</span><a href="Effectful.Process.Dynamic.html#createPipe"><span class="hs-identifier hs-var hs-var">createPipe</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process (Eff es) (Handle, Handle) -&gt; Eff es (Handle, Handle)
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">Process (Eff es) (Handle, Handle)
+forall (a :: * -&gt; *). Process a (Handle, Handle)
+</span><a href="Effectful.Process.Dynamic.Effect.html#CreatePipe"><span class="hs-identifier hs-var">Effect.CreatePipe</span></a></span><span>
+</span><span id="line-321"></span><span>
+</span><span id="line-322"></span><span class="hs-comment">-- | Lifted 'EP.createPipeFd'.</span><span>
+</span><span id="line-323"></span><span class="hs-comment">--</span><span>
+</span><span id="line-324"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-325"></span><span id="local-6989586621679068649"><span class="annot"><a href="Effectful.Process.Dynamic.html#createPipeFd"><span class="hs-identifier hs-type">createPipeFd</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-326"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-327"></span><span>    </span><span class="annot"><a href="Effectful.Process.Dynamic.Effect.html#Process"><span class="hs-identifier hs-type">Process</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068649"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-328"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-329"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679068649"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">FD</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier hs-type">FD</span></span><span class="hs-special">)</span></span><span>
+</span><span id="line-330"></span><span id="createPipeFd"><span class="annot"><span class="annottext">createPipeFd :: forall (es :: [Effect]).
+(HasCallStack, Process :&gt; es) =&gt;
+Eff es (FD, FD)
+</span><a href="Effectful.Process.Dynamic.html#createPipeFd"><span class="hs-identifier hs-var hs-var">createPipeFd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Process (Eff es) (FD, FD) -&gt; Eff es (FD, FD)
+forall (e :: Effect) (es :: [Effect]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.2-c88f/effectful-core-2.5.1.0-19f6d9f1c50c96f7dd653ac8a314bf1e41b7e8746308bd914e2e5b30f44f9689/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">Process (Eff es) (FD, FD)
+forall (a :: * -&gt; *). Process a (FD, FD)
+</span><a href="Effectful.Process.Dynamic.Effect.html#CreatePipeFd"><span class="hs-identifier hs-var">Effect.CreatePipeFd</span></a></span><span>
+</span><span id="line-331"></span></pre></body></html>

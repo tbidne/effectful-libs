@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html"><span class="hs-identifier">Effectful.Posix.Signals.Handler</span></a></span><span>
+</span><span id="line-2"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#Handler"><span class="hs-identifier">Handler</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-3"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#mapHandler"><span class="hs-identifier">mapHandler</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-4"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#handlerToPosix"><span class="hs-identifier">handlerToPosix</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-5"></span><span>    </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#handlerFromPosix"><span class="hs-identifier">handlerFromPosix</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">System.Posix.Signals</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">SignalInfo</span></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">System.Posix.Signals</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Signals</span></span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">data</span><span> </span><span id="Handler"><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#Handler"><span class="hs-identifier hs-var">Handler</span></a></span></span><span> </span><span id="local-6989586621679083680"><span class="annot"><a href="#local-6989586621679083680"><span class="hs-identifier hs-type">m</span></a></span></span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="Default"><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#Default"><span class="hs-identifier hs-var">Default</span></a></span></span><span>
+</span><span id="line-15"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Ignore"><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#Ignore"><span class="hs-identifier hs-var">Ignore</span></a></span></span><span>
+</span><span id="line-16"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="Catch"><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#Catch"><span class="hs-identifier hs-var">Catch</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679083680"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="CatchOnce"><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#CatchOnce"><span class="hs-identifier hs-var">CatchOnce</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679083680"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="CatchInfo"><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#CatchInfo"><span class="hs-identifier hs-var">CatchInfo</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">SignalInfo</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679083680"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="CatchInfoOnce"><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#CatchInfoOnce"><span class="hs-identifier hs-var">CatchInfoOnce</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">SignalInfo</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679083680"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-22"></span><span id="local-6989586621679083674"><span id="local-6989586621679083676"><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#mapHandler"><span class="hs-identifier hs-type">mapHandler</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621679083675"><span class="annot"><a href="#local-6989586621679083675"><span class="hs-identifier hs-type">x</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><a href="#local-6989586621679083674"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083675"><span class="hs-identifier hs-type">x</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679083676"><span class="hs-identifier hs-type">n</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083675"><span class="hs-identifier hs-type">x</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083674"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679083676"><span class="hs-identifier hs-type">n</span></a></span></span></span><span>
+</span><span id="line-23"></span><span id="mapHandler"><span class="annot"><span class="annottext">mapHandler :: forall (m :: * -&gt; *) (n :: * -&gt; *).
+(forall x. m x -&gt; n x) -&gt; Handler m -&gt; Handler n
+</span><a href="Effectful.Posix.Signals.Handler.html#mapHandler"><span class="hs-identifier hs-var hs-var">mapHandler</span></a></span></span><span> </span><span id="local-6989586621679083699"><span class="annot"><span class="annottext">forall x. m x -&gt; n x
+</span><a href="#local-6989586621679083699"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-24"></span><span>  </span><span class="annot"><span class="annottext">Handler m
+</span><a href="Effectful.Posix.Signals.Handler.html#Default"><span class="hs-identifier hs-var">Default</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Handler n
+forall (m :: * -&gt; *). Handler m
+</span><a href="Effectful.Posix.Signals.Handler.html#Default"><span class="hs-identifier hs-var">Default</span></a></span><span>
+</span><span id="line-25"></span><span>  </span><span class="annot"><span class="annottext">Handler m
+</span><a href="Effectful.Posix.Signals.Handler.html#Ignore"><span class="hs-identifier hs-var">Ignore</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Handler n
+forall (m :: * -&gt; *). Handler m
+</span><a href="Effectful.Posix.Signals.Handler.html#Ignore"><span class="hs-identifier hs-var">Ignore</span></a></span><span>
+</span><span id="line-26"></span><span>  </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#Catch"><span class="hs-identifier hs-type">Catch</span></a></span><span> </span><span id="local-6989586621679083700"><span class="annot"><span class="annottext">m ()
+</span><a href="#local-6989586621679083700"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">n () -&gt; Handler n
+forall (m :: * -&gt; *). m () -&gt; Handler m
+</span><a href="Effectful.Posix.Signals.Handler.html#Catch"><span class="hs-identifier hs-var">Catch</span></a></span><span> </span><span class="annot"><span class="annottext">(n () -&gt; Handler n) -&gt; n () -&gt; Handler n
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">m () -&gt; n ()
+forall x. m x -&gt; n x
+</span><a href="#local-6989586621679083699"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">m ()
+</span><a href="#local-6989586621679083700"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-27"></span><span>  </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#CatchOnce"><span class="hs-identifier hs-type">CatchOnce</span></a></span><span> </span><span id="local-6989586621679083701"><span class="annot"><span class="annottext">m ()
+</span><a href="#local-6989586621679083701"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">n () -&gt; Handler n
+forall (m :: * -&gt; *). m () -&gt; Handler m
+</span><a href="Effectful.Posix.Signals.Handler.html#CatchOnce"><span class="hs-identifier hs-var">CatchOnce</span></a></span><span> </span><span class="annot"><span class="annottext">(n () -&gt; Handler n) -&gt; n () -&gt; Handler n
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">m () -&gt; n ()
+forall x. m x -&gt; n x
+</span><a href="#local-6989586621679083699"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">m ()
+</span><a href="#local-6989586621679083701"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-28"></span><span>  </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#CatchInfo"><span class="hs-identifier hs-type">CatchInfo</span></a></span><span> </span><span id="local-6989586621679083702"><span class="annot"><span class="annottext">SignalInfo -&gt; m ()
+</span><a href="#local-6989586621679083702"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(SignalInfo -&gt; n ()) -&gt; Handler n
+forall (m :: * -&gt; *). (SignalInfo -&gt; m ()) -&gt; Handler m
+</span><a href="Effectful.Posix.Signals.Handler.html#CatchInfo"><span class="hs-identifier hs-var">CatchInfo</span></a></span><span> </span><span class="annot"><span class="annottext">((SignalInfo -&gt; n ()) -&gt; Handler n)
+-&gt; (SignalInfo -&gt; n ()) -&gt; Handler n
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">m () -&gt; n ()
+forall x. m x -&gt; n x
+</span><a href="#local-6989586621679083699"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">(m () -&gt; n ()) -&gt; (SignalInfo -&gt; m ()) -&gt; SignalInfo -&gt; n ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">SignalInfo -&gt; m ()
+</span><a href="#local-6989586621679083702"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-29"></span><span>  </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#CatchInfoOnce"><span class="hs-identifier hs-type">CatchInfoOnce</span></a></span><span> </span><span id="local-6989586621679083704"><span class="annot"><span class="annottext">SignalInfo -&gt; m ()
+</span><a href="#local-6989586621679083704"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(SignalInfo -&gt; n ()) -&gt; Handler n
+forall (m :: * -&gt; *). (SignalInfo -&gt; m ()) -&gt; Handler m
+</span><a href="Effectful.Posix.Signals.Handler.html#CatchInfoOnce"><span class="hs-identifier hs-var">CatchInfoOnce</span></a></span><span> </span><span class="annot"><span class="annottext">((SignalInfo -&gt; n ()) -&gt; Handler n)
+-&gt; (SignalInfo -&gt; n ()) -&gt; Handler n
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">m () -&gt; n ()
+forall x. m x -&gt; n x
+</span><a href="#local-6989586621679083699"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">(m () -&gt; n ()) -&gt; (SignalInfo -&gt; m ()) -&gt; SignalInfo -&gt; n ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">SignalInfo -&gt; m ()
+</span><a href="#local-6989586621679083704"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-30"></span><span>
+</span><span id="line-31"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-32"></span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#handlerToPosix"><span class="hs-identifier hs-type">handlerToPosix</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Signals.Handler</span></span><span>
+</span><span id="line-33"></span><span id="handlerToPosix"><span class="annot"><span class="annottext">handlerToPosix :: Handler IO -&gt; Handler
+</span><a href="Effectful.Posix.Signals.Handler.html#handlerToPosix"><span class="hs-identifier hs-var hs-var">handlerToPosix</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-34"></span><span>  </span><span class="annot"><span class="annottext">Handler IO
+</span><a href="Effectful.Posix.Signals.Handler.html#Default"><span class="hs-identifier hs-var">Default</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Handler
+</span><span class="hs-identifier hs-var">Signals.Default</span></span><span>
+</span><span id="line-35"></span><span>  </span><span class="annot"><span class="annottext">Handler IO
+</span><a href="Effectful.Posix.Signals.Handler.html#Ignore"><span class="hs-identifier hs-var">Ignore</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Handler
+</span><span class="hs-identifier hs-var">Signals.Ignore</span></span><span>
+</span><span id="line-36"></span><span>  </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#Catch"><span class="hs-identifier hs-type">Catch</span></a></span><span> </span><span id="local-6989586621679083707"><span class="annot"><span class="annottext">IO ()
+</span><a href="#local-6989586621679083707"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; Handler
+</span><span class="hs-identifier hs-var">Signals.Catch</span></span><span> </span><span class="annot"><span class="annottext">IO ()
+</span><a href="#local-6989586621679083707"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-37"></span><span>  </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#CatchOnce"><span class="hs-identifier hs-type">CatchOnce</span></a></span><span> </span><span id="local-6989586621679083709"><span class="annot"><span class="annottext">IO ()
+</span><a href="#local-6989586621679083709"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; Handler
+</span><span class="hs-identifier hs-var">Signals.CatchOnce</span></span><span> </span><span class="annot"><span class="annottext">IO ()
+</span><a href="#local-6989586621679083709"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-38"></span><span>  </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#CatchInfo"><span class="hs-identifier hs-type">CatchInfo</span></a></span><span> </span><span id="local-6989586621679083711"><span class="annot"><span class="annottext">SignalInfo -&gt; IO ()
+</span><a href="#local-6989586621679083711"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(SignalInfo -&gt; IO ()) -&gt; Handler
+</span><span class="hs-identifier hs-var">Signals.CatchInfo</span></span><span> </span><span class="annot"><span class="annottext">SignalInfo -&gt; IO ()
+</span><a href="#local-6989586621679083711"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-39"></span><span>  </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#CatchInfoOnce"><span class="hs-identifier hs-type">CatchInfoOnce</span></a></span><span> </span><span id="local-6989586621679083713"><span class="annot"><span class="annottext">SignalInfo -&gt; IO ()
+</span><a href="#local-6989586621679083713"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(SignalInfo -&gt; IO ()) -&gt; Handler
+</span><span class="hs-identifier hs-var">Signals.CatchInfoOnce</span></span><span> </span><span class="annot"><span class="annottext">SignalInfo -&gt; IO ()
+</span><a href="#local-6989586621679083713"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-40"></span><span>
+</span><span id="line-41"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-42"></span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#handlerFromPosix"><span class="hs-identifier hs-type">handlerFromPosix</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Signals.Handler</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Effectful.Posix.Signals.Handler.html#Handler"><span class="hs-identifier hs-type">Handler</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span>
+</span><span id="line-43"></span><span id="handlerFromPosix"><span class="annot"><span class="annottext">handlerFromPosix :: Handler -&gt; Handler IO
+</span><a href="Effectful.Posix.Signals.Handler.html#handlerFromPosix"><span class="hs-identifier hs-var hs-var">handlerFromPosix</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-44"></span><span>  </span><span class="annot"><span class="annottext">Handler
+</span><span class="hs-identifier hs-var">Signals.Default</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Handler IO
+forall (m :: * -&gt; *). Handler m
+</span><a href="Effectful.Posix.Signals.Handler.html#Default"><span class="hs-identifier hs-var">Default</span></a></span><span>
+</span><span id="line-45"></span><span>  </span><span class="annot"><span class="annottext">Handler
+</span><span class="hs-identifier hs-var">Signals.Ignore</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Handler IO
+forall (m :: * -&gt; *). Handler m
+</span><a href="Effectful.Posix.Signals.Handler.html#Ignore"><span class="hs-identifier hs-var">Ignore</span></a></span><span>
+</span><span id="line-46"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">Signals.Catch</span></span><span> </span><span id="local-6989586621679083715"><span class="annot"><span class="annottext">IO ()
+</span><a href="#local-6989586621679083715"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; Handler IO
+forall (m :: * -&gt; *). m () -&gt; Handler m
+</span><a href="Effectful.Posix.Signals.Handler.html#Catch"><span class="hs-identifier hs-var">Catch</span></a></span><span> </span><span class="annot"><span class="annottext">IO ()
+</span><a href="#local-6989586621679083715"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-47"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">Signals.CatchOnce</span></span><span> </span><span id="local-6989586621679083716"><span class="annot"><span class="annottext">IO ()
+</span><a href="#local-6989586621679083716"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; Handler IO
+forall (m :: * -&gt; *). m () -&gt; Handler m
+</span><a href="Effectful.Posix.Signals.Handler.html#CatchOnce"><span class="hs-identifier hs-var">CatchOnce</span></a></span><span> </span><span class="annot"><span class="annottext">IO ()
+</span><a href="#local-6989586621679083716"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-48"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">Signals.CatchInfo</span></span><span> </span><span id="local-6989586621679083717"><span class="annot"><span class="annottext">SignalInfo -&gt; IO ()
+</span><a href="#local-6989586621679083717"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(SignalInfo -&gt; IO ()) -&gt; Handler IO
+forall (m :: * -&gt; *). (SignalInfo -&gt; m ()) -&gt; Handler m
+</span><a href="Effectful.Posix.Signals.Handler.html#CatchInfo"><span class="hs-identifier hs-var">CatchInfo</span></a></span><span> </span><span class="annot"><span class="annottext">SignalInfo -&gt; IO ()
+</span><a href="#local-6989586621679083717"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-49"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">Signals.CatchInfoOnce</span></span><span> </span><span id="local-6989586621679083718"><span class="annot"><span class="annottext">SignalInfo -&gt; IO ()
+</span><a href="#local-6989586621679083718"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(SignalInfo -&gt; IO ()) -&gt; Handler IO
+forall (m :: * -&gt; *). (SignalInfo -&gt; m ()) -&gt; Handler m
+</span><a href="Effectful.Posix.Signals.Handler.html#CatchInfoOnce"><span class="hs-identifier hs-var">CatchInfoOnce</span></a></span><span> </span><span class="annot"><span class="annottext">SignalInfo -&gt; IO ()
+</span><a href="#local-6989586621679083718"><span class="hs-identifier hs-var">x</span></a></span><span>
+</span><span id="line-50"></span></pre></body></html>

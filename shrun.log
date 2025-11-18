@@ -1,0 +1,434 @@
+[2025-11-18 14:21:10][Command][haddock_push] Starting...
+[2025-11-18 14:21:11][Command][haddock_push] Your branch is up to date with 'origin/main'.
+[2025-11-18 14:21:11][Command][haddock_push] Already on 'main'
+[2025-11-18 14:21:11][Command][haddock_push] Deleted branch gh-pages (was 3e3c1ca).
+[2025-11-18 14:21:11][Command][haddock_push] Switched to a new branch 'gh-pages'
+[2025-11-18 14:21:11][Command][haddock_push] Build profile: -w ghc-9.12.2 -O1
+[2025-11-18 14:21:11][Command][haddock_push] In order, the following will be built (use -v for more details):
+[2025-11-18 14:21:11][Command][haddock_push]  - concurrent-effectful-0.1 (lib) (ephemeral targets)
+[2025-11-18 14:21:11][Command][haddock_push]  - effectful-utils-0.1 (lib) (ephemeral targets)
+[2025-11-18 14:21:11][Command][haddock_push]  - env-guard-effectful-0.1 (lib) (first run)
+[2025-11-18 14:21:11][Command][haddock_push]  - ioref-effectful-0.1 (lib) (first run)
+[2025-11-18 14:21:11][Command][haddock_push]  - stm-effectful-0.1 (lib) (first run)
+[2025-11-18 14:21:11][Command][haddock_push]  - unix-effectful-0.1 (lib) (dependency rebuilt)
+[2025-11-18 14:21:11][Command][haddock_push]  - unix-compat-effectful-0.1 (lib) (dependency rebuilt)
+[2025-11-18 14:21:11][Command][haddock_push]  - typed-process-dynamic-effectful-0.1 (lib) (dependency rebuilt)
+[2025-11-18 14:21:11][Command][haddock_push]  - time-effectful-0.1 (lib) (dependency rebuilt)
+[2025-11-18 14:21:11][Command][haddock_push]  - terminal-effectful-0.1 (lib) (dependency rebuilt)
+[2025-11-18 14:21:11][Command][haddock_push]  - process-dynamic-effectful-0.1 (lib) (dependency rebuilt)
+[2025-11-18 14:21:11][Command][haddock_push]  - haskeline-effectful-0.1 (lib) (dependency rebuilt)
+[2025-11-18 14:21:11][Command][haddock_push]  - fs-effectful-0.1 (lib) (dependency rebuilt)
+[2025-11-18 14:21:11][Command][haddock_push]  - environment-effectful-0.1 (lib) (dependency rebuilt)
+[2025-11-18 14:21:11][Command][haddock_push]  - logger-effectful-0.1 (lib) (dependency rebuilt)
+[2025-11-18 14:21:11][Command][haddock_push]  - optparse-effectful-0.1 (lib) (dependency rebuilt)
+[2025-11-18 14:21:11][Command][haddock_push] Preprocessing library for effectful-utils-0.1...
+[2025-11-18 14:21:11][Command][haddock_push] Building library for effectful-utils-0.1...
+[2025-11-18 14:21:11][Command][haddock_push] Preprocessing library for concurrent-effectful-0.1...
+[2025-11-18 14:21:11][Command][haddock_push] Building library for concurrent-effectful-0.1...
+[2025-11-18 14:21:11][Command][haddock_push] Preprocessing library for ioref-effectful-0.1...
+[2025-11-18 14:21:11][Command][haddock_push] Running Haddock on library for ioref-effectful-0.1...
+[2025-11-18 14:21:11][Command][haddock_push] Preprocessing library for env-guard-effectful-0.1...
+[2025-11-18 14:21:11][Command][haddock_push] Running Haddock on library for env-guard-effectful-0.1...
+[2025-11-18 14:21:11][Command][haddock_push] Preprocessing library for stm-effectful-0.1...
+[2025-11-18 14:21:11][Command][haddock_push] Running Haddock on library for stm-effectful-0.1...
+[2025-11-18 14:21:12][Command][haddock_push] [1 of 1] Compiling Effectful.Environment.Guard.Static ( src/Effectful/Environment/Guard/Static.hs, nothing ) [Flags changed]
+[2025-11-18 14:21:12][Command][haddock_push] [1 of 1] Compiling Effectful.IORef.Static ( src/Effectful/IORef/Static.hs, nothing ) [Flags changed]
+[2025-11-18 14:21:12][Command][haddock_push] [1 of 2] Compiling Effectful.Concurrent.STM.TBQueue.Static ( src/Effectful/Concurrent/STM/TBQueue/Static.hs, nothing ) [Flags changed]
+[2025-11-18 14:21:12][Command][haddock_push] [2 of 2] Compiling Effectful.Concurrent.STM.TVar.Static ( src/Effectful/Concurrent/STM/TVar/Static.hs, nothing ) [Flags changed]
+[2025-11-18 14:21:12][Command][haddock_push] Preprocessing library for effectful-utils-0.1...
+[2025-11-18 14:21:12][Command][haddock_push] Running Haddock on library for effectful-utils-0.1...
+[2025-11-18 14:21:12][Command][haddock_push] Preprocessing library for concurrent-effectful-0.1...
+[2025-11-18 14:21:12][Command][haddock_push] Running Haddock on library for concurrent-effectful-0.1...
+[2025-11-18 14:21:12][Command][haddock_push] [1 of 1] Compiling Effectful.Dynamic.Utils ( src/Effectful/Dynamic/Utils.hs, nothing ) [HIE file is out of date]
+[2025-11-18 14:21:13][Command][haddock_push] [1 of 1] Compiling Effectful.Concurrent.Static ( src/Effectful/Concurrent/Static.hs, nothing ) [HIE file is out of date]
+[2025-11-18 14:21:37][Command][haddock_push] Haddock coverage:
+[2025-11-18 14:21:37][Command][haddock_push]  100% (  2 /  2) in 'Effectful.Dynamic.Utils'
+[2025-11-18 14:21:38][Command][haddock_push] Documentation created:
+[2025-11-18 14:21:38][Command][haddock_push] /home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.2/effectful-utils-0.1/doc/html/effectful-utils
+[2025-11-18 14:21:40][Command][haddock_push] Preprocessing library for time-effectful-0.1...
+[2025-11-18 14:21:40][Command][haddock_push] Building library for time-effectful-0.1...
+[2025-11-18 14:21:40][Command][haddock_push] Preprocessing library for typed-process-dynamic-effectful-0.1...
+[2025-11-18 14:21:40][Command][haddock_push] Preprocessing library for unix-effectful-0.1...
+[2025-11-18 14:21:40][Command][haddock_push] Running Haddock on library for typed-process-dynamic-effectful-0.1...
+[2025-11-18 14:21:40][Command][haddock_push] Running Haddock on library for unix-effectful-0.1...
+[2025-11-18 14:21:40][Command][haddock_push] Warning: The following packages have no Haddock documentation installed. No
+[2025-11-18 14:21:40][Command][haddock_push] links will be generated to these packages: path-0.9.6, path-0.9.6,
+[2025-11-18 14:21:40][Command][haddock_push] vector-0.13.2.0
+[2025-11-18 14:21:41][Command][haddock_push] Preprocessing library for unix-compat-effectful-0.1...
+[2025-11-18 14:21:41][Command][haddock_push] Running Haddock on library for unix-compat-effectful-0.1...
+[2025-11-18 14:21:41][Command][haddock_push] Warning: The following packages have no Haddock documentation installed. No
+[2025-11-18 14:21:41][Command][haddock_push] links will be generated to these packages: path-0.9.6, path-0.9.6,
+[2025-11-18 14:21:41][Command][haddock_push] vector-0.13.2.0
+[2025-11-18 14:21:53][Command][haddock_push] [1 of 5] Compiling Effectful.Posix.Files.Static ( src/Effectful/Posix/Files/Static.hs, nothing ) [Flags changed]
+[2025-11-18 14:21:53][Command][haddock_push] [1 of 1] Compiling Effectful.Process.Typed.Dynamic ( src/Effectful/Process/Typed/Dynamic.hs, nothing ) [Flags changed]
+[2025-11-18 14:21:56][Command][haddock_push] [1 of 2] Compiling Effectful.PosixCompat.Files.Static ( src/Effectful/PosixCompat/Files/Static.hs, nothing ) [Flags changed]
+[2025-11-18 14:22:07][Command][haddock_push] [2 of 5] Compiling Effectful.Posix.Files.Dynamic ( src/Effectful/Posix/Files/Dynamic.hs, nothing ) [Flags changed]
+[2025-11-18 14:22:07][Command][haddock_push] [2 of 2] Compiling Effectful.PosixCompat.Files.Dynamic ( src/Effectful/PosixCompat/Files/Dynamic.hs, nothing ) [Flags changed]
+[2025-11-18 14:22:08][Command][haddock_push] [3 of 5] Compiling Effectful.Posix.Signals.Handler ( src/Effectful/Posix/Signals/Handler.hs, nothing ) [Flags changed]
+[2025-11-18 14:22:08][Command][haddock_push] [4 of 5] Compiling Effectful.Posix.Signals.Static ( src/Effectful/Posix/Signals/Static.hs, nothing ) [Flags changed]
+[2025-11-18 14:22:08][Command][haddock_push] [5 of 5] Compiling Effectful.Posix.Signals.Dynamic ( src/Effectful/Posix/Signals/Dynamic.hs, nothing ) [Flags changed]
+[2025-11-18 14:22:16][Command][haddock_push] Preprocessing library for time-effectful-0.1...
+[2025-11-18 14:22:16][Command][haddock_push] Running Haddock on library for time-effectful-0.1...
+[2025-11-18 14:22:16][Command][haddock_push] Warning: The following packages have no Haddock documentation installed. No
+[2025-11-18 14:22:16][Command][haddock_push] links will be generated to these packages: vector-0.13.2.0
+[2025-11-18 14:22:17][Command][haddock_push] [1 of 4] Compiling Effectful.Time.TimeSpec ( src/Effectful/Time/TimeSpec.hs, nothing ) [HIE file is out of date]
+[2025-11-18 14:22:19][Command][haddock_push] [2 of 4] Compiling Effectful.Time.Utils ( src/Effectful/Time/Utils.hs, nothing ) [HIE file is out of date]
+[2025-11-18 14:22:20][Command][haddock_push] [3 of 4] Compiling Effectful.Time.Static ( src/Effectful/Time/Static.hs, nothing ) [HIE file is out of date]
+[2025-11-18 14:22:21][Command][haddock_push] [4 of 4] Compiling Effectful.Time.Dynamic ( src/Effectful/Time/Dynamic.hs, nothing ) [HIE file is out of date]
+[2025-11-18 14:23:31][Command][haddock_push] Haddock coverage:
+[2025-11-18 14:23:31][Command][haddock_push] Warning: 'IOException' is out of scope.
+[2025-11-18 14:23:31][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:23:31][Command][haddock_push]  100% ( 36 / 36) in 'Effectful.PosixCompat.Files.Static'
+[2025-11-18 14:23:31][Command][haddock_push] Warning: 'IOException' is out of scope.
+[2025-11-18 14:23:31][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:23:31][Command][haddock_push]  100% ( 36 / 36) in 'Effectful.PosixCompat.Files.Dynamic'
+[2025-11-18 14:23:31][Command][haddock_push] Warning: Effectful.PosixCompat.Files.Static: could not find link destinations for: 
+[2025-11-18 14:23:31][Command][haddock_push] - FileSystem.PathType.Rep_PathType
+[2025-11-18 14:23:31][Command][haddock_push] - Effectful.PosixCompat.Files.Static.D:R:StaticRepPosixCompatFiles0
+[2025-11-18 14:23:31][Command][haddock_push] - Effectful.PosixCompat.Files.Static.MkPosixFilesCompat
+[2025-11-18 14:23:31][Command][haddock_push] Warning: Effectful.PosixCompat.Files.Dynamic: could not find link destinations for: 
+[2025-11-18 14:23:31][Command][haddock_push] - FileSystem.PathType.Rep_PathType
+[2025-11-18 14:23:36][Command][haddock_push] Documentation created:
+[2025-11-18 14:23:36][Command][haddock_push] /home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.2/unix-compat-effectful-0.1/doc/html/unix-compat-effectful
+[2025-11-18 14:23:36][Command][haddock_push] Haddock coverage:
+[2025-11-18 14:23:36][Command][haddock_push] Warning: 'IOException' is out of scope.
+[2025-11-18 14:23:36][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:23:36][Command][haddock_push]  100% ( 36 / 36) in 'Effectful.Posix.Files.Static'
+[2025-11-18 14:23:36][Command][haddock_push] Warning: 'IOException' is out of scope.
+[2025-11-18 14:23:36][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:23:36][Command][haddock_push]  100% ( 36 / 36) in 'Effectful.Posix.Files.Dynamic'
+[2025-11-18 14:23:36][Command][haddock_push]   85% ( 24 / 28) in 'Effectful.Posix.Signals.Static'
+[2025-11-18 14:23:36][Command][haddock_push]   Missing documentation for:
+[2025-11-18 14:23:36][Command][haddock_push]     Signal
+[2025-11-18 14:23:36][Command][haddock_push]     SignalSet
+[2025-11-18 14:23:36][Command][haddock_push]     ProcessID
+[2025-11-18 14:23:36][Command][haddock_push]     ProcessGroupID
+[2025-11-18 14:23:36][Command][haddock_push]  100% ( 18 / 18) in 'Effectful.Posix.Signals.Dynamic'
+[2025-11-18 14:23:36][Command][haddock_push] Warning: Effectful.Posix.Files.Static: could not find link destinations for: 
+[2025-11-18 14:23:36][Command][haddock_push] - FileSystem.PathType.Rep_PathType
+[2025-11-18 14:23:36][Command][haddock_push] - Effectful.Posix.Files.Static.D:R:StaticRepPosixFiles0
+[2025-11-18 14:23:36][Command][haddock_push] - Effectful.Posix.Files.Static.MkPosixFiles
+[2025-11-18 14:23:36][Command][haddock_push] Warning: Effectful.Posix.Files.Dynamic: could not find link destinations for: 
+[2025-11-18 14:23:36][Command][haddock_push] - FileSystem.PathType.Rep_PathType
+[2025-11-18 14:23:36][Command][haddock_push] Warning: Effectful.Posix.Signals.Static: could not find link destinations for: 
+[2025-11-18 14:23:36][Command][haddock_push] - Effectful.Posix.Signals.Static.D:R:StaticRepPosixSignals0
+[2025-11-18 14:23:36][Command][haddock_push] - Effectful.Posix.Signals.Static.MkPosixSignals
+[2025-11-18 14:23:37][Command][haddock_push] Haddock coverage:
+[2025-11-18 14:23:37][Command][haddock_push]  100% ( 22 / 22) in 'Effectful.Time.TimeSpec'
+[2025-11-18 14:23:37][Command][haddock_push]  100% (  5 /  5) in 'Effectful.Time.Utils'
+[2025-11-18 14:23:37][Command][haddock_push]  100% ( 37 / 37) in 'Effectful.Time.Static'
+[2025-11-18 14:23:37][Command][haddock_push]  100% ( 37 / 37) in 'Effectful.Time.Dynamic'
+[2025-11-18 14:23:37][Command][haddock_push] Warning: Effectful.Time.TimeSpec: could not find link destinations for: 
+[2025-11-18 14:23:37][Command][haddock_push] - Effectful.Time.TimeSpec.Rep_TimeSpec
+[2025-11-18 14:23:37][Command][haddock_push] Warning: Effectful.Time.Static: could not find link destinations for: 
+[2025-11-18 14:23:37][Command][haddock_push] - Effectful.Time.TimeSpec.Rep_TimeSpec
+[2025-11-18 14:23:37][Command][haddock_push] - Data.Time.LocalTime.Internal.LocalTime.Rep_LocalTime
+[2025-11-18 14:23:37][Command][haddock_push] - Data.Time.LocalTime.Internal.ZonedTime.Rep_ZonedTime
+[2025-11-18 14:23:37][Command][haddock_push] - Effectful.Time.Static.D:R:StaticRepTime0
+[2025-11-18 14:23:37][Command][haddock_push] - Effectful.Time.Static.MkTime
+[2025-11-18 14:23:37][Command][haddock_push] Warning: Effectful.Time.Dynamic: could not find link destinations for: 
+[2025-11-18 14:23:37][Command][haddock_push] - Effectful.Time.TimeSpec.Rep_TimeSpec
+[2025-11-18 14:23:37][Command][haddock_push] - Data.Time.LocalTime.Internal.LocalTime.Rep_LocalTime
+[2025-11-18 14:23:37][Command][haddock_push] - Data.Time.LocalTime.Internal.ZonedTime.Rep_ZonedTime
+[2025-11-18 14:23:37][Command][haddock_push] Documentation created:
+[2025-11-18 14:23:37][Command][haddock_push] /home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.2/unix-effectful-0.1/doc/html/unix-effectful
+[2025-11-18 14:23:37][Command][haddock_push] Documentation created:
+[2025-11-18 14:23:37][Command][haddock_push] /home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.2/time-effectful-0.1/doc/html/time-effectful
+[2025-11-18 14:23:38][Command][haddock_push] Haddock coverage:
+[2025-11-18 14:23:38][Command][haddock_push]   95% ( 20 / 21) in 'Effectful.Environment.Guard.Static'
+[2025-11-18 14:23:38][Command][haddock_push]   Missing documentation for:
+[2025-11-18 14:23:38][Command][haddock_push]     Module header
+[2025-11-18 14:23:38][Command][haddock_push] Warning: Effectful.Environment.Guard.Static: could not find link destinations for: 
+[2025-11-18 14:23:38][Command][haddock_push] - Effectful.Environment.Guard.Static.D:R:StaticRepEnvGuard0
+[2025-11-18 14:23:38][Command][haddock_push] - Effectful.Environment.Guard.Static.MkEnvGuard
+[2025-11-18 14:23:39][Command][haddock_push] Documentation created:
+[2025-11-18 14:23:39][Command][haddock_push] /home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.2/env-guard-effectful-0.1/doc/html/env-guard-effectful
+[2025-11-18 14:23:40][Command][haddock_push] Preprocessing library for process-dynamic-effectful-0.1...
+[2025-11-18 14:23:40][Command][haddock_push] Running Haddock on library for process-dynamic-effectful-0.1...
+[2025-11-18 14:23:40][Command][haddock_push] Preprocessing library for terminal-effectful-0.1...
+[2025-11-18 14:23:40][Command][haddock_push] Running Haddock on library for terminal-effectful-0.1...
+[2025-11-18 14:23:40][Command][haddock_push] Preprocessing library for haskeline-effectful-0.1...
+[2025-11-18 14:23:40][Command][haddock_push] Running Haddock on library for haskeline-effectful-0.1...
+[2025-11-18 14:23:41][Command][haddock_push] Preprocessing library for fs-effectful-0.1...
+[2025-11-18 14:23:41][Command][haddock_push] Building library for fs-effectful-0.1...
+[2025-11-18 14:23:41][Command][haddock_push] [1 of 2] Compiling Effectful.Haskeline.Static ( src/Effectful/Haskeline/Static.hs, nothing ) [Flags changed]
+[2025-11-18 14:23:42][Command][haddock_push] [1 of 2] Compiling Effectful.Process.Dynamic.Effect ( src/Effectful/Process/Dynamic/Effect.hs, nothing ) [Flags changed]
+[2025-11-18 14:23:42][Command][haddock_push] [1 of 2] Compiling Effectful.Terminal.Static ( src/Effectful/Terminal/Static.hs, nothing ) [Flags changed]
+[2025-11-18 14:23:43][Command][haddock_push] [2 of 2] Compiling Effectful.Process.Dynamic ( src/Effectful/Process/Dynamic.hs, nothing ) [Flags changed]
+[2025-11-18 14:23:44][Command][haddock_push] Haddock coverage:
+[2025-11-18 14:23:44][Command][haddock_push]   98% ( 81 / 82) in 'Effectful.Process.Typed.Dynamic'
+[2025-11-18 14:23:44][Command][haddock_push]   Missing documentation for:
+[2025-11-18 14:23:44][Command][haddock_push]     StdStream
+[2025-11-18 14:23:44][Command][haddock_push] Warning: Effectful.Process.Typed.Dynamic: could not find link destinations for: 
+[2025-11-18 14:23:44][Command][haddock_push] - GHC.Internal.IO.Exception.Rep_ExitCode
+[2025-11-18 14:23:44][Command][haddock_push] [2 of 2] Compiling Effectful.Haskeline.Dynamic ( src/Effectful/Haskeline/Dynamic.hs, nothing ) [Flags changed]
+[2025-11-18 14:23:44][Command][haddock_push] [2 of 2] Compiling Effectful.Terminal.Dynamic ( src/Effectful/Terminal/Dynamic.hs, nothing ) [Flags changed]
+[2025-11-18 14:23:45][Command][haddock_push] Documentation created:
+[2025-11-18 14:23:45][Command][haddock_push] /home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.2/typed-process-dynamic-effectful-0.1/doc/html/typed-process-dynamic-effectful
+[2025-11-18 14:23:47][Command][haddock_push] Preprocessing library for environment-effectful-0.1...
+[2025-11-18 14:23:47][Command][haddock_push] Running Haddock on library for environment-effectful-0.1...
+[2025-11-18 14:23:48][Command][haddock_push] Preprocessing library for fs-effectful-0.1...
+[2025-11-18 14:23:48][Command][haddock_push] Running Haddock on library for fs-effectful-0.1...
+[2025-11-18 14:23:48][Command][haddock_push] Warning: The following packages have no Haddock documentation installed. No
+[2025-11-18 14:23:48][Command][haddock_push] links will be generated to these packages: path-0.9.6, path-0.9.6,
+[2025-11-18 14:23:48][Command][haddock_push] vector-0.13.2.0
+[2025-11-18 14:23:49][Command][haddock_push] [1 of 3] Compiling Effectful.Environment.Utils ( src/Effectful/Environment/Utils.hs, nothing ) [Flags changed]
+[2025-11-18 14:23:50][Command][haddock_push] [2 of 3] Compiling Effectful.Environment.Static ( src/Effectful/Environment/Static.hs, nothing ) [Flags changed]
+[2025-11-18 14:23:50][Command][haddock_push] [3 of 3] Compiling Effectful.Environment.Dynamic ( src/Effectful/Environment/Dynamic.hs, nothing ) [Flags changed]
+[2025-11-18 14:23:51][Command][haddock_push] [ 1 of 13] Compiling Effectful.FileSystem.FileReader.Static ( src/Effectful/FileSystem/FileReader/Static.hs, nothing ) [HIE file is out of date]
+[2025-11-18 14:23:53][Command][haddock_push] [ 2 of 13] Compiling Effectful.FileSystem.FileReader.Dynamic ( src/Effectful/FileSystem/FileReader/Dynamic.hs, nothing ) [HIE file is out of date]
+[2025-11-18 14:23:53][Command][haddock_push] [ 3 of 13] Compiling Effectful.FileSystem.FileWriter.Static ( src/Effectful/FileSystem/FileWriter/Static.hs, nothing ) [HIE file is out of date]
+[2025-11-18 14:23:53][Command][haddock_push] [ 4 of 13] Compiling Effectful.FileSystem.FileWriter.Dynamic ( src/Effectful/FileSystem/FileWriter/Dynamic.hs, nothing ) [HIE file is out of date]
+[2025-11-18 14:23:53][Command][haddock_push] [ 5 of 13] Compiling Effectful.FileSystem.HandleReader.Static ( src/Effectful/FileSystem/HandleReader/Static.hs, nothing ) [HIE file is out of date]
+[2025-11-18 14:23:53][Command][haddock_push] [ 6 of 13] Compiling Effectful.FileSystem.HandleReader.Dynamic ( src/Effectful/FileSystem/HandleReader/Dynamic.hs, nothing ) [HIE file is out of date]
+[2025-11-18 14:23:54][Command][haddock_push] [ 7 of 13] Compiling Effectful.FileSystem.HandleWriter.Static ( src/Effectful/FileSystem/HandleWriter/Static.hs, nothing ) [HIE file is out of date]
+[2025-11-18 14:23:54][Command][haddock_push] [ 8 of 13] Compiling Effectful.FileSystem.HandleWriter.Dynamic ( src/Effectful/FileSystem/HandleWriter/Dynamic.hs, nothing ) [HIE file is out of date]
+[2025-11-18 14:23:54][Command][haddock_push] [ 9 of 13] Compiling Effectful.FileSystem.PathReader.Static ( src/Effectful/FileSystem/PathReader/Static.hs, nothing ) [HIE file is out of date]
+[2025-11-18 14:23:55][Command][haddock_push] [10 of 13] Compiling Effectful.FileSystem.PathReader.Dynamic ( src/Effectful/FileSystem/PathReader/Dynamic.hs, nothing ) [HIE file is out of date]
+[2025-11-18 14:23:56][Command][haddock_push] [11 of 13] Compiling Effectful.FileSystem.PathWriter.Utils ( src/Effectful/FileSystem/PathWriter/Utils.hs, nothing ) [HIE file is out of date]
+[2025-11-18 14:23:56][Command][haddock_push] [12 of 13] Compiling Effectful.FileSystem.PathWriter.Static ( src/Effectful/FileSystem/PathWriter/Static.hs, nothing ) [HIE file is out of date]
+[2025-11-18 14:23:57][Command][haddock_push] [13 of 13] Compiling Effectful.FileSystem.PathWriter.Dynamic ( src/Effectful/FileSystem/PathWriter/Dynamic.hs, nothing ) [HIE file is out of date]
+[2025-11-18 14:23:57][Command][haddock_push] Haddock coverage:
+[2025-11-18 14:23:57][Command][haddock_push]  100% ( 22 / 22) in 'Effectful.IORef.Static'
+[2025-11-18 14:23:57][Command][haddock_push] Warning: Effectful.IORef.Static: could not find link destinations for: 
+[2025-11-18 14:23:57][Command][haddock_push] - Effectful.IORef.Static.D:R:StaticRepIORefE0
+[2025-11-18 14:23:57][Command][haddock_push] - Effectful.IORef.Static.MkIORefEtatic
+[2025-11-18 14:24:01][Command][haddock_push] Documentation created:
+[2025-11-18 14:24:01][Command][haddock_push] /home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.2/ioref-effectful-0.1/doc/html/ioref-effectful
+[2025-11-18 14:24:46][Command][haddock_push] Haddock coverage:
+[2025-11-18 14:24:46][Command][haddock_push]  100% ( 10 / 10) in 'Effectful.Concurrent.Static'
+[2025-11-18 14:24:46][Command][haddock_push] Warning: Effectful.Concurrent.Static: could not find link destinations for: 
+[2025-11-18 14:24:46][Command][haddock_push] - Effectful.Concurrent.Effect.D:R:StaticRepConcurrent0
+[2025-11-18 14:24:46][Command][haddock_push] - Effectful.Concurrent.Effect.Concurrent
+[2025-11-18 14:24:46][Command][haddock_push] Documentation created:
+[2025-11-18 14:24:46][Command][haddock_push] /home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.2/concurrent-effectful-0.1/doc/html/concurrent-effectful
+[2025-11-18 14:24:47][Command][haddock_push] Preprocessing library for logger-effectful-0.1...
+[2025-11-18 14:24:47][Command][haddock_push] Running Haddock on library for logger-effectful-0.1...
+[2025-11-18 14:24:47][Command][haddock_push] Warning: The following packages have no Haddock documentation installed. No
+[2025-11-18 14:24:47][Command][haddock_push] links will be generated to these packages: vector-0.13.2.0
+[2025-11-18 14:24:48][Command][haddock_push] [1 of 3] Compiling Effectful.Logger.Utils ( src/Effectful/Logger/Utils.hs, /tmp/nix-shell.9ZTZqp/ghc1617479_tmp_0/ghc_tmp_4.o, /tmp/nix-shell.9ZTZqp/ghc1617479_tmp_0/ghc_tmp_4.dyn_o )
+[2025-11-18 14:24:49][Command][haddock_push] Haddock coverage:
+[2025-11-18 14:24:49][Command][haddock_push]  100% (  2 /  2) in 'Effectful.Environment.Utils'
+[2025-11-18 14:24:49][Command][haddock_push]   94% ( 18 / 19) in 'Effectful.Environment.Static'
+[2025-11-18 14:24:49][Command][haddock_push]   Missing documentation for:
+[2025-11-18 14:24:49][Command][haddock_push]     executablePath (src/Effectful/Environment/Static.hs:59)
+[2025-11-18 14:24:49][Command][haddock_push]  100% ( 18 / 18) in 'Effectful.Environment.Dynamic'
+[2025-11-18 14:24:49][Command][haddock_push] Warning: Effectful.Environment.Utils: could not find link destinations for: 
+[2025-11-18 14:24:49][Command][haddock_push] - Effectful.Environment.Utils.Rep_QueryExePath
+[2025-11-18 14:24:49][Command][haddock_push] Warning: Effectful.Environment.Static: could not find link destinations for: 
+[2025-11-18 14:24:49][Command][haddock_push] - Effectful.Environment.Utils.Rep_QueryExePath
+[2025-11-18 14:24:49][Command][haddock_push] - Effectful.Environment.D:R:StaticRepEnvironment0
+[2025-11-18 14:24:49][Command][haddock_push] - Effectful.Environment.Environment
+[2025-11-18 14:24:49][Command][haddock_push] Warning: Effectful.Environment.Dynamic: could not find link destinations for: 
+[2025-11-18 14:24:49][Command][haddock_push] - Effectful.Environment.Utils.Rep_QueryExePath
+[2025-11-18 14:24:50][Command][haddock_push] Documentation created:
+[2025-11-18 14:24:50][Command][haddock_push] /home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.2/environment-effectful-0.1/doc/html/environment-effectful
+[2025-11-18 14:24:51][Command][haddock_push] [2 of 3] Compiling Effectful.Logger.Dynamic ( src/Effectful/Logger/Dynamic.hs, nothing ) [Flags changed]
+[2025-11-18 14:24:51][Command][haddock_push] [3 of 3] Compiling Effectful.Logger.Namespace ( src/Effectful/Logger/Namespace.hs, nothing ) [Flags changed]
+[2025-11-18 14:24:52][Command][haddock_push] Haddock coverage:
+[2025-11-18 14:24:52][Command][haddock_push]  100% ( 18 / 18) in 'Effectful.FileSystem.FileReader.Static'
+[2025-11-18 14:24:52][Command][haddock_push]  100% ( 18 / 18) in 'Effectful.FileSystem.FileReader.Dynamic'
+[2025-11-18 14:24:52][Command][haddock_push]  100% ( 14 / 14) in 'Effectful.FileSystem.FileWriter.Static'
+[2025-11-18 14:24:52][Command][haddock_push]  100% ( 14 / 14) in 'Effectful.FileSystem.FileWriter.Dynamic'
+[2025-11-18 14:24:52][Command][haddock_push]  100% ( 49 / 49) in 'Effectful.FileSystem.HandleReader.Static'
+[2025-11-18 14:24:52][Command][haddock_push] Warning: 'decodeUtf8ThrowM' is out of scope.
+[2025-11-18 14:24:52][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:24:52][Command][haddock_push]  100% ( 49 / 49) in 'Effectful.FileSystem.HandleReader.Dynamic'
+[2025-11-18 14:24:52][Command][haddock_push] Warning: 'stderr' is out of scope.
+[2025-11-18 14:24:52][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:24:52][Command][haddock_push]  100% ( 29 / 29) in 'Effectful.FileSystem.HandleWriter.Static'
+[2025-11-18 14:24:52][Command][haddock_push] Warning: 'stderr' is out of scope.
+[2025-11-18 14:24:52][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:24:52][Command][haddock_push]  100% ( 29 / 29) in 'Effectful.FileSystem.HandleWriter.Dynamic'
+[2025-11-18 14:24:52][Command][haddock_push] Warning: 'IOException' is out of scope.
+[2025-11-18 14:24:52][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:24:52][Command][haddock_push]   98% ( 62 / 63) in 'Effectful.FileSystem.PathReader.Static'
+[2025-11-18 14:24:52][Command][haddock_push]   Missing documentation for:
+[2025-11-18 14:24:52][Command][haddock_push]     Permissions
+[2025-11-18 14:24:52][Command][haddock_push] Warning: 'IOException' is out of scope.
+[2025-11-18 14:24:52][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:24:52][Command][haddock_push]   98% ( 62 / 63) in 'Effectful.FileSystem.PathReader.Dynamic'
+[2025-11-18 14:24:52][Command][haddock_push]   Missing documentation for:
+[2025-11-18 14:24:52][Command][haddock_push]     Permissions
+[2025-11-18 14:24:52][Command][haddock_push]  100% ( 13 / 13) in 'Effectful.FileSystem.PathWriter.Utils'
+[2025-11-18 14:24:52][Command][haddock_push] Warning: 'defaultCopyDirConfig' is out of scope.
+[2025-11-18 14:24:52][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:24:52][Command][haddock_push] Warning: 'PathNotFoundException' is out of scope.
+[2025-11-18 14:24:52][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:24:52][Command][haddock_push] Warning: 'PathFoundException' is out of scope.
+[2025-11-18 14:24:52][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:24:52][Command][haddock_push] Warning: 'doesDirectoryExist' is out of scope.
+[2025-11-18 14:24:52][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:24:52][Command][haddock_push] Warning: 'doesFileExist' is out of scope.
+[2025-11-18 14:24:52][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:24:52][Command][haddock_push] Warning: 'doesPathExist' is out of scope.
+[2025-11-18 14:24:52][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:24:52][Command][haddock_push] Warning: 'doesSymbolicLinkExist' is out of scope.
+[2025-11-18 14:24:52][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:24:52][Command][haddock_push]   98% ( 60 / 61) in 'Effectful.FileSystem.PathWriter.Static'
+[2025-11-18 14:24:52][Command][haddock_push]   Missing documentation for:
+[2025-11-18 14:24:52][Command][haddock_push]     Permissions
+[2025-11-18 14:24:52][Command][haddock_push] Warning: 'defaultCopyDirConfig' is out of scope.
+[2025-11-18 14:24:52][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:24:52][Command][haddock_push] Warning: 'PathNotFoundException' is out of scope.
+[2025-11-18 14:24:52][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:24:52][Command][haddock_push] Warning: 'PathFoundException' is out of scope.
+[2025-11-18 14:24:52][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:24:52][Command][haddock_push] Warning: 'doesDirectoryExist' is out of scope.
+[2025-11-18 14:24:52][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:24:52][Command][haddock_push] Warning: 'doesFileExist' is out of scope.
+[2025-11-18 14:24:52][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:24:52][Command][haddock_push] Warning: 'doesPathExist' is out of scope.
+[2025-11-18 14:24:52][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:24:52][Command][haddock_push] Warning: 'doesSymbolicLinkExist' is out of scope.
+[2025-11-18 14:24:52][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:24:52][Command][haddock_push]   98% ( 60 / 61) in 'Effectful.FileSystem.PathWriter.Dynamic'
+[2025-11-18 14:24:52][Command][haddock_push]   Missing documentation for:
+[2025-11-18 14:24:52][Command][haddock_push]     Permissions
+[2025-11-18 14:24:52][Command][haddock_push] Warning: Effectful.FileSystem.FileReader.Static: could not find link destinations for: 
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.FileReader.Static.D:R:StaticRepFileReader0
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.FileReader.Static.MkFileReader
+[2025-11-18 14:24:52][Command][haddock_push] - Data.ByteString.Internal.Type.D:R:ItemByteString
+[2025-11-18 14:24:52][Command][haddock_push] Warning: Effectful.FileSystem.FileReader.Dynamic: could not find link destinations for: 
+[2025-11-18 14:24:52][Command][haddock_push] - Data.ByteString.Internal.Type.D:R:ItemByteString
+[2025-11-18 14:24:52][Command][haddock_push] Warning: Effectful.FileSystem.FileWriter.Static: could not find link destinations for: 
+[2025-11-18 14:24:52][Command][haddock_push] - Data.ByteString.Internal.Type.D:R:ItemByteString
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.FileWriter.Static.D:R:StaticRepFileWriter0
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.FileWriter.Static.MkFileWriter
+[2025-11-18 14:24:52][Command][haddock_push] Warning: Effectful.FileSystem.FileWriter.Dynamic: could not find link destinations for: 
+[2025-11-18 14:24:52][Command][haddock_push] - Data.ByteString.Internal.Type.D:R:ItemByteString
+[2025-11-18 14:24:52][Command][haddock_push] Warning: Effectful.FileSystem.HandleReader.Static: could not find link destinations for: 
+[2025-11-18 14:24:52][Command][haddock_push] - Data.ByteString.Internal.Type.D:R:ItemByteString
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.HandleReader.Static.D:R:StaticRepHandleReader0
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.HandleReader.Static.MkHandleReader
+[2025-11-18 14:24:52][Command][haddock_push] Warning: Effectful.FileSystem.HandleReader.Dynamic: could not find link destinations for: 
+[2025-11-18 14:24:52][Command][haddock_push] - Data.ByteString.Internal.Type.D:R:ItemByteString
+[2025-11-18 14:24:52][Command][haddock_push] Warning: Effectful.FileSystem.HandleWriter.Static: could not find link destinations for: 
+[2025-11-18 14:24:52][Command][haddock_push] - Data.ByteString.Internal.Type.D:R:ItemByteString
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.HandleWriter.Static.D:R:StaticRepHandleWriter0
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.HandleWriter.Static.MkHandleWriter
+[2025-11-18 14:24:52][Command][haddock_push] Warning: Effectful.FileSystem.HandleWriter.Dynamic: could not find link destinations for: 
+[2025-11-18 14:24:52][Command][haddock_push] - Data.ByteString.Internal.Type.D:R:ItemByteString
+[2025-11-18 14:24:52][Command][haddock_push] Warning: Effectful.FileSystem.PathReader.Static: could not find link destinations for: 
+[2025-11-18 14:24:52][Command][haddock_push] - FileSystem.PathType.Rep_PathType
+[2025-11-18 14:24:52][Command][haddock_push] - Data.Time.Clock.Internal.UTCTime.Rep_UTCTime
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.PathReader.Static.D:R:StaticRepPathReader0
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.PathReader.Static.MkPathReader
+[2025-11-18 14:24:52][Command][haddock_push] Warning: Effectful.FileSystem.PathReader.Dynamic: could not find link destinations for: 
+[2025-11-18 14:24:52][Command][haddock_push] - FileSystem.PathType.Rep_PathType
+[2025-11-18 14:24:52][Command][haddock_push] - Data.Time.Clock.Internal.UTCTime.Rep_UTCTime
+[2025-11-18 14:24:52][Command][haddock_push] Warning: Effectful.FileSystem.PathWriter.Utils: could not find link destinations for: 
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.PathWriter.Utils.Rep_CopyDirConfig
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.PathWriter.Utils.Rep_Overwrite
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.PathWriter.Utils.Rep_TargetName
+[2025-11-18 14:24:52][Command][haddock_push] Warning: Effectful.FileSystem.PathWriter.Static: could not find link destinations for: 
+[2025-11-18 14:24:52][Command][haddock_push] - Data.Time.Clock.Internal.UTCTime.Rep_UTCTime
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.PathWriter.Utils.Rep_CopyDirConfig
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.PathWriter.Utils.Rep_Overwrite
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.PathWriter.Utils.Rep_TargetName
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.PathWriter.Static.D:R:StaticRepPathWriter0
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.PathWriter.Static.MkPathWriter
+[2025-11-18 14:24:52][Command][haddock_push] Warning: Effectful.FileSystem.PathWriter.Dynamic: could not find link destinations for: 
+[2025-11-18 14:24:52][Command][haddock_push] - Data.Time.Clock.Internal.UTCTime.Rep_UTCTime
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.PathWriter.Utils.Rep_CopyDirConfig
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.PathWriter.Utils.Rep_Overwrite
+[2025-11-18 14:24:52][Command][haddock_push] - Effectful.FileSystem.PathWriter.Utils.Rep_TargetName
+[2025-11-18 14:24:53][Command][haddock_push] Documentation created:
+[2025-11-18 14:24:53][Command][haddock_push] /home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.2/fs-effectful-0.1/doc/html/fs-effectful
+[2025-11-18 14:24:53][Command][haddock_push] Haddock coverage:
+[2025-11-18 14:24:53][Command][haddock_push]  100% ( 11 / 11) in 'Effectful.Concurrent.STM.TBQueue.Static'
+[2025-11-18 14:24:53][Command][haddock_push]  100% ( 10 / 10) in 'Effectful.Concurrent.STM.TVar.Static'
+[2025-11-18 14:24:53][Command][haddock_push] Warning: Effectful.Concurrent.STM.TBQueue.Static: could not find link destinations for: 
+[2025-11-18 14:24:53][Command][haddock_push] - Effectful.Concurrent.Effect.D:R:StaticRepConcurrent0
+[2025-11-18 14:24:53][Command][haddock_push] - Effectful.Concurrent.Effect.Concurrent
+[2025-11-18 14:24:53][Command][haddock_push] Warning: Effectful.Concurrent.STM.TVar.Static: could not find link destinations for: 
+[2025-11-18 14:24:53][Command][haddock_push] - Effectful.Concurrent.Effect.D:R:StaticRepConcurrent0
+[2025-11-18 14:24:53][Command][haddock_push] - Effectful.Concurrent.Effect.Concurrent
+[2025-11-18 14:24:54][Command][haddock_push] Documentation created:
+[2025-11-18 14:24:54][Command][haddock_push] /home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.2/stm-effectful-0.1/doc/html/stm-effectful
+[2025-11-18 14:24:55][Command][haddock_push] Preprocessing library for optparse-effectful-0.1...
+[2025-11-18 14:24:55][Command][haddock_push] Running Haddock on library for optparse-effectful-0.1...
+[2025-11-18 14:24:55][Command][haddock_push] Warning: The following packages have no Haddock documentation installed. No
+[2025-11-18 14:24:55][Command][haddock_push] links will be generated to these packages: path-0.9.6, path-0.9.6,
+[2025-11-18 14:24:55][Command][haddock_push] vector-0.13.2.0
+[2025-11-18 14:24:56][Command][haddock_push] [1 of 4] Compiling Effectful.Optparse.Completer ( src/Effectful/Optparse/Completer.hs, nothing ) [Flags changed]
+[2025-11-18 14:24:57][Command][haddock_push] Haddock coverage:
+[2025-11-18 14:24:57][Command][haddock_push]  100% ( 26 / 26) in 'Effectful.Terminal.Static'
+[2025-11-18 14:24:57][Command][haddock_push]  100% ( 26 / 26) in 'Effectful.Terminal.Dynamic'
+[2025-11-18 14:24:57][Command][haddock_push] Warning: Effectful.Terminal.Static: could not find link destinations for: 
+[2025-11-18 14:24:57][Command][haddock_push] - Effectful.Terminal.Static.D:R:StaticRepTerminal0
+[2025-11-18 14:24:57][Command][haddock_push] - Effectful.Terminal.Static.MkTerminal
+[2025-11-18 14:24:57][Command][haddock_push] - System.Console.Terminal.Common.Rep1_Window
+[2025-11-18 14:24:57][Command][haddock_push] - System.Console.Terminal.Common.Rep_Window
+[2025-11-18 14:24:57][Command][haddock_push] Warning: Effectful.Terminal.Dynamic: could not find link destinations for: 
+[2025-11-18 14:24:57][Command][haddock_push] - System.Console.Terminal.Common.Rep1_Window
+[2025-11-18 14:24:57][Command][haddock_push] - System.Console.Terminal.Common.Rep_Window
+[2025-11-18 14:24:57][Command][haddock_push] [2 of 4] Compiling Effectful.Optparse.Utils ( src/Effectful/Optparse/Utils.hs, nothing ) [Flags changed]
+[2025-11-18 14:24:57][Command][haddock_push] [3 of 4] Compiling Effectful.Optparse.Static ( src/Effectful/Optparse/Static.hs, nothing ) [Flags changed]
+[2025-11-18 14:24:58][Command][haddock_push] [4 of 4] Compiling Effectful.Optparse.Dynamic ( src/Effectful/Optparse/Dynamic.hs, nothing ) [Flags changed]
+[2025-11-18 14:24:58][Command][haddock_push] Documentation created:
+[2025-11-18 14:24:58][Command][haddock_push] /home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.2/terminal-effectful-0.1/doc/html/terminal-effectful
+[2025-11-18 14:24:59][Command][haddock_push] Haddock coverage:
+[2025-11-18 14:24:59][Command][haddock_push]  100% (  3 /  3) in 'Effectful.Process.Dynamic.Effect'
+[2025-11-18 14:24:59][Command][haddock_push]   90% ( 37 / 41) in 'Effectful.Process.Dynamic'
+[2025-11-18 14:24:59][Command][haddock_push]   Missing documentation for:
+[2025-11-18 14:24:59][Command][haddock_push]     CreateProcess
+[2025-11-18 14:24:59][Command][haddock_push]     CmdSpec
+[2025-11-18 14:24:59][Command][haddock_push]     StdStream
+[2025-11-18 14:24:59][Command][haddock_push]     FD
+[2025-11-18 14:25:00][Command][haddock_push] Documentation created:
+[2025-11-18 14:25:00][Command][haddock_push] /home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.2/process-dynamic-effectful-0.1/doc/html/process-dynamic-effectful
+[2025-11-18 14:25:04][Command][haddock_push] Haddock coverage:
+[2025-11-18 14:25:04][Command][haddock_push]  100% ( 35 / 35) in 'Effectful.Haskeline.Static'
+[2025-11-18 14:25:04][Command][haddock_push]  100% ( 35 / 35) in 'Effectful.Haskeline.Dynamic'
+[2025-11-18 14:25:04][Command][haddock_push] Warning: Effectful.Haskeline.Static: could not find link destinations for: 
+[2025-11-18 14:25:04][Command][haddock_push] - Effectful.Haskeline.Static.D:R:StaticRepHaskeline0
+[2025-11-18 14:25:04][Command][haddock_push] - Effectful.Haskeline.Static.MkHaskeline
+[2025-11-18 14:25:05][Command][haddock_push] Documentation created:
+[2025-11-18 14:25:05][Command][haddock_push] /home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.2/haskeline-effectful-0.1/doc/html/haskeline-effectful
+[2025-11-18 14:25:12][Command][haddock_push] Haddock coverage:
+[2025-11-18 14:25:12][Command][haddock_push]   85% ( 12 / 14) in 'Effectful.Logger.Utils'
+[2025-11-18 14:25:12][Command][haddock_push]   Missing documentation for:
+[2025-11-18 14:25:12][Command][haddock_push]     Module header
+[2025-11-18 14:25:12][Command][haddock_push]     displayNamespace (src/Effectful/Logger/Utils.hs:118)
+[2025-11-18 14:25:12][Command][haddock_push] Warning: 'runStdoutLoggingT' is out of scope.
+[2025-11-18 14:25:12][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:25:12][Command][haddock_push] Warning: 'MonadIO' is out of scope.
+[2025-11-18 14:25:12][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:25:12][Command][haddock_push] Warning: 'LoggingT' is out of scope.
+[2025-11-18 14:25:12][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:25:12][Command][haddock_push] Warning: 'runLoggingT' is out of scope.
+[2025-11-18 14:25:12][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:25:12][Command][haddock_push] Warning: 'stdout' is out of scope.
+[2025-11-18 14:25:12][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:25:12][Command][haddock_push] Warning: 'LogLevel'' is out of scope.
+[2025-11-18 14:25:12][Command][haddock_push]     If you qualify the identifier, haddock can try to link it anyway.
+[2025-11-18 14:25:12][Command][haddock_push]  100% ( 84 / 84) in 'Effectful.Logger.Dynamic'
+[2025-11-18 14:25:12][Command][haddock_push]  100% ( 20 / 20) in 'Effectful.Logger.Namespace'
+[2025-11-18 14:25:12][Command][haddock_push] Warning: Effectful.Logger.Utils: could not find link destinations for: 
+[2025-11-18 14:25:12][Command][haddock_push] - Effectful.Logger.Utils.D:R:ItemNamespace
+[2025-11-18 14:25:12][Command][haddock_push] - Effectful.Logger.Utils.Rep_LogLevel
+[2025-11-18 14:25:12][Command][haddock_push] - Effectful.Logger.Utils.Rep_LogFormatter
+[2025-11-18 14:25:12][Command][haddock_push] - Effectful.Logger.Utils.Rep_LocStrategy
+[2025-11-18 14:25:12][Command][haddock_push] - Effectful.Logger.Utils.Rep_Namespace
+[2025-11-18 14:25:12][Command][haddock_push] Warning: Effectful.Logger.Dynamic: could not find link destinations for: 
+[2025-11-18 14:25:12][Command][haddock_push] - GHC.Internal.TH.Syntax.Rep_Loc
+[2025-11-18 14:25:12][Command][haddock_push] - Effectful.Logger.Utils.Rep_LogLevel
+[2025-11-18 14:25:12][Command][haddock_push] - Effectful.Logger.Utils.Rep_LogFormatter
+[2025-11-18 14:25:12][Command][haddock_push] - Effectful.Logger.Utils.Rep_LocStrategy
+[2025-11-18 14:25:12][Command][haddock_push] Warning: Effectful.Logger.Namespace: could not find link destinations for: 
+[2025-11-18 14:25:12][Command][haddock_push] - Effectful.Logger.Utils.D:R:ItemNamespace
+[2025-11-18 14:25:12][Command][haddock_push] - Effectful.Logger.Utils.Rep_LogFormatter
+[2025-11-18 14:25:12][Command][haddock_push] - Effectful.Logger.Utils.Rep_LocStrategy
+[2025-11-18 14:25:12][Command][haddock_push] - Effectful.Logger.Utils.Rep_Namespace
+[2025-11-18 14:25:12][Command][haddock_push] Documentation created:
+[2025-11-18 14:25:12][Command][haddock_push] /home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.2/logger-effectful-0.1/doc/html/logger-effectful
+[2025-11-18 14:25:15][Command][haddock_push] Haddock coverage:
+[2025-11-18 14:25:15][Command][haddock_push]  100% ( 12 / 12) in 'Effectful.Optparse.Completer'
+[2025-11-18 14:25:15][Command][haddock_push]  100% ( 12 / 12) in 'Effectful.Optparse.Static'
+[2025-11-18 14:25:15][Command][haddock_push]  100% ( 11 / 11) in 'Effectful.Optparse.Dynamic'
+[2025-11-18 14:25:15][Command][haddock_push] Warning: Effectful.Optparse.Static: could not find link destinations for: 
+[2025-11-18 14:25:15][Command][haddock_push] - Effectful.Optparse.Static.D:R:StaticRepOptparse0
+[2025-11-18 14:25:15][Command][haddock_push] - Effectful.Optparse.Static.MkOptparse
+[2025-11-18 14:25:15][Command][haddock_push] Documentation created:
+[2025-11-18 14:25:15][Command][haddock_push] /home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.2/optparse-effectful-0.1/doc/html/optparse-effectful
