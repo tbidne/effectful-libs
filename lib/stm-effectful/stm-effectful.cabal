@@ -46,6 +46,7 @@ library
   exposed-modules:
     Effectful.Concurrent.STM.TBQueue.Static
     Effectful.Concurrent.STM.TVar.Static
+    Effectful.Concurrent.STM.Utils
 
   build-depends:
     , base            >=4.16.0.0 && <4.22
