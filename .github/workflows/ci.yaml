@@ -102,8 +102,9 @@ jobs:
         if: ${{ matrix.os != 'windows-latest' }}
         run: cabal test unix-effectful
 
+      # Don't run on CI because these are suddenly unreliable.
       - name: Benchmark fs-unix
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: false
         id: bench
         run: |
           cabal bench --enable-benchmarks fs-unix:benchmark:benchmarks --benchmark-options '
