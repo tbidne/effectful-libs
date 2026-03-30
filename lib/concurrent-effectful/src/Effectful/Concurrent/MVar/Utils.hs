@@ -30,7 +30,6 @@ import Effectful.Exception (evaluate)
 -- @MVar a = MVar !a@.
 --
 -- To that end, MVar values are evaluated before writes and after reads.
--- Consequently, @modify*@ functions perform two evaluations.
 --
 -- Note that these evaluations apply only to the value in the MVar e.g.
 -- the @b@ in 'withMVar'' is not given any extra evaluation.
@@ -68,22 +67,22 @@ withMVarMasked' v f = MVar.withMVarMasked v (evaluate >=> f)
 
 -- | @since 0.1
 modifyMVar_' :: (Concurrent :> es) => MVar a -> (a -> Eff es a) -> Eff es ()
-modifyMVar_' v f = MVar.modifyMVar_ v (evaluate >=> f >=> evaluate)
+modifyMVar_' v f = MVar.modifyMVar_ v (f >=> evaluate)
 
 -- | @since 0.1
 modifyMVar' :: (Concurrent :> es) => MVar a -> (a -> Eff es (a, b)) -> Eff es b
 modifyMVar' v f = MVar.modifyMVar v $ \x -> do
-  (a, b) <- f =<< evaluate x
+  (a, b) <- f x
   (,b) <$> evaluate a
 
 -- | @since 0.1
 modifyMVarMasked_' :: (Concurrent :> es) => MVar a -> (a -> Eff es a) -> Eff es ()
-modifyMVarMasked_' v f = MVar.modifyMVarMasked_ v (evaluate >=> f >=> evaluate)
+modifyMVarMasked_' v f = MVar.modifyMVarMasked_ v (f >=> evaluate)
 
 -- | @since 0.1
 modifyMVarMasked' :: (Concurrent :> es) => MVar a -> (a -> Eff es (a, b)) -> Eff es b
 modifyMVarMasked' v f = MVar.modifyMVarMasked v $ \x -> do
-  (a, b) <- f =<< evaluate x
+  (a, b) <- f x
   (,b) <$> evaluate a
 
 -- | @since 0.1
