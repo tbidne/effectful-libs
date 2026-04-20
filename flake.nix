@@ -74,6 +74,7 @@
                 haskeline-effectful = ./lib/haskeline-effectful;
                 ioref-effectful = ./lib/ioref-effectful;
                 logger-effectful = ./lib/logger-effectful;
+                notify-effectful = ./lib/notify-effectful;
                 optparse-effectful = ./lib/optparse-effectful;
                 process-dynamic-effectful = ./lib/process-dynamic-effectful;
                 stm-effectful = ./lib/stm-effectful;
@@ -92,6 +93,7 @@
             p.haskeline-effectful
             p.ioref-effectful
             p.logger-effectful
+            p.notify-effectful
             p.optparse-effectful
             p.process-dynamic-effectful
             p.stm-effectful
@@ -133,6 +135,9 @@
             concurrent-effectful = ./lib/concurrent-effectful;
             effectful-utils = ./lib/effectful-utils;
             time-effectful = ./lib/time-effectful;
+          };
+          packages.notify-effectful = mkPkg "notify-effectful" ./lib/notify-effectful {
+            effectful-utils = ./lib/effectful-utils;
           };
           packages.optparse-effectful = mkPkg "optparse-effectful" ./lib/optparse-effectful {
             effectful-utils = ./lib/effectful-utils;

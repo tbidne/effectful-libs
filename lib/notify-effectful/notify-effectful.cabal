@@ -1,0 +1,123 @@
+cabal-version:   2.4
+name:            notify-effectful
+version:         0.1
+license:         MIT
+license-file:    LICENSE
+tested-with:
+  GHC ==9.2.8
+   || ==9.4.8
+   || ==9.6.7
+   || ==9.8.4
+   || ==9.10.2
+   || ==9.12.2
+
+copyright:       2022-2025 Thomas Bidne
+author:          Thomas Bidne
+maintainer:      tbidne@protonmail.com
+homepage:        https://github.com/tbidne/effectful-libs/
+bug-reports:     https://github.com/tbidne/effectful-libs/issues
+synopsis:        Notify effects
+description:     Provides desktop notification effects
+category:        Effects
+extra-doc-files: CHANGELOG.md
+
+source-repository head
+  type:     git
+  location: https://github.com/tbidne/effectful-libs
+
+common common-lang
+  default-extensions:
+    DataKinds
+    DeriveAnyClass
+    DerivingVia
+    LambdaCase
+    OverloadedLabels
+    OverloadedStrings
+    PatternSynonyms
+    StrictData
+    TypeFamilies
+
+  if os(windows)
+    cpp-options: -DWINDOWS
+
+  elif os(osx)
+    cpp-options: -DOSX
+
+  else
+    cpp-options: -DLINUX
+
+  default-language:   GHC2021
+
+library
+  import:          common-lang
+  exposed-modules:
+    Effectful.Notify.Dynamic
+    Effectful.Notify.Static
+
+  other-modules:
+    Effectful.Notify.Internal.Data.Note
+    Effectful.Notify.Internal.Data.NotifyEnv
+    Effectful.Notify.Internal.Data.NotifyException
+    Effectful.Notify.Internal.Data.NotifyInitException
+    Effectful.Notify.Internal.Data.NotifySystem
+    Effectful.Notify.Internal.Data.NotifyTimeout
+    Effectful.Notify.Internal.Data.NotifyUrgency
+    Effectful.Notify.Internal.Os
+    Effectful.Notify.Internal.Utils
+
+  build-depends:
+    , base                 >=4.16.0.0 && <4.22
+    , deepseq              >=1.4.4.0  && <1.6
+    , effectful            >=2.5.0.0  && <2.7
+    , effectful-utils      ^>=0.1
+    , exceptions           ^>=0.10.4
+    , optics-core          ^>=0.4
+    , text                 >=1.2.4.0  && <2.2
+    , text-builder-linear  ^>=0.1.3
+    , text-display         ^>=1.0.0.0
+
+  if os(windows)
+    other-modules: Effectful.Notify.Internal.Os.Windows
+
+  elif os(osx)
+    build-depends:   exception-utils ^>=0.1
+    exposed-modules: Effectful.Notify.System.AppleScript
+    other-modules:
+      Effectful.Notify.Internal.Os.Osx
+      Effectful.Notify.Internal.System.AppleScript
+
+  else
+    build-depends:
+      , dbus             >=1.2.14 && <1.5
+      , exception-utils  ^>=0.1
+      , fdo-notify       ^>=0.3.1
+
+    exposed-modules:
+      Effectful.Notify.System.DBus
+      Effectful.Notify.System.NotifySend
+
+    other-modules:
+      Effectful.Notify.Internal.Os.Linux
+      Effectful.Notify.Internal.System.DBus
+      Effectful.Notify.Internal.System.NotifySend
+
+  hs-source-dirs:  src
+
+test-suite unit
+  import:         common-lang
+  type:           exitcode-stdio-1.0
+  main-is:        Main.hs
+  other-modules:
+    Unit.Notify
+    Unit.NotifySystem
+
+  build-depends:
+    , base
+    , effectful
+    , env-guard         ^>=0.2
+    , exceptions
+    , notify-effectful
+    , tasty             >=1.1.0.3 && <1.6
+    , tasty-hunit       >=0.9     && <0.11
+
+  hs-source-dirs: test/unit

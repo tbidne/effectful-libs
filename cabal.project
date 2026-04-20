@@ -11,6 +11,7 @@ if os(windows)
     ./lib/haskeline-effectful
     ./lib/ioref-effectful
     ./lib/logger-effectful
+    ./lib/notify-effectful
     ./lib/optparse-effectful
     ./lib/process-dynamic-effectful
     ./lib/stm-effectful
@@ -29,6 +30,7 @@ else
     ./lib/haskeline-effectful
     ./lib/ioref-effectful
     ./lib/logger-effectful
+    ./lib/notify-effectful
     ./lib/optparse-effectful
     ./lib/process-dynamic-effectful
     ./lib/stm-effectful

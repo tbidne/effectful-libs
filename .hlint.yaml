@@ -1,10 +1,6 @@
 ---
 - ignore:
     name: "Avoid lambda"
-    within:
-      - "Effectful.FileSystem.PathWriter.Utils"
-      - "Effectful.Logger.Utils"
-      - "Effectful.Time.TimeSpec"
 
 - ignore:
     name: "Avoid lambda using `infix`"
