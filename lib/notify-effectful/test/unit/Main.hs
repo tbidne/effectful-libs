@@ -4,18 +4,20 @@ module Main (main) where
 
 import System.Environment.Guard (ExpectEnv (ExpectEnvSet), guardOrElse')
 import Test.Tasty (defaultMain, testGroup)
-import Unit.Notify qualified
+import Unit.Notify.Dynamic qualified
+import Unit.Notify.Static qualified
 import Unit.NotifySystem qualified
 
 main :: IO ()
-main = guardOrElse' "TEST_UNIT" ExpectEnvSet runTests dontRun
+main = guardOrElse' "NOTIFY_UNIT" ExpectEnvSet runTests dontRun
   where
     runTests =
       defaultMain $
         testGroup
           "Unit Tests"
-          [ Unit.Notify.tests,
+          [ Unit.Notify.Dynamic.tests,
+            Unit.Notify.Static.tests,
             Unit.NotifySystem.tests
           ]
 
-    dontRun = putStrLn "*** Unit tests disabled. Enable with TEST_UNIT=1 ***"
+    dontRun = putStrLn "*** Unit tests disabled. Enable with NOTIFY_UNIT=1 ***"

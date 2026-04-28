@@ -9,17 +9,17 @@ import Control.Exception (throwIO)
 import Control.Exception.Utils qualified as Ex.Utils
 import Data.Text qualified as T
 import Effectful.Notify.Internal.Data.Note (Note)
-import Effectful.Notify.Internal.Data.NotifyEnv
-  ( NotifyEnv (NotifyEnvAppleScript),
-  )
 import Effectful.Notify.Internal.Data.NotifyException
   ( NotifyException
       ( MkNotifyException,
         exception,
         fatal,
         note,
-        notifyEnv
+        notifySystem
       ),
+  )
+import Effectful.Notify.Internal.Data.NotifySystem
+  ( NotifySystem (NotifySystemAppleScript),
   )
 import Effectful.Notify.Internal.Utils qualified as Utils
 import Optics.Core ((^.))
@@ -32,7 +32,7 @@ notify note =
         { exception = ex,
           fatal = True,
           note,
-          notifyEnv = NotifyEnvAppleScript
+          notifySystem = NotifySystemAppleScript
         }
   where
     sendNote = Utils.runProcessIO . noteToAppleScript

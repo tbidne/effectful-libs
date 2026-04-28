@@ -41,6 +41,7 @@ module Effectful.Notify.Dynamic
 
     -- ** Env
     NotifyEnv,
+    NotifyEnv.notifyEnvToSystemOs,
 
     -- ** Notes
     Note,
@@ -71,6 +72,7 @@ where
 
 import Control.Monad (void)
 import Control.Monad.Catch qualified as C
+import Data.Kind (Type)
 import Effectful
   ( Dispatch (Dynamic),
     DispatchOf,
@@ -84,8 +86,9 @@ import Effectful.Dynamic.Utils (ShowEffect (showEffectCons))
 import Effectful.Notify.Internal.Data.Note (Note)
 import Effectful.Notify.Internal.Data.Note qualified as Note
 import Effectful.Notify.Internal.Data.NotifyEnv (NotifyEnv)
+import Effectful.Notify.Internal.Data.NotifyEnv qualified as NotifyEnv
 import Effectful.Notify.Internal.Data.NotifyException
-  ( NotifyException (MkNotifyException, exception, fatal, note, notifyEnv),
+  ( NotifyException (MkNotifyException, exception, fatal, note, notifySystem),
   )
 import Effectful.Notify.Internal.Data.NotifyInitException
   ( NotifyInitException (MkNotifyInitException, unNotifyInitException),
@@ -116,15 +119,16 @@ import Optics.Core ((^.))
 -- | Dynamic notify effect.
 --
 -- @since 0.1
-data Notify :: Effect where
-  InitNotifyEnv :: NotifySystemOs -> Notify es NotifyEnv
-  Notify :: NotifyEnv -> Note -> Notify es ()
+type Notify :: Type -> (Type -> Type) -> Type -> Type
+data Notify env :: Effect where
+  InitNotifyEnv :: NotifySystemOs -> Notify env es env
+  Notify :: env -> Note -> Notify env es ()
 
 -- | @since 0.1
-type instance DispatchOf Notify = Dynamic
+type instance DispatchOf (Notify _) = Dynamic
 
 -- | @since 0.1
-instance ShowEffect Notify where
+instance ShowEffect (Notify env) where
   showEffectCons = \case
     InitNotifyEnv {} -> "InitNotifyEnv"
     Notify {} -> "Notify"
@@ -133,10 +137,11 @@ instance ShowEffect Notify where
 --
 -- @since 0.1
 runNotify ::
+  forall es a.
   ( HasCallStack,
     IOE :> es
   ) =>
-  Eff (Notify : es) a ->
+  Eff (Notify NotifyEnv : es) a ->
   Eff es a
 runNotify = reinterpret_ Static.runNotify $ \case
   InitNotifyEnv sys -> Static.initNotifyEnv sys
@@ -146,21 +151,23 @@ runNotify = reinterpret_ Static.runNotify $ \case
 --
 -- @since 0.1
 initNotifyEnv ::
+  forall env es.
   ( HasCallStack,
-    Notify :> es
+    Notify env :> es
   ) =>
   NotifySystemOs ->
-  Eff es NotifyEnv
+  Eff es env
 initNotifyEnv = send . InitNotifyEnv
 
 -- | Send a notification.
 --
 -- @since 0.1
 notify ::
+  forall env es.
   ( HasCallStack,
-    Notify :> es
+    Notify env :> es
   ) =>
-  NotifyEnv ->
+  env ->
   Note ->
   Eff es ()
 notify env = send . Notify env
@@ -170,11 +177,12 @@ notify env = send . Notify env
 --
 -- @since 0.1
 catchNonFatalNotify ::
+  forall env es.
   ( HasCallStack,
-    Notify :> es
+    Notify env :> es
   ) =>
   -- | Env.
-  NotifyEnv ->
+  env ->
   -- | Note.
   Note ->
   -- | Handler.
@@ -190,11 +198,12 @@ catchNonFatalNotify env note handler =
 --
 -- @since 0.1
 tryNonFatalNotify ::
+  forall env es.
   ( HasCallStack,
-    Notify :> es
+    Notify env :> es
   ) =>
   -- | Env.
-  NotifyEnv ->
+  env ->
   -- | Note.
   Note ->
   Eff es (Maybe NotifyException)
@@ -210,11 +219,12 @@ tryNonFatalNotify env note =
 --
 -- @since 0.1
 tryNonFatalNotify_ ::
+  forall env es.
   ( HasCallStack,
-    Notify :> es
+    Notify env :> es
   ) =>
   -- | Env.
-  NotifyEnv ->
+  env ->
   -- | Note.
   Note ->
   Eff es ()
