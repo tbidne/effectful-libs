@@ -9,7 +9,7 @@ module Effectful.Notify.Dynamic
     -- $desc
 
     -- * Effect
-    Notify,
+    Notify (..),
     initNotifyEnv,
     notify,
 
@@ -113,7 +113,7 @@ import Effectful.Notify.Internal.Os (Os (Linux, Osx, Windows))
 import Effectful.Notify.Static qualified as Static
 import Optics.Core ((^.))
 
--- | Static Notify effect.
+-- | Dynamic notify effect.
 --
 -- @since 0.1
 data Notify :: Effect where

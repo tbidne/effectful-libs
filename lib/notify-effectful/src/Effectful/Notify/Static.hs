@@ -124,7 +124,7 @@ import Effectful.Notify.Internal.Os.Windows qualified as Os
 #endif
 import Optics.Core ((^.))
 
--- | Static time effect.
+-- | Static notify effect.
 --
 -- @since 0.1
 data Notify :: Effect
