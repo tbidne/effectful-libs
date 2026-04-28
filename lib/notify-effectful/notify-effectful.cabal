@@ -108,7 +108,8 @@ test-suite unit
   type:           exitcode-stdio-1.0
   main-is:        Main.hs
   other-modules:
-    Unit.Notify
+    Unit.Notify.Dynamic
+    Unit.Notify.Static
     Unit.NotifySystem
 
   build-depends:

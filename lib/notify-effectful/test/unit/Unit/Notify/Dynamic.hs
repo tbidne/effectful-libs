@@ -1,27 +1,26 @@
 {-# LANGUAGE CPP #-}
 
-module Unit.Notify (tests) where
+module Unit.Notify.Dynamic (tests) where
 
+import Control.Concurrent qualified as CC
 import Effectful (Eff, IOE, runEff)
-import Effectful.Notify.Static (Notify)
-import Effectful.Notify.Static qualified as Notify
+import Effectful.Notify.Dynamic (Notify)
+import Effectful.Notify.Dynamic qualified as Notify
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase)
-
-#if LINUX
-import Control.Concurrent qualified as CC
-#endif
 
 tests :: TestTree
 tests =
   testGroup
-    "Notify"
+    "Notify.Dynamic"
     (testSendNotif : osTests)
 
 testSendNotif :: TestTree
-testSendNotif = testCase desc $ runner $ do
-  env <- Notify.initNotifyEnv Notify.defaultNotifySystemOs
-  Notify.notify env note
+testSendNotif = testCase desc $ do
+  CC.threadDelay 4_000_000
+  runner $ do
+    env <- Notify.initNotifyEnv @Notify.NotifyEnv Notify.defaultNotifySystemOs
+    Notify.notify env note
   where
     desc = "Sends notification with default system"
 
@@ -39,9 +38,9 @@ testNotifySend = testCase desc $ do
   --     Created too many similar notifications in quick succession
   --
   -- Half a second is too fast apparently, but a second seems okay?
-  CC.threadDelay 1_000_000
+  CC.threadDelay 6_000_000
   runner $ do
-    env <- Notify.initNotifyEnv Notify.NotifySystemOsNotifySend
+    env <- Notify.initNotifyEnv @Notify.NotifyEnv Notify.NotifySystemOsNotifySend
     Notify.notify env note
   where
     desc = "Sends notification with notify-send"
@@ -59,5 +58,5 @@ note =
     . Notify.setTimeout (Just $ Notify.NotifyTimeoutMillis 5_000)
     $ Notify.mkNote "A notification \"summary\""
 
-runner :: Eff [Notify, IOE] a -> IO a
+runner :: Eff [Notify Notify.NotifyEnv, IOE] a -> IO a
 runner = runEff . Notify.runNotify

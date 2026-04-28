@@ -137,6 +137,7 @@ data instance StaticRep Notify = MkNotify
 --
 -- @since 0.1
 runNotify ::
+  forall es a.
   ( HasCallStack,
     IOE :> es
   ) =>
@@ -148,6 +149,7 @@ runNotify = evalStaticRep MkNotify
 --
 -- @since 0.1
 initNotifyEnv ::
+  forall es.
   ( HasCallStack,
     Notify :> es
   ) =>
@@ -160,6 +162,7 @@ initNotifyEnv = unsafeEff_ . Os.initNotifyEnv
 --
 -- @since 0.1
 notify ::
+  forall es.
   ( HasCallStack,
     Notify :> es
   ) =>
@@ -175,6 +178,7 @@ notify env = unsafeEff_ . Os.notify env
 --
 -- @since 0.1
 catchNonFatalNotify ::
+  forall es.
   ( HasCallStack,
     Notify :> es
   ) =>
@@ -195,6 +199,7 @@ catchNonFatalNotify env note handler =
 --
 -- @since 0.1
 tryNonFatalNotify ::
+  forall es.
   ( HasCallStack,
     Notify :> es
   ) =>
@@ -215,6 +220,7 @@ tryNonFatalNotify env note =
 --
 -- @since 0.1
 tryNonFatalNotify_ ::
+  forall es.
   ( HasCallStack,
     Notify :> es
   ) =>
