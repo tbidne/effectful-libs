@@ -2,7 +2,9 @@
 
 module Unit.Notify.Dynamic (tests) where
 
+#if LINUX
 import Control.Concurrent qualified as CC
+#endif
 import Effectful (Eff, IOE, runEff)
 import Effectful.Notify.Dynamic (Notify)
 import Effectful.Notify.Dynamic qualified as Notify
@@ -17,7 +19,6 @@ tests =
 
 testSendNotif :: TestTree
 testSendNotif = testCase desc $ do
-  CC.threadDelay 4_000_000
   runner $ do
     env <- Notify.initNotifyEnv @Notify.NotifyEnv Notify.defaultNotifySystemOs
     Notify.notify env note
@@ -38,7 +39,7 @@ testNotifySend = testCase desc $ do
   --     Created too many similar notifications in quick succession
   --
   -- Half a second is too fast apparently, but a second seems okay?
-  CC.threadDelay 6_000_000
+  CC.threadDelay 2_000_000
   runner $ do
     env <- Notify.initNotifyEnv @Notify.NotifyEnv Notify.NotifySystemOsNotifySend
     Notify.notify env note

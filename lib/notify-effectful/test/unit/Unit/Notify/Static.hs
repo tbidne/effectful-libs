@@ -2,15 +2,12 @@
 
 module Unit.Notify.Static (tests) where
 
+import Control.Concurrent qualified as CC
 import Effectful (Eff, IOE, runEff)
 import Effectful.Notify.Static (Notify)
 import Effectful.Notify.Static qualified as Notify
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase)
-
-#if LINUX
-import Control.Concurrent qualified as CC
-#endif
 
 tests :: TestTree
 tests =
@@ -19,9 +16,11 @@ tests =
     (testSendNotif : osTests)
 
 testSendNotif :: TestTree
-testSendNotif = testCase desc $ runner $ do
-  env <- Notify.initNotifyEnv Notify.defaultNotifySystemOs
-  Notify.notify env note
+testSendNotif = testCase desc $ do
+  CC.threadDelay 4_000_000
+  runner $ do
+    env <- Notify.initNotifyEnv Notify.defaultNotifySystemOs
+    Notify.notify env note
   where
     desc = "Sends notification with default system"
 
@@ -39,7 +38,7 @@ testNotifySend = testCase desc $ do
   --     Created too many similar notifications in quick succession
   --
   -- Half a second is too fast apparently, but a second seems okay?
-  CC.threadDelay 2_000_000
+  CC.threadDelay 6_000_000
   runner $ do
     env <- Notify.initNotifyEnv Notify.NotifySystemOsNotifySend
     Notify.notify env note
