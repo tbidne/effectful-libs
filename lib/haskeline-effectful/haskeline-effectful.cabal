@@ -48,8 +48,8 @@ library
     Effectful.Haskeline.Static
 
   build-depends:
-    , base             >=4.16.0.0 && <4.22
-    , effectful-core   >=2.5.0.0  && <2.6
+    , base             >=4.16.0.0 && <4.23
+    , effectful-core   >=2.5.0.0  && <2.7
     , effectful-utils  ^>=0.1
     , exceptions       ^>=0.10.4
     , haskeline        ^>=0.8.4.0

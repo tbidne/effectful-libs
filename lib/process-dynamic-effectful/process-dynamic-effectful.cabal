@@ -48,7 +48,7 @@ library
     Effectful.Process.Dynamic.Effect
 
   build-depends:
-    , base             >=4.16.0.0 && <4.22
+    , base             >=4.16.0.0 && <4.23
     , effectful        >=2.5.0.0  && <2.7
     , effectful-utils  ^>=0.1
 

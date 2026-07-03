@@ -49,7 +49,7 @@ library
     Effectful.Concurrent.STM.Utils
 
   build-depends:
-    , base            >=4.16.0.0 && <4.22
+    , base            >=4.16.0.0 && <4.23
     , effectful       >=2.5.0.0  && <2.7
     , effectful-core  >=2.5.0.0  && <2.7
     , stm             ^>=2.5.0.0

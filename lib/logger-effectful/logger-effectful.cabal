@@ -49,7 +49,7 @@ library
     Effectful.Logger.Utils
 
   build-depends:
-    , base                  >=4.16.0.0  && <4.22
+    , base                  >=4.16.0.0  && <4.23
     , bytestring            >=0.10.12.0 && <0.13
     , concurrent-effectful  ^>=0.1
     , containers            >=0.6.3.1   && <0.9
@@ -58,7 +58,7 @@ library
     , effectful-utils       ^>=0.1
     , fast-logger           >=2.1       && <3.3
     , optics-core           ^>=0.4
-    , template-haskell      >=2.16.0.0  && <2.24
+    , template-haskell      >=2.16.0.0  && <2.25
     , text                  >=1.2.4.0   && <2.2
     , time-effectful        ^>=0.1
 
@@ -77,14 +77,14 @@ test-suite unit
     , base
     , bytestring
     , effectful
-    , hedgehog          >=1.0.2   && <1.7
+    , hedgehog          >=1.0.2   && <1.8
     , logger-effectful
     , optics-core
     , tasty             >=1.1.0.3 && <1.6
     , tasty-hedgehog    >=1.2.0.0 && <1.5
     , tasty-hunit       >=0.9     && <0.11
     , text
-    , time              >=1.9.3   && <1.16
+    , time              >=1.9.3   && <1.17
     , time-effectful
 
   hs-source-dirs: test/unit

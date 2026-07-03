@@ -43,9 +43,13 @@ import GHC.Natural (Natural)
 import Numeric.Algebra
   ( AMonoid (zero),
     ASemigroup ((.+.)),
+    Demimodule,
+    Hemimodule,
     MSemiSpace ((.*)),
     MSpace ((.%)),
     Normed (norm, sgn),
+    PseudoSemivectorSpace,
+    Quartamodule,
     Semimodule,
     SemivectorSpace,
   )
@@ -130,7 +134,19 @@ instance MSpace TimeSpec Natural where
   ts .% k = fromSeconds (toSeconds ts / fromIntegral k)
 
 -- | @since 0.1
+instance Quartamodule TimeSpec Natural
+
+-- | @since 0.1
+instance Hemimodule TimeSpec Natural
+
+-- | @since 0.1
+instance Demimodule TimeSpec Natural
+
+-- | @since 0.1
 instance Semimodule TimeSpec Natural
+
+-- | @since 0.1
+instance PseudoSemivectorSpace TimeSpec Natural
 
 -- | @since 0.1
 instance SemivectorSpace TimeSpec Natural

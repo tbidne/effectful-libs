@@ -44,5 +44,5 @@ common common-lang
 library
   import:          common-lang
   exposed-modules: Effectful.Dynamic.Utils
-  build-depends:   base >=4.16.0.0 && <4.22
+  build-depends:   base >=4.16.0.0 && <4.23
   hs-source-dirs:  src
