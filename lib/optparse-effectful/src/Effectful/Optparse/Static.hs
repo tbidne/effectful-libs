@@ -13,10 +13,14 @@ module Effectful.Optparse.Static
     -- ** Handler
     runOptparse,
 
-    -- * Misc
+    -- * OsPath
     Utils.OsPath,
     Utils.osPath,
     Utils.validOsPath,
+
+    -- * OsString
+    Utils.OsString,
+    Utils.osString,
   )
 where
 

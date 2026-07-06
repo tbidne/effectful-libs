@@ -5,11 +5,15 @@ module Effectful.Optparse.Utils
   ( OsPath,
     osPath,
     validOsPath,
+    OsString,
+    osString,
   )
 where
 
 import FileSystem.OsPath (OsPath)
 import FileSystem.OsPath qualified as OsPath
+import FileSystem.OsString (OsString)
+import FileSystem.OsString qualified as OsString
 import Options.Applicative (ReadM)
 import Options.Applicative qualified as OA
 
@@ -25,3 +29,9 @@ osPath = OA.str >>= OsPath.encodeFail
 -- @since 0.1
 validOsPath :: ReadM OsPath
 validOsPath = OA.str >>= OsPath.encodeValidFail
+
+-- | 'OsString' 'OA.Option' reader.
+--
+-- @since 0.1
+osString :: ReadM OsString
+osString = OA.str >>= OsString.encodeFail
