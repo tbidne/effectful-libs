@@ -25,6 +25,9 @@ cradle:
     - path: "./lib/haskeline-effectful/src"
       component: "lib:haskeline-effectful"
 
+    - path: "./lib/http-client-effectful/src"
+      component: "lib:http-client-effectful"
+
     - path: "./lib/ioref-effectful/src"
       component: "lib:ioref-effectful"
 

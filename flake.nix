@@ -72,6 +72,7 @@
                 environment-effectful = ./lib/environment-effectful;
                 fs-effectful = ./lib/fs-effectful;
                 haskeline-effectful = ./lib/haskeline-effectful;
+                http-client-effectful = ./lib/http-client-effectful;
                 ioref-effectful = ./lib/ioref-effectful;
                 logger-effectful = ./lib/logger-effectful;
                 notify-effectful = ./lib/notify-effectful;
@@ -90,6 +91,7 @@
           packages = p: [
             p.environment-effectful
             p.fs-effectful
+            p.haskeline-effectful
             p.haskeline-effectful
             p.ioref-effectful
             p.logger-effectful
@@ -128,6 +130,9 @@
             unix-compat-effectful = ./lib/unix-compat-effectful;
           };
           packages.haskeline-effectful = mkPkg "haskeline-effectful" ./lib/haskeline-effectful {
+            effectful-utils = ./lib/effectful-utils;
+          };
+          packages.http-client-effectful = mkPkg "http-client-effectful" ./lib/http-client-effectful {
             effectful-utils = ./lib/effectful-utils;
           };
           packages.ioref-effectful = mkPkg "ioref-effectful" ./lib/ioref-effectful { };

@@ -70,6 +70,12 @@ jobs:
       - name: Test fs-effectful
         run: cabal test fs-effectful
 
+      - name: Build haskeline-effectful
+        run: cabal build haskeline-effectful
+
+      - name: Build http-client-effectful
+        run: cabal build http-client-effectful
+
       - name: Build ioref-effectful
         run: cabal build ioref-effectful
 
@@ -172,6 +178,12 @@ jobs:
 
       - name: Build fs-effectful
         run: nix build -Lv .#fs-effectful
+
+      - name: Build haskeline-effectful
+        run: nix build -Lv .#haskeline-effectful
+
+      - name: Build http-client-effectful
+        run: nix build -Lv .#http-client-effectful
 
       - name: Build ioref-effectful
         run: nix build -Lv .#ioref-effectful
