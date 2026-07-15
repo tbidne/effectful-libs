@@ -253,7 +253,7 @@ tryNonFatalNotify_ env = void . tryNonFatalNotify env
 
 -- $desc
 --
--- @effects-notify@ is a library for implementing cross-platform desktop
+-- @notify-effectful@ is a library for implementing cross-platform desktop
 -- notifications. Currently supports:
 --
 -- - Linux: Supports @dbus@ and @notify-send@. That is, if there is a

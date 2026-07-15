@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
+
 module Effectful.HTTP.Client.Internal
   ( -- * Exceptions,
     NetworkStatusE (..),
@@ -19,7 +21,7 @@ module Effectful.HTTP.Client.Internal
 where
 
 import Control.Exception (Exception, SomeException, displayException)
-import Control.Exception.Utils (MonadCatch, MonadThrow, throwM, trySync)
+import Control.Exception.Utils (throwM, trySync)
 import Control.Monad (when)
 import Data.Aeson (FromJSON)
 import Data.Aeson qualified as Asn
@@ -28,6 +30,7 @@ import Data.ByteString (ByteString)
 import Data.Text (Text)
 import Data.Text.Encoding qualified as TEnc
 import Data.Text.Encoding.Error (UnicodeException)
+import Effectful (Eff)
 import Effectful.Dispatch.Static (HasCallStack)
 import Network.HTTP.Client (Response)
 import Network.HTTP.Client qualified as HttpClient
@@ -39,16 +42,14 @@ import Network.HTTP.Types.Status qualified as Status
 --
 -- @since 0.1
 readResponse ::
-  ( HasCallStack,
-    MonadCatch m
-  ) =>
+  (HasCallStack) =>
   -- | String url.
   String ->
   -- | Response.
   Response br ->
   -- | Consumer.
-  (br -> m a) ->
-  m a
+  (br -> Eff es a) ->
+  Eff es a
 readResponse url res consumer = do
   let bodyReader = HttpClient.responseBody res
       status = HttpClient.responseStatus res
@@ -64,10 +65,10 @@ readResponse url res consumer = do
 
 decodeJson ::
   ( FromJSON a,
-    MonadThrow m
+    HasCallStack
   ) =>
   [ByteString] ->
-  m a
+  Eff es a
 decodeJson bodyBs = do
   mapThrowLeft
     (MkNetworkDecodeJsonE bs)
@@ -76,9 +77,9 @@ decodeJson bodyBs = do
     bs = mconcat bodyBs
 
 decodeUtf8 ::
-  (MonadThrow m) =>
+  (HasCallStack) =>
   [ByteString] ->
-  m Text
+  Eff es Text
 decodeUtf8 bodyBs = do
   mapThrowLeft
     (MkNetworkDecodeUtf8E bs)
@@ -146,9 +147,9 @@ statusMessage s =
 getStatusCode :: Response body -> Int
 getStatusCode = Status.statusCode . HttpClient.responseStatus
 
-mapThrowLeft :: (Exception e2, MonadThrow m) => (e1 -> e2) -> Either e1 a -> m a
+mapThrowLeft :: (Exception e2, HasCallStack) => (e1 -> e2) -> Either e1 a -> Eff es a
 mapThrowLeft f = throwLeft . first f
 
-throwLeft :: (Exception e, MonadThrow m) => Either e a -> m a
+throwLeft :: (Exception e, HasCallStack) => Either e a -> Eff es a
 throwLeft (Right x) = pure x
 throwLeft (Left e) = throwM e
