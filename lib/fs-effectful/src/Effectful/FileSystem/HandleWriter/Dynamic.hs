@@ -15,9 +15,31 @@ module Effectful.FileSystem.HandleWriter.Dynamic
     hSetEcho,
     hPut,
     hPutNonBlocking,
+    hLockRaw,
+    hTryLockRaw,
+    hUnlockRaw,
 
     -- ** Handlers
     runHandleWriter,
+
+    -- * File handles
+    Handle,
+    HandleMode (HandleModeWrite),
+    CanWrite,
+
+    -- * Locking
+    -- $locking
+    LockedHandle,
+    Internal.liftLocked,
+    withLockedFile,
+    withTryLockedFile,
+    hLock,
+    hTryLock,
+    hUnlock,
+
+    -- ** Raw
+    withLockedFileRaw,
+    withTryLockedFileRaw,
 
     -- * UTF-8 Utils
     hPutUtf8,
@@ -29,7 +51,6 @@ module Effectful.FileSystem.HandleWriter.Dynamic
     -- * Re-exports
     BufferMode (..),
     ByteString,
-    Handle,
     IOMode (..),
     OsPath,
     SeekMode (..),
@@ -56,16 +77,23 @@ import Effectful.Dispatch.Dynamic
     send,
   )
 import Effectful.Dynamic.Utils (ShowEffect (showEffectCons))
+import Effectful.Exception (bracket, bracket_)
+import Effectful.FileSystem.Handle qualified as Handle
+import Effectful.FileSystem.Handle.Internal
+  ( CanWrite,
+    Handle,
+    HandleMode (HandleModeWrite),
+    LockedHandle,
+  )
+import Effectful.FileSystem.Handle.Internal qualified as Internal
 import Effectful.FileSystem.HandleWriter.Static qualified as Static
 import FileSystem.OsPath (OsPath)
 import FileSystem.UTF8 qualified as FS.UTF8
 import System.IO
   ( BufferMode (BlockBuffering, LineBuffering, NoBuffering),
-    Handle,
     IOMode (AppendMode, ReadMode, ReadWriteMode, WriteMode),
     SeekMode (AbsoluteSeek, RelativeSeek, SeekFromEnd),
   )
-import System.IO qualified as IO
 
 -- | @since 0.1
 type instance DispatchOf HandleWriter = Dynamic
@@ -74,17 +102,20 @@ type instance DispatchOf HandleWriter = Dynamic
 --
 -- @since 0.1
 data HandleWriter :: Effect where
-  OpenBinaryFile :: OsPath -> IOMode -> HandleWriter m Handle
-  WithBinaryFile :: OsPath -> IOMode -> (Handle -> m a) -> HandleWriter m a
-  HClose :: Handle -> HandleWriter m ()
-  HFlush :: Handle -> HandleWriter m ()
-  HSetFileSize :: Handle -> Integer -> HandleWriter m ()
-  HSetBuffering :: Handle -> BufferMode -> HandleWriter m ()
-  HSeek :: Handle -> SeekMode -> Integer -> HandleWriter m ()
-  HTell :: Handle -> HandleWriter m Integer
-  HSetEcho :: Handle -> Bool -> HandleWriter m ()
-  HPut :: Handle -> ByteString -> HandleWriter m ()
-  HPutNonBlocking :: Handle -> ByteString -> HandleWriter m ByteString
+  OpenBinaryFile :: OsPath -> Bool -> HandleWriter m (Handle HandleModeWrite)
+  WithBinaryFile :: OsPath -> Bool -> (Handle HandleModeWrite -> m a) -> HandleWriter m a
+  HClose :: (CanWrite p) => Handle p -> HandleWriter m ()
+  HFlush :: (CanWrite p) => Handle p -> HandleWriter m ()
+  HSetFileSize :: (CanWrite p) => Handle p -> Integer -> HandleWriter m ()
+  HSetBuffering :: (CanWrite p) => Handle p -> BufferMode -> HandleWriter m ()
+  HSeek :: (CanWrite p) => Handle p -> SeekMode -> Integer -> HandleWriter m ()
+  HTell :: (CanWrite p) => Handle p -> HandleWriter m Integer
+  HSetEcho :: (CanWrite p) => Handle p -> Bool -> HandleWriter m ()
+  HPut :: (CanWrite p) => Handle p -> ByteString -> HandleWriter m ()
+  HPutNonBlocking :: (CanWrite p) => Handle p -> ByteString -> HandleWriter m ByteString
+  HLockRaw :: (CanWrite p) => Handle p -> HandleWriter m ()
+  HTryLockRaw :: (CanWrite p) => Handle p -> HandleWriter m Bool
+  HUnlockRaw :: (CanWrite p) => Handle p -> HandleWriter m ()
 
 -- | @since 0.1
 instance ShowEffect HandleWriter where
@@ -100,6 +131,9 @@ instance ShowEffect HandleWriter where
     HSetEcho _ _ -> "HSetEcho"
     HPut _ _ -> "HPut"
     HPutNonBlocking _ _ -> "HPutNonBlocking"
+    HLockRaw _ -> "HLockRaw"
+    HTryLockRaw _ -> "HTryLockRaw"
+    HUnlockRaw _ -> "HUnlockRaw"
 
 -- | Runs 'HandleWriter' in 'IO'.
 --
@@ -123,6 +157,9 @@ runHandleWriter = reinterpret Static.runHandleWriter $ \env -> \case
   HSetEcho h b -> Static.hSetEcho h b
   HPut h bs -> Static.hPut h bs
   HPutNonBlocking h bs -> Static.hPutNonBlocking h bs
+  HLockRaw h -> Static.hLockRaw h
+  HTryLockRaw h -> Static.hTryLockRaw h
+  HUnlockRaw h -> Static.hUnlockRaw h
 
 -- | Lifted 'IO.openBinaryFile'.
 --
@@ -132,8 +169,8 @@ openBinaryFile ::
     HasCallStack
   ) =>
   OsPath ->
-  IOMode ->
-  Eff es Handle
+  Bool ->
+  Eff es (Handle HandleModeWrite)
 openBinaryFile p = send . OpenBinaryFile p
 
 -- | Lifted 'IO.withBinaryFile'.
@@ -144,8 +181,8 @@ withBinaryFile ::
     HasCallStack
   ) =>
   OsPath ->
-  IOMode ->
-  (Handle -> Eff es a) ->
+  Bool ->
+  (Handle HandleModeWrite -> Eff es a) ->
   Eff es a
 withBinaryFile p m = send . WithBinaryFile p m
 
@@ -153,10 +190,11 @@ withBinaryFile p m = send . WithBinaryFile p m
 --
 -- @since 0.1
 hClose ::
-  ( HandleWriter :> es,
+  ( CanWrite p,
+    HandleWriter :> es,
     HasCallStack
   ) =>
-  Handle ->
+  Handle p ->
   Eff es ()
 hClose = send . HClose
 
@@ -164,10 +202,11 @@ hClose = send . HClose
 --
 -- @since 0.1
 hFlush ::
-  ( HandleWriter :> es,
+  ( CanWrite p,
+    HandleWriter :> es,
     HasCallStack
   ) =>
-  Handle ->
+  Handle p ->
   Eff es ()
 hFlush = send . HFlush
 
@@ -175,10 +214,11 @@ hFlush = send . HFlush
 --
 -- @since 0.1
 hSetFileSize ::
-  ( HandleWriter :> es,
+  ( CanWrite p,
+    HandleWriter :> es,
     HasCallStack
   ) =>
-  Handle ->
+  Handle p ->
   Integer ->
   Eff es ()
 hSetFileSize h = send . HSetFileSize h
@@ -187,10 +227,11 @@ hSetFileSize h = send . HSetFileSize h
 --
 -- @since 0.1
 hSetBuffering ::
-  ( HandleWriter :> es,
+  ( CanWrite p,
+    HandleWriter :> es,
     HasCallStack
   ) =>
-  Handle ->
+  Handle p ->
   BufferMode ->
   Eff es ()
 hSetBuffering h = send . HSetBuffering h
@@ -199,10 +240,11 @@ hSetBuffering h = send . HSetBuffering h
 --
 -- @since 0.1
 hSeek ::
-  ( HandleWriter :> es,
+  ( CanWrite p,
+    HandleWriter :> es,
     HasCallStack
   ) =>
-  Handle ->
+  Handle p ->
   SeekMode ->
   Integer ->
   Eff es ()
@@ -212,10 +254,11 @@ hSeek h m = send . HSeek h m
 --
 -- @since 0.1
 hTell ::
-  ( HandleWriter :> es,
+  ( CanWrite p,
+    HandleWriter :> es,
     HasCallStack
   ) =>
-  Handle ->
+  Handle p ->
   Eff es Integer
 hTell = send . HTell
 
@@ -223,10 +266,11 @@ hTell = send . HTell
 --
 -- @since 0.1
 hSetEcho ::
-  ( HandleWriter :> es,
+  ( CanWrite p,
+    HandleWriter :> es,
     HasCallStack
   ) =>
-  Handle ->
+  Handle p ->
   Bool ->
   Eff es ()
 hSetEcho h = send . HSetEcho h
@@ -235,10 +279,11 @@ hSetEcho h = send . HSetEcho h
 --
 -- @since 0.1
 hPut ::
-  ( HandleWriter :> es,
+  ( CanWrite p,
+    HandleWriter :> es,
     HasCallStack
   ) =>
-  Handle ->
+  Handle p ->
   ByteString ->
   Eff es ()
 hPut h = send . HPut h
@@ -247,22 +292,203 @@ hPut h = send . HPut h
 --
 -- @since 0.1
 hPutNonBlocking ::
-  ( HandleWriter :> es,
+  ( CanWrite p,
+    HandleWriter :> es,
     HasCallStack
   ) =>
-  Handle ->
+  Handle p ->
   ByteString ->
   Eff es ByteString
 hPutNonBlocking h = send . HPutNonBlocking h
+
+-- | Attempts to exclusively lock a file, blocking or throwing an exception
+-- upon failure.
+--
+-- @since 0.1
+hLockRaw ::
+  ( CanWrite p,
+    HandleWriter :> es,
+    HasCallStack
+  ) =>
+  Handle p -> Eff es ()
+hLockRaw = send . HLockRaw
+
+-- | Attempts to exclusively lock a file.
+--
+-- @since 0.1
+hTryLockRaw ::
+  ( CanWrite p,
+    HandleWriter :> es,
+    HasCallStack
+  ) =>
+  Handle p -> Eff es Bool
+hTryLockRaw = send . HTryLockRaw
+
+-- | Unlocks a locked file.
+--
+-- @since 0.1
+hUnlockRaw ::
+  ( CanWrite p,
+    HandleWriter :> es,
+    HasCallStack
+  ) =>
+  Handle p -> Eff es ()
+hUnlockRaw = send . HUnlockRaw
+
+-- $locking
+--
+-- These functions bring some type-safety to file locking. Consider:
+--
+-- @
+-- main :: (HandleWriter :> es) => Eff es ()
+-- main = withBinaryFile path False $ \\h -> do
+--   hLockRaw handle
+--   bs <- writeBytes @HandleModeWrite h
+--   hUnlockRaw handle
+--   print bs
+--
+-- writeBytes :: (CanWrite p, HandleWriter :> es) => Handle p -> Eff es ByteString
+-- writeBytes handle = hPut handle "some bytes"
+-- @
+--
+-- In this example, we could remove all locking logic from @main@ and
+-- everything would still compile. On the other hand:
+--
+-- @
+-- main :: (HandleWriter :> es) => Eff es ()
+-- main = withBinaryFile path False $ \\h -> withLockedFile h $ \\lh -> do
+--   bs <- writeBytes @HandleModeWrite lh
+--   print bs
+--
+-- writeBytes :: (CanWrite p, HandleWriter :> es) => LockedHandle p -> Eff es ByteString
+-- writeBytes lockedHandle = liftLocked (\\h -\> hPut h "some bytes") lockedHandle
+-- @
+--
+-- Removing @withLockedFile@ would cause a compilation error, since @writeBytes@
+-- requires a @LockedHandle@. The idea is to write most of the program's
+-- logic in terms of @LockedHandle@, using @liftLocked@ to lift @Handle@
+-- functions.
+
+-- | Like 'hLockRaw', but returns a 'LockedHandle'.
+--
+-- @since 0.1
+hLock ::
+  ( CanWrite p,
+    HasCallStack,
+    HandleWriter :> es
+  ) =>
+  -- | Handle to lock.
+  Handle p ->
+  Eff es (LockedHandle p)
+hLock = Internal.liftLock hLockRaw
+
+-- | Like 'hTryLockRaw', but returns a 'LockedHandle' if it succeeds.
+--
+-- @since 0.1
+hTryLock ::
+  ( CanWrite p,
+    HasCallStack,
+    HandleWriter :> es
+  ) =>
+  -- | Handle to lock.
+  Handle p ->
+  Eff es (Maybe (LockedHandle p))
+hTryLock = Internal.liftTryLock hTryLockRaw
+
+-- | Like 'hUnlockRaw', but returns the original handle.
+--
+-- @since 0.1
+hUnlock ::
+  ( CanWrite p,
+    HasCallStack,
+    HandleWriter :> es
+  ) =>
+  -- | Handle to unlock.
+  LockedHandle p ->
+  Eff es (Handle p)
+hUnlock = Internal.liftUnlock hUnlockRaw
+
+-- | Runs a computation with an exclusively locked file.
+--
+-- @since 0.1
+withLockedFile ::
+  ( CanWrite p,
+    HasCallStack,
+    HandleWriter :> es
+  ) =>
+  -- | Handle to lock.
+  Handle p ->
+  -- | Callback with locked handle.
+  (LockedHandle p -> Eff es a) ->
+  Eff es a
+withLockedFile = Internal.withLockedFile hLockRaw hUnlockRaw
+
+-- | Like 'withSharedLockedFile', except the lock attempt does not block.
+--
+-- @since 0.1
+withTryLockedFile ::
+  forall p a es.
+  ( CanWrite p,
+    HasCallStack,
+    HandleWriter :> es
+  ) =>
+  -- | Handle to lock.
+  Handle p ->
+  -- | Handle callback.
+  (LockedHandle p -> Eff es a) ->
+  Eff es (Maybe a)
+withTryLockedFile = Internal.withTryLockedFile hTryLockRaw hUnlockRaw
+
+-- | 'withLockedFile' without 'LockedHandle'.
+--
+-- @since 0.1
+withLockedFileRaw ::
+  ( CanWrite p,
+    HasCallStack,
+    HandleWriter :> es
+  ) =>
+  -- | Handle to lock.
+  Handle p ->
+  -- | Callback with locked handle.
+  Eff es a ->
+  Eff es a
+withLockedFileRaw h = bracket_ (hLockRaw h) (hUnlockRaw h)
+
+-- | 'withTryLockedFileRaw' without 'LockedHandle'.
+--
+-- @since 0.1
+withTryLockedFileRaw ::
+  forall p a es.
+  ( CanWrite p,
+    HasCallStack,
+    HandleWriter :> es
+  ) =>
+  -- | Handle to lock.
+  Handle p ->
+  -- | Handle callback.
+  Eff es a ->
+  Eff es (Maybe a)
+withTryLockedFileRaw h m =
+  bracket
+    ( do
+        locked <- hTryLockRaw h
+        pure $
+          if locked
+            then Just ()
+            else Nothing
+    )
+    (traverse (const (hUnlockRaw h)))
+    (traverse (const m))
 
 -- | 'hPut' and 'FS.UTF8.encodeUtf8'.
 --
 -- @since 0.1
 hPutUtf8 ::
-  ( HandleWriter :> es,
+  ( CanWrite p,
+    HandleWriter :> es,
     HasCallStack
   ) =>
-  Handle ->
+  Handle p ->
   Text ->
   Eff es ()
 hPutUtf8 h = hPut h . FS.UTF8.encodeUtf8
@@ -271,10 +497,11 @@ hPutUtf8 h = hPut h . FS.UTF8.encodeUtf8
 --
 -- @since 0.1
 hPutNonBlockingUtf8 ::
-  ( HandleWriter :> es,
+  ( CanWrite p,
+    HandleWriter :> es,
     HasCallStack
   ) =>
-  Handle ->
+  Handle p ->
   Text ->
   Eff es ByteString
 hPutNonBlockingUtf8 h = hPutNonBlocking h . FS.UTF8.encodeUtf8
@@ -288,6 +515,6 @@ die ::
   ) =>
   String ->
   Eff es a
-die err = hPut IO.stderr err' *> exitFailure
+die err = hPut Handle.stderr err' *> exitFailure
   where
     err' = Char8.pack err

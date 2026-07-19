@@ -5,6 +5,7 @@ module Unit.PathReader (tests) where
 
 import Control.Exception.Utils (trySync)
 import Data.List qualified as L
+import Data.Set qualified as Set
 import Effectful (Eff, IOE)
 import Effectful.FileSystem.FileReader.Static qualified as FR
 import Effectful.FileSystem.FileWriter.Static qualified as FW
@@ -44,35 +45,43 @@ testListDirectoryRecursive :: TestTree
 testListDirectoryRecursive = testCase "Recursively lists sub-files/dirs" $ do
   (files, dirs) <-
     TestUtils.runTestEff $ PR.listDirectoryRecursive [osp|src|]
-  let (files', dirs') = (L.sort files, L.sort dirs)
+  let (files', dirs') = (Set.fromList files, Set.fromList dirs)
   expectedFiles @=? files'
   expectedDirs @=? dirs'
   where
     expectedFiles =
-      [ [osp|Effectful|] </> [osp|FileSystem|] </> [osp|FileReader|] </> [osp|Dynamic.hs|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|FileReader|] </> [osp|Static.hs|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|FileWriter|] </> [osp|Dynamic.hs|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|FileWriter|] </> [osp|Static.hs|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleReader|] </> [osp|Dynamic.hs|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleReader|] </> [osp|Static.hs|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleWriter|] </> [osp|Dynamic.hs|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleWriter|] </> [osp|Static.hs|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathReader|] </> [osp|Dynamic.hs|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathReader|] </> [osp|Static.hs|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathWriter|] </> [osp|Dynamic.hs|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathWriter|] </> [osp|Static.hs|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathWriter|] </> [osp|Utils.hs|]
-      ]
+      Set.fromList
+        [ [osp|Effectful|] </> [osp|FileSystem|] </> [osp|FileReader|] </> [osp|Dynamic.hs|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|FileReader|] </> [osp|Static.hs|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|FileWriter|] </> [osp|Dynamic.hs|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|FileWriter|] </> [osp|Static.hs|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|Handle.hs|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|Handle|] </> [osp|Internal.hs|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleRW|] </> [osp|Dynamic.hs|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleRW|] </> [osp|Static.hs|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleReader|] </> [osp|Dynamic.hs|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleReader|] </> [osp|Static.hs|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleWriter|] </> [osp|Dynamic.hs|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleWriter|] </> [osp|Static.hs|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathReader|] </> [osp|Dynamic.hs|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathReader|] </> [osp|Static.hs|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathWriter|] </> [osp|Dynamic.hs|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathWriter|] </> [osp|Static.hs|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathWriter|] </> [osp|Utils.hs|]
+        ]
     expectedDirs =
-      [ [osp|Effectful|],
-        [osp|Effectful|] </> [osp|FileSystem|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|FileReader|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|FileWriter|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleReader|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleWriter|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathReader|],
-        [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathWriter|]
-      ]
+      Set.fromList
+        [ [osp|Effectful|],
+          [osp|Effectful|] </> [osp|FileSystem|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|FileReader|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|FileWriter|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|Handle|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleRW|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleReader|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|HandleWriter|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathReader|],
+          [osp|Effectful|] </> [osp|FileSystem|] </> [osp|PathWriter|]
+        ]
 
 testListDirectoryRecursiveSymlinkTargets :: IO OsPath -> TestTree
 testListDirectoryRecursiveSymlinkTargets getTmpDir = testCase desc $ do
