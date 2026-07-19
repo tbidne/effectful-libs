@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html"><span class="hs-identifier">Effectful.FileSystem.HandleRW.Dynamic</span></a></span><span>
+</span><span id="line-2"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- * Effect</span></span><span>
+</span><span id="line-3"></span><span>    </span><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#HandleRW"><span class="hs-identifier">HandleRW</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-4"></span><span>    </span><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#openBinaryFile"><span class="hs-identifier">openBinaryFile</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-5"></span><span>    </span><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#withBinaryFile"><span class="hs-identifier">withBinaryFile</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-6"></span><span>
+</span><span id="line-7"></span><span>    </span><span class="annot"><span class="hs-comment">-- ** Handlers</span></span><span>
+</span><span id="line-8"></span><span>    </span><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#runHandleRW"><span class="hs-identifier">runHandleRW</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Reexports</span></span><span>
+</span><span id="line-11"></span><span>    </span><span class="annot"><span class="hs-identifier">ByteString</span></span><span class="hs-special">,</span><span>
+</span><span id="line-12"></span><span>    </span><span class="annot"><a href="Effectful.FileSystem.Handle.Internal.html#Handle"><span class="hs-identifier">Handle</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-13"></span><span>    </span><span class="annot"><a href="Effectful.FileSystem.Handle.Internal.html#HandleMode"><span class="hs-identifier">HandleMode</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.FileSystem.Handle.Internal.html#HandleModeReadWrite"><span class="hs-identifier">HandleModeReadWrite</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-14"></span><span>    </span><span class="annot"><span class="hs-identifier">OsPath</span></span><span class="hs-special">,</span><span>
+</span><span id="line-15"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-17"></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">ByteString</span></span><span class="hs-special">)</span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.html"><span class="hs-identifier">Effectful</span></a></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Env.html#Dispatch"><span class="hs-identifier">Dispatch</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Env.html#Dynamic"><span class="hs-identifier">Dynamic</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-21"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Env.html#DispatchOf"><span class="hs-identifier">DispatchOf</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-22"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier">Eff</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-23"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Effect.html#Effect"><span class="hs-identifier">Effect</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-24"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Monad.html#IOE"><span class="hs-identifier">IOE</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-25"></span><span>    </span><span class="hs-keyword">type</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator">(:&gt;)</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-26"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Dispatch.Dynamic.html"><span class="hs-identifier">Effectful.Dispatch.Dynamic</span></a></span><span>
+</span><span id="line-28"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-29"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Dispatch.Dynamic.html#localSeqUnlift"><span class="hs-identifier">localSeqUnlift</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-30"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Dispatch.Dynamic.html#reinterpret"><span class="hs-identifier">reinterpret</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-31"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier">send</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-33"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.3/effectful-utils-0.1/doc/html/effectful-utils/src/Effectful.Dynamic.Utils.html"><span class="hs-identifier">Effectful.Dynamic.Utils</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.3/effectful-utils-0.1/doc/html/effectful-utils/src/Effectful.Dynamic.Utils.html#ShowEffect"><span class="hs-identifier">ShowEffect</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.3/effectful-utils-0.1/doc/html/effectful-utils/src/Effectful.Dynamic.Utils.html#showEffectCons"><span class="hs-identifier">showEffectCons</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-34"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Effectful.FileSystem.Handle.Internal.html"><span class="hs-identifier">Effectful.FileSystem.Handle.Internal</span></a></span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Effectful.FileSystem.Handle.Internal.html#Handle"><span class="hs-identifier">Handle</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-36"></span><span>    </span><span class="annot"><a href="Effectful.FileSystem.Handle.Internal.html#HandleMode"><span class="hs-identifier">HandleMode</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.FileSystem.Handle.Internal.html#HandleModeReadWrite"><span class="hs-identifier">HandleModeReadWrite</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-37"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-38"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Effectful.FileSystem.HandleRW.Static.html"><span class="hs-identifier">Effectful.FileSystem.HandleRW.Static</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Static</span></span><span>
+</span><span id="line-39"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/fs-utils-0.1-bec33b8f6b3c49edfb54bd8518a80cbbfa11809ce9cf1267418765e2ed58604c/share/doc/html/src/FileSystem.OsPath.html"><span class="hs-identifier">FileSystem.OsPath</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">OsPath</span></span><span class="hs-special">)</span><span>
+</span><span id="line-40"></span><span>
+</span><span id="line-41"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-42"></span><span class="hs-keyword">type</span><span> </span><span class="hs-keyword">instance</span><span> </span><span id="DispatchOf"><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Env.html#DispatchOf"><span class="hs-identifier hs-var">DispatchOf</span></a></span></span><span> </span><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#HandleRW"><span class="hs-identifier hs-type">HandleRW</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Env.html#Dynamic"><span class="hs-identifier hs-type">Dynamic</span></a></span><span>
+</span><span id="line-43"></span><span>
+</span><span id="line-44"></span><span class="hs-comment">-- | Dynamic effect for writing to a handle.</span><span>
+</span><span id="line-45"></span><span class="hs-comment">--</span><span>
+</span><span id="line-46"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-47"></span><span class="hs-keyword">data</span><span> </span><span id="HandleRW"><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#HandleRW"><span class="hs-identifier hs-var">HandleRW</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Effect.html#Effect"><span class="hs-identifier hs-type">Effect</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-48"></span><span>  </span><span id="local-6989586621679122300"><span id="OpenBinaryFile"><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#OpenBinaryFile"><span class="hs-identifier hs-var">OpenBinaryFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">OsPath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#HandleRW"><span class="hs-identifier hs-type">HandleRW</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679122300"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.FileSystem.Handle.Internal.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span> </span><span class="annot"><a href="Effectful.FileSystem.Handle.Internal.html#HandleModeReadWrite"><span class="hs-identifier hs-type">HandleModeReadWrite</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-49"></span><span>  </span><span id="local-6989586621679122305"><span id="local-6989586621679122306"><span id="WithBinaryFile"><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#WithBinaryFile"><span class="hs-identifier hs-var">WithBinaryFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">OsPath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.FileSystem.Handle.Internal.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span> </span><span class="annot"><a href="Effectful.FileSystem.Handle.Internal.html#HandleModeReadWrite"><span class="hs-identifier hs-type">HandleModeReadWrite</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679122305"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679122306"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#HandleRW"><span class="hs-identifier hs-type">HandleRW</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679122305"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679122306"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-50"></span><span>
+</span><span id="line-51"></span><span class="annot"><span class="hs-comment">-- | @since 0.1</span></span><span>
+</span><span id="line-52"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="file:///home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.3/effectful-utils-0.1/doc/html/effectful-utils/src/Effectful.Dynamic.Utils.html#ShowEffect"><span class="hs-identifier hs-type">ShowEffect</span></a></span><span> </span><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#HandleRW"><span class="hs-identifier hs-type">HandleRW</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-53"></span><span>  </span><span id="local-6989586621679122322"><span class="annot"><span class="annottext">showEffectCons :: forall (m :: * -&gt; *) a. HandleRW m a -&gt; String
+</span><a href="file:///home/tommy/Dev/tommy/github/effectful-libs/dist-newstyle/build/x86_64-linux/ghc-9.12.3/effectful-utils-0.1/doc/html/effectful-utils/src/Effectful.Dynamic.Utils.html#showEffectCons"><span class="hs-identifier hs-var hs-var hs-var">showEffectCons</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-54"></span><span>    </span><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#OpenBinaryFile"><span class="hs-identifier hs-type">OpenBinaryFile</span></a></span><span> </span><span class="annot"><span class="annottext">OsPath
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;OpenBinaryFile&quot;</span></span><span>
+</span><span id="line-55"></span><span>    </span><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#WithBinaryFile"><span class="hs-identifier hs-type">WithBinaryFile</span></a></span><span> </span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;WithBinaryFile&quot;</span></span><span>
+</span><span id="line-56"></span><span>
+</span><span id="line-57"></span><span class="hs-comment">-- | Runs 'HandleRW' in 'IO'.</span><span>
+</span><span id="line-58"></span><span class="hs-comment">--</span><span>
+</span><span id="line-59"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-60"></span><span id="local-6989586621679122251"><span id="local-6989586621679122253"><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#runHandleRW"><span class="hs-identifier hs-type">runHandleRW</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-61"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span class="hs-special">,</span><span>
+</span><span id="line-62"></span><span>    </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Monad.html#IOE"><span class="hs-identifier hs-type">IOE</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679122251"><span class="hs-identifier hs-type">es</span></a></span><span>
+</span><span id="line-63"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-64"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#HandleRW"><span class="hs-identifier hs-type">HandleRW</span></a></span><span> </span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span> </span><span class="annot"><a href="#local-6989586621679122251"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621679122253"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-65"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679122251"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679122253"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-66"></span><span id="runHandleRW"><span class="annot"><span class="annottext">runHandleRW :: forall (es :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+(HasCallStack, IOE :&gt; es) =&gt;
+Eff (HandleRW : es) a -&gt; Eff es a
+</span><a href="Effectful.FileSystem.HandleRW.Dynamic.html#runHandleRW"><span class="hs-identifier hs-var hs-var">runHandleRW</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Eff (HandleRW : es) a -&gt; Eff es a)
+-&gt; EffectHandler HandleRW (HandleRW : es)
+-&gt; Eff (HandleRW : es) a
+-&gt; Eff es a
+forall (e :: (* -&gt; *) -&gt; * -&gt; *)
+       (handlerEs :: [(* -&gt; *) -&gt; * -&gt; *]) a (es :: [(* -&gt; *) -&gt; * -&gt; *])
+       b.
+(HasCallStack, DispatchOf e ~ 'Dynamic) =&gt;
+(Eff handlerEs a -&gt; Eff es b)
+-&gt; EffectHandler e handlerEs -&gt; Eff (e : es) a -&gt; Eff es b
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Dispatch.Dynamic.html#reinterpret"><span class="hs-identifier hs-var">reinterpret</span></a></span><span> </span><span class="annot"><span class="annottext">Eff (HandleRW : es) a -&gt; Eff es a
+forall (es :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+(HasCallStack, IOE :&gt; es) =&gt;
+Eff (HandleRW : es) a -&gt; Eff es a
+</span><a href="Effectful.FileSystem.HandleRW.Static.html#runHandleRW"><span class="hs-identifier hs-var">Static.runHandleRW</span></a></span><span> </span><span class="annot"><span class="annottext">(EffectHandler HandleRW (HandleRW : es)
+ -&gt; Eff (HandleRW : es) a -&gt; Eff es a)
+-&gt; EffectHandler HandleRW (HandleRW : es)
+-&gt; Eff (HandleRW : es) a
+-&gt; Eff es a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679122344"><span class="annot"><span class="annottext">LocalEnv localEs (HandleRW : es)
+</span><a href="#local-6989586621679122344"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-67"></span><span>  </span><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#OpenBinaryFile"><span class="hs-identifier hs-type">OpenBinaryFile</span></a></span><span> </span><span id="local-6989586621679122349"><span class="annot"><span class="annottext">OsPath
+</span><a href="#local-6989586621679122349"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">OsPath -&gt; Eff (HandleRW : es) (Handle 'HandleModeReadWrite)
+forall (es :: [(* -&gt; *) -&gt; * -&gt; *]).
+(HandleRW :&gt; es, HasCallStack) =&gt;
+OsPath -&gt; Eff es (Handle 'HandleModeReadWrite)
+</span><a href="Effectful.FileSystem.HandleRW.Static.html#openBinaryFile"><span class="hs-identifier hs-var">Static.openBinaryFile</span></a></span><span> </span><span class="annot"><span class="annottext">OsPath
+</span><a href="#local-6989586621679122349"><span class="hs-identifier hs-var">p</span></a></span><span>
+</span><span id="line-68"></span><span>  </span><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#WithBinaryFile"><span class="hs-identifier hs-type">WithBinaryFile</span></a></span><span> </span><span id="local-6989586621679122351"><span class="annot"><span class="annottext">OsPath
+</span><a href="#local-6989586621679122351"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621679122352"><span class="annot"><span class="annottext">Handle 'HandleModeReadWrite -&gt; Eff localEs a
+</span><a href="#local-6989586621679122352"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LocalEnv localEs (HandleRW : es)
+-&gt; ((forall r. Eff localEs r -&gt; Eff (HandleRW : es) r)
+    -&gt; Eff (HandleRW : es) a)
+-&gt; Eff (HandleRW : es) a
+forall (es :: [(* -&gt; *) -&gt; * -&gt; *])
+       (handlerEs :: [(* -&gt; *) -&gt; * -&gt; *])
+       (localEs :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+(HasCallStack, SharedSuffix es handlerEs) =&gt;
+LocalEnv localEs handlerEs
+-&gt; ((forall r. Eff localEs r -&gt; Eff es r) -&gt; Eff es a) -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Dispatch.Dynamic.html#localSeqUnlift"><span class="hs-identifier hs-var">localSeqUnlift</span></a></span><span> </span><span class="annot"><span class="annottext">LocalEnv localEs (HandleRW : es)
+</span><a href="#local-6989586621679122344"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="annot"><span class="annottext">(((forall r. Eff localEs r -&gt; Eff (HandleRW : es) r)
+  -&gt; Eff (HandleRW : es) a)
+ -&gt; Eff (HandleRW : es) a)
+-&gt; ((forall r. Eff localEs r -&gt; Eff (HandleRW : es) r)
+    -&gt; Eff (HandleRW : es) a)
+-&gt; Eff (HandleRW : es) a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621679122353"><span class="annot"><span class="annottext">forall r. Eff localEs r -&gt; Eff (HandleRW : es) r
+</span><a href="#local-6989586621679122353"><span class="hs-identifier hs-var">unlift</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-69"></span><span>    </span><span class="annot"><span class="annottext">OsPath
+-&gt; (Handle 'HandleModeReadWrite -&gt; Eff (HandleRW : es) a)
+-&gt; Eff (HandleRW : es) a
+forall (es :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+(HandleRW :&gt; es, HasCallStack) =&gt;
+OsPath -&gt; (Handle 'HandleModeReadWrite -&gt; Eff es a) -&gt; Eff es a
+</span><a href="Effectful.FileSystem.HandleRW.Static.html#withBinaryFile"><span class="hs-identifier hs-var">Static.withBinaryFile</span></a></span><span> </span><span class="annot"><span class="annottext">OsPath
+</span><a href="#local-6989586621679122351"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Eff localEs a -&gt; Eff (HandleRW : es) a
+forall r. Eff localEs r -&gt; Eff (HandleRW : es) r
+</span><a href="#local-6989586621679122353"><span class="hs-identifier hs-var">unlift</span></a></span><span> </span><span class="annot"><span class="annottext">(Eff localEs a -&gt; Eff (HandleRW : es) a)
+-&gt; (Handle 'HandleModeReadWrite -&gt; Eff localEs a)
+-&gt; Handle 'HandleModeReadWrite
+-&gt; Eff (HandleRW : es) a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">Handle 'HandleModeReadWrite -&gt; Eff localEs a
+</span><a href="#local-6989586621679122352"><span class="hs-identifier hs-var">f</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-70"></span><span>
+</span><span id="line-71"></span><span class="hs-comment">-- | Lifted 'IO.openBinaryFile'.</span><span>
+</span><span id="line-72"></span><span class="hs-comment">--</span><span>
+</span><span id="line-73"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-74"></span><span id="local-6989586621679122295"><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#openBinaryFile"><span class="hs-identifier hs-type">openBinaryFile</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-75"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#HandleRW"><span class="hs-identifier hs-type">HandleRW</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679122295"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-76"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span>
+</span><span id="line-77"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-78"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">OsPath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-79"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679122295"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.FileSystem.Handle.Internal.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span> </span><span class="annot"><a href="Effectful.FileSystem.Handle.Internal.html#HandleModeReadWrite"><span class="hs-identifier hs-type">HandleModeReadWrite</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-80"></span><span id="openBinaryFile"><span class="annot"><span class="annottext">openBinaryFile :: forall (es :: [(* -&gt; *) -&gt; * -&gt; *]).
+(HandleRW :&gt; es, HasCallStack) =&gt;
+OsPath -&gt; Eff es (Handle 'HandleModeReadWrite)
+</span><a href="Effectful.FileSystem.HandleRW.Dynamic.html#openBinaryFile"><span class="hs-identifier hs-var hs-var">openBinaryFile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">HandleRW (Eff es) (Handle 'HandleModeReadWrite)
+-&gt; Eff es (Handle 'HandleModeReadWrite)
+forall (e :: (* -&gt; *) -&gt; * -&gt; *) (es :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(HandleRW (Eff es) (Handle 'HandleModeReadWrite)
+ -&gt; Eff es (Handle 'HandleModeReadWrite))
+-&gt; (OsPath -&gt; HandleRW (Eff es) (Handle 'HandleModeReadWrite))
+-&gt; OsPath
+-&gt; Eff es (Handle 'HandleModeReadWrite)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">OsPath -&gt; HandleRW (Eff es) (Handle 'HandleModeReadWrite)
+forall (m :: * -&gt; *).
+OsPath -&gt; HandleRW m (Handle 'HandleModeReadWrite)
+</span><a href="Effectful.FileSystem.HandleRW.Dynamic.html#OpenBinaryFile"><span class="hs-identifier hs-var">OpenBinaryFile</span></a></span><span>
+</span><span id="line-81"></span><span>
+</span><span id="line-82"></span><span class="hs-comment">-- | Lifted 'IO.openBinaryFile'.</span><span>
+</span><span id="line-83"></span><span class="hs-comment">--</span><span>
+</span><span id="line-84"></span><span class="hs-comment">-- @since 0.1</span><span>
+</span><span id="line-85"></span><span id="local-6989586621679122301"><span id="local-6989586621679122302"><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#withBinaryFile"><span class="hs-identifier hs-type">withBinaryFile</span></a></span><span> </span><span class="hs-glyph">::</span><span>
+</span><span id="line-86"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Effectful.FileSystem.HandleRW.Dynamic.html#HandleRW"><span class="hs-identifier hs-type">HandleRW</span></a></span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Effect.html#%3A%3E"><span class="hs-operator hs-type">:&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679122301"><span class="hs-identifier hs-type">es</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-87"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">HasCallStack</span></span><span>
+</span><span id="line-88"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span>
+</span><span id="line-89"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">OsPath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-90"></span><span>  </span><span class="hs-special">(</span><span class="annot"><a href="Effectful.FileSystem.Handle.Internal.html#Handle"><span class="hs-identifier hs-type">Handle</span></a></span><span> </span><span class="annot"><a href="Effectful.FileSystem.Handle.Internal.html#HandleModeReadWrite"><span class="hs-identifier hs-type">HandleModeReadWrite</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679122301"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679122302"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-91"></span><span>  </span><span class="annot"><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Monad.html#Eff"><span class="hs-identifier hs-type">Eff</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679122301"><span class="hs-identifier hs-type">es</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679122302"><span class="hs-identifier hs-type">a</span></a></span></span></span><span>
+</span><span id="line-92"></span><span id="withBinaryFile"><span class="annot"><span class="annottext">withBinaryFile :: forall (es :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+(HandleRW :&gt; es, HasCallStack) =&gt;
+OsPath -&gt; (Handle 'HandleModeReadWrite -&gt; Eff es a) -&gt; Eff es a
+</span><a href="Effectful.FileSystem.HandleRW.Dynamic.html#withBinaryFile"><span class="hs-identifier hs-var hs-var">withBinaryFile</span></a></span></span><span> </span><span id="local-6989586621679122370"><span class="annot"><span class="annottext">OsPath
+</span><a href="#local-6989586621679122370"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">HandleRW (Eff es) a -&gt; Eff es a
+forall (e :: (* -&gt; *) -&gt; * -&gt; *) (es :: [(* -&gt; *) -&gt; * -&gt; *]) a.
+(HasCallStack, DispatchOf e ~ 'Dynamic, e :&gt; es) =&gt;
+e (Eff es) a -&gt; Eff es a
+</span><a href="file:///home/tommy/.local/state/cabal/store/ghc-9.12.3-2625/effectful-core-2.6.1.0-49d012e33a40e3ae8738a6627a0df2ddec1dad807a30f65755927e8d9fa2391d/share/doc/html/src/Effectful.Internal.Monad.html#send"><span class="hs-identifier hs-var">send</span></a></span><span> </span><span class="annot"><span class="annottext">(HandleRW (Eff es) a -&gt; Eff es a)
+-&gt; ((Handle 'HandleModeReadWrite -&gt; Eff es a)
+    -&gt; HandleRW (Eff es) a)
+-&gt; (Handle 'HandleModeReadWrite -&gt; Eff es a)
+-&gt; Eff es a
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><span class="hs-operator hs-var">.</span></span><span> </span><span class="annot"><span class="annottext">OsPath
+-&gt; (Handle 'HandleModeReadWrite -&gt; Eff es a) -&gt; HandleRW (Eff es) a
+forall (m :: * -&gt; *) a.
+OsPath -&gt; (Handle 'HandleModeReadWrite -&gt; m a) -&gt; HandleRW m a
+</span><a href="Effectful.FileSystem.HandleRW.Dynamic.html#WithBinaryFile"><span class="hs-identifier hs-var">WithBinaryFile</span></a></span><span> </span><span class="annot"><span class="annottext">OsPath
+</span><a href="#local-6989586621679122370"><span class="hs-identifier hs-var">p</span></a></span><span>
+</span><span id="line-93"></span></pre></body></html>
