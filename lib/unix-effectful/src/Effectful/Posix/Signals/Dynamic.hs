@@ -20,6 +20,18 @@ module Effectful.Posix.Signals.Dynamic
 
     -- ** Handler
     runPosixSignals,
+
+    -- * Posix Handler
+    Handler (..),
+    Handler.mapHandler,
+    Handler.handlerToPosix,
+    Handler.handlerFromPosix,
+
+    -- * Re-exports
+    Signal,
+    SignalSet,
+    ProcessID,
+    ProcessGroupID,
   )
 where
 
