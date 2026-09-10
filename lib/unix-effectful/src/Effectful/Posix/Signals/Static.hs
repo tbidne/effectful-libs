@@ -26,8 +26,9 @@ module Effectful.Posix.Signals.Static
     -- * Posix Handler
     Handler (..),
     Handler.mapHandler,
-    Handler.handlerToPosix,
-    Handler.handlerFromPosix,
+    Handler.PosixHandler,
+    Handler.mapHandlerToPosix,
+    Handler.mapHandlerFromPosix,
 
     -- * Re-exports
     Signal,
@@ -54,7 +55,16 @@ import Effectful.Dispatch.Static
     unsafeEff,
     unsafeEff_,
   )
-import Effectful.Posix.Signals.Handler (Handler)
+import Effectful.Posix.Signals.Handler
+  ( Handler
+      ( Catch,
+        CatchInfo,
+        CatchInfoOnce,
+        CatchOnce,
+        Default,
+        Ignore
+      ),
+  )
 import Effectful.Posix.Signals.Handler qualified as Handler
 import System.Posix.Signals (Signal, SignalSet)
 import System.Posix.Signals qualified as Signals
@@ -74,6 +84,7 @@ data instance StaticRep PosixSignals = MkPosixSignals
 -- @since 0.1
 runPosixSignals ::
   (HasCallStack, IOE :> es) =>
+  -- | .
   Eff (PosixSignals : es) a ->
   Eff es a
 runPosixSignals = evalStaticRep MkPosixSignals
@@ -85,6 +96,7 @@ raiseSignal ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Signal ->
   Eff es ()
 raiseSignal = unsafeEff_ . Signals.raiseSignal
@@ -96,6 +108,7 @@ signalProcess ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Signal ->
   ProcessID ->
   Eff es ()
@@ -108,6 +121,7 @@ signalProcessGroup ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Signal ->
   ProcessGroupID ->
   Eff es ()
@@ -120,6 +134,7 @@ installHandler ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Signal ->
   Handler (Eff es) ->
   Maybe SignalSet ->
@@ -127,10 +142,9 @@ installHandler ::
 installHandler s h ms =
   -- See NOTE: [installHandler concurrency]
   unsafeEff $ \env -> concUnliftIO env Handler.persistence Handler.limit $ \runInIO ->
-    fmap (Handler.mapHandler unsafeEff_ . Handler.handlerFromPosix)
+    fmap (Handler.mapHandlerFromPosix unsafeEff_)
       . (\x -> Signals.installHandler s x ms)
-      . Handler.handlerToPosix
-      . Handler.mapHandler runInIO
+      . Handler.mapHandlerToPosix runInIO
       $ h
 
 -- | Lifted 'Signals.getSignalMask'.
@@ -140,6 +154,7 @@ getSignalMask ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Eff es SignalSet
 getSignalMask = unsafeEff_ Signals.getSignalMask
 
@@ -150,6 +165,7 @@ setSignalMask ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   SignalSet ->
   Eff es ()
 setSignalMask = unsafeEff_ . Signals.setSignalMask
@@ -161,6 +177,7 @@ blockSignals ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   SignalSet ->
   Eff es ()
 blockSignals = unsafeEff_ . Signals.blockSignals
@@ -172,6 +189,7 @@ unblockSignals ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   SignalSet ->
   Eff es ()
 unblockSignals = unsafeEff_ . Signals.unblockSignals
@@ -183,6 +201,7 @@ scheduleAlarm ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Int ->
   Eff es Int
 scheduleAlarm = unsafeEff_ . Signals.scheduleAlarm
@@ -194,6 +213,7 @@ getPendingSignals ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Eff es SignalSet
 getPendingSignals = unsafeEff_ Signals.getPendingSignals
 
@@ -204,6 +224,7 @@ awaitSignal ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Maybe SignalSet ->
   Eff es ()
 awaitSignal = unsafeEff_ . Signals.awaitSignal
@@ -215,6 +236,7 @@ setStoppedChildFlag ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Bool ->
   Eff es Bool
 setStoppedChildFlag = unsafeEff_ . Signals.setStoppedChildFlag
@@ -226,5 +248,6 @@ queryStoppedChildFlag ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Eff es Bool
 queryStoppedChildFlag = unsafeEff_ Signals.queryStoppedChildFlag

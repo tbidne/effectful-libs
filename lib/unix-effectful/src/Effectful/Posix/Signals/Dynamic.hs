@@ -24,8 +24,9 @@ module Effectful.Posix.Signals.Dynamic
     -- * Posix Handler
     Handler (..),
     Handler.mapHandler,
-    Handler.handlerToPosix,
-    Handler.handlerFromPosix,
+    Handler.PosixHandler,
+    Handler.mapHandlerToPosix,
+    Handler.mapHandlerFromPosix,
 
     -- * Re-exports
     Signal,
@@ -46,15 +47,25 @@ import Effectful
   )
 import Effectful.Dispatch.Dynamic
   ( HasCallStack,
-    localLiftUnlift,
+    localLiftUnliftIO,
     reinterpret,
     send,
   )
 import Effectful.Dynamic.Utils (ShowEffect (showEffectCons))
-import Effectful.Posix.Signals.Handler (Handler)
+import Effectful.Posix.Signals.Handler
+  ( Handler
+      ( Catch,
+        CatchInfo,
+        CatchInfoOnce,
+        CatchOnce,
+        Default,
+        Ignore
+      ),
+  )
 import Effectful.Posix.Signals.Handler qualified as Handler
 import Effectful.Posix.Signals.Static qualified as Static
 import System.Posix.Signals (Signal, SignalSet)
+import System.Posix.Signals qualified as Signals
 import System.Posix.Types (ProcessGroupID, ProcessID)
 
 -- | Dynamic effect for "System.Posix.Files".
@@ -101,6 +112,7 @@ instance ShowEffect PosixSignals where
 runPosixSignals ::
   forall es a.
   (HasCallStack, IOE :> es) =>
+  -- | .
   Eff (PosixSignals : es) a ->
   Eff es a
 runPosixSignals = reinterpret Static.runPosixSignals $ \env -> \case
@@ -109,15 +121,33 @@ runPosixSignals = reinterpret Static.runPosixSignals $ \env -> \case
   SignalProcessGroup x1 x2 -> Static.signalProcessGroup x1 x2
   InstallHandler s h ms ->
     -- The IO installHandler runs the handler in a new thread, hence we
-    -- need the concurrent strategy. Curiously, we need the concurrent
-    -- strategy both here /and/ in the static handler, or we will receive
-    -- an effectful runtime exception.
+    -- need the concurrent strategy.
+    --
+    -- Notice that we do /not/ use the Static impl but instead use the
+    -- underlying IO directly. We do this to save Handler traversals
+    -- i.e. each runner needs to convert to/from the Handler type here to the
+    -- posix Handler.
+    --
+    -- That is, we /could/ re-use the static impl here, using
+    --
+    --   (localLiftUnlift, mapHandler lift, mapHandler unlift)
+    --
+    -- instead of
+    --
+    --   (localLiftUnliftIO, mapHandlerFromPosix lift, mapHandlerToPosix unlift)
+    --
+    -- But then we would be traversing the Handler type 4 times (2 here,
+    -- 2 in static) vs. just 2 here.
+    --
+    -- Curiously, even if we re-use the static handler, we still need to
+    -- use the concurrent strategy here, or we will receive an effectful
+    -- runtime exception.
     --
     -- See NOTE: [installHandler concurrency].
-    localLiftUnlift env (ConcUnlift Handler.persistence Handler.limit) $ \lift unlift ->
-      fmap (Handler.mapHandler lift)
-        . (\h' -> Static.installHandler s h' ms)
-        . Handler.mapHandler unlift
+    localLiftUnliftIO env (ConcUnlift Handler.persistence Handler.limit) $ \lift unlift ->
+      fmap (Handler.mapHandlerFromPosix lift)
+        . (\x -> Signals.installHandler s x ms)
+        . Handler.mapHandlerToPosix unlift
         $ h
   GetSignalMask -> Static.getSignalMask
   SetSignalMask x1 -> Static.setSignalMask x1
@@ -136,6 +166,7 @@ raiseSignal ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Signal ->
   Eff es ()
 raiseSignal = send . RaiseSignal
@@ -147,6 +178,7 @@ signalProcess ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Signal ->
   ProcessID ->
   Eff es ()
@@ -159,6 +191,7 @@ signalProcessGroup ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Signal ->
   ProcessGroupID ->
   Eff es ()
@@ -171,6 +204,7 @@ installHandler ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Signal ->
   Handler (Eff es) ->
   Maybe SignalSet ->
@@ -184,6 +218,7 @@ getSignalMask ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Eff es SignalSet
 getSignalMask = send GetSignalMask
 
@@ -205,6 +240,7 @@ blockSignals ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   SignalSet ->
   Eff es ()
 blockSignals = send . BlockSignals
@@ -216,6 +252,7 @@ unblockSignals ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   SignalSet ->
   Eff es ()
 unblockSignals = send . UnblockSignals
@@ -227,6 +264,7 @@ scheduleAlarm ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Int ->
   Eff es Int
 scheduleAlarm = send . ScheduleAlarm
@@ -238,6 +276,7 @@ getPendingSignals ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Eff es SignalSet
 getPendingSignals = send GetPendingSignals
 
@@ -248,6 +287,7 @@ awaitSignal ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Maybe SignalSet ->
   Eff es ()
 awaitSignal = send . AwaitSignal
@@ -259,6 +299,7 @@ setStoppedChildFlag ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Bool ->
   Eff es Bool
 setStoppedChildFlag = send . SetStoppedChildFlag
@@ -270,5 +311,6 @@ queryStoppedChildFlag ::
   ( HasCallStack,
     PosixSignals :> es
   ) =>
+  -- | .
   Eff es Bool
 queryStoppedChildFlag = send QueryStoppedChildFlag
