@@ -49,8 +49,8 @@ import Effectful.Dispatch.Static
   ( HasCallStack,
     SideEffects (WithSideEffects),
     StaticRep,
+    concUnliftIO,
     evalStaticRep,
-    seqUnliftIO,
     unsafeEff,
     unsafeEff_,
   )
@@ -125,7 +125,8 @@ installHandler ::
   Maybe SignalSet ->
   Eff es (Handler (Eff es))
 installHandler s h ms =
-  unsafeEff $ \env -> seqUnliftIO env $ \runInIO ->
+  -- See NOTE: [installHandler concurrency]
+  unsafeEff $ \env -> concUnliftIO env Handler.persistence Handler.limit $ \runInIO ->
     fmap (Handler.mapHandler unsafeEff_ . Handler.handlerFromPosix)
       . (\x -> Signals.installHandler s x ms)
       . Handler.handlerToPosix

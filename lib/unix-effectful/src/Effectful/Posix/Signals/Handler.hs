@@ -3,9 +3,14 @@ module Effectful.Posix.Signals.Handler
     mapHandler,
     handlerToPosix,
     handlerFromPosix,
+
+    -- * Concurrency strategy
+    persistence,
+    limit,
   )
 where
 
+import Effectful (Limit (Unlimited), Persistence (Ephemeral))
 import System.Posix.Signals (SignalInfo)
 import System.Posix.Signals qualified as Signals
 
@@ -47,3 +52,29 @@ handlerFromPosix = \case
   Signals.CatchOnce x -> CatchOnce x
   Signals.CatchInfo x -> CatchInfo x
   Signals.CatchInfoOnce x -> CatchInfoOnce x
+
+-- NOTE: [installHandler concurrency]
+--
+-- We /cannot/ use the sequential unlifting strategy for installHandler,
+-- because the handler action might be invoked from a new thread (e.g. Catch).
+--
+-- A real-life bug was observed when this installHandler used seqUnliftIO,
+-- and the action threw an Exception to another thread. I am unsure if the
+-- action matters (e.g. trying with 'pure ()' would be interesting).
+--
+-- Regarding the strategy:
+--
+-- - Persistence: Persistent/Ephemeral matters when the unlifting function
+--   is called multiple times /in the same thread/. Persistent persists
+--   state changes, Ephemeral does not.
+--
+--   In the absence of a compelling example, let's default to Ephemeral.
+--
+-- - Limit: Anecdotally, usage seems to work with 'Limited 1', but we
+--   will allow Unlimited, out of an abundance of caution.
+
+persistence :: Persistence
+persistence = Ephemeral
+
+limit :: Limit
+limit = Unlimited

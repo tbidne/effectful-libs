@@ -41,7 +41,7 @@ import Effectful
     Eff,
     Effect,
     IOE,
-    UnliftStrategy (SeqUnlift),
+    UnliftStrategy (ConcUnlift),
     type (:>),
   )
 import Effectful.Dispatch.Dynamic
@@ -108,7 +108,13 @@ runPosixSignals = reinterpret Static.runPosixSignals $ \env -> \case
   SignalProcess x1 x2 -> Static.signalProcess x1 x2
   SignalProcessGroup x1 x2 -> Static.signalProcessGroup x1 x2
   InstallHandler s h ms ->
-    localLiftUnlift env SeqUnlift $ \lift unlift ->
+    -- The IO installHandler runs the handler in a new thread, hence we
+    -- need the concurrent strategy. Curiously, we need the concurrent
+    -- strategy both here /and/ in the static handler, or we will receive
+    -- an effectful runtime exception.
+    --
+    -- See NOTE: [installHandler concurrency].
+    localLiftUnlift env (ConcUnlift Handler.persistence Handler.limit) $ \lift unlift ->
       fmap (Handler.mapHandler lift)
         . (\h' -> Static.installHandler s h' ms)
         . Handler.mapHandler unlift
