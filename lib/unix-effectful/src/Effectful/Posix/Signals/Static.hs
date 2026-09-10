@@ -43,14 +43,16 @@ import Effectful
     Eff,
     Effect,
     IOE,
+    Limit (Unlimited),
+    Persistence (Ephemeral),
     type (:>),
   )
 import Effectful.Dispatch.Static
   ( HasCallStack,
     SideEffects (WithSideEffects),
     StaticRep,
+    concUnliftIO,
     evalStaticRep,
-    seqUnliftIO,
     unsafeEff,
     unsafeEff_,
   )
@@ -125,12 +127,38 @@ installHandler ::
   Maybe SignalSet ->
   Eff es (Handler (Eff es))
 installHandler s h ms =
-  unsafeEff $ \env -> seqUnliftIO env $ \runInIO ->
+  unsafeEff $ \env -> concUnliftIO env persist limit $ \runInIO ->
     fmap (Handler.mapHandler unsafeEff_ . Handler.handlerFromPosix)
       . (\x -> Signals.installHandler s x ms)
       . Handler.handlerToPosix
       . Handler.mapHandler runInIO
       $ h
+  where
+    -- NOTE: [installHandler concurrency]
+    --
+    -- We /cannot/ use the sequential unlifting strategy here, because the
+    -- handler action might be invoked from a new thread (e.g. Catch).
+    --
+    -- A real-life bug was observed when this installHandler used
+    -- seqUnliftIO, and the action threw an Exception to another thread
+    -- (the action was probably irrelevant, as the real IO installHandler
+    -- runs in a separate thread anyway, which is probably enough to trigger
+    -- the effectful exception).
+    --
+    -- Regarding the strategy:
+    --
+    -- - Persistence: Persistent/Ephemeral matters when the unlifting function
+    --   is called multiple times /in the same thread/. Persistent persists
+    --   state changes, Ephemeral does not.
+    --
+    --   I /believe/ the unlifting function will only be called once, when
+    --   installing the handler, hence we should not have to worry about
+    --   persisting multiple changes in the same thread.
+    --
+    -- - Limit: Anecdotally, usage seems to work with 'Limited 1', but we
+    --   will allow Unlimited, out of an abundance of caution.
+    persist = Ephemeral
+    limit = Unlimited
 
 -- | Lifted 'Signals.getSignalMask'.
 --
